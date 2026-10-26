@@ -1,0 +1,1435 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Лекція 1 · ІТ у цифровій економіці</title>
+
+<!-- Шрифти з підтримкою кирилиці -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;700;800&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+/* =========================================================
+   ТЕМА — змінюйте кольори й шрифти тут
+   ========================================================= */
+:root {
+  --bg:            #060913;
+  --bg-2:          #0d1430;
+  --surface:       rgba(22, 30, 60, 0.55);
+  --border:        rgba(140, 165, 255, 0.16);
+  --border-strong: rgba(140, 165, 255, 0.34);
+  --text:          #eaf0ff;
+  --muted:         #93a0c8;
+  --dim:           #5a6690;
+  --accent:        #5b8cff;   /* синій — основний акцент */
+  --accent-2:      #2fe0c0;   /* м’ятний — позитивний результат */
+  --warm:          #ffb84d;   /* бурштин — увага, числа */
+  --danger:        #ff6b81;   /* помилки, ризики */
+
+  --font-display: 'Unbounded', sans-serif;
+  --font-body:    'Manrope', sans-serif;
+  --font-mono:    'JetBrains Mono', monospace;
+
+  --radius: 20px;
+}
+
+/* =========================================================
+   БАЗА + МАСШТАБУВАННЯ ПОЛОТНА 1280×720
+   ========================================================= */
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; height: 100%; overflow: hidden;
+  background: var(--bg); color: var(--text);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+.stage {
+  position: fixed; width: 1280px; height: 720px; overflow: hidden;
+  background: radial-gradient(ellipse 80% 70% at 72% 18%, var(--bg-2) 0%, var(--bg) 70%);
+}
+
+/* =========================================================
+   ФОНОВІ ПАРАЛАКС-ШАРИ (спільні для всіх слайдів)
+   ========================================================= */
+.bg { position: absolute; inset: 0; pointer-events: none; }
+.stars { position: absolute; left: -80px; top: -60px; width: 1440px; height: 2800px; }
+.stars i { position: absolute; left: 0; top: 0; display: block; border-radius: 50%; }
+.stars.far i { width: 1px; height: 1px; }
+.stars.mid i { width: 2px; height: 2px; }
+.orb {
+  position: absolute; border-radius: 50%; filter: blur(70px); opacity: .55;
+}
+.orb.o1 { width: 520px; height: 520px; left: 640px; top: -160px; background: radial-gradient(circle, rgba(91,140,255,.55), transparent 65%); }
+.orb.o2 { width: 440px; height: 440px; left: -120px; top: 380px; background: radial-gradient(circle, rgba(47,224,192,.35), transparent 65%); }
+.orb.o3 { width: 300px; height: 300px; left: 420px; top: 260px; background: radial-gradient(circle, rgba(255,184,77,.16), transparent 65%); }
+.floor-wrap {
+  position: absolute; left: -30%; right: -30%; bottom: 0; height: 260px;
+  perspective: 380px; perspective-origin: 50% 0%;
+  -webkit-mask-image: linear-gradient(to top, rgba(0,0,0,.9), transparent 55%);
+          mask-image: linear-gradient(to top, rgba(0,0,0,.9), transparent 55%);
+  opacity: .32;
+}
+.floor {
+  position: absolute; left: 0; right: 0; top: 0; height: 700px;
+  transform-origin: 50% 0%; transform: rotateX(72deg);
+  background-image:
+    linear-gradient(rgba(91,140,255,.55) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(91,140,255,.55) 1px, transparent 1px);
+  background-size: 70px 70px;
+}
+.vignette {
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at center, transparent 55%, rgba(3,5,12,.7) 100%);
+}
+
+/* =========================================================
+   HUD: шапка, прогрес, точки
+   ========================================================= */
+.hud {
+  position: absolute; left: 88px; right: 88px; top: 34px; z-index: 50;
+  display: flex; justify-content: space-between; align-items: center;
+  font-family: var(--font-mono); font-size: 12px; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--muted); pointer-events: none;
+}
+.hud-left { display: flex; align-items: center; gap: 10px; }
+.hud-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent-2); box-shadow: 0 0 12px var(--accent-2); }
+.hud-right { display: flex; gap: 22px; }
+.hud-count b { color: var(--text); font-weight: 600; }
+.progress { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: rgba(255,255,255,.04); z-index: 50; }
+.progress div { height: 100%; width: 0; background: linear-gradient(90deg, var(--accent), var(--accent-2)); box-shadow: 0 0 12px var(--accent); transition: width .8s cubic-bezier(.16,1,.3,1); }
+.slide-dots {
+  position: absolute; bottom: 26px; left: 50%; transform: translateX(-50%);
+  display: flex; gap: 7px; z-index: 50;
+}
+.slide-dots .dot {
+  width: 6px; height: 6px; border-radius: 50%; border: none; padding: 0; cursor: pointer;
+  background: var(--muted); opacity: .3; transition: all .3s;
+}
+.slide-dots .dot.active { background: var(--accent-2); opacity: 1; transform: scale(1.5); box-shadow: 0 0 10px var(--accent-2); }
+.slide-dots .dot.sec { width: 14px; border-radius: 3px; }
+
+/* =========================================================
+   СЛАЙДИ
+   ========================================================= */
+.slide { position: absolute; inset: 0; visibility: hidden; }
+.slide.active { visibility: visible; }
+.content { position: absolute; left: 88px; right: 88px; top: 100px; bottom: 86px; }
+.pos { position: absolute; }  /* обгортка для вільно розміщених паралакс-елементів */
+
+/* --- Типографіка --- */
+.eyebrow {
+  font-family: var(--font-mono); font-size: 13px; letter-spacing: .2em; text-transform: uppercase;
+  color: var(--accent-2); display: flex; align-items: center; gap: 12px; margin-bottom: 18px;
+}
+.eyebrow::before { content: ''; width: 28px; height: 1px; background: currentColor; }
+.display { font-family: var(--font-display); font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; margin: 0; }
+h1.display { font-size: 48px; }
+.title { font-family: var(--font-display); font-weight: 600; font-size: 34px; line-height: 1.18; letter-spacing: -0.015em; margin: 0 0 14px; }
+.xl { font-size: 60px; }
+.lead { font-size: 20px; line-height: 1.55; color: var(--muted); margin: 0; max-width: 640px; }
+.body { font-size: 16px; line-height: 1.6; color: var(--muted); margin: 0; }
+.grad { background: linear-gradient(95deg, var(--accent) 0%, var(--accent-2) 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.warm-t { color: var(--warm); } .mint-t { color: var(--accent-2); } .blue-t { color: var(--accent); } .danger-t { color: var(--danger); }
+.mono { font-family: var(--font-mono); }
+.label { font-family: var(--font-mono); font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--dim); }
+
+/* --- Скляна картка --- */
+.card {
+  background: linear-gradient(160deg, rgba(255,255,255,.075), rgba(255,255,255,.015));
+  border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 24px; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 24px 60px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.06);
+}
+.card h3 { font-family: var(--font-display); font-weight: 600; font-size: 18px; margin: 0 0 10px; letter-spacing: -0.01em; }
+.card p { margin: 0; font-size: 15px; line-height: 1.55; color: var(--muted); }
+.card.mint { border-color: rgba(47,224,192,.35); }
+.card.warm { border-color: rgba(255,184,77,.35); }
+.card.danger { border-color: rgba(255,107,129,.38); }
+.card.blue { border-color: rgba(91,140,255,.42); }
+
+/* --- Декор --- */
+.ghost-num {
+  position: absolute; font-family: var(--font-display); font-weight: 800; font-size: 500px; line-height: .8;
+  color: transparent; -webkit-text-stroke: 1.5px rgba(91,140,255,.2); letter-spacing: -0.05em; user-select: none;
+}
+.ring { position: absolute; border-radius: 50%; border: 1px solid var(--border); }
+.ring::after {
+  content: ''; position: absolute; inset: 14%; border-radius: 50%;
+  border: 1px dashed rgba(47,224,192,.25); animation: spin 60s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.chip {
+  display: inline-block; font-family: var(--font-mono); font-size: 14px; font-weight: 500; letter-spacing: .06em;
+  padding: 9px 16px; border-radius: 999px; color: var(--text);
+  background: rgba(20,28,58,.65); border: 1px solid var(--border-strong);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 10px 30px rgba(0,0,0,.35);
+  animation: floaty 7s ease-in-out infinite;
+}
+.chip.big { font-size: 20px; padding: 12px 22px; }
+.chip.mint { color: var(--accent-2); border-color: rgba(47,224,192,.4); }
+.chip.warm { color: var(--warm); border-color: rgba(255,184,77,.4); }
+.chip.blue { color: var(--accent); border-color: rgba(91,140,255,.5); }
+.chip.faint { opacity: .55; font-size: 12px; }
+@keyframes floaty { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-14px); } }
+
+.icon { width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.ibox {
+  width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; margin-bottom: 14px;
+  background: rgba(91,140,255,.12); border: 1px solid rgba(91,140,255,.3); color: var(--accent);
+}
+.ibox.mint { background: rgba(47,224,192,.1); border-color: rgba(47,224,192,.3); color: var(--accent-2); }
+.ibox.warm { background: rgba(255,184,77,.1); border-color: rgba(255,184,77,.3); color: var(--warm); }
+.ibox.danger { background: rgba(255,107,129,.1); border-color: rgba(255,107,129,.3); color: var(--danger); }
+
+.note {
+  display: flex; gap: 14px; align-items: center; font-size: 15px; line-height: 1.5; color: var(--muted);
+  padding: 14px 20px; border-radius: 14px; background: rgba(255,184,77,.06); border: 1px solid rgba(255,184,77,.22);
+}
+.note b { color: var(--warm); font-weight: 600; }
+.note.mint { background: rgba(47,224,192,.06); border-color: rgba(47,224,192,.24); }
+.note.mint b { color: var(--accent-2); }
+.note.danger { background: rgba(255,107,129,.06); border-color: rgba(255,107,129,.26); }
+.note.danger b { color: var(--danger); }
+
+/* --- Розділові слайди --- */
+.section-break .content { display: flex; flex-direction: column; justify-content: center; }
+.section-break .lead { margin-top: 22px; }
+
+/* =========================================================
+   МАКЕТИ ОКРЕМИХ СЛАЙДІВ
+   ========================================================= */
+/* S2 — мета і план */
+.goal-grid { display: grid; grid-template-columns: 1fr 560px; gap: 64px; height: 100%; align-items: center; }
+.skills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 26px; }
+.skills span { font-size: 13px; padding: 7px 13px; border-radius: 999px; border: 1px solid var(--border-strong); color: var(--text); background: rgba(91,140,255,.08); }
+.plan-item { display: flex; align-items: center; gap: 22px; padding: 18px 24px; margin-bottom: 14px; }
+.plan-item .n { font-family: var(--font-display); font-weight: 700; font-size: 30px; min-width: 64px; }
+.plan-item .t { font-size: 17px; font-weight: 600; line-height: 1.35; }
+.plan-item .s { font-size: 13px; color: var(--muted); margin-top: 3px; font-weight: 400; }
+
+/* S4 — від 48 до рішення */
+.flow4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px; align-items: end; margin-top: 30px; }
+.step { position: relative; display: flex; flex-direction: column; }
+.step .big { font-family: var(--font-display); font-weight: 700; font-size: 46px; line-height: 1; margin: 14px 0 14px; letter-spacing: -0.03em; }
+.step:not(:last-child)::after {
+  content: '→'; position: absolute; right: -19px; top: 50%; color: var(--accent-2); font-size: 18px; z-index: 2;
+}
+
+/* S5 — ІТ vs ІС */
+.itis { display: grid; grid-template-columns: 1fr 430px; gap: 48px; height: 100%; }
+.pipe { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+.pipe-row { display: grid; grid-template-columns: 150px 1fr; gap: 14px; align-items: center; padding: 12px 18px; border-radius: 14px; background: rgba(255,255,255,.03); border: 1px solid var(--border); }
+.pipe-row .k { font-family: var(--font-mono); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent-2); }
+.pipe-row .v { font-size: 15px; }
+.orbit { position: relative; width: 430px; height: 430px; }
+.orbit svg { position: absolute; inset: 0; }
+.onode {
+  position: absolute; width: 104px; height: 104px; margin: -52px 0 0 -52px; border-radius: 50%;
+  display: grid; place-items: center; text-align: center; font-size: 14px; font-weight: 600;
+  background: rgba(16,24,52,.85); border: 1px solid var(--border-strong);
+  box-shadow: 0 0 30px rgba(91,140,255,.15);
+}
+.onode.hot { border-color: rgba(255,184,77,.6); color: var(--warm); box-shadow: 0 0 34px rgba(255,184,77,.22); }
+.ocenter {
+  position: absolute; left: 215px; top: 215px; width: 132px; height: 132px; margin: -66px 0 0 -66px; border-radius: 50%;
+  display: grid; place-items: center; text-align: center;
+  background: radial-gradient(circle at 35% 30%, rgba(91,140,255,.55), rgba(47,224,192,.18) 70%);
+  border: 1px solid rgba(91,140,255,.6); box-shadow: 0 0 60px rgba(91,140,255,.35);
+  font-family: var(--font-display); font-weight: 700; font-size: 15px; line-height: 1.25;
+}
+
+/* S6 — потоки */
+.tracks { position: relative; margin: 30px 0 28px; height: 206px; }
+.track { position: relative; height: 82px; }
+.track-label { font-family: var(--font-mono); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; }
+.track .line { position: absolute; left: 0; right: 0; top: 54px; height: 2px; border-radius: 2px; }
+.track.info .line { background: linear-gradient(90deg, rgba(47,224,192,.15), rgba(47,224,192,.6)); }
+.track.goods .line { background: linear-gradient(90deg, rgba(91,140,255,.15), rgba(91,140,255,.6)); }
+.pulse {
+  position: absolute; top: -6px; width: 14px; height: 14px; border-radius: 50%;
+  background: var(--accent-2); box-shadow: 0 0 18px var(--accent-2), 0 0 40px var(--accent-2);
+  animation: run 2.6s cubic-bezier(.5,0,.5,1) infinite;
+}
+.truck { position: absolute; top: -27px; color: var(--accent); animation: run 7s linear infinite; }
+.truck .icon { width: 32px; height: 32px; }
+@keyframes run { from { left: 0%; } to { left: calc(100% - 40px); } }
+.stations { position: absolute; left: 0; right: 0; bottom: 0; display: flex; justify-content: space-between; }
+.stations span { font-size: 14px; font-weight: 600; color: var(--text); padding: 6px 12px; border-radius: 10px; background: rgba(255,255,255,.05); border: 1px solid var(--border); }
+.grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+
+/* S7 — одна подія, чотири погляди */
+.event-map { position: relative; height: 420px; margin-top: 12px; }
+.event-map > svg { position: absolute; inset: 0; }
+.ev-center {
+  position: absolute; left: 552px; top: 210px; width: 190px; height: 190px; margin: -95px 0 0 -95px; border-radius: 50%;
+  display: grid; place-items: center; text-align: center;
+  background: radial-gradient(circle at 35% 30%, rgba(255,184,77,.35), rgba(91,140,255,.12) 70%);
+  border: 1px solid rgba(255,184,77,.55); box-shadow: 0 0 70px rgba(255,184,77,.2);
+}
+.ev-center b { display: block; font-family: var(--font-display); font-size: 38px; font-weight: 700; }
+.ev-center span { font-size: 14px; color: var(--muted); }
+.ev-card { position: absolute; width: 330px; display: flex; gap: 16px; align-items: flex-start; padding: 18px 20px; }
+.ev-card .ibox { margin: 0; flex: none; }
+
+/* S8 — три групи даних */
+.chain3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 44px; margin: 30px 0 26px; }
+.chain3 .card { position: relative; min-height: 250px; }
+.chain3 .card:not(:last-child)::after {
+  content: ''; position: absolute; right: -45px; top: 50%; width: 44px; height: 2px;
+  background: linear-gradient(90deg, var(--border-strong), var(--accent-2));
+}
+.tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+.tags span { font-size: 12.5px; padding: 5px 10px; border-radius: 8px; background: rgba(255,255,255,.05); border: 1px solid var(--border); color: var(--text); }
+
+/* S9 — пастки */
+.split2 { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; margin-top: 26px; }
+.receipt { display: flex; gap: 26px; align-items: center; margin: 18px 0; }
+.paper {
+  width: 170px; padding: 14px 16px; background: #eef2ff; color: #0b1022; border-radius: 6px 6px 0 0; font-family: var(--font-mono); font-size: 12px;
+  -webkit-mask: radial-gradient(circle 6px at 6px 100%, transparent 98%, #000) -6px 0 / 12px 100% repeat-x;
+  padding-bottom: 20px;
+}
+.paper .r { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px dashed rgba(11,16,34,.25); }
+.paper .h { font-weight: 600; margin-bottom: 4px; }
+.eq { font-family: var(--font-display); font-size: 26px; font-weight: 700; line-height: 1.25; }
+.num-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 16px; }
+.num-cols .col { padding: 14px 16px; border-radius: 14px; background: rgba(255,255,255,.03); border: 1px solid var(--border); }
+.num-cols .col div { font-size: 14px; padding: 5px 0; display: flex; justify-content: space-between; gap: 8px; }
+.num-cols .col div span:last-child { font-family: var(--font-mono); color: var(--muted); }
+
+/* S11 — сходинки змін */
+.stairs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; align-items: end; height: 380px; margin-top: 18px; }
+.stair { position: relative; display: flex; flex-direction: column; justify-content: flex-start; overflow: hidden; }
+.stair .lvl { font-family: var(--font-display); font-weight: 800; font-size: 64px; line-height: 1; opacity: .16; position: absolute; right: 18px; bottom: 10px; }
+.stair .mini-flow { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; font-size: 12.5px; }
+.stair .mini-flow span { padding: 4px 9px; border-radius: 8px; background: rgba(47,224,192,.1); border: 1px solid rgba(47,224,192,.3); color: var(--accent-2); }
+
+/* S12 — канали */
+.channel svg text { font-family: var(--font-body); font-size: 13px; font-weight: 600; fill: var(--text); }
+.channel svg .sub { font-family: var(--font-mono); font-size: 11px; fill: var(--muted); font-weight: 400; }
+.flow-dash { stroke-dasharray: 5 7; animation: dash 1.4s linear infinite; }
+@keyframes dash { to { stroke-dashoffset: -24; } }
+
+/* S13 — процес */
+.before-after { display: grid; grid-template-columns: 1fr 70px 1fr; gap: 0; align-items: stretch; margin-top: 22px; }
+.ba-arrow { display: grid; place-items: center; font-size: 26px; color: var(--accent-2); }
+.stack-row { display: flex; justify-content: space-between; align-items: center; padding: 11px 16px; margin-bottom: 8px; border-radius: 12px; background: rgba(255,255,255,.035); border: 1px solid var(--border); font-size: 15px; }
+.stack-row .pen { font-family: var(--font-mono); font-size: 12px; color: var(--warm); }
+.hub { display: flex; align-items: center; gap: 16px; }
+.hub-core { flex: none; width: 128px; height: 128px; border-radius: 26px; display: grid; place-items: center; text-align: center; font-family: var(--font-display); font-size: 14px; font-weight: 600; line-height: 1.3; background: linear-gradient(150deg, rgba(47,224,192,.28), rgba(91,140,255,.18)); border: 1px solid rgba(47,224,192,.5); box-shadow: 0 0 40px rgba(47,224,192,.18); }
+.hub-outs { display: flex; flex-direction: column; gap: 8px; flex: 1; }
+.hub-outs span { font-size: 14px; padding: 9px 14px; border-radius: 10px; background: rgba(255,255,255,.04); border: 1px solid var(--border); position: relative; }
+.hub-outs span::before { content: ''; position: absolute; left: -17px; top: 50%; width: 16px; height: 1px; background: rgba(47,224,192,.6); }
+
+/* S14 — ідентифікація */
+.trap { margin-top: 14px; padding: 10px 12px; border-radius: 10px; font-size: 13.5px; line-height: 1.45; background: rgba(255,107,129,.07); border: 1px solid rgba(255,107,129,.25); color: var(--text); }
+.trap b { color: var(--danger); font-family: var(--font-mono); font-weight: 600; }
+
+/* S15 — пілот */
+.timeline { position: relative; display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px; margin-top: 34px; }
+.timeline::before { content: ''; position: absolute; left: 20px; right: 20px; top: 21px; height: 2px; background: linear-gradient(90deg, var(--accent), var(--accent-2)); opacity: .5; }
+.tl-dot { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; font-family: var(--font-display); font-weight: 700; font-size: 16px; background: var(--bg); border: 2px solid var(--accent-2); color: var(--accent-2); position: relative; box-shadow: 0 0 22px rgba(47,224,192,.3); margin-bottom: 18px; }
+.tl-item h3 { font-family: var(--font-display); font-weight: 600; font-size: 17px; margin: 0 0 8px; }
+.tl-item p { margin: 0; font-size: 14.5px; line-height: 1.5; color: var(--muted); }
+.quote { margin-top: 36px; display: grid; grid-template-columns: 70px 1fr; gap: 18px; align-items: start; }
+.quote .qm { font-family: var(--font-display); font-size: 90px; line-height: .8; color: var(--accent); opacity: .6; }
+.quote p { font-size: 19px; line-height: 1.5; margin: 0; color: var(--text); }
+.quote p span { color: var(--muted); font-size: 15px; display: block; margin-top: 8px; }
+
+/* S17 — класи систем */
+.sys5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin-top: 26px; }
+.sys { display: flex; flex-direction: column; padding: 22px 18px; min-height: 360px; }
+.sys .ac { font-family: var(--font-display); font-weight: 800; font-size: 36px; letter-spacing: -0.02em; line-height: 1; }
+.sys .full { font-size: 12.5px; color: var(--muted); margin: 8px 0 18px; line-height: 1.4; min-height: 52px; }
+.sys .row { border-top: 1px solid var(--border); padding: 10px 0; }
+.sys .row .label { display: block; margin-bottom: 4px; font-size: 10px; }
+.sys .row div { font-size: 14px; line-height: 1.4; }
+
+/* S18 — статуси */
+.pipeline { position: relative; display: grid; grid-template-columns: repeat(5, 1fr); margin-top: 40px; }
+.pl-track { position: absolute; left: 10%; right: 10%; top: 27px; height: 3px; background: rgba(255,255,255,.08); border-radius: 3px; overflow: hidden; }
+.pl-fill { height: 100%; width: 0; background: linear-gradient(90deg, var(--accent), var(--accent-2)); box-shadow: 0 0 14px var(--accent-2); }
+.pl-node { text-align: center; padding: 0 8px; }
+.pl-circle { width: 56px; height: 56px; margin: 0 auto 16px; border-radius: 50%; display: grid; place-items: center; background: var(--bg); border: 2px solid var(--accent); color: var(--accent); position: relative; z-index: 2; box-shadow: 0 0 24px rgba(91,140,255,.3); }
+.pl-node:last-child .pl-circle { border-color: var(--accent-2); color: var(--accent-2); box-shadow: 0 0 24px rgba(47,224,192,.35); }
+.pl-node h3 { font-family: var(--font-display); font-weight: 600; font-size: 15px; margin: 0 0 6px; }
+.pl-node p { margin: 0; font-size: 13px; color: var(--muted); line-height: 1.4; }
+.neq { margin-top: 46px; text-align: center; font-family: var(--font-display); font-weight: 700; font-size: 30px; letter-spacing: -0.01em; }
+.neq .x { color: var(--danger); margin: 0 14px; }
+
+/* S19 — інтеграція */
+.integ { display: grid; grid-template-columns: 1fr 380px; gap: 28px; margin-top: 22px; }
+.obj-table { padding: 8px 0; }
+.obj-row { display: grid; grid-template-columns: 150px 1fr 1fr; gap: 16px; padding: 14px 22px; border-bottom: 1px solid var(--border); align-items: center; font-size: 14px; line-height: 1.4; }
+.obj-row:last-child { border-bottom: none; }
+.obj-row.head { padding-top: 10px; padding-bottom: 10px; }
+.obj-row .o { font-weight: 700; font-size: 15px; }
+.obj-row .o span { display: block; font-family: var(--font-mono); font-size: 11.5px; color: var(--accent); font-weight: 500; margin-top: 3px; }
+.obj-row .bad { color: var(--danger); }
+.exch { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin: 16px 0 18px; }
+.exch span { flex: 1; text-align: center; padding: 10px 4px; border-radius: 10px; font-size: 13px; font-weight: 600; font-family: var(--font-mono); }
+.exch i { font-style: normal; color: var(--dim); }
+
+/* S21 — якість */
+.quality { display: grid; grid-template-columns: 1fr 330px; gap: 28px; margin-top: 22px; }
+.q6 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.q { padding: 18px 18px; min-height: 150px; }
+.q .qn { font-family: var(--font-mono); font-size: 11px; color: var(--accent-2); letter-spacing: .14em; }
+.q h3 { margin: 8px 0 8px; font-size: 17px; }
+.q p { font-size: 13.5px; }
+.cost-bars { display: flex; align-items: flex-end; gap: 12px; height: 190px; margin: 18px 0 10px; }
+.cost-bars .cb { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; }
+.cost-bars .bar { width: 100%; border-radius: 8px 8px 3px 3px; height: 0; background: linear-gradient(to top, rgba(255,107,129,.25), rgba(255,107,129,.85)); }
+.cost-bars .bl { font-size: 11.5px; color: var(--muted); margin-top: 8px; text-align: center; line-height: 1.3; }
+
+/* S22 — інтерактивний запас */
+.stock { display: grid; grid-template-columns: 470px 1fr; gap: 36px; align-items: start; }
+.legend3 { display: flex; flex-direction: column; gap: 9px; margin: 18px 0 20px; }
+.legend3 div { display: flex; gap: 12px; align-items: baseline; font-size: 14.5px; color: var(--muted); }
+.legend3 b { color: var(--text); min-width: 96px; font-weight: 600; }
+.sw { width: 10px; height: 10px; border-radius: 3px; flex: none; transform: translateY(1px); }
+.formula { font-family: var(--font-mono); font-size: 14px; padding: 12px 16px; border-radius: 12px; background: rgba(91,140,255,.08); border: 1px solid rgba(91,140,255,.28); margin-bottom: 18px; }
+.ev-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+.ev-btn {
+  font-family: var(--font-body); font-size: 13.5px; font-weight: 600; text-align: left; line-height: 1.3;
+  padding: 11px 14px; border-radius: 12px; cursor: pointer; color: var(--text);
+  background: rgba(255,255,255,.04); border: 1px solid var(--border); transition: all .25s;
+}
+.ev-btn small { display: block; font-family: var(--font-mono); font-weight: 400; font-size: 10.5px; color: var(--dim); letter-spacing: .1em; text-transform: uppercase; margin-bottom: 3px; }
+.ev-btn:hover { border-color: var(--border-strong); background: rgba(255,255,255,.07); }
+.ev-btn.active { border-color: var(--accent-2); background: rgba(47,224,192,.1); box-shadow: 0 0 24px rgba(47,224,192,.15); }
+.ev-btn.err.active { border-color: var(--danger); background: rgba(255,107,129,.1); box-shadow: 0 0 24px rgba(255,107,129,.15); }
+.bars-panel { display: flex; flex-direction: column; padding: 22px 28px; height: 520px; }
+.bars3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 26px; }
+.b3 { display: flex; flex-direction: column; align-items: center; }
+.b3 .val { font-family: var(--font-display); font-weight: 700; font-size: 44px; line-height: 1; }
+.b3 .delta { font-family: var(--font-mono); font-size: 13px; height: 18px; margin: 6px 0 8px; }
+.b3 .track3 { position: relative; width: 74px; height: 230px; border-radius: 14px; background: rgba(255,255,255,.04); border: 1px solid var(--border); overflow: hidden; }
+.b3 .fill { position: absolute; left: 0; right: 0; bottom: 0; height: 0; border-radius: 12px; transition: background .4s; }
+.b3 .nm { margin-top: 12px; font-size: 13px; font-weight: 600; text-align: center; }
+.stock-cap { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--border); min-height: 96px; }
+.stock-cap h3 { margin: 0 0 6px; font-family: var(--font-display); font-size: 16px; font-weight: 600; }
+.stock-cap p { margin: 0; font-size: 14px; line-height: 1.5; color: var(--muted); }
+
+/* S23–24 — економіка */
+.econ { display: grid; grid-template-columns: 1fr 1fr 350px; gap: 20px; margin-top: 24px; }
+.calc { display: flex; flex-direction: column; }
+.calc .ln { display: flex; justify-content: space-between; font-size: 14.5px; padding: 9px 0; border-bottom: 1px dashed var(--border); color: var(--muted); }
+.calc .ln b { color: var(--text); font-family: var(--font-mono); font-weight: 500; }
+.calc .res { font-family: var(--font-display); font-weight: 700; font-size: 44px; margin: 18px 0 4px; letter-spacing: -0.02em; line-height: 1; }
+.calc .res small { font-size: 18px; font-weight: 600; color: var(--muted); }
+.payback { display: flex; flex-direction: column; justify-content: center; text-align: center; background: linear-gradient(160deg, rgba(47,224,192,.16), rgba(91,140,255,.08)); border-color: rgba(47,224,192,.4); }
+.payback .huge { font-family: var(--font-display); font-weight: 800; font-size: 82px; line-height: 1; letter-spacing: -0.04em; }
+.split-bar { display: flex; height: 54px; border-radius: 14px; overflow: hidden; margin: 22px 0 8px; border: 1px solid var(--border); }
+.split-bar div { display: flex; align-items: center; padding: 0 18px; font-size: 14px; font-weight: 600; white-space: nowrap; }
+.split-bar .a { width: 0; background: linear-gradient(90deg, rgba(47,224,192,.45), rgba(91,140,255,.45)); }
+.split-bar .b { flex: 1; background: rgba(255,255,255,.04); color: var(--muted); justify-content: flex-end; }
+.stats3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 22px; }
+.stat { padding: 22px; }
+.stat .v { font-family: var(--font-display); font-weight: 700; font-size: 42px; line-height: 1; letter-spacing: -0.02em; margin: 6px 0 10px; }
+.stat .v small { font-size: 18px; color: var(--muted); font-weight: 600; }
+
+/* S25 — KPI */
+.kpi-formula { display: flex; align-items: center; gap: 10px; margin: 26px 0 20px; flex-wrap: nowrap; }
+.kpi-core { flex: none; font-family: var(--font-display); font-weight: 800; font-size: 34px; padding: 18px 26px; border-radius: 20px; background: linear-gradient(150deg, rgba(91,140,255,.4), rgba(47,224,192,.2)); border: 1px solid rgba(91,140,255,.6); box-shadow: 0 0 50px rgba(91,140,255,.3); }
+.kpi-formula .op { font-family: var(--font-display); color: var(--dim); font-size: 22px; }
+.kpi-part { flex: 1; text-align: center; padding: 14px 6px; border-radius: 14px; background: rgba(255,255,255,.04); border: 1px solid var(--border); }
+.kpi-part b { display: block; font-size: 15px; margin-bottom: 3px; }
+.kpi-part span { font-size: 11.5px; color: var(--muted); }
+.chain4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; margin-top: 10px; }
+.chain4 > div { position: relative; padding: 20px 26px 20px 30px; background: rgba(255,255,255,.04); border: 1px solid var(--border); clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 50%, calc(100% - 18px) 100%, 0 100%, 18px 50%); margin-right: -10px; }
+.chain4 > div:last-child { margin-right: 0; clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 18px 50%); border-radius: 0 14px 14px 0; }
+.chain4 > div:first-child { clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 50%, calc(100% - 18px) 100%, 0 100%); border-radius: 14px 0 0 14px; }
+.chain4 .label { color: var(--accent-2); }
+.chain4 b { display: block; font-size: 16px; margin-top: 6px; }
+
+/* S26 — підсумок */
+.final3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 40px; }
+.final3 .card { padding: 22px 24px; }
+.final3 .fn { font-family: var(--font-display); font-weight: 700; font-size: 15px; color: var(--accent-2); margin-bottom: 12px; }
+.final3 p { color: var(--text); font-size: 17px; line-height: 1.45; }
+
+/* Доступність */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- Набір іконок (SVG-спрайт) -->
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="i-box" viewBox="0 0 24 24"><path d="M3 7.5 12 3l9 4.5-9 4.5-9-4.5zM3 7.5v9L12 21l9-4.5v-9M12 12v9"/></symbol>
+  <symbol id="i-cart" viewBox="0 0 24 24"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2 3h3l2.6 12.2h11.2L21 7H6.2"/></symbol>
+  <symbol id="i-receipt" viewBox="0 0 24 24"><path d="M6 2h12v20l-3-2-3 2-3-2-3 2V2zM9 7h6M9 11h6M9 15h4"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 21h18M6 17v-6M11 17V6M16 17v-9M20 17v-4"/></symbol>
+  <symbol id="i-truck" viewBox="0 0 24 24"><path d="M1 5h13v11H1zM14 9h4.5L22 12.5V16h-8"/><circle cx="5.5" cy="18" r="2"/><circle cx="17.5" cy="18" r="2"/></symbol>
+  <symbol id="i-barcode" viewBox="0 0 24 24"><path d="M3 5v14M6 5v14M9 5v14M13 5v14M15 5v14M18 5v14M21 5v14"/></symbol>
+  <symbol id="i-rfid" viewBox="0 0 24 24"><rect x="2" y="8" width="9" height="12" rx="2"/><path d="M14 10a4 4 0 0 1 0 6M17 7.5a8 8 0 0 1 0 11M20 5a12 12 0 0 1 0 16"/></symbol>
+  <symbol id="i-temp" viewBox="0 0 24 24"><path d="M14 14.8V4.5a2.5 2.5 0 0 0-5 0v10.3a4.5 4.5 0 1 0 5 0zM11.5 9v7"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M4 12.5 9.5 18 20 6.5"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3 2 20h20L12 3zM12 10v4M12 17h.01"/></symbol>
+  <symbol id="i-layers" viewBox="0 0 24 24"><path d="m12 3 9 5-9 5-9-5 9-5zM3 13l9 5 9-5"/></symbol>
+  <symbol id="i-inbox" viewBox="0 0 24 24"><path d="M3 13h5l1.5 3h5L16 13h5M5 5h14l2 8v6H3v-6l2-8z"/></symbol>
+  <symbol id="i-store" viewBox="0 0 24 24"><path d="M3 9 4.5 4h15L21 9M3 9h18v0a3 3 0 0 1-6 0 3 3 0 0 1-6 0 3 3 0 0 1-6 0zM5 12v8h14v-8M10 20v-5h4v5"/></symbol>
+  <symbol id="i-hand" viewBox="0 0 24 24"><path d="M7 11V5.5a1.5 1.5 0 0 1 3 0V10m0-1.5V4a1.5 1.5 0 0 1 3 0v6m0-4.5a1.5 1.5 0 0 1 3 0V11m0-3a1.5 1.5 0 0 1 3 0v6a7 7 0 0 1-7 7h-1a7 7 0 0 1-6-3.5L3 13a1.5 1.5 0 0 1 2.6-1.5L7 13"/></symbol>
+</svg>
+
+<div class="stage">
+
+  <!-- ========== ФОНОВІ ПАРАЛАКС-ШАРИ ========== -->
+  <div class="bg">
+    <div class="stars far" id="starsFar"></div>
+    <div class="orb o1"></div>
+    <div class="orb o2"></div>
+    <div class="orb o3"></div>
+    <div class="stars mid" id="starsMid"></div>
+    <div class="floor-wrap" id="floorWrap"><div class="floor" id="floor"></div></div>
+    <div class="vignette"></div>
+  </div>
+
+  <!-- ========== HUD ========== -->
+  <header class="hud">
+    <div class="hud-left"><span class="hud-dot"></span>Лекція 1 · ІТ у цифровій економіці</div>
+    <div class="hud-right"><span id="hudSection">Вступ</span><span class="hud-count"><b id="hudNum">01</b> / <span id="hudTotal">26</span></span></div>
+  </header>
+
+  <!--
+    Як працює паралакс:
+    data-speed — наскільки далеко елемент «їде» під час зміни слайда (0.2 = далекий фон, 1.6 = передній план)
+    data-depth — наскільки сильно елемент реагує на рух миші
+  -->
+
+  <!-- ===================== SLIDE 1: Титул ===================== -->
+  <section class="slide" data-section="Вступ">
+    <div class="ghost-num" data-speed="0.25" data-depth="0.35" style="left:690px; top:150px;">01</div>
+    <div class="ring" data-speed="0.4" data-depth="0.6" style="left:760px; top:80px; width:520px; height:520px;"></div>
+
+    <div class="content" style="display:flex; flex-direction:column; justify-content:center;">
+      <div data-speed="1" data-depth="0.12" style="max-width:720px;">
+        <div class="eyebrow">Лекція 1 · Цифрова економіка</div>
+        <h1 class="display">Інформаційні технології як основа розвитку <span class="grad">цифрової економіки</span></h1>
+      </div>
+      <p class="lead" data-speed="1.2" data-depth="0.18" style="margin-top:26px; max-width:600px;">Як дані про товари, замовлення й перевезення стають рішеннями в ритейлі та логістиці</p>
+      <div class="label" data-speed="1.4" data-depth="0.2" style="margin-top:44px;">→ / пробіл / колесо миші — далі</div>
+    </div>
+
+    <div class="pos" data-speed="1.7" data-depth="1.6" style="left:900px; top:150px;"><span class="chip big blue">SKU</span></div>
+    <div class="pos" data-speed="1.2" data-depth="1.1" style="left:1080px; top:240px;"><span class="chip mint" style="animation-delay:-2s">API</span></div>
+    <div class="pos" data-speed="0.8" data-depth="0.7" style="left:820px; top:330px;"><span class="chip faint" style="animation-delay:-4s">RFID</span></div>
+    <div class="pos" data-speed="1.9" data-depth="1.9" style="left:1000px; top:420px;"><span class="chip big warm" style="animation-delay:-1s">KPI</span></div>
+    <div class="pos" data-speed="1.0" data-depth="0.9" style="left:1130px; top:520px;"><span class="chip" style="animation-delay:-3s">IoT</span></div>
+    <div class="pos" data-speed="0.6" data-depth="0.5" style="left:880px; top:560px;"><span class="chip faint" style="animation-delay:-5s">WMS</span></div>
+  </section>
+
+  <!-- ===================== SLIDE 2: Мета і план ===================== -->
+  <section class="slide" data-section="Вступ">
+    <div class="ring" data-speed="0.3" data-depth="0.4" style="left:-220px; top:300px; width:560px; height:560px;"></div>
+    <div class="content goal-grid">
+      <div data-speed="1" data-depth="0.15">
+        <div class="eyebrow">Мета теми</div>
+        <h2 class="title">Від запису — до&nbsp;обґрунтованого <span class="grad">рішення</span></h2>
+        <p class="body" style="font-size:17px;">Сформувати розуміння ролі інформації та цифрових технологій у торгівлі й навчитися оцінювати доцільність цифрових змін у логістиці та ритейлі.</p>
+        <div class="skills">
+          <span>Розрізняти складові ІС</span>
+          <span>Визначати інформаційні потреби</span>
+          <span>Оцінювати цифрові зміни</span>
+        </div>
+      </div>
+      <div>
+        <div class="card plan-item" data-speed="1.0" data-depth="0.3"><div class="n grad">01</div><div class="t">Дані, інформація та ІТ<div class="s">у професійній діяльності</div></div></div>
+        <div class="card plan-item" data-speed="1.15" data-depth="0.4"><div class="n grad">02</div><div class="t">Цифрова економіка<div class="s">та зміни у торговельних бізнес-процесах</div></div></div>
+        <div class="card plan-item" data-speed="1.3" data-depth="0.5"><div class="n grad">03</div><div class="t">Інформаційні системи<div class="s">ритейлу й логістики та їх взаємодія</div></div></div>
+        <div class="card plan-item" data-speed="1.45" data-depth="0.6"><div class="n grad">04</div><div class="t">Якість даних<div class="s">і оцінювання результатів цифровізації</div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== SLIDE 3: Розділ 1 ===================== -->
+  <section class="slide section-break" data-section="01 · Дані та ІТ" data-sec="1">
+    <div class="ghost-num" data-speed="0.2" data-depth="0.3" style="left:760px; top:110px; font-size:620px;">1</div>
+    <div class="content">
+      <div class="eyebrow" data-speed="1" data-depth="0.1">Розділ 01</div>
+      <h2 class="display xl" data-speed="1.15" data-depth="0.15">Дані, інформація<br>та <span class="grad">технології</span></h2>
+      <p class="lead" data-speed="1.3" data-depth="0.2">Чому одне число «48» ще не є відповіддю для керівника</p>
+    </div>
+    <div class="pos" data-speed="1.8" data-depth="1.7" style="left:930px; top:170px;"><span class="chip big warm">48</span></div>
+    <div class="pos" data-speed="1.1" data-depth="1.0" style="left:1060px; top:300px;"><span class="chip" style="animation-delay:-2s">контекст</span></div>
+    <div class="pos" data-speed="0.7" data-depth="0.6" style="left:860px; top:420px;"><span class="chip faint" style="animation-delay:-4s">достовірність</span></div>
+    <div class="pos" data-speed="1.5" data-depth="1.4" style="left:1010px; top:520px;"><span class="chip mint" style="animation-delay:-1s">рішення</span></div>
+  </section>
+
+  <!-- ===================== SLIDE 4: Від 48 до рішення ===================== -->
+  <section class="slide" data-section="01 · Дані та ІТ">
+    <div class="content">
+      <div data-speed="1" data-depth="0.12">
+        <div class="eyebrow">Дані → інформація → рішення</div>
+        <h2 class="title">Число стає рішенням лише через <span class="grad">контекст</span></h2>
+      </div>
+      <div class="flow4">
+        <div class="card step" data-speed="1.0" data-depth="0.3" style="min-height:220px;">
+          <span class="label">Дані</span>
+          <div class="big">48</div>
+          <p>Зафіксоване значення. Саме по собі не дає підстав для рішення.</p>
+        </div>
+        <div class="card step" data-speed="1.15" data-depth="0.4" style="min-height:250px;">
+          <span class="label">Контекст</span>
+          <div class="big blue-t">48 од.</div>
+          <p>Конкретний товар · конкретний склад · станом на визначену дату.</p>
+        </div>
+        <div class="card step blue" data-speed="1.3" data-depth="0.5" style="min-height:280px;">
+          <span class="label">Інформація</span>
+          <div class="big mint-t">4 дні</div>
+          <p>48 ÷ 12 од./день середнього продажу — стільки вистачить запасу.</p>
+        </div>
+        <div class="card step mint" data-speed="1.45" data-depth="0.6" style="min-height:310px;">
+          <span class="label">Знання → рішення</span>
+          <div class="big warm-t" style="font-size:34px;">Замовити</div>
+          <p>З урахуванням строку постачання, неробочих днів, зростання попиту й місця на складі.</p>
+        </div>
+      </div>
+      <div class="note" data-speed="1.6" data-depth="0.2" style="margin-top:22px;">
+        <svg class="icon" style="color:var(--warm);flex:none"><use href="#i-alert"/></svg>
+        <span>ІТ прискорює обчислення, але <b>за правильність припущень відповідає фахівець</b>. Число «чотири» не замінює аналізу умов.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== SLIDE 5: ІТ vs ІС ===================== -->
+  <section class="slide" data-section="01 · Дані та ІТ">
+    <div class="content itis">
+      <div>
+        <div data-speed="1" data-depth="0.12">
+          <div class="eyebrow">Технологія ≠ система</div>
+          <h2 class="title">ІТ — це спосіб. ІС — це <span class="grad">люди, правила й техніка</span> разом</h2>
+        </div>
+        <div class="pipe" data-speed="1.2" data-depth="0.25">
+          <div class="label" style="margin-bottom:2px;">Технологія обліку продажів</div>
+          <div class="pipe-row"><span class="k">Введення</span><span class="v">Сканування штрихкоду</span></div>
+          <div class="pipe-row"><span class="k">Зберігання</span><span class="v">База товарів</span></div>
+          <div class="pipe-row"><span class="k">Опрацювання</span><span class="v">Програма розраховує суму покупки</span></div>
+          <div class="pipe-row"><span class="k">Передавання</span><span class="v">Мережа надсилає продаж до обліку</span></div>
+        </div>
+        <div class="grid3" data-speed="1.4" data-depth="0.3" style="grid-template-columns:1fr 1fr; gap:12px; margin-top:14px;">
+          <div class="card" style="padding:14px 16px;"><span class="label">Структуровані</span><p style="margin-top:6px;font-size:13.5px;">Поля: код, назва, кількість, ціна, дата</p></div>
+          <div class="card" style="padding:14px 16px;"><span class="label">Неструктуровані</span><p style="margin-top:6px;font-size:13.5px;">Тексти звернень, фото упаковок, аудіо</p></div>
+        </div>
+      </div>
+      <div class="orbit" data-speed="1.3" data-depth="0.7" style="align-self:center;">
+        <svg viewBox="0 0 430 430">
+          <circle cx="215" cy="215" r="160" fill="none" stroke="rgba(140,165,255,.22)" stroke-width="1"/>
+          <circle cx="215" cy="215" r="160" fill="none" stroke="rgba(47,224,192,.5)" stroke-width="1.5" class="flow-dash"/>
+          <circle cx="215" cy="215" r="200" fill="none" stroke="rgba(140,165,255,.08)" stroke-width="1"/>
+        </svg>
+        <div class="ocenter">Інформаційна<br>система</div>
+        <div class="onode" style="left:215px; top:55px;">Дані</div>
+        <div class="onode" style="left:354px; top:135px;">Пристрої</div>
+        <div class="onode" style="left:354px; top:295px;">Програми</div>
+        <div class="onode" style="left:215px; top:375px;">Мережі</div>
+        <div class="onode hot" style="left:76px; top:295px;">Люди</div>
+        <div class="onode hot" style="left:76px; top:135px;">Процедури</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== SLIDE 6: Потоки ===================== -->
+  <section class="slide" data-section="01 · Дані та ІТ">
+    <div class="content">
+      <div data-speed="1" data-depth="0.12">
+        <div class="eyebrow">Матеріальний та інформаційний потоки</div>
+        <h2 class="title">Інформація має <span class="grad">випереджати</span> вантаж</h2>
+      </div>
+      <div class="tracks" data-speed="1.25" data-depth="0.35">
+        <div class="track info"><span class="track-label mint-t">Інформаційний потік · повідомлення про відвантаження</span><div class="line"><i class="pulse"></i></div></div>
+        <div class="track goods"><span class="track-label blue-t">Матеріальний потік · товар</span><div class="line"><i class="truck"><svg class="icon"><use href="#i-truck"/></svg></i></div></div>
+        <div class="stations"><span>Постачальник</span><span>Склад</span><span>Магазин</span></div>
+      </div>
+      <div class="grid3">
+        <div class="card mint" data-speed="1.4" data-depth="0.4"><div class="ibox mint"><svg class="icon"><use href="#i-check"/></svg></div><h3>Вчасно</h3><p>Склад заздалегідь готує працівників і місця зберігання.</p></div>
+        <div class="card danger" data-speed="1.55" data-depth="0.5"><div class="ibox danger"><svg class="icon"><use href="#i-clock"/></svg></div><h3>Запізно</h3><p>Автомобіль уже прибув — приймання ускладнюється, хоч вантаж доставлено.</p></div>
+        <div class="card" data-speed="1.7" data-depth="0.6"><div class="ibox"><svg class="icon"><use href="#i-layers"/></svg></div><h3>Швидкість + достовірність</h3><p>Хто підтверджує · коли передає · хто використовує результат.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== SLIDE 7: Одна подія — чотири погляди ===================== -->
+  <section class="slide" data-section="01 · Дані та ІТ">
+    <div class="content">
+      <div data-speed="1" data-depth="0.12">
+        <div class="eyebrow">Одна подія — різні подання</div>
+        <h2 class="title">Один продаж — <span class="grad">не чотири</span> продажі</h2>
+      </div>
+      <div class="event-map">
+        <svg viewBox="0 0 1104 420" data-speed="0.7" data-depth="0.3">
+          <g stroke="rgba(255,184,77,.55)" stroke-width="1.5" fill="none" class="flow-dash">
+            <path d="M552 210 L330 62"/><path d="M552 210 L774 62"/><path d="M552 210 L330 358"/><path d="M552 210 L774 358"/>
+          </g>
+        </svg>
+        <div class="ev-center" data-speed="1.0" data-depth="0.8"><div><b>10 од.</b><span>одна подія продажу</span></div></div>
+        <div class="card ev-card" data-speed="1.3" data-depth="0.5" style="left:0; top:6px;"><div class="ibox"><svg class="icon"><use href="#i-receipt"/></svg></div><div><h3>Касир</h3><p>Завершена операція обслуговування</p></div></div>
+        <div class="card ev-card" data-speed="1.45" data-depth="0.6" style="right:0; top:6px;"><div class="ibox mint"><svg class="icon"><use href="#i-box"/></svg></div><div><h3>Комірник</h3><p>Підстава змінити доступний залишок</p></div></div>
+        <div class="card ev-card" data-speed="1.6" data-depth="0.7" style="left:0; bottom:6px;"><div class="ibox warm"><svg class="icon"><use href="#i-cart"/></svg></div><div><h3>Закупівельник</h3><p>Частина історії попиту</p></div></div>
+        <div class="card ev-card" data-speed="1.75" data-depth="0.8" style="right:0; bottom:6px;"><div class="ibox"><svg class="icon"><use href="#i-chart"/></svg></div><div><h3>Керівник</h3><p>Внесок у результати магазину</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== SLIDE 8: Три групи даних ===================== -->
+  <section class="slide" data-section="01 · Дані та ІТ">
+    <div class="content">
+      <div data-speed="1" data-depth="0.12">
+        <div class="eyebrow">Ланцюг даних</div>
+        <h2 class="title">Звіт надійний настільки, наскільки надійний <span class="grad">весь ланцюг</span></h2>
+      </div>
+      <div class="chain3">
+        <div class="card" data-speed="1.2" data-depth="0.35">
+          <div class="ibox"><svg class="icon"><use href="#i-layers"/></svg></div>
+          <h3>Довідкові</h3><p>Відносно сталі об’єкти</p>
+          <div class="tags"><span>товар</span><span>магазин</span><span>склад</span><span>постачальник</span><span>одиниця виміру</span></div>
+        </div>
+        <div class="card" data-speed="1.35" data-depth="0.45">
+          <div class="ibox mint"><svg class="icon"><use href="#i-inbox"/></svg></div>
+          <h3>Операційні</h3><p>Окремі дії та події</p>
+          <div class="tags"><span>надходження</span><span>продаж</span><span>повернення</span><span>резерв</span><span>статус доставки</span></div>
+        </div>
+        <div class="card" data-speed="1.5" data-depth="0.55">
+          <div class="ibox warm"><svg class="icon"><use href="#i-chart"/></svg></div>
+          <h3>Аналітичні</h3><p>Результат опрацювання операцій</p>
+          <div class="tags"><span>виручка за тиждень</span><span>частка повернень</span><span>витрати на доставку</span></div>
+        </div>
+      </div>
+      <div class="note danger" data-speed="1.65" data-depth="0.2">
+        <svg class="icon" style="color:var(--danger);flex:none"><use href="#i-alert"/></svg>
+        <span>Помилка в довіднику <b>поширюється на багато операцій</b>. Гарна діаграма не виправить неправильний код товару в первинних документах.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== SLIDE 9: Пастки ===================== -->
+  <section class="slide" data-section="01 · Дані та ІТ">
+    <div class="content">
+      <div data-speed="1" data-depth="0.12">
+        <div class="eyebrow">Дві типові пастки</div>
+        <h2 class="title">Що рахує один рядок — і чи <span class="grad">можна це додавати</span>?</h2>
+      </div>
+      <div class="split2">
+        <div class="card" data-speed="1.25" data-depth="0.4">
+          <span class="label">Одиниця спостереження</span>
+          <div class="receipt">
+            <div class="paper">
+              <div class="h">ЧЕК № 1187</div>
+              <div class="r"><span>Молоко</span><span>1</span></div>
+              <div class="r"><span>Хліб</span><span>2</span></div>
+              <div class="r"><span>Сир</span><span>1</span></div>
+            </div>
+            <div class="eq">3 рядки<br><span class="danger-t">≠</span> 3 покупці</div>
+          </div>
+          <p>Для кількості покупок рахують <b style="color:var(--text)">унікальні чеки</b>. Рядок може бути чеком, позицією, товаром за день чи магазином за місяць.</p>
+        </div>
+        <div class="card" data-speed="1.4" data-depth="0.5">
+          <span class="label">Не кожне число — кількість</span>
+          <div class="num-cols">
+            <div class="col">
+              <div style="color:var(--danger);font-weight:600;">Ідентифікатори</div>
+              <div><span>№ замовлення</span><span>20417</span></div>
+              <div><span>Код товару</span><span>00482</span></div>
+              <div><span>Індекс</span><span>04071</span></div>
+            </div>
+            <div class="col">
+              <div style="color:var(--accent-2);font-weight:600;">Кількісні</div>
+              <div><span>Кількість</span><span>12 шт</span></div>
+              <div><span>Маса</span><span>4,5 кг</span></div>
+              <div><span>Ціна</span><span>89 грн</span></div>
+            </div>
+          </div>
+          <p style="margin-top:14px;">Середнє номерів замовлень не має змісту, а втрачений початковий нуль робить код нерозпізнаваним.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== SLIDE 10: Розділ 2 ===================== -->
+  <section class="slide section-break" data-section="02 · Цифрова економіка" data-sec="1">
+    <div class="ghost-num" data-speed="0.2" data-depth="0.3" style="left:720px; top:110px; font-size:620px;">2</div>
+    <div class="content">
+      <div class="eyebrow" data-speed="1" data-depth="0.1">Розділ 02</div>
+      <h2 class="display xl" data-speed="1.15" data-depth="0.15">Цифрова економіка<br>і <span class="grad">бізнес-процеси</span></h2>
+      <p class="lead" data-speed="1.3" data-depth="0.2">Технологія дає результат, коли скорочує зайві дії й робить інформацію доступною вчасно</p>
+    </div>
+    <div class="pos" data-speed="1.7" data-depth="1.6" style="left:960px; top:160px;"><span class="chip big blue">e-commerce</span></div>
+    <div class="pos" data-speed="1.0" data-depth="0.9" style="left:1100px; top:290px;"><span class="chip" style="animation-delay:-2s">IoT</span></div>
+    <div class="pos" data-speed="0.7" data-depth="0.6" style="left:880px; top:390px;"><span class="chip faint" style="animation-delay:-4s">маркетплейс</span></div>
+    <div class="pos" data-speed="1.5" data-depth="1.4" style="left:990px; top:500px;"><span class="chip mint" style="animation-delay:-1s">омніканальність</span></div>
+  </section>
+
+  <!-- ===================== SLIDE 11: Три рівні змін ===================== -->
+  <section class="slide" data-section="02 · Цифрова економіка">
+    <div class="content">
+      <div data-speed="1" data-depth="0.12">
+        <div class="eyebrow">Три рівні цифрових змін</div>
+        <h2 class="title">Оцифрування ≠ автоматизація ≠ <span class="grad">трансформація</span></h2>
+      </div>
+      <div class="stairs">
+        <div class="card stair" data-speed="1.2" data-depth="0.35" style="height:200px;">
+          <span class="label">Рівень 1</span><h3 style="margin-top:8px;">Оцифрування</h3>
+          <p>Переведення матеріалів у цифрову форму — скан паперової накладної.</p>
+          <div class="lvl">1</div>
+        </div>
+        <div class="card stair blue" data-speed="1.4" data-depth="0.5" style="height:280px;">
+          <span class="label">Рівень 2</span><h3 style="margin-top:8px;">Автоматизація</h3>
+          <p>Частину операцій виконує програма: після введення кількості й ціни система сама обчислює суму.</p>
+          <div class="lvl">2</div>
+        </div>
+        <div class="card stair mint" data-speed="1.6" data-depth="0.65" style="height:370px;">
+          <span class="label">Рівень 3</span><h3 style="margin-top:8px;">Цифрова трансформація</h3>
+          <p>Змінюється сам процес і взаємодія учасників:</p>
+          <div class="mini-flow"><span>онлайн-замовлення</span><span>резерв у магазині</span><span>завдання на комплектування</span><span>повідомлення покупцю</span></div>
+          <div class="lvl">3</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== SLIDE 12: Канали ===================== -->
+  <section class="slide" data-section="02 · Цифрова економіка">
+    <div class="content">
+      <div data-speed="1" data-depth="0.12">
+        <div class="eyebrow">Канали продажу</div>
+        <h2 class="title">Кілька каналів — ще не <span class="grad">омніканальність</span></h2>
+      </div>
+      <div class="split2" style="margin-top:20px;">
+        <div class="card channel" data-speed="1.25" data-depth="0.4">
+          <span class="label">Багатоканальність</span>
+          <svg viewBox="0 0 470 200" style="width:100%; height:200px; margin-top:6px;">
+            <g stroke="rgba(255,107,129,.5)" stroke-width="1.5" fill="none" stroke-dasharray="3 6">
+              <path d="M120 120 L175 75"/><path d="M350 120 L295 75"/><path d="M235 60 L235 95"/>
+            </g>
+            <g fill="rgba(16,24,52,.9)" stroke="rgba(140,165,255,.4)">
+              <rect x="40" y="120" width="130" height="50" rx="12"/><rect x="170" y="10" width="130" height="50" rx="12"/><rect x="300" y="120" width="130" height="50" rx="12"/>
+            </g>
+            <text x="105" y="150" text-anchor="middle">Магазин</text><text x="235" y="40" text-anchor="middle">Сайт</text><text x="365" y="150" text-anchor="middle">Телефон</text>
+            <text x="235" y="192" text-anchor="middle" class="sub">окремі довідники · різні статуси</text>
+          </svg>
+          <p>Покупець змушений повторювати деталі; замовлення можуть прийняти на товар, якого фактично немає.</p>
+        </div>
+        <div class="card channel mint" data-speed="1.4" data-depth="0.5">
+          <span class="label" style="color:var(--accent-2)">Омніканальність</span>
+          <svg viewBox="0 0 470 200" style="width:100%; height:200px; margin-top:6px;">
+            <g stroke="rgba(47,224,192,.7)" stroke-width="1.8" fill="none" class="flow-dash">
+              <path d="M150 140 L195 125"/><path d="M320 140 L275 125"/><path d="M235 60 L235 102"/>
+            </g>
+            <g fill="rgba(16,24,52,.9)" stroke="rgba(140,165,255,.4)">
+              <rect x="20" y="120" width="130" height="50" rx="12"/><rect x="170" y="10" width="130" height="50" rx="12"/><rect x="320" y="120" width="130" height="50" rx="12"/>
+            </g>
+            <rect x="185" y="102" width="100" height="46" rx="12" fill="rgba(47,224,192,.18)" stroke="rgba(47,224,192,.8)"/>
+            <text x="85" y="150" text-anchor="middle">Магазин</text><text x="235" y="40" text-anchor="middle">Сайт</text><text x="385" y="150" text-anchor="middle">Телефон</text>
+            <text x="235" y="130" text-anchor="middle" style="fill:var(--accent-2)">Історія</text>
+            <text x="235" y="188" text-anchor="middle" class="sub">спільні ID · єдині статуси · розмежований доступ</text>
+          </svg>
+          <p>Працівник бачить історію замовлення незалежно від того, де почалося звернення.</p>
+        </div>
+      </div>
+      <div class="note" data-speed="1.6" data-depth="0.2" style="margin-top:18px;">
+        <svg class="icon" style="color:var(--warm);flex:none"><use href="#i-store"/></svg>
+        <span>Маркетплейс чи власний магазин оцінюють за <b>повними витратами</b> — контент, звернення, доставка, скасування, — а не за обсягом замовлень.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== SLIDE 13: Процес ===================== -->
+  <section class="slide" data-section="02 · Цифрова економіка">
+    <div class="content">
+      <div data-speed="1" data-depth="0.12">
+        <div class="eyebrow">Бізнес-процес, а не підрозділ</div>
+        <h2 class="title">Три введення адреси — це <span class="grad">не три цінності</span></h2>
+        <p class="body">Процес: підтверджена потреба покупця → переданий товар і правильно зафіксований стан операції.</p>
+      </div>
+      <div class="before-after">
+        <div class="card warm" data-speed="1.25" data-depth="0.4">
+          <span class="label">Було</span>
+          <div style="margin-top:14px;">
+            <div class="stack-row">Форма менеджера<span class="pen">✎ введення 1</span></div>
+            <div class="stack-row">Повідомлення диспетчеру<span class="pen">✎ введення 2</span></div>
+            <div class="stack-row">Маршрутний лист<span class="pen">✎ введення 3</span></div>
+          </div>
+          <p style="margin-top:10px;">Більше трудомісткості — більше ризику помилки.</p>
+        </div>
+        <div class="ba-arrow" data-speed="1.4" data-depth="0.6">→</div>
+        <div class="card mint" data-speed="1.55" data-depth="0.5">
+          <span class="label" style="color:var(--accent-2)">Стало</span>
+          <div class="hub" style="margin-top:14px;">
+            <div class="hub-core">Спільний<br>реєстр</div>
+            <div class="hub-outs"><span>Менеджер</span><span>Диспетчер</span><span>Маршрут</span></div>
+          </div>
+          <p style="margin-top:14px;"><b style="color:var(--accent-2)">+ правило актуальності:</b> покупець змінив адресу після комплектування → диспетчер отримує нове значення.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== SLIDE 14: Ідентифікація і датчики ===================== -->
+  <section class="slide" data-section="02 · Цифрова економіка">
+    <div class="content">
+      <div data-speed="1" data-depth="0.12">
+        <div class="eyebrow">Ідентифікація та IoT</div>
+        <h2 class="title">Технологія обирається за процесом, а <span class="grad">не за новизною</span></h2>
+      </div>
+      <div class="grid3" style="margin-top:24px;">
+        <div class="card" data-speed="1.2" data-depth="0.35">
+          <div class="ibox"><svg class="icon"><use href="#i-barcode"/></svg></div>
+          <h3>Штрихкод</h3>
+          <p>Ідентифікатор, який зіставляють із довідником. Не база характеристик і не перевірка стану товару.</p>
+          <div class="trap"><b>10 коробок ≠ 10 одиниць</b><br>потрібне правило перерахунку упаковки</div>
+        </div>
+        <div class="card" data-speed="1.4" data-depth="0.5">
+          <div class="ibox mint"><svg class="icon"><use href="#i-rfid"/></svg></div>
+          <h3>RFID</h3>
+          <p>Радіочастотні мітки й зчитувачі. Вибір залежить від кількості операцій, умов зчитування й витрат.</p>
+          <div class="trap"><b>Один код ≠ одна партія</b><br>партію, строк, серійний номер обліковують окремо</div>
+        </div>
+        <div class="card" data-speed="1.6" data-depth="0.65">
+          <div class="ibox warm"><svg class="icon"><use href="#i-temp"/></svg></div>
+          <h3>IoT-датчики</h3>
+          <p>Значення має сенс лише разом із датчиком, місцем, часом та одиницею виміру.</p>
+          <div class="trap"><b>Немає показання ≠ норма</b><br>можливо, втрачено зв’язок або датчик несправний</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== SLIDE 15: Впровадження ===================== -->
+  <section class="slide" data-section="02 · Цифрова економіка">
+    <div class="content">
+      <div data-speed="1" data-depth="0.12">
+        <div class="eyebrow">Упровадження змін</div>
+        <h2 class="title">Спочатку пілот — потім <span class="grad">масштаб</span></h2>
+      </div>
+      <div class="timeline">
+        <div class="tl-item" data-speed="1.15" data-depth="0.3"><div class="tl-dot">1</div><h3>Пілот</h3><p>Одна ділянка: один магазин або одна категорія товарів.</p></div>
+        <div class="tl-item" data-speed="1.3" data-depth="0.4"><div class="tl-dot">2</div><h3>Порівняння</h3><p>Час і помилки проти початкового стану — з урахуванням обсягу й складності.</p></div>
+        <div class="tl-item" data-speed="1.45" data-depth="0.5"><div class="tl-dot">3</div><h3>Коригування</h3><p>Незрозумілі статуси, зайві поля, відсутні відповідальні.</p></div>
+        <div class="tl-item" data-speed="1.6" data-depth="0.6"><div class="tl-dot">4</div><h3>Розширення</h3><p>Поступово, зберігаючи контрольований резервний порядок.</p></div>
+      </div>
+      <div class="card quote" data-speed="1.75" data-depth="0.3">
+        <div class="qm">“</div>
+        <p>Навчання має пояснювати зв’язок поля з наступним рішенням.<span>Коли комірник бачить, що точний час комплектування допомагає диспетчеру планувати рейси, заповнення перестає бути формальністю.</span></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== SLIDE 16: Розділ 3 ===================== -->
+  <section class="slide section-break" data-section="03 · Інформаційні системи" data-sec="1">
+    <div class="ghost-num" data-speed="0.2" data-depth="0.3" style="left:720px; top:110px; font-size:620px;">3</div>
+    <div class="content">
+      <div class="eyebrow" data-speed="1" data-depth="0.1">Розділ 03</div>
+      <h2 class="display xl" data-speed="1.15" data-depth="0.15">Системи ритейлу<br>й <span class="grad">логістики</span></h2>
+      <p class="lead" data-speed="1.3" data-depth="0.2">Замовлення № 204: різні працівники — один спільний запис</p>
+    </div>
+    <div class="pos" data-speed="1.8" data-depth="1.7" style="left:950px; top:150px;"><span class="chip big blue">POS</span></div>
+    <div class="pos" data-speed="1.2" data-depth="1.1" style="left:1110px; top:240px;"><span class="chip mint" style="animation-delay:-2s">WMS</span></div>
+    <div class="pos" data-speed="0.8" data-depth="0.7" style="left:860px; top:330px;"><span class="chip" style="animation-delay:-4s">TMS</span></div>
+    <div class="pos" data-speed="1.6" data-depth="1.5" style="left:1040px; top:420px;"><span class="chip big warm" style="animation-delay:-1s">ERP</span></div>
+    <div class="pos" data-speed="1.0" data-depth="0.9" style="left:900px; top:540px;"><span class="chip faint" style="animation-delay:-3s">CRM</span></div>
+    <div class="pos" data-speed="1.3" data-depth="1.2" style="left:1130px; top:560px;"><span class="chip faint" style="animation-delay:-5s">API</span></div>
+  </section>
+
+  <!-- ===================== SLIDE 17: Класи систем ===================== -->
+  <section class="slide" data-section="03 · Інформаційні системи">
+    <div class="content">
+      <div data-speed="1" data-depth="0.12">
+        <div class="eyebrow">Класи інформаційних систем</div>
+        <h2 class="title">П’ять систем — <span class="grad">одна облікова основа</span></h2>
+      </div>
+      <div class="sys5">
+        <div class="card sys" data-speed="1.1" data-depth="0.3"><div class="ac blue-t">POS</div><div class="full">Система в точці продажу</div>
+          <div class="row"><span class="label">Дані</span><div>Продажі та повернення</div></div>
+          <div class="row"><span class="label">Операція</span><div>Покупка на касі</div></div>
+          <div class="row"><span class="label">Результат</span><div>Оперативний облік реалізації</div></div></div>
+        <div class="card sys" data-speed="1.25" data-depth="0.4"><div class="ac mint-t">WMS</div><div class="full">Управління складом</div>
+          <div class="row"><span class="label">Дані</span><div>Залишки й місця зберігання</div></div>
+          <div class="row"><span class="label">Операція</span><div>Відбір товару за замовленням</div></div>
+          <div class="row"><span class="label">Результат</span><div>Контроль складських операцій</div></div></div>
+        <div class="card sys" data-speed="1.4" data-depth="0.5"><div class="ac warm-t">TMS</div><div class="full">Управління перевезеннями</div>
+          <div class="row"><span class="label">Дані</span><div>Маршрути й відвантаження</div></div>
+          <div class="row"><span class="label">Операція</span><div>Планування рейсу</div></div>
+          <div class="row"><span class="label">Результат</span><div>Координація доставки</div></div></div>
+        <div class="card sys" data-speed="1.55" data-depth="0.6"><div class="ac" style="color:#9fb6ff">CRM</div><div class="full">Взаємовідносини з клієнтами</div>
+          <div class="row"><span class="label">Дані</span><div>Звернення та історія</div></div>
+          <div class="row"><span class="label">Операція</span><div>Опрацювання претензії</div></div>
+          <div class="row"><span class="label">Результат</span><div>Узгоджене обслуговування</div></div></div>
+        <div class="card sys blue" data-speed="1.7" data-depth="0.7"><div class="ac grad">ERP</div><div class="full">Планування ресурсів підприємства</div>
+          <div class="row"><span class="label">Дані</span><div>Закупівлі, облік, ресурси</div></div>
+          <div class="row"><span class="label">Операція</span><div>Узгодження потреби в закупівлі</div></div>
+          <div class="row"><span class="label">Результат</span><div>Спільна облікова основа</div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== SLIDE 18: Статуси замовлення ===================== -->
+  <section class="slide" data-section="03 · Інформаційні системи">
+    <div class="content">
+      <div data-speed="1" data-depth="0.12">
+        <div class="eyebrow">Замовлення на самовивіз</div>
+        <h2 class="title">Кожний етап має <span class="grad">власний стан</span> і момент підтвердження</h2>
+      </div>
+      <div class="pipeline" data-speed="1.3" data-depth="0.4">
+        <div class="pl-track"><div class="pl-fill" id="plFill"></div></div>
+        <div class="pl-node"><div class="pl-circle"><svg class="icon"><use href="#i-cart"/></svg></div><h3>Прийняте</h3><p>Система замовлень фіксує потребу</p></div>
+        <div class="pl-node"><div class="pl-circle"><svg class="icon"><use href="#i-layers"/></svg></div><h3>Резерв</h3><p>Склад перевіряє доступність</p></div>
+        <div class="pl-node"><div class="pl-circle"><svg class="icon"><use href="#i-box"/></svg></div><h3>Скомплектоване</h3><p>Працівник готує товар</p></div>
+        <div class="pl-node"><div class="pl-circle"><svg class="icon"><use href="#i-inbox"/></svg></div><h3>Готове до видачі</h3><p>Повідомлення покупцю</p></div>
+        <div class="pl-node"><div class="pl-circle"><svg class="icon"><use href="#i-check"/></svg></div><h3>Отримане</h3><p>Каса закриває продаж і резерв</p></div>
+      </div>
+      <div class="neq" data-speed="1.6" data-depth="0.25">«Прийняте»<span class="x">≠</span>«підготовлене»<span class="x">≠</span><span class="grad">«отримане»</span></div>
+      <p class="body" data-speed="1.7" data-depth="0.2" style="text-align:center; margin-top:12px;">Якщо система змішує стани, працівники повідомляють покупцю неправильний результат.</p>
+    </div>
+  </section>
+
+  <!-- ===================== SLIDE 19: Інтеграція ===================== -->
+  <section class="slide" data-section="03 · Інформаційні системи">
+    <div class="content">
+      <div data-speed="1" data-depth="0.12">
+        <div class="eyebrow">Інтеграція систем</div>
+        <h2 class="title">Інтеграція — це збереження <span class="grad">зв’язку між діями</span></h2>
+      </div>
+      <div class="integ">
+        <div class="card obj-table" data-speed="1.25" data-depth="0.35" style="padding:6px 0;">
+          <div class="obj-row head"><span class="label">Об’єкт</span><span class="label">Що узгодити</span><span class="label">Наслідок розбіжності</span></div>
+          <div class="obj-row"><div class="o">Товар<span>код SKU</span></div><div>Одиницю виміру й характеристику</div><div class="bad">Неправильний товар або кількість</div></div>
+          <div class="obj-row"><div class="o">Замовлення<span>№ замовлення</span></div><div>Статуси та історію змін</div><div class="bad">Повторне виконання або втрата</div></div>
+          <div class="obj-row"><div class="o">Поставка<span>№ поставки</span></div><div>Партію та фактичне приймання</div><div class="bad">Розбіжність запасу</div></div>
+          <div class="obj-row"><div class="o">Доставка<span>№ відправлення</span></div><div>Адресу, час, підтвердження</div><div class="bad">Хибне повідомлення покупцю</div></div>
+        </div>
+        <div class="card blue" data-speed="1.45" data-depth="0.55">
+          <span class="label">Контроль обміну</span>
+          <div class="exch">
+            <span style="background:rgba(91,140,255,.14); color:var(--accent);">передано</span><i>→</i>
+            <span style="background:rgba(47,224,192,.14); color:var(--accent-2);">прийнято</span><i>/</i>
+            <span style="background:rgba(255,107,129,.14); color:var(--danger);">відхилено</span>
+          </div>
+          <p>«Відправлено» не означає, що друга система опрацювала запис. Файл збережено, але не імпортовано — обмін не завершено.</p>
+          <div class="trap" style="margin-top:16px;"><b>Повтор без унікального ID</b><br>після збою мережі товар може бути списаний удруге</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== SLIDE 20: Розділ 4 ===================== -->
+  <section class="slide section-break" data-section="04 · Якість даних" data-sec="1">
+    <div class="ghost-num" data-speed="0.2" data-depth="0.3" style="left:720px; top:110px; font-size:620px;">4</div>
+    <div class="content">
+      <div class="eyebrow" data-speed="1" data-depth="0.1">Розділ 04</div>
+      <h2 class="display xl" data-speed="1.15" data-depth="0.15">Якість даних<br>і <span class="grad">ефект</span></h2>
+      <p class="lead" data-speed="1.3" data-depth="0.2">Встановлена програма ще не доводить поліпшення — його треба виміряти</p>
+    </div>
+    <div class="pos" data-speed="1.8" data-depth="1.7" style="left:960px; top:160px;"><span class="chip big mint">точність</span></div>
+    <div class="pos" data-speed="1.1" data-depth="1.0" style="left:1110px; top:290px;"><span class="chip warm" style="animation-delay:-2s">KPI</span></div>
+    <div class="pos" data-speed="0.7" data-depth="0.6" style="left:870px; top:400px;"><span class="chip faint" style="animation-delay:-4s">резерв</span></div>
+    <div class="pos" data-speed="1.5" data-depth="1.4" style="left:1000px; top:510px;"><span class="chip big blue" style="animation-delay:-1s">окупність</span></div>
+  </section>
+
+  <!-- ===================== SLIDE 21: Виміри якості ===================== -->
+  <section class="slide" data-section="04 · Якість даних">
+    <div class="content">
+      <div data-speed="1" data-depth="0.12">
+        <div class="eyebrow">Виміри якості даних</div>
+        <h2 class="title">Якість — це <span class="grad">придатність</span> для конкретного рішення</h2>
+      </div>
+      <div class="quality">
+        <div class="q6">
+          <div class="card q" data-speed="1.1" data-depth="0.3"><div class="qn">01</div><h3>Точність</h3><p>Відповідність фактичному стану</p></div>
+          <div class="card q" data-speed="1.2" data-depth="0.35"><div class="qn">02</div><h3>Повнота</h3><p>Наявність потрібних відомостей</p></div>
+          <div class="card q" data-speed="1.3" data-depth="0.4"><div class="qn">03</div><h3>Актуальність</h3><p>Своєчасне оновлення</p></div>
+          <div class="card q" data-speed="1.4" data-depth="0.45"><div class="qn">04</div><h3>Узгодженість</h3><p>Однакове тлумачення в різних джерелах</p></div>
+          <div class="card q" data-speed="1.5" data-depth="0.5"><div class="qn">05</div><h3>Унікальність</h3><p>Без повторного включення запису</p></div>
+          <div class="card q" data-speed="1.6" data-depth="0.55"><div class="qn">06</div><h3>Валідність</h3><p>Відповідність правилам — але не доказ реальності події</p></div>
+        </div>
+        <div class="card danger" data-speed="1.4" data-depth="0.6">
+          <span class="label">Вартість помилки зростає</span>
+          <div class="cost-bars">
+            <div class="cb"><div class="bar grow" data-h="22%"></div><div class="bl">Заявка</div></div>
+            <div class="cb"><div class="bar grow" data-h="42%"></div><div class="bl">Резерв</div></div>
+            <div class="cb"><div class="bar grow" data-h="68%"></div><div class="bl">Компле&shy;ктування</div></div>
+            <div class="cb"><div class="bar grow" data-h="100%"></div><div class="bl">Доставка</div></div>
+          </div>
+          <p>Кількість легко уточнити до резервування; після доставки — це вже повернення.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== SLIDE 22: Інтерактивний запас ===================== -->
+  <section class="slide" data-section="04 · Якість даних" data-enter="stock">
+    <div class="content stock">
+      <div data-speed="1" data-depth="0.12">
+        <div class="eyebrow">Інтерактив · натисніть подію</div>
+        <h2 class="title" style="font-size:30px;">Три стани запасу — <span class="grad">три різні рішення</span></h2>
+        <div class="legend3">
+          <div><span class="sw" style="background:var(--accent)"></span><b>Фізичний</b>перевірка наявного товару</div>
+          <div><span class="sw" style="background:var(--warm)"></span><b>Резерви</b>уже прийняті зобов’язання</div>
+          <div><span class="sw" style="background:var(--accent-2)"></span><b>Доступний</b>нові підтвердження</div>
+        </div>
+        <div class="formula">Доступний = Фізичний − Резерви<br><span style="color:var(--dim); font-size:12px;">(за потреби − заблоковані / пошкоджені)</span></div>
+        <div class="ev-btns" data-no-nav>
+          <button class="ev-btn active" data-state="0"><small>Крок 0</small>Після звірки джерел</button>
+          <button class="ev-btn" data-state="1"><small>Крок 1</small>Скасування резерву на 4</button>
+          <button class="ev-btn" data-state="2"><small>Крок 2</small>Відвантаження 5 зарезерв.</button>
+          <button class="ev-btn err" data-state="3"><small>Помилка</small>Скасування як «надходження»</button>
+        </div>
+      </div>
+      <div class="card bars-panel" data-speed="1.35" data-depth="0.45" data-no-nav>
+        <div class="bars3">
+          <div class="b3"><div class="val" id="vP">24</div><div class="delta" id="dP"></div><div class="track3"><div class="fill" id="fP" style="background:linear-gradient(to top, rgba(91,140,255,.35), var(--accent));"></div></div><div class="nm">Фізичний запас</div></div>
+          <div class="b3"><div class="val" id="vR">18</div><div class="delta" id="dR"></div><div class="track3"><div class="fill" id="fR" style="background:linear-gradient(to top, rgba(255,184,77,.3), var(--warm));"></div></div><div class="nm">Чинні резерви</div></div>
+          <div class="b3"><div class="val" id="vA">6</div><div class="delta" id="dA"></div><div class="track3"><div class="fill" id="fA" style="background:linear-gradient(to top, rgba(47,224,192,.3), var(--accent-2));"></div></div><div class="nm">Доступний запас</div></div>
+        </div>
+        <div class="stock-cap"><h3 id="capT"></h3><p id="capP"></p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== SLIDE 23: Економічний ефект ===================== -->
+  <section class="slide" data-section="04 · Якість даних">
+    <div class="content">
+      <div data-speed="1" data-depth="0.12">
+        <div class="eyebrow">Оцінювання ефекту · 800 замовлень / міс</div>
+        <h2 class="title">Звільнений час — <span class="grad">ще не гроші</span></h2>
+      </div>
+      <div class="econ">
+        <div class="card calc warm" data-speed="1.2" data-depth="0.35">
+          <span class="label">Вартість звільненого часу</span>
+          <div class="ln" style="margin-top:10px;"><span>Опрацювання</span><b>10 → 7 хв</b></div>
+          <div class="ln"><span>800 × 3 хв</span><b>2 400 хв</b></div>
+          <div class="ln"><span>Ставка</span><b>180 грн/год</b></div>
+          <div class="res warm-t"><span class="count" data-to="7200">7 200</span> <small>грн</small></div>
+          <p style="font-size:13.5px;"><span class="count" data-to="40">40</span> годин — потенціал робочого часу, а не автоматичне зменшення виплат.</p>
+        </div>
+        <div class="card calc mint" data-speed="1.35" data-depth="0.45">
+          <span class="label">Грошовий ефект</span>
+          <div class="ln" style="margin-top:10px;"><span>Помилки</span><b>6% → 3%</b></div>
+          <div class="ln"><span>48 → 24 × 110 грн</span><b>2 640 грн</b></div>
+          <div class="ln"><span>Обслуговування реєстру</span><b>− 600 грн</b></div>
+          <div class="res mint-t"><span class="count" data-to="2040">2 040</span> <small>грн/міс</small></div>
+          <p style="font-size:13.5px;">Ширша оцінка (9 240 грн) — інша інтерпретація, а не доказ реальної економії.</p>
+        </div>
+        <div class="card payback" data-speed="1.55" data-depth="0.6">
+          <span class="label">Проста окупність</span>
+          <div class="huge grad" style="margin:14px 0 6px;">≈<span class="count" data-to="4.41" data-dec="2">4,41</span></div>
+          <div style="font-family:var(--font-display); font-weight:600; font-size:18px;">місяця</div>
+          <p style="margin-top:16px; font-size:13.5px; color:var(--muted);">9 000 грн разових витрат ÷ 2 040 грн чистого ефекту. Без урахування вартості грошей у часі та ризиків.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== SLIDE 24: Фактичне використання ===================== -->
+  <section class="slide" data-section="04 · Якість даних" data-enter="split">
+    <div class="content">
+      <div data-speed="1" data-depth="0.12">
+        <div class="eyebrow">Ефект залежить від охоплення</div>
+        <h2 class="title">Рахуємо лише ту частину, що <span class="grad">справді змінилася</span></h2>
+      </div>
+      <div data-speed="1.2" data-depth="0.3">
+        <div class="split-bar"><div class="a" id="splitA">880 замовлень · новий реєстр (80%)</div><div class="b">220 · ручний процес</div></div>
+        <div class="label">1 100 замовлень на місяць</div>
+      </div>
+      <div class="stats3">
+        <div class="card stat" data-speed="1.35" data-depth="0.4"><span class="label">Звільнений час</span><div class="v mint-t"><span class="count" data-to="44">44</span> <small>год</small></div><p>880 × 3 хвилини</p></div>
+        <div class="card stat" data-speed="1.5" data-depth="0.5"><span class="label">Очікувані помилки</span><div class="v warm-t">66 → <span class="count" data-to="39.6" data-dec="1">39,6</span></div><p>3% від 880 + 6% від 220. Дробове — очікування за частотою.</p></div>
+        <div class="card stat blue" data-speed="1.65" data-depth="0.6"><span class="label">Грошовий ефект</span><div class="v grad"><span class="count" data-to="2304">2 304</span> <small>грн</small></div><p>26,4 × 110 грн − 600 грн підтримки</p></div>
+      </div>
+      <div class="note mint" data-speed="1.8" data-depth="0.2" style="margin-top:20px;">
+        <svg class="icon" style="color:var(--accent-2);flex:none"><use href="#i-layers"/></svg>
+        <span>Порівнюйте <b>базовий та обережний сценарії</b> з явними припущеннями. Точне число з багатьма знаками не робить ненадійне припущення достовірним.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== SLIDE 25: KPI ===================== -->
+  <section class="slide" data-section="04 · Якість даних">
+    <div class="content">
+      <div data-speed="1" data-depth="0.12">
+        <div class="eyebrow">Показник результативності</div>
+        <h2 class="title">KPI має показувати <span class="grad">ціль</span>, а не кількість комп’ютерів</h2>
+      </div>
+      <div class="kpi-formula" data-speed="1.25" data-depth="0.4">
+        <div class="kpi-core">KPI</div><span class="op">=</span>
+        <div class="kpi-part"><b>Зміст</b><span>що вимірюємо</span></div><span class="op">+</span>
+        <div class="kpi-part"><b>Формула</b><span>який знаменник</span></div><span class="op">+</span>
+        <div class="kpi-part"><b>Період</b><span>однаковий до/після</span></div><span class="op">+</span>
+        <div class="kpi-part"><b>Джерело</b><span>звідки дані</span></div><span class="op">+</span>
+        <div class="kpi-part"><b>Відповідальний</b><span>хто підтримує</span></div>
+      </div>
+      <div class="label" data-speed="1.35" data-depth="0.2" style="margin:30px 0 12px;">Логіка професійного обґрунтування</div>
+      <div class="chain4" data-speed="1.5" data-depth="0.5">
+        <div><span class="label">01</span><b>Наявна проблема</b></div>
+        <div><span class="label">02</span><b>Зміна процесу</b></div>
+        <div><span class="label">03</span><b>Очікуваний результат</b></div>
+        <div style="background:rgba(47,224,192,.1);"><span class="label">04</span><b>Спосіб перевірки</b></div>
+      </div>
+      <p class="body" data-speed="1.7" data-depth="0.2" style="margin-top:22px;">Кількість користувачів чи введених рядків характеризує охоплення. Показники процесу мають показати, чи зменшилися помилки, затримки й непродуктивні дії.</p>
+    </div>
+  </section>
+
+  <!-- ===================== SLIDE 26: Підсумок ===================== -->
+  <section class="slide" data-section="Підсумок">
+    <div class="ghost-num" data-speed="0.2" data-depth="0.3" style="left:780px; top:170px; font-size:440px;">✓</div>
+    <div class="ring" data-speed="0.35" data-depth="0.5" style="left:820px; top:-120px; width:600px; height:600px;"></div>
+    <div class="content" style="display:flex; flex-direction:column; justify-content:center;">
+      <div class="eyebrow" data-speed="1" data-depth="0.1">Підсумок</div>
+      <h2 class="display" data-speed="1.15" data-depth="0.15" style="font-size:44px; max-width:900px;">Цінність технології — у <span class="grad">здійсненному замовленні</span></h2>
+      <div class="final3">
+        <div class="card" data-speed="1.3" data-depth="0.35"><div class="fn">01</div><p>Підтвердити покупцеві замовлення, яке справді можна виконати</p></div>
+        <div class="card" data-speed="1.45" data-depth="0.45"><div class="fn">02</div><p>Підготувати правильний товар на основі перевірених даних</p></div>
+        <div class="card" data-speed="1.6" data-depth="0.55"><div class="fn">03</div><p>Виконати погоджені умови й виміряти економічний ефект</p></div>
+      </div>
+      <p class="lead" data-speed="1.75" data-depth="0.2" style="margin-top:34px; font-size:17px;">Далі: спільні документи, штучний інтелект і звіти спираються на цю саму основу.</p>
+    </div>
+  </section>
+
+  <!-- ========== НАВІГАЦІЯ ========== -->
+  <nav class="slide-dots" aria-label="Навігація слайдами"></nav>
+  <div class="progress"><div id="progressFill"></div></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script>
+// === МАСШТАБУВАННЯ ПОЛОТНА ===
+// Усі слайди зверстані на 1280×720 і масштабуються як одне ціле.
+const SLIDE_W = 1280, SLIDE_H = 720;
+const stage = document.querySelector('.stage');
+function scaleToViewport() {
+  const scale = Math.min(innerWidth / SLIDE_W, innerHeight / SLIDE_H);
+  stage.style.transform = `scale(${scale})`;
+  stage.style.transformOrigin = '0 0';
+  stage.style.left = (innerWidth - SLIDE_W * scale) / 2 + 'px';
+  stage.style.top = (innerHeight - SLIDE_H * scale) / 2 + 'px';
+}
+addEventListener('resize', scaleToViewport);
+document.addEventListener('fullscreenchange', scaleToViewport);
+scaleToViewport();
+
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// === ЗОРЯНІ ШАРИ (генеруються випадково) ===
+function makeStars(el, count, colors) {
+  const shadows = [];
+  for (let i = 0; i < count; i++) {
+    const x = Math.round(Math.random() * 1440), y = Math.round(Math.random() * 2800);
+    shadows.push(`${x}px ${y}px ${colors[i % colors.length]}`);
+  }
+  const s = document.createElement('i');
+  s.style.boxShadow = shadows.join(',');
+  el.appendChild(s);
+}
+const starsFar = document.getElementById('starsFar');
+const starsMid = document.getElementById('starsMid');
+makeStars(starsFar, 420, ['rgba(255,255,255,.45)', 'rgba(160,185,255,.35)', 'rgba(255,255,255,.2)']);
+makeStars(starsMid, 140, ['rgba(91,140,255,.8)', 'rgba(47,224,192,.6)', 'rgba(255,255,255,.6)']);
+const orbs = [...document.querySelectorAll('.orb')];
+const floor = document.getElementById('floor');
+
+// === СЛАЙДИ ===
+const slides = [...document.querySelectorAll('.slide')];
+const total = slides.length;
+const speedEls = slides.map(s => [...s.querySelectorAll('[data-speed]')]);
+const depthEls = slides.map(s => [...s.querySelectorAll('[data-depth]')]);
+let current = 0;
+let activeTl = null;
+
+document.getElementById('hudTotal').textContent = String(total).padStart(2, '0');
+
+// Точки навігації (розділові слайди — довші риски)
+const dotsNav = document.querySelector('.slide-dots');
+slides.forEach((s, i) => {
+  const d = document.createElement('button');
+  d.className = 'dot' + (s.dataset.sec ? ' sec' : '');
+  d.setAttribute('aria-label', `Слайд ${i + 1}`);
+  d.addEventListener('click', e => { e.stopPropagation(); goTo(i); });
+  dotsNav.appendChild(d);
+});
+
+function updateHud(i) {
+  document.getElementById('hudNum').textContent = String(i + 1).padStart(2, '0');
+  document.getElementById('hudSection').textContent = slides[i].dataset.section || '';
+  document.getElementById('progressFill').style.width = ((i + 1) / total * 100) + '%';
+  dotsNav.querySelectorAll('.dot').forEach((d, j) => d.classList.toggle('active', j === i));
+}
+
+// Фон зсувається з різною швидкістю — класичний глибинний паралакс
+function moveBackground(i, instant) {
+  const dur = instant ? 0 : 1.8, ease = 'power3.inOut';
+  gsap.to(starsFar, { y: -i * 24, duration: dur, ease });
+  gsap.to(starsMid, { y: -i * 62, duration: dur, ease });
+  gsap.to(floor, { backgroundPosition: `0px ${i * 140}px`, duration: dur, ease });
+  orbs.forEach((o, k) => gsap.to(o, {
+    x: Math.sin(i * 1.3 + k * 2.1) * 260,
+    y: Math.cos(i * 0.9 + k * 1.7) * 140,
+    duration: instant ? 0 : 2.4, ease: 'sine.inOut'
+  }));
+}
+
+// Перехід: кожен шар «їде» зі своєю швидкістю (data-speed)
+function goTo(next) {
+  next = Math.max(0, Math.min(total - 1, next));
+  if (next === current) return;
+  if (activeTl) activeTl.progress(1);   // миттєво завершуємо попередній перехід
+
+  const dir = next > current ? 1 : -1;
+  const out = slides[current], inc = slides[next];
+  const outEls = speedEls[current], incEls = speedEls[next];
+  const prev = current;
+  current = next;
+
+  inc.classList.add('active');
+  gsap.set(inc, { opacity: 1 });
+
+  const tl = gsap.timeline({
+    onComplete() { out.classList.remove('active'); activeTl = null; }
+  });
+  outEls.forEach(el => {
+    const s = +el.dataset.speed;
+    tl.to(el, { y: -dir * 260 * s, opacity: 0, duration: reduceMotion ? 0.01 : 0.7, ease: 'power2.in' }, 0);
+  });
+  tl.to(out, { opacity: 0, duration: 0.5 }, 0.3);
+  incEls.forEach((el, k) => {
+    const s = +el.dataset.speed;
+    tl.fromTo(el, { y: reduceMotion ? 0 : dir * 320 * s, opacity: 0 },
+      { y: 0, opacity: 1, duration: reduceMotion ? 0.01 : 1.15, ease: 'expo.out' }, 0.42 + k * 0.035);
+  });
+  tl.call(() => onEnter(next), null, 0.6);
+
+  moveBackground(next);
+  updateHud(next);
+  history.replaceState(null, '', '#' + (next + 1));
+}
+const nextSlide = () => goTo(current + 1);
+const prevSlide = () => goTo(current - 1);
+
+// === ДІЇ ПРИ ВХОДІ НА СЛАЙД ===
+const fmt = (v, dec) => v.toLocaleString('uk-UA', { minimumFractionDigits: dec, maximumFractionDigits: dec });
+function onEnter(i) {
+  const s = slides[i];
+  // Лічильники
+  s.querySelectorAll('.count').forEach(el => {
+    const to = +el.dataset.to, dec = +(el.dataset.dec || 0), o = { v: 0 };
+    gsap.to(o, { v: to, duration: 1.6, ease: 'power2.out', onUpdate: () => el.textContent = fmt(o.v, dec) });
+  });
+  // Стовпчики, що ростуть
+  s.querySelectorAll('.grow').forEach((el, k) => gsap.fromTo(el, { height: 0 }, { height: el.dataset.h, duration: 1.2, delay: k * 0.12, ease: 'power3.out' }));
+  // Лінія статусів замовлення
+  const pl = s.querySelector('#plFill');
+  if (pl) gsap.fromTo(pl, { width: '0%' }, { width: '100%', duration: 2.4, ease: 'power1.inOut' });
+  if (s.dataset.enter === 'split') gsap.fromTo('#splitA', { width: '0%' }, { width: '80%', duration: 1.4, ease: 'power3.out' });
+  if (s.dataset.enter === 'stock') setStock(0);
+}
+
+// === ІНТЕРАКТИВ: ТРИ СТАНИ ЗАПАСУ ===
+const STOCK_MAX = 30;
+const stockStates = [
+  { p: 24, r: 18, a: 6, d: ['', '', ''],
+    t: 'Після звірки джерел',
+    c: 'Сайт показував 30 (оновлення до відвантаження 6 од.), склад — 24, резерви — 18. Доступно 6. Покупець хоче 8 → погоджуємо часткове виконання, зберігаючи первинну потребу в історії.' },
+  { p: 24, r: 14, a: 10, d: ['0', '−4', '+4'],
+    t: 'Скасування резерву на 4 одиниці',
+    c: 'Це не надходження: фізичний запас не змінюється. Резерви 18 → 14, а можливість нових підтверджень зростає до 10.' },
+  { p: 19, r: 9, a: 10, d: ['−5', '−5', '0'],
+    t: 'Відвантаження 5 зарезервованих одиниць',
+    c: 'Фізичний запас і резерв зменшуються разом. Доступний не змінюється — ці одиниці й раніше були недоступні для нового продажу.' },
+  { p: 28, r: 18, a: 10, d: ['+4', '0', '+4'], err: true,
+    t: 'Помилка класифікації події',
+    c: 'Скасування оформили як надходження: система показує 28 фізичних одиниць, а на полиці — 24. «Додати чотири» арифметично зрозуміло, але належить не до того показника.' }
+];
+const stockVals = { p: 24, r: 18, a: 6 };
+function setStock(k) {
+  const st = stockStates[k];
+  document.querySelectorAll('.ev-btn').forEach(b => b.classList.toggle('active', +b.dataset.state === k));
+  [['p', 'P'], ['r', 'R'], ['a', 'A']].forEach(([key, id], j) => {
+    gsap.to(`#f${id}`, { height: (st[key] / STOCK_MAX * 100) + '%', duration: 0.9, ease: 'power3.out' });
+    gsap.to(stockVals, { [key]: st[key], duration: 0.9, ease: 'power2.out',
+      onUpdate: () => document.getElementById('v' + id).textContent = Math.round(stockVals[key]) });
+    const dEl = document.getElementById('d' + id);
+    const dv = st.d[j];
+    dEl.textContent = dv;
+    dEl.style.color = !dv || dv === '0' ? 'var(--dim)' : (st.err && j === 0 ? 'var(--danger)' : dv.startsWith('+') ? 'var(--accent-2)' : 'var(--warm)');
+  });
+  document.getElementById('vP').style.color = st.err ? 'var(--danger)' : '';
+  document.getElementById('fP').style.background = st.err
+    ? 'linear-gradient(to top, rgba(255,107,129,.35), var(--danger))'
+    : 'linear-gradient(to top, rgba(91,140,255,.35), var(--accent))';
+  const cap = document.querySelector('.stock-cap');
+  gsap.fromTo(cap, { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.5 });
+  document.getElementById('capT').textContent = st.t;
+  document.getElementById('capT').style.color = st.err ? 'var(--danger)' : '';
+  document.getElementById('capP').textContent = st.c;
+}
+document.querySelectorAll('.ev-btn').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); setStock(+b.dataset.state); }));
+
+// === ПАРАЛАКС ВІД МИШІ ===
+// Використовує CSS-властивість translate, тому не конфліктує з анімаціями GSAP (transform)
+let mx = 0, my = 0, tx = 0, ty = 0;
+addEventListener('mousemove', e => { tx = (e.clientX / innerWidth - 0.5) * 2; ty = (e.clientY / innerHeight - 0.5) * 2; });
+const bgDepth = [[starsFar, 0.4], [starsMid, 1.1], [document.getElementById('floorWrap'), 0.6]];
+function loop() {
+  mx += (tx - mx) * 0.06; my += (ty - my) * 0.06;
+  depthEls[current].forEach(el => {
+    const d = +el.dataset.depth;
+    el.style.translate = `${(-mx * d * 22).toFixed(2)}px ${(-my * d * 14).toFixed(2)}px`;
+  });
+  bgDepth.forEach(([el, d]) => el.style.translate = `${(-mx * d * 22).toFixed(2)}px ${(-my * d * 12).toFixed(2)}px`);
+  requestAnimationFrame(loop);
+}
+if (!reduceMotion) loop();
+
+// === НАВІГАЦІЯ: клавіатура, клік, свайп, колесо ===
+document.addEventListener('keydown', e => {
+  if (['ArrowRight', 'ArrowDown', 'PageDown', ' ', 'Enter'].includes(e.key)) { e.preventDefault(); nextSlide(); }
+  if (['ArrowLeft', 'ArrowUp', 'PageUp', 'Backspace'].includes(e.key)) { e.preventDefault(); prevSlide(); }
+  if (e.key === 'Home') goTo(0);
+  if (e.key === 'End') goTo(total - 1);
+  if (e.key === 'f' || e.key === 'а') {
+    document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
+  }
+});
+document.addEventListener('click', e => {
+  if (e.target.closest('button, a, input, [data-no-nav]')) return;
+  e.clientX > innerWidth / 2 ? nextSlide() : prevSlide();
+});
+let touchX = 0, touchY = 0;
+document.addEventListener('touchstart', e => { touchX = e.touches[0].clientX; touchY = e.touches[0].clientY; }, { passive: true });
+document.addEventListener('touchend', e => {
+  const dx = touchX - e.changedTouches[0].clientX, dy = touchY - e.changedTouches[0].clientY;
+  const d = Math.abs(dx) > Math.abs(dy) ? dx : dy;
+  if (Math.abs(d) > 50) d > 0 ? nextSlide() : prevSlide();
+}, { passive: true });
+let wheelLock = false;
+document.addEventListener('wheel', e => {
+  if (wheelLock || Math.abs(e.deltaY) < 8) return;
+  wheelLock = true;
+  setTimeout(() => wheelLock = false, 950);
+  e.deltaY > 0 ? nextSlide() : prevSlide();
+}, { passive: true });
+
+// === СТАРТ: відкриваємо слайд з адреси (#5) або перший ===
+(function init() {
+  const fromHash = parseInt(location.hash.slice(1), 10);
+  current = (fromHash >= 1 && fromHash <= total) ? fromHash - 1 : 0;
+  slides[current].classList.add('active');
+  updateHud(current);
+  moveBackground(current, true);
+  // ?static — без вступної анімації (зручно для друку/скриншотів)
+  if (location.search.includes('static')) { onEnter(current); gsap.globalTimeline.progress(1); return; }
+  speedEls[current].forEach((el, k) => {
+    const s = +el.dataset.speed;
+    gsap.fromTo(el, { y: reduceMotion ? 0 : 140 * s, opacity: 0 },
+      { y: 0, opacity: 1, duration: 1.4, ease: 'expo.out', delay: 0.15 + k * 0.06 });
+  });
+  setTimeout(() => onEnter(current), 500);
+})();
+</script>
+</body>
+</html>

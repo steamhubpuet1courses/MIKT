@@ -1,0 +1,1852 @@
+<!DOCTYPE html><html lang="uk"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"><style>body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+<title>ІТ і цифрова економіка</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;600;700;800&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* Layout: HUD-панель → hero → липкі вкладки → одна активна панель-розділ.
+   Усередині розділу: шапка → зміст (праворуч / згори на мобільних) → тематичні групи → нумеровані блоки → висновок. */
+:root{
+  --bg:#f2f4fa; --bg-panel:#ffffff; --bg-soft:#f5f7fc; --grid:rgba(36,71,184,.05); --grid-dot:rgba(36,71,184,.13);
+  --ink:#10142b; --ink-soft:#5b6283; --on-ink:#ffffff;
+  --blue:#3d6cf0; --blue-deep:#2447b8; --blue-bright:#5b8cff;
+  --red:#e0405a; --olive:#d99a00; --olive-ink:#946800; --ok:#0d9b8a; --sim:#e8731c;
+  --core:#1b2559; --core-2:#2b3f8f;
+  --line:#e1e5f1; --line-strong:#cdd3e6; --nav-bg:rgba(255,255,255,.82);
+  --tint-blue:rgba(61,108,240,.08); --tint-red:rgba(224,64,90,.08); --tint-olive:rgba(217,154,0,.1); --tint-ok:rgba(13,155,138,.1); --tint-sim:rgba(232,115,28,.09);
+  --glow-1:rgba(61,108,240,.10); --glow-2:rgba(13,155,138,.07);
+  --shadow:0 1px 2px rgba(16,20,43,.04), 0 8px 26px rgba(16,20,43,.06);
+  --shadow-lg:0 2px 6px rgba(16,20,43,.05), 0 24px 60px rgba(16,20,43,.12);
+  --radius:18px;
+  --hero-bg:radial-gradient(700px 380px at 88% -5%, rgba(61,108,240,.2), transparent 62%), radial-gradient(520px 320px at 5% 115%, rgba(13,155,138,.16), transparent 62%), linear-gradient(135deg, #ffffff 0%, #eef2ff 55%, #e6f5f2 100%);
+  --hero-border:#e1e5f1; --hero-ink:#10142b; --hero-grid:rgba(36,71,184,.07); --hero-num:rgba(36,71,184,.15);
+  --hero-h1:linear-gradient(92deg,#10142b 25%, #2447b8 70%, #0d9b8a); --hero-sub:#4f5675;
+  --hero-tag-c:#0b7f72; --hero-tag-bg:rgba(13,155,138,.08); --hero-tag-b:rgba(13,155,138,.35);
+  --hero-chip-bg:rgba(255,255,255,.75); --hero-chip-b:#dfe3f0; --hero-chip-c:#10142b; --hero-chip-n:#3d6cf0;
+  --f-display:'Unbounded', 'Segoe UI', system-ui, sans-serif;
+  --f-body:'Manrope', 'Segoe UI', system-ui, sans-serif;
+  --f-mono:'JetBrains Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#070a14; --bg-panel:#0e1328; --bg-soft:#141a35; --grid:rgba(120,145,255,.04); --grid-dot:rgba(140,165,255,.14);
+    --ink:#e8ecff; --ink-soft:#9aa3c8; --on-ink:#0b0f1f;
+    --blue:#5b8cff; --blue-deep:#9db8ff; --blue-bright:#7aa2ff;
+    --red:#ff6b81; --olive:#ffb84d; --olive-ink:#ffc46b; --ok:#2fd9bb; --sim:#ffa04d;
+    --core:#24326e; --core-2:#3550b0;
+    --line:#212947; --line-strong:#313b64; --nav-bg:rgba(14,19,40,.82);
+    --tint-blue:rgba(91,140,255,.13); --tint-red:rgba(255,107,129,.12); --tint-olive:rgba(255,184,77,.12); --tint-ok:rgba(47,217,187,.11); --tint-sim:rgba(255,160,77,.12);
+    --glow-1:rgba(91,140,255,.14); --glow-2:rgba(47,217,187,.06);
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
+    --shadow-lg:0 2px 6px rgba(0,0,0,.3), 0 26px 64px rgba(0,0,0,.5); color-scheme:dark;
+    --hero-bg:radial-gradient(700px 380px at 88% -5%, rgba(91,140,255,.5), transparent 62%), radial-gradient(520px 320px at 5% 115%, rgba(47,217,187,.3), transparent 62%), linear-gradient(135deg, #0c1331 0%, #15204f 55%, #0f2a46 100%);
+    --hero-border:rgba(255,255,255,.06); --hero-ink:#fff; --hero-grid:rgba(255,255,255,.05); --hero-num:rgba(255,255,255,.13);
+    --hero-h1:linear-gradient(92deg,#ffffff 25%, #b7cbff 70%, #8ff2dd); --hero-sub:rgba(232,238,255,.78);
+    --hero-tag-c:#9ff0e0; --hero-tag-bg:rgba(47,217,187,.1); --hero-tag-b:rgba(47,217,187,.38);
+    --hero-chip-bg:rgba(255,255,255,.07); --hero-chip-b:rgba(255,255,255,.16); --hero-chip-c:#dfe6ff; --hero-chip-n:#8ff2dd;
+  }
+}
+:root[data-theme="dark"]{
+  --hero-bg:radial-gradient(700px 380px at 88% -5%, rgba(91,140,255,.5), transparent 62%), radial-gradient(520px 320px at 5% 115%, rgba(47,217,187,.3), transparent 62%), linear-gradient(135deg, #0c1331 0%, #15204f 55%, #0f2a46 100%);
+  --hero-border:rgba(255,255,255,.06); --hero-ink:#fff; --hero-grid:rgba(255,255,255,.05); --hero-num:rgba(255,255,255,.13);
+  --hero-h1:linear-gradient(92deg,#ffffff 25%, #b7cbff 70%, #8ff2dd); --hero-sub:rgba(232,238,255,.78);
+  --hero-tag-c:#9ff0e0; --hero-tag-bg:rgba(47,217,187,.1); --hero-tag-b:rgba(47,217,187,.38);
+  --hero-chip-bg:rgba(255,255,255,.07); --hero-chip-b:rgba(255,255,255,.16); --hero-chip-c:#dfe6ff; --hero-chip-n:#8ff2dd;
+  --bg:#070a14; --bg-panel:#0e1328; --bg-soft:#141a35; --grid:rgba(120,145,255,.04); --grid-dot:rgba(140,165,255,.14);
+  --ink:#e8ecff; --ink-soft:#9aa3c8; --on-ink:#0b0f1f;
+  --blue:#5b8cff; --blue-deep:#9db8ff; --blue-bright:#7aa2ff;
+  --red:#ff6b81; --olive:#ffb84d; --olive-ink:#ffc46b; --ok:#2fd9bb; --sim:#ffa04d;
+  --core:#24326e; --core-2:#3550b0;
+  --line:#212947; --line-strong:#313b64; --nav-bg:rgba(14,19,40,.82);
+  --tint-blue:rgba(91,140,255,.13); --tint-red:rgba(255,107,129,.12); --tint-olive:rgba(255,184,77,.12); --tint-ok:rgba(47,217,187,.11); --tint-sim:rgba(255,160,77,.12);
+  --glow-1:rgba(91,140,255,.14); --glow-2:rgba(47,217,187,.06);
+  --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
+  --shadow-lg:0 2px 6px rgba(0,0,0,.3), 0 26px 64px rgba(0,0,0,.5); color-scheme:dark;
+}
+
+/* ---------- база ---------- */
+*{box-sizing:border-box;}
+body{
+  background:
+    radial-gradient(1100px 600px at 90% -10%, var(--glow-1), transparent 60%),
+    radial-gradient(900px 520px at -10% 5%, var(--glow-2), transparent 60%),
+    linear-gradient(var(--grid) 1px, transparent 1px) 0 0/40px 40px,
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px) 0 0/40px 40px,
+    var(--bg);
+  background-attachment:fixed;
+  color:var(--ink); font-family:var(--f-body); font-size:16px; line-height:1.68; min-height:100vh;
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;}
+body::before{content:""; position:fixed; inset:0 0 auto; height:env(safe-area-inset-top,0px); z-index:60; background:var(--bg);}
+::selection{background:var(--blue); color:#fff;}
+h1,h2,h3,h4{margin:0 0 .5em; text-wrap:balance; line-height:1.25;}
+h3,h4{font-family:var(--f-body); font-weight:800; letter-spacing:-.005em;}
+.mono,code{font-family:var(--f-mono);}
+p{margin:0 0 .8em;}
+b,strong{font-weight:700;}
+.frame{max-width:1240px; margin:0 auto; padding-block:18px 80px; padding-left:max(16px, env(safe-area-inset-left,0px)); padding-right:max(16px, env(safe-area-inset-right,0px));}
+
+/* ---------- HUD ---------- */
+.hud-bar{display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between; padding:9px 10px 9px 18px; background:var(--nav-bg);
+  backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+  border:1px solid var(--line); border-radius:14px; margin-bottom:14px; box-shadow:var(--shadow);
+  font-family:var(--f-mono); font-size:11.5px; letter-spacing:.04em; color:var(--ink-soft);}
+.hud-bar .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ok);margin-right:8px;box-shadow:0 0 0 3px var(--tint-ok);}
+.theme-btn{font-family:var(--f-body); font-weight:700; font-size:12.5px; background:var(--bg-soft); color:var(--ink); border:1px solid var(--line); border-radius:10px; padding:7px 13px; cursor:pointer; transition:.18s;}
+.theme-btn:hover{border-color:var(--blue); color:var(--blue-deep); background:var(--tint-blue);}
+
+/* ---------- HERO (світлий у світлій темі, темний у темній) ---------- */
+header.hero{position:relative; isolation:isolate; overflow:hidden; border-radius:26px; color:var(--hero-ink);
+  padding:clamp(28px,5vw,56px) clamp(20px,4.5vw,54px) clamp(26px,4.5vw,48px); margin-bottom:16px;
+  background:var(--hero-bg); border:1px solid var(--hero-border); box-shadow:var(--shadow-lg);}
+header.hero::before{content:""; position:absolute; inset:0; z-index:-1;
+  background:linear-gradient(var(--hero-grid) 1px, transparent 1px) 0 0/34px 34px,
+             linear-gradient(90deg, var(--hero-grid) 1px, transparent 1px) 0 0/34px 34px;
+  -webkit-mask-image:linear-gradient(105deg, transparent 20%, #000 75%); mask-image:linear-gradient(105deg, transparent 20%, #000 75%);}
+.hero-num{position:absolute; right:-12px; bottom:-0.28em; z-index:-1; font-family:var(--f-display); font-weight:800; line-height:1;
+  font-size:clamp(150px,25vw,300px); letter-spacing:-.06em; color:transparent; -webkit-text-stroke:1.5px var(--hero-num); user-select:none; pointer-events:none;}
+.hero-tag{display:inline-block; font-family:var(--f-mono); font-size:11.5px; letter-spacing:.14em;
+  color:var(--hero-tag-c); background:var(--hero-tag-bg); border:1px solid var(--hero-tag-b); padding:5px 13px; border-radius:20px; margin-bottom:20px;}
+header.hero h1{font-family:var(--f-display); font-size:clamp(24px,3.9vw,44px); font-weight:700; line-height:1.16; letter-spacing:-.015em; max-width:900px;
+  background:var(--hero-h1); -webkit-background-clip:text; background-clip:text; color:transparent;}
+header.hero p.sub{color:var(--hero-sub); max-width:760px; font-size:17.5px; margin:14px 0 26px; line-height:1.6;}
+.hero-meta{display:flex; flex-wrap:wrap; gap:10px;}
+.chip{background:var(--bg-soft); border:1px solid var(--line); border-radius:10px; padding:6px 12px; font-size:13px; color:var(--ink);}
+header.hero .chip{display:inline-flex; align-items:baseline; gap:8px; background:var(--hero-chip-bg); border-color:var(--hero-chip-b); color:var(--hero-chip-c);
+  backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); padding:9px 15px; border-radius:13px; font-size:14px; font-weight:600;}
+header.hero .chip b{font-family:var(--f-display); font-size:17px; color:var(--hero-chip-n);}
+
+/* ---------- вкладки ---------- */
+nav.tabs{position:sticky; top:calc(env(safe-area-inset-top,0px) + 8px); z-index:50; display:flex; gap:4px; overflow-x:auto; background:var(--nav-bg);
+  backdrop-filter:blur(14px) saturate(1.4); -webkit-backdrop-filter:blur(14px) saturate(1.4);
+  border:1px solid var(--line); border-radius:16px; padding:6px; margin-bottom:20px; box-shadow:var(--shadow); scrollbar-width:none;}
+nav.tabs::-webkit-scrollbar{display:none;}
+nav.tabs button{flex:0 0 auto; font-family:var(--f-body); font-weight:700; font-size:13.5px; background:transparent; color:var(--ink-soft);
+  border:1px solid transparent; padding:9px 15px; border-radius:11px; cursor:pointer; transition:.18s; white-space:nowrap;}
+nav.tabs button:hover{background:var(--bg-soft); color:var(--ink);}
+nav.tabs button.active{background:linear-gradient(135deg, var(--core), var(--core-2)); color:#fff; box-shadow:0 6px 16px rgba(27,37,89,.28);}
+.nav-progress{position:absolute; left:16px; right:16px; bottom:0; height:2px; border-radius:2px; overflow:hidden; pointer-events:none;}
+.nav-progress i{display:block; height:100%; width:0; background:linear-gradient(90deg, var(--blue), var(--ok)); transition:width .12s linear;}
+button:focus-visible, .opt:focus-visible, summary:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, a:focus-visible{outline:2px solid var(--blue-bright); outline-offset:2px;}
+
+/* ---------- панель-розділ ---------- */
+section.panel{display:none; margin-bottom:22px;}
+section.panel.active{display:grid; grid-template-columns:minmax(0,1fr) 262px; gap:20px 24px; align-items:start; animation:fadeIn .4s ease;}
+section.panel.plain.active{display:block;}
+@keyframes fadeIn{from{opacity:.3; transform:translateY(8px);} to{opacity:1; transform:none;}}
+.sec-head{grid-column:1 / -1; position:relative; overflow:hidden; display:grid; grid-template-columns:auto minmax(0,1fr); gap:clamp(14px,3vw,30px); align-items:start;
+  background:var(--bg-panel); border:1px solid var(--line); border-radius:22px; padding:clamp(20px,3.4vw,34px); box-shadow:var(--shadow);}
+section.panel.plain .sec-head{margin-bottom:18px;}
+.sec-head::after{content:""; position:absolute; right:-90px; top:-110px; width:300px; height:300px; border-radius:50%; background:radial-gradient(circle, var(--tint-blue), transparent 70%); pointer-events:none;}
+.sec-idx{font-family:var(--f-display); font-weight:800; font-size:clamp(42px,6.5vw,74px); line-height:.92; letter-spacing:-.05em;
+  background:linear-gradient(140deg, var(--blue), var(--ok)); -webkit-background-clip:text; background-clip:text; color:transparent; min-width:1.2em;}
+.sec-kicker{font-family:var(--f-mono); font-size:11.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--blue);}
+.sec-head h2{font-family:var(--f-display); font-weight:700; font-size:clamp(19px,2.4vw,26px); line-height:1.28; letter-spacing:-.01em; margin:8px 0 12px;}
+.sec-head .lede{margin:0; max-width:80ch;}
+.sec-meta{display:flex; flex-wrap:wrap; gap:8px; margin-top:16px;}
+.sec-meta:empty{display:none;}
+.sec-meta span{font-size:12.5px; font-weight:600; padding:5px 11px; border-radius:999px; background:var(--bg-soft); border:1px solid var(--line); color:var(--ink-soft);}
+.sec-meta span b{font-family:var(--f-display); color:var(--ink); margin-right:3px;}
+.sec-main{min-width:0; grid-column:1; grid-row:2;}
+.sec-head, .sec-toc{min-width:0;}
+@media(max-width:640px){ .sec-head{grid-template-columns:minmax(0,1fr); gap:4px;} }
+
+/* ---------- зміст розділу + scroll-spy ---------- */
+.sec-toc{grid-column:2; grid-row:2; position:sticky; top:84px; max-height:calc(100vh - 104px); overflow:auto; scrollbar-width:thin;
+  background:var(--bg-panel); border:1px solid var(--line); border-radius:18px; padding:16px 12px 14px; box-shadow:var(--shadow);}
+.toc-title{font-family:var(--f-mono); font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--ink-soft); padding:0 8px 6px;}
+.toc-list{display:flex; flex-direction:column; gap:1px;}
+.toc-group{font-size:11.5px; font-weight:800; color:var(--ink); padding:12px 8px 4px; display:flex; gap:8px; align-items:center;}
+.toc-group i{font-style:normal; font-family:var(--f-display); font-size:10.5px; color:#fff; background:var(--core); width:20px; height:20px; border-radius:6px; display:grid; place-items:center; flex:none;}
+.toc-list a{--k:var(--blue); --kt:var(--tint-blue); display:flex; gap:8px; padding:6px 8px; border-radius:9px; font-size:13px; line-height:1.38; color:var(--ink-soft); text-decoration:none; transition:.15s;}
+.toc-list a[data-kind="sim"]{--k:var(--sim); --kt:var(--tint-sim);}
+.toc-list a[data-kind="data"]{--k:var(--ok); --kt:var(--tint-ok);}
+.toc-list a[data-kind="extra"]{--k:var(--ink-soft); --kt:var(--bg-soft);}
+.toc-list a[data-kind="end"]{--k:var(--ok); --kt:var(--tint-ok); margin-top:8px; border-top:1px dashed var(--line); padding-top:10px; border-radius:0 0 9px 9px;}
+.toc-list a .toc-no{font-family:var(--f-mono); font-size:11px; font-weight:700; color:var(--k); min-width:30px; padding-top:1px;}
+.toc-list a:hover{background:var(--bg-soft); color:var(--ink);}
+.toc-list a.on{background:var(--kt); color:var(--ink); font-weight:700; box-shadow:inset 3px 0 0 var(--k);}
+.toc-legend{display:flex; flex-wrap:wrap; gap:6px 12px; margin:12px 8px 0; padding-top:12px; border-top:1px solid var(--line); font-size:11px; color:var(--ink-soft);}
+.toc-legend span::before{content:""; display:inline-block; width:8px; height:8px; border-radius:2px; margin-right:6px; background:var(--k);}
+@media(max-width:1020px){
+  section.panel.active{grid-template-columns:minmax(0,1fr);}
+  .sec-toc{grid-column:1; grid-row:auto; position:sticky; top:72px; z-index:40; max-height:none; overflow:visible; padding:8px; border-radius:14px; background:var(--nav-bg);
+    backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);}
+  .sec-main{grid-row:auto;}
+  .toc-title, .toc-group, .toc-legend{display:none;}
+  .toc-list{flex-direction:row; overflow-x:auto; gap:4px; scrollbar-width:none;}
+  .toc-list::-webkit-scrollbar{display:none;}
+  .toc-list a{flex:0 0 auto; white-space:nowrap; max-width:240px; overflow:hidden; text-overflow:ellipsis; border:1px solid var(--line); background:var(--bg-panel);}
+  .toc-list a[data-kind="end"]{margin-top:0; border-top:1px solid var(--line); padding-top:6px; border-radius:9px;}
+}
+
+/* ---------- тематичні групи ---------- */
+.group-label{display:flex; align-items:center; gap:12px; margin:30px 2px 14px; font-weight:800; font-size:13px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-soft);}
+.sec-main > .group-label:first-child{margin-top:4px;}
+.group-label b{font-family:var(--f-display); font-size:12.5px; color:#fff; background:linear-gradient(135deg,var(--core),var(--core-2)); width:30px; height:30px; border-radius:9px; display:grid; place-items:center; letter-spacing:0; flex:none;}
+.group-label::after{content:""; flex:1; height:1px; background:linear-gradient(90deg, var(--line-strong), transparent);}
+
+/* ---------- блоки ---------- */
+article.block{--k:var(--blue); --kt:var(--tint-blue); position:relative; background:var(--bg-panel); border:1px solid var(--line); border-radius:var(--radius);
+  padding:22px clamp(16px,2.6vw,28px) 24px; box-shadow:var(--shadow); margin-bottom:16px; scroll-margin-top:90px; min-width:0;}
+@media(max-width:1020px){ article.block{scroll-margin-top:136px;} }
+article.block::before{content:""; position:absolute; left:-1px; top:24px; height:44px; width:4px; border-radius:0 4px 4px 0; background:var(--k);}
+article.block[data-kind="sim"]{--k:var(--sim); --kt:var(--tint-sim);}
+article.block[data-kind="data"]{--k:var(--ok); --kt:var(--tint-ok);}
+article.block[data-kind="extra"]{--k:var(--ink-soft); --kt:var(--bg-soft);}
+.block-head{display:flex; gap:14px; align-items:center; margin-bottom:14px;}
+.block-no{flex:none; min-width:48px; height:48px; padding:0 8px; border-radius:14px; display:grid; place-items:center;
+  font-family:var(--f-display); font-weight:700; font-size:14px; color:var(--k); background:var(--kt); border:1px solid color-mix(in srgb, var(--k) 28%, transparent);}
+.kind{display:block; font-family:var(--f-mono); font-size:10.5px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:var(--k);}
+.block[data-kind="theory"] .kind::before{content:"◆  Теорія";}
+.block[data-kind="sim"] .kind::before{content:"▶  Симулятор";}
+.block[data-kind="data"] .kind::before{content:"▦  Схема · таблиця";}
+.block[data-kind="extra"] .kind::before{content:"＋  Поглиблення";}
+.block-head h3{margin:3px 0 0; font-size:clamp(17px,1.9vw,19.5px); line-height:1.3;}
+.block > .lede:first-of-type{margin-top:-2px;}
+
+/* ---------- текст ---------- */
+.lede{color:var(--ink-soft); font-size:16px; max-width:78ch;}
+.prose{max-width:80ch;}
+.prose p{color:var(--ink);}
+.muted{color:var(--ink-soft);}
+.mini-title{display:block; font-family:var(--f-mono); font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-soft); margin:20px 0 10px;}
+.mini-title:first-child{margin-top:4px;}
+.tag-sim{display:inline-block; font-family:var(--f-mono); font-size:10.5px; font-weight:700; letter-spacing:.1em; color:var(--sim); background:var(--tint-sim); border:1px solid color-mix(in srgb, var(--sim) 40%, transparent); border-radius:6px; padding:1px 7px; margin:0 2px; vertical-align:middle;}
+.definition{position:relative; padding:20px 22px 20px 24px; border-radius:16px; background:linear-gradient(135deg, var(--tint-blue), transparent 80%); border:1px solid color-mix(in srgb, var(--blue) 25%, transparent);}
+.definition .term{display:block; font-family:var(--f-display); font-weight:700; font-size:18px; color:var(--blue-deep); margin-bottom:4px;}
+.definition p{margin:0; font-size:17px;}
+.points{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; margin:14px 0;}
+.point{padding:14px 16px; border-radius:14px; background:var(--bg-soft); border:1px solid var(--line); border-top:3px solid var(--blue);}
+.point.warn{border-top-color:var(--red);}
+.point.ok{border-top-color:var(--ok);}
+.point b{display:block; font-weight:800; margin-bottom:4px;}
+.point p{margin:0; color:var(--ink-soft); font-size:15px; line-height:1.6;}
+.checklist{list-style:none; padding:0; margin:0; display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:8px;}
+.checklist li{display:flex; gap:10px; align-items:flex-start; padding:10px 14px; border-radius:12px; background:var(--tint-ok); border:1px solid color-mix(in srgb,var(--ok) 25%,transparent); font-weight:600; font-size:15px; line-height:1.45;}
+.checklist li::before{content:"✓"; color:var(--ok); font-weight:800;}
+.io{display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); gap:12px; align-items:stretch; margin:14px 0;}
+.io-cell{padding:14px 16px; border-radius:14px; background:var(--bg-soft); border:1px solid var(--line); font-weight:700; line-height:1.45;}
+.io-cell .l{display:block; font-family:var(--f-mono); font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--blue); margin-bottom:5px; font-weight:700;}
+.io-arrow{display:grid; place-items:center; font-size:22px; color:var(--blue); font-weight:800;}
+@media(max-width:640px){ .io{grid-template-columns:minmax(0,1fr);} .io-arrow{transform:rotate(90deg);} }
+
+/* ---------- висновок ---------- */
+.takeaway{position:relative; overflow:hidden; display:grid; grid-template-columns:auto minmax(0,1fr); gap:18px; align-items:start; padding:24px clamp(18px,3vw,28px);
+  border-radius:20px; margin:26px 0 6px; color:#fff; scroll-margin-top:90px;
+  background:radial-gradient(420px 220px at 100% 0%, rgba(47,217,187,.35), transparent 65%), linear-gradient(135deg, #15204f, #1d3270);
+  box-shadow:var(--shadow-lg);}
+.tk-icon{width:46px; height:46px; border-radius:14px; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.2); display:grid; place-items:center; font-size:20px; font-weight:800; color:#8ff2dd;}
+.tk-label{font-family:var(--f-mono); font-size:11px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:#8ff2dd;}
+.takeaway p{margin:6px 0 0; color:rgba(240,244,255,.9); font-size:16.5px; line-height:1.65; max-width:84ch;}
+
+/* ---------- акордеони ---------- */
+details.acc{border:1px solid var(--line); border-radius:14px; margin-bottom:10px; overflow:hidden; background:var(--bg-panel); transition:border-color .2s, box-shadow .2s;}
+details.acc[open]{border-color:color-mix(in srgb, var(--blue) 35%, var(--line)); box-shadow:0 6px 20px rgba(36,71,184,.07);}
+details.acc summary{cursor:pointer; list-style:none; padding:14px 16px 14px 18px; display:flex; justify-content:space-between; gap:12px; align-items:center;
+  font-weight:700; font-size:15.5px; line-height:1.4; transition:background .15s;}
+details.acc summary::-webkit-details-marker{display:none;}
+details.acc summary:hover{background:var(--bg-soft); color:var(--blue-deep);}
+details.acc summary .arrow{flex:0 0 auto; width:28px; height:28px; border-radius:50%; display:grid; place-items:center; font-size:9px; color:var(--blue);
+  background:var(--tint-blue); transition:transform .25s;}
+details.acc[open] summary .arrow{transform:rotate(90deg);}
+details.acc .acc-body{padding:14px 20px 8px; max-width:86ch; border-top:1px dashed var(--line);}
+
+/* ---------- сітки й картки ---------- */
+.grid2{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px;}
+.grid3{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px;}
+.grid4{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px;}
+.grid5{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px;}
+@media(max-width:900px){.grid4{grid-template-columns:repeat(2,minmax(0,1fr));}}
+@media(max-width:800px){.grid2,.grid3{grid-template-columns:minmax(0,1fr);}}
+@media(max-width:480px){.grid4{grid-template-columns:minmax(0,1fr);}}
+.card{background:var(--bg-soft); border:1px solid var(--line); border-radius:14px; padding:16px 18px; min-width:0; line-height:1.55;}
+.card h4{color:var(--blue-deep); font-size:15.5px; margin-bottom:6px;}
+.card p:last-child{margin-bottom:0;}
+.card .k{font-family:var(--f-mono); font-size:11.5px; color:var(--ink-soft);}
+a.card{color:inherit; text-decoration:none; cursor:pointer; transition:.2s;}
+a.card:hover{border-color:var(--blue); transform:translateY(-3px); box-shadow:var(--shadow);}
+.levels .card{position:relative; padding-top:18px; overflow:hidden;}
+.lvl-n{position:absolute; right:12px; top:4px; font-family:var(--f-display); font-weight:800; font-size:48px; line-height:1; color:var(--blue); opacity:.13;}
+.levels .card:nth-child(2){border-color:color-mix(in srgb, var(--blue) 30%, var(--line));}
+.levels .card:nth-child(3){border-color:color-mix(in srgb, var(--ok) 40%, var(--line)); background:linear-gradient(160deg, var(--tint-ok), var(--bg-soft) 70%);}
+.levels .ex{margin-top:10px; padding-top:10px; border-top:1px dashed var(--line-strong); font-size:14.5px; color:var(--ink-soft);}
+.plan-card{display:flex; flex-direction:column; gap:4px; background:var(--bg-panel);}
+.plan-card .plan-n{font-family:var(--f-display); font-weight:800; font-size:30px; line-height:1; margin-bottom:8px;
+  background:linear-gradient(140deg, var(--blue), var(--ok)); -webkit-background-clip:text; background-clip:text; color:transparent;}
+.plan-card p{color:var(--ink-soft); font-size:14.5px; flex:1;}
+.plan-card .k{color:var(--blue-deep); font-weight:700;}
+.src-card{background:var(--bg-panel); text-align:left;}
+.src-card .l{font-family:var(--f-mono); font-size:11px; color:var(--ink-soft); margin-top:8px;}
+.src-card .big{font-family:var(--f-display); font-weight:800; font-size:34px; line-height:1.1; color:var(--blue-deep);}
+
+/* ---------- кнопки ---------- */
+.btn{font-family:var(--f-body); font-weight:700; font-size:13.5px; cursor:pointer; border:1px solid var(--core); background:var(--core); color:#fff; padding:9px 16px; border-radius:11px; transition:.18s; line-height:1.3;}
+.btn:hover{background:var(--blue); border-color:var(--blue); color:#fff; transform:translateY(-1px);}
+.btn.ghost{background:var(--bg-panel); color:var(--ink); border-color:var(--line-strong);}
+.btn.ghost:hover{border-color:var(--blue); color:var(--blue-deep); background:var(--tint-blue);}
+.btn.warn{background:var(--bg-panel); color:var(--red); border-color:color-mix(in srgb, var(--red) 45%, transparent);}
+.btn.warn:hover{background:var(--tint-red); color:var(--red);}
+.btn.small{padding:6px 12px; font-size:12.5px; border-radius:9px;}
+.btn.active{background:var(--blue); border-color:var(--blue); color:#fff; box-shadow:0 4px 12px color-mix(in srgb, var(--blue) 30%, transparent);}
+.btn:disabled{opacity:.5; cursor:default; transform:none;}
+.btn.active:disabled{opacity:1;}
+.btnrow{display:flex; gap:8px; flex-wrap:wrap; margin:12px 0; align-items:center;}
+
+/* ---------- сцени симуляторів ---------- */
+.mindmap-wrap{background:radial-gradient(var(--grid-dot) 1px, transparent 1.2px) 0 0/18px 18px, var(--bg-soft); border:1px solid var(--line); border-radius:16px; padding:14px; margin:14px 0; overflow-x:auto;}
+.mindmap-wrap svg{width:100%; min-width:560px; height:auto; display:block;}
+.sim-stage{background:var(--bg-soft); border:1px solid var(--line); border-radius:16px; padding:12px; overflow-x:auto;}
+.sim-stage svg{width:100%; height:auto; display:block;}
+.sim-log{position:relative; background:var(--bg-soft); border:1px solid var(--line); border-radius:12px; padding:11px 16px 11px 34px; font-size:14.5px; line-height:1.55; min-height:46px; margin-top:10px; color:var(--ink);}
+.sim-log::before{content:"›"; position:absolute; left:14px; top:8px; font-family:var(--f-mono); font-weight:700; font-size:18px; color:var(--sim);}
+.result-box{background:linear-gradient(135deg, var(--tint-blue), transparent 85%), var(--bg-panel); border:1px solid color-mix(in srgb, var(--blue) 35%, var(--line)); border-radius:14px; padding:16px 20px; margin-top:10px;}
+.result-box .big{font-size:24px; line-height:1.3; color:var(--blue-deep); font-family:var(--f-display); font-weight:700; font-variant-numeric:tabular-nums; margin:2px 0;}
+
+/* svg tokens */
+.sv-bg{fill:var(--bg-soft);} .sv-node{fill:var(--bg-panel); stroke:var(--line-strong); stroke-width:2;}
+.sv-core{fill:var(--core);} .sv-core-t{fill:#ffffff;} .sv-core-t2{fill:#9fd8ff;}
+.sv-t{fill:var(--ink); font-family:var(--f-body); font-size:13px;} .sv-ts{fill:var(--ink-soft); font-family:var(--f-mono); font-size:10.5px;}
+.sv-line{stroke:var(--line-strong); stroke-width:2; fill:none;} .sv-arrow{fill:var(--ink-soft);}
+.st-blue{stroke:var(--blue);} .st-red{stroke:var(--red);} .st-olive{stroke:var(--olive);} .st-ok{stroke:var(--ok);}
+.sv-node.on{fill:var(--tint-blue); stroke:var(--blue); stroke-width:3;}
+.sv-node.done{stroke:var(--ok);}
+.sv-res{fill:var(--blue-deep);} .sv-avail{fill:var(--tint-ok); stroke:var(--ok); stroke-width:2;}
+.sv-shelf{stroke:var(--red); stroke-width:2.5; stroke-dasharray:5 4;}
+.sv-wt{fill:#fff; font-family:var(--f-mono); font-size:13px; font-weight:700;}
+.sv-it{fill:var(--ink); font-family:var(--f-mono); font-size:13px; font-weight:700;}
+
+/* ---------- таблиці ---------- */
+.table-wrap{overflow-x:auto; margin:12px 0; border:1px solid var(--line); border-radius:14px; background:var(--bg-panel);}
+table{border-collapse:separate; border-spacing:0; width:100%; font-size:14.5px;}
+th,td{padding:10px 14px; text-align:left; vertical-align:top; border-bottom:1px solid var(--line);}
+tbody tr:last-child td{border-bottom:none;}
+th{background:var(--bg-soft); font-size:11.5px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-soft);}
+tbody tr:nth-child(even) td{background:color-mix(in srgb, var(--bg-soft) 60%, transparent);}
+td.num, th.num{text-align:right; font-variant-numeric:tabular-nums; font-family:var(--f-mono);}
+caption{caption-side:top; text-align:left; font-family:var(--f-mono); font-size:11.5px; font-weight:700; letter-spacing:.06em; color:var(--ink-soft); padding:12px 14px 10px; border-bottom:1px solid var(--line);}
+tr.hl td{background:var(--tint-blue) !important;}
+tr.hl td:first-child{box-shadow:inset 3px 0 0 var(--blue);}
+
+/* ---------- кроки ---------- */
+.steps{counter-reset:step; margin-top:12px;}
+.step{position:relative; padding:6px 10px 16px 34px; border-left:2px solid var(--line-strong); margin-left:14px;}
+.step:last-child{border-left-color:transparent;}
+.step::before{counter-increment:step; content:counter(step); position:absolute; left:-15px; top:4px; width:28px; height:28px; border-radius:50%;
+  background:linear-gradient(135deg, var(--blue), var(--ok)); color:#fff; display:flex; align-items:center; justify-content:center; font-family:var(--f-display); font-weight:700; font-size:12px; box-shadow:0 0 0 4px var(--bg-panel);}
+.step b{font-weight:800;}
+
+/* ---------- виноски ---------- */
+.callout{--c:var(--red); --ct:var(--tint-red); position:relative; border:1px solid color-mix(in srgb, var(--c) 26%, transparent); border-left:4px solid var(--c); background:var(--ct);
+  padding:13px 18px; border-radius:6px 14px 14px 6px; margin:14px 0; max-width:88ch; line-height:1.6;}
+.callout.blue{--c:var(--blue); --ct:var(--tint-blue);}
+.callout.ok{--c:var(--ok); --ct:var(--tint-ok);}
+.callout > b:first-child{display:block; color:var(--c); font-weight:800; margin-bottom:2px;}
+.callout.blue > b:first-child{color:var(--blue-deep);}
+
+/* ---------- поля ---------- */
+.field{display:flex; flex-direction:column; gap:5px; font-size:12px; font-weight:700; color:var(--ink-soft);}
+.field input, .field select{font-family:var(--f-mono); font-size:15px; padding:9px 11px; border:1px solid var(--line-strong); border-radius:10px; background:var(--bg-panel); color:var(--ink); width:100%; transition:border-color .15s, box-shadow .15s;}
+.field input:focus, .field select:focus, .field textarea:focus{outline:none; border-color:var(--blue); box-shadow:0 0 0 3px var(--tint-blue);}
+.calc{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin:12px 0; padding:16px; border-radius:14px; background:var(--bg-soft); border:1px solid var(--line);}
+.kv{display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:10px; margin-top:10px;}
+.kv > div{background:var(--bg-panel); border:1px solid var(--line); border-radius:14px; padding:12px 14px; min-width:0;}
+.kv .l{font-family:var(--f-mono); font-size:10.5px; font-weight:700; color:var(--ink-soft); letter-spacing:.08em;}
+.kv .v{font-family:var(--f-display); font-weight:700; font-size:20px; line-height:1.35; font-variant-numeric:tabular-nums;}
+.kv .v.red{color:var(--red);} .kv .v.ok{color:var(--ok);} .kv .v.blue{color:var(--blue-deep);}
+.kv .k{font-size:12px; color:var(--ink-soft);}
+
+/* класифікатор */
+.cls-item{display:flex; flex-wrap:wrap; gap:8px 12px; align-items:center; justify-content:space-between; padding:11px 14px; border:1px solid var(--line); border-radius:12px; background:var(--bg-panel); margin-bottom:8px; transition:.2s;}
+.cls-item .txt{flex:1 1 260px; min-width:0; font-weight:600;}
+.cls-item .opts{display:flex; gap:6px; flex-wrap:wrap;}
+.cls-item.right{border-color:var(--ok); background:var(--tint-ok);}
+.cls-item.wrong{border-color:var(--red); background:var(--tint-red);}
+.cls-item .fb{flex-basis:100%; font-size:14px; color:var(--ink-soft);}
+
+/* картки-перевертні */
+.flip{cursor:pointer; text-align:left; font:inherit; color:inherit; width:100%; background:var(--bg-panel); transition:.2s;}
+.flip:hover{border-color:var(--blue); transform:translateY(-2px);}
+.flip .back{display:none; color:var(--ink-soft); font-size:14px; margin-top:8px; padding-top:8px; border-top:1px dashed var(--line-strong);}
+.flip.open .back{display:block;}
+.flip.open{border-color:var(--blue); background:linear-gradient(160deg, var(--tint-blue), var(--bg-panel) 70%);}
+.flip .hint{font-family:var(--f-mono); font-size:11px; color:var(--blue); margin-top:6px;}
+.flip.open .hint{display:none;}
+.badge{display:inline-block; font-family:var(--f-mono); font-size:11px; font-weight:700; padding:2px 9px; border-radius:20px; border:1px solid currentColor;}
+.badge.ok{color:var(--ok);} .badge.red{color:var(--red);} .badge.olive{color:var(--olive-ink);} .badge.blue{color:var(--blue-deep);}
+
+.role-out{min-height:84px;}
+
+/* ---------- практика й тест ---------- */
+.quiz-q{border:1px solid var(--line); border-radius:var(--radius); padding:20px clamp(16px,2.6vw,24px); margin-bottom:14px; background:var(--bg-panel); box-shadow:var(--shadow);}
+.quiz-q h4{font-size:16.5px; margin-bottom:12px; display:flex; gap:10px; align-items:baseline;}
+.quiz-q textarea{font-family:var(--f-body) !important; border-radius:10px !important;}
+.opt{display:block; width:100%; text-align:left; margin-bottom:8px; padding:11px 14px; border-radius:11px; border:1px solid var(--line-strong); background:var(--bg-soft); color:var(--ink); cursor:pointer; font-family:var(--f-body); font-size:15px; font-weight:600; transition:.15s;}
+.opt:hover:not(:disabled){border-color:var(--blue); background:var(--tint-blue);}
+.opt:disabled{cursor:default;}
+.opt.correct{background:var(--tint-ok); border-color:var(--ok); color:var(--ink);}
+.opt.correct::after{content:"  ✓"; color:var(--ok); font-weight:800;}
+.opt.wrong{background:var(--tint-red); border-color:var(--red);}
+.quiz-fb{font-size:14.5px; margin-top:8px; color:var(--ink-soft); padding:10px 14px; border-radius:10px; background:var(--bg-soft);}
+#quizScoreBar{position:sticky; bottom:calc(env(safe-area-inset-bottom,0px) + 12px); background:linear-gradient(135deg, var(--core), var(--core-2)); color:#fff; padding:12px 14px 12px 20px; border-radius:16px; font-weight:700; display:flex; flex-wrap:wrap; gap:10px; justify-content:space-between; align-items:center; box-shadow:var(--shadow-lg);}
+#quizScore{font-family:var(--f-display);}
+#quizScoreBar .btn{background:#fff; color:var(--core); border-color:#fff;}
+.idx{font-family:var(--f-mono); font-size:12px; color:#fff; background:linear-gradient(135deg, var(--sim), var(--red)); padding:3px 9px; border-radius:7px; font-weight:700; flex:0 0 auto;}
+
+/* ---------- глосарій ---------- */
+.gloss{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin:0;}
+@media(max-width:800px){.gloss{grid-template-columns:minmax(0,1fr);}}
+.gloss div{padding:14px 16px; border:1px solid var(--line); border-radius:14px; background:var(--bg-panel); border-left:3px solid var(--blue);}
+.gloss dt{font-weight:800; color:var(--blue-deep); font-size:15.5px;}
+.gloss dd{margin:4px 0 0; color:var(--ink-soft); font-size:15px; line-height:1.55;}
+footer{text-align:center; color:var(--ink-soft); font-family:var(--f-mono); font-size:11.5px; padding:24px 0 0;}
+
+
+/* ---------- поява під час прокручування ---------- */
+.rv{opacity:0; transform:translateY(26px); transition:opacity .7s ease, transform .8s cubic-bezier(.16,1,.3,1); transition-delay:calc(var(--i,0) * 70ms);}
+.rv.from-top{transform:translateY(-26px);}
+.rv.in{opacity:1; transform:none;}
+
+/* ---------- ментальні карти: поява + відштовхування ---------- */
+.mindmap-wrap svg, .sim-stage svg{overflow:visible;}
+.mm-node .mm-in{transform-box:fill-box; transform-origin:center;}
+.mm-node rect{transition:stroke-width .2s, filter .25s;}
+.mm-node.mm-hot rect{stroke-width:3; filter:drop-shadow(0 8px 16px rgba(36,71,184,.28));}
+.mm-wait .mm-in, .mm-wait .mm-link{opacity:0;}
+.mm-anim .mm-in{animation:mmPop .75s cubic-bezier(.2,1.35,.4,1) both; animation-delay:calc(var(--i,0) * 95ms + 80ms);}
+@keyframes mmPop{from{opacity:0; transform:translateY(14px) scale(.8);} to{opacity:1; transform:none;}}
+
+/* ---------- графіки ---------- */
+.ch-wait rect[data-i], .ch-wait .sv-res, .ch-wait .sv-avail{opacity:0;}
+.ch-anim rect[data-i]{transform-box:fill-box; transform-origin:50% 100%; animation:barUp .8s cubic-bezier(.2,1,.3,1) both; animation-delay:calc(var(--i,0) * 55ms);}
+.ch-anim .sv-res, .ch-anim .sv-avail{transform-box:fill-box; transform-origin:0 50%; animation:barRight .9s cubic-bezier(.2,1,.3,1) both; animation-delay:calc(var(--i,0) * 180ms + 100ms);}
+@keyframes barUp{from{transform:scaleY(0);} to{transform:none;}}
+@keyframes barRight{from{transform:scaleX(0);} to{transform:none;}}
+
+/* ---------- картки-перевертні ---------- */
+.fcard{position:relative; perspective:1100px; cursor:pointer; outline:none; min-width:0; -webkit-tap-highlight-color:transparent;}
+.fcard-inner{display:grid; height:100%; transform-style:preserve-3d; transition:transform .8s cubic-bezier(.3,1.3,.45,1);}
+.fcard:hover .fcard-inner{transform:rotateY(-8deg) rotateX(3deg);}
+.fcard.flipped .fcard-inner{transform:rotateY(180deg);}
+.fcard.flipped:hover .fcard-inner{transform:rotateY(172deg) rotateX(3deg);}
+.fcard:focus-visible .fcard-face{outline:2px solid var(--blue-bright); outline-offset:2px;}
+.fcard-face{grid-area:1 / 1; position:relative; overflow:hidden; display:flex; flex-direction:column; min-height:136px; padding:16px 18px;
+  border-radius:16px; border:1px solid var(--line); -webkit-backface-visibility:hidden; backface-visibility:hidden;}
+.fcard-face.front{background:linear-gradient(155deg, var(--bg-panel) 30%, var(--bg-soft)); box-shadow:var(--shadow);}
+.fcard-face.front::after{content:""; position:absolute; right:-36px; top:-36px; width:120px; height:120px; border-radius:50%; background:radial-gradient(circle, var(--tint-blue), transparent 70%); pointer-events:none;}
+.fcard-face.front h4{margin:auto 0 0; padding-top:14px; font-size:16.5px; line-height:1.3; color:var(--ink);}
+.fnum{font-family:var(--f-display); font-weight:800; font-size:13px; color:var(--blue);}
+.fval{font-family:var(--f-mono); font-size:15px; color:var(--blue-deep); margin-top:4px;}
+.fhint{margin-top:10px; font-family:var(--f-mono); font-size:10.5px; letter-spacing:.06em; color:var(--ink-soft); transition:color .2s;}
+.fcard:hover .fhint{color:var(--blue);}
+.fcard-face.back{transform:rotateY(180deg); font-size:14.5px; line-height:1.55; color:var(--ink);
+  background:linear-gradient(155deg, var(--tint-blue), transparent 75%), var(--bg-panel); border-color:color-mix(in srgb, var(--blue) 40%, var(--line)); box-shadow:var(--shadow);}
+.fback-t{font-family:var(--f-mono); font-size:10.5px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--blue); margin-bottom:8px;}
+.fcard-face.back p{margin:6px 0 0;}
+.fcard-face.back .badge{align-self:flex-start;}
+.fcard-face.back .ex{margin-top:10px; padding-top:10px; border-top:1px dashed var(--line-strong); font-size:14px; color:var(--ink-soft);}
+.fcard.lvl .lvl-n{position:absolute; right:14px; top:6px; font-family:var(--f-display); font-weight:800; font-size:54px; line-height:1; color:var(--blue); opacity:.16;}
+.levels .fcard:nth-child(2) .fcard-face{border-color:color-mix(in srgb, var(--blue) 30%, var(--line));}
+.levels .fcard:nth-child(3) .fcard-face{border-color:color-mix(in srgb, var(--ok) 45%, var(--line));}
+.levels .fcard:nth-child(3) .front{background:linear-gradient(155deg, var(--tint-ok), var(--bg-panel) 70%);}
+
+@media (prefers-reduced-motion: reduce){ .rv{opacity:1; transform:none;} .fcard:hover .fcard-inner{transform:none;} .fcard.flipped .fcard-inner{transform:rotateY(180deg);} }
+
+@media (prefers-reduced-motion: reduce){ *{animation:none !important; transition:none !important;} html{scroll-behavior:auto;} }
+</style>
+
+</head><body>
+<div class="frame">
+  <div class="hud-bar">
+    <span><span class="dot"></span>SYSTEM: STEAM‑HUB / IT‑ECONOMY.LAB — ОНЛАЙН · ЛЕКЦІЯ: 01</span>
+    <button class="theme-btn" id="themeBtn" type="button">☾ Темна тема</button>
+  </div>
+
+  <header class="hero">
+    <span class="hero-num" aria-hidden="true">01</span>
+    <span class="hero-tag">// LECTURE_01 · DIGITAL.ECONOMY.CORE</span>
+    <h1>Інформаційні технології як основа розвитку цифрової економіки</h1>
+    <p class="sub">Інтерактивний конспект лекції: від запису «48» до управлінського рішення, цифрова трансформація торгівлі, взаємодія POS / WMS / TMS / CRM / ERP та оцінювання ефекту цифровізації на реальних розрахунках.</p>
+    <div class="hero-meta">
+      <span class="chip"><b>4</b> розділи теорії</span>
+      <span class="chip"><b>12</b> симуляторів</span>
+      <span class="chip"><b>6</b> кейсів практики</span>
+      <span class="chip"><b>14</b> питань тесту</span>
+    </div>
+  </header>
+
+  <nav class="tabs" id="tabsNav" aria-label="Розділи лекції">
+    <button data-t="map" class="active">🗺 Огляд</button>
+    <button data-t="s1">01 · Дані та ІТ</button>
+    <button data-t="s2">02 · Цифрова економіка</button>
+    <button data-t="s3">03 · Системи ритейлу</button>
+    <button data-t="s4">04 · Якість і ефект</button>
+    <button data-t="practice">✅ Практика</button>
+    <button data-t="quiz">❓ Тест</button>
+    <button data-t="ref">📚 Глосарій</button>
+    <div class="nav-progress" aria-hidden="true"><i id="navProgress"></i></div>
+  </nav>
+
+  <!-- ================= MAP ================= -->
+  <section class="panel plain active" id="map">
+    <header class="sec-head">
+      <div class="sec-idx">00</div>
+      <div>
+        <span class="sec-kicker">Огляд лекції</span>
+        <h2>Загальна карта лекції</h2>
+        <p class="lede"><b>Мета:</b> сформувати розуміння ролі інформації та цифрових технологій у торгівлі, навчитися розрізняти складові інформаційної системи, визначати інформаційні потреби торговельного підприємства та оцінювати доцільність цифрових змін у логістиці й ритейлі.</p>
+      </div>
+    </header>
+    <div class="sec-main">
+      <article class="block" data-kind="data" id="map-1">
+        <header class="block-head"><span class="block-no">◎</span><div><span class="kind"></span><h3>Ментальна карта лекції</h3></div></header>
+        <div class="mindmap-wrap" style="margin-bottom:0">
+          <svg class="mm" viewBox="0 0 1100 440" role="img" aria-label="Ментальна карта лекції">
+            <defs><marker id="arM" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" class="sv-arrow"/></marker></defs>
+            <g class="sv-line" marker-end="url(#arM)">
+              <path class="mm-link" data-a="core" data-b="n1" data-p="450 200 330 110"/><path class="mm-link" data-a="core" data-b="n2" data-p="650 200 770 110"/>
+              <path class="mm-link" data-a="core" data-b="n3" data-p="450 240 330 330"/><path class="mm-link" data-a="core" data-b="n4" data-p="650 240 770 330"/>
+            </g>
+            <g class="mm-node" data-id="core"><g class="mm-in"><rect x="430" y="180" width="240" height="80" rx="16" class="sv-core"/>
+              <text x="550" y="214" text-anchor="middle" class="sv-core-t" style="font-family:var(--f-display);font-size:15px;font-weight:700">ЛЕКЦІЯ 01</text>
+              <text x="550" y="238" text-anchor="middle" class="sv-core-t2" style="font-family:var(--f-mono);font-size:12px">ІТ → ЦИФРОВА ЕКОНОМІКА</text></g></g>
+            <g class="mm-node" data-id="n1"><g class="mm-in"><rect x="40" y="40" width="290" height="110" rx="14" class="sv-node st-blue"/>
+              <text x="185" y="74" text-anchor="middle" class="sv-t" style="font-weight:700">01 · Дані, інформація, ІТ</text>
+              <text x="185" y="98" text-anchor="middle" class="sv-ts">дані → контекст → рішення</text>
+              <text x="185" y="118" text-anchor="middle" class="sv-ts">інформаційна система, типи даних</text></g></g>
+            <g class="mm-node" data-id="n2"><g class="mm-in"><rect x="770" y="40" width="290" height="110" rx="14" class="sv-node st-red"/>
+              <text x="915" y="74" text-anchor="middle" class="sv-t" style="font-weight:700">02 · Цифрова економіка</text>
+              <text x="915" y="98" text-anchor="middle" class="sv-ts">оцифрування / автоматизація /</text>
+              <text x="915" y="118" text-anchor="middle" class="sv-ts">трансформація, омніканальність, IoT</text></g></g>
+            <g class="mm-node" data-id="n3"><g class="mm-in"><rect x="40" y="290" width="290" height="110" rx="14" class="sv-node st-olive"/>
+              <text x="185" y="324" text-anchor="middle" class="sv-t" style="font-weight:700">03 · ІС ритейлу й логістики</text>
+              <text x="185" y="348" text-anchor="middle" class="sv-ts">POS · WMS · TMS · CRM · ERP</text>
+              <text x="185" y="368" text-anchor="middle" class="sv-ts">SKU, API, статуси замовлення</text></g></g>
+            <g class="mm-node" data-id="n4"><g class="mm-in"><rect x="770" y="290" width="290" height="110" rx="14" class="sv-node st-ok"/>
+              <text x="915" y="324" text-anchor="middle" class="sv-t" style="font-weight:700">04 · Якість і ефект</text>
+              <text x="915" y="348" text-anchor="middle" class="sv-ts">фізичний / резерв / доступний</text>
+              <text x="915" y="368" text-anchor="middle" class="sv-ts">KPI, окупність, сценарії</text></g></g>
+          </svg>
+        </div>
+      </article>
+
+      <article class="block" data-kind="theory" id="map-2">
+        <header class="block-head"><span class="block-no">≡</span><div><span class="kind"></span><h3>План лекції</h3></div></header>
+        <div class="grid4">
+          <a class="card plan-card" data-go="s1"><span class="plan-n">01</span><h4>Дані та ІТ</h4><p>Дані, інформація та інформаційні технології у професійній діяльності.</p><span class="k">7 тем · 5 симуляторів →</span></a>
+          <a class="card plan-card" data-go="s2"><span class="plan-n">02</span><h4>Цифрова економіка</h4><p>Цифрова економіка та зміни у торговельних бізнес-процесах.</p><span class="k">6 тем · 3 симулятори →</span></a>
+          <a class="card plan-card" data-go="s3"><span class="plan-n">03</span><h4>Системи ритейлу</h4><p>Інформаційні системи ритейлу й логістики та їх взаємодія.</p><span class="k">Табл. 1.1, 1.2 · Рис. 1.1 →</span></a>
+          <a class="card plan-card" data-go="s4"><span class="plan-n">04</span><h4>Якість і ефект</h4><p>Якість даних і оцінювання результатів цифровізації.</p><span class="k">Табл. 1.3 · Рис. 1.2 · калькулятор →</span></a>
+        </div>
+      </article>
+
+      <div class="callout blue"><b>Як користуватись.</b> Кожен розділ складається з коротких теоретичних блоків (розгортаються кліком) та позначених <span class="tag-sim">SIM</span> інтерактивних моделей, у яких можна змінювати числа і бачити наслідки. Наприкінці є кейси для практики, тест і глосарій.</div>
+    </div>
+  </section>
+
+  <!-- ================= S1 ================= -->
+  <section class="panel" id="s1">
+    <header class="sec-head">
+      <div class="sec-idx">01</div>
+      <div>
+        <span class="sec-kicker">Розділ 1 / 4</span>
+        <h2>Дані, інформація та інформаційні технології у професійній діяльності</h2>
+        <p class="lede">Робота магазину й складу щодня залежить від того, наскільки точно працівники розуміють одні й ті самі відомості. Коли покупець запитує про наявність товару, продавець повинен відповісти не за вчорашнім звітом, а за станом запасу, який можна використати зараз.</p>
+        <div class="sec-meta"></div>
+      </div>
+    </header>
+    <aside class="sec-toc" aria-label="Зміст розділу"><div class="toc-title">Зміст розділу</div><nav class="toc-list"></nav></aside>
+    <div class="sec-main">
+
+      <div class="group-label" data-g="A" data-title="Від даних до рішення"><b>A</b>Від даних до рішення</div>
+
+      <article class="block" data-kind="sim" id="s1-1">
+        <header class="block-head"><span class="block-no">1.1</span><div><span class="kind"></span><h3>Шлях запису «48» до рішення</h3></div></header>
+        <p class="lede">Натискайте кроки по черзі: той самий запис поступово набуває змісту.</p>
+        <div class="btnrow" id="dikwBtns">
+          <button class="btn small active" data-i="0">1 · Дані</button>
+          <button class="btn ghost small" data-i="1">2 · Контекст</button>
+          <button class="btn ghost small" data-i="2">3 · Інформація</button>
+          <button class="btn ghost small" data-i="3">4 · Знання → рішення</button>
+        </div>
+        <div class="result-box" id="dikwOut"></div>
+      </article>
+
+      <article class="block" data-kind="theory" id="s1-2">
+        <header class="block-head"><span class="block-no">1.2</span><div><span class="kind"></span><h3>Ключові поняття</h3></div></header>
+        <details class="acc" open><summary><span>Інформаційна технологія та комунікаційні технології</span><span class="arrow">▶</span></summary>
+          <div class="acc-body"><p><b>Інформаційна технологія</b> — це організований спосіб збирання, передавання, зберігання, опрацювання і подання даних за допомогою відповідних засобів та правил. <b>Комунікаційні технології</b> забезпечують обмін даними між працівниками, підрозділами, підприємствами і пристроями.</p>
+          <span class="mini-title">Приклад «технології обліку продажів» як послідовного процесу</span>
+          <div class="grid4" style="margin-bottom:12px">
+            <div class="card"><h4>Введення</h4>Сканування штрихкоду</div>
+            <div class="card"><h4>Зберігання</h4>База товарів</div>
+            <div class="card"><h4>Опрацювання</h4>Програма рахує суму покупки</div>
+            <div class="card"><h4>Передавання</h4>Мережа передає продаж до облікової системи</div>
+          </div></div>
+        </details>
+        <details class="acc"><summary><span>Інформаційна система: не лише комп'ютер</span><span class="arrow">▶</span></summary>
+          <div class="acc-body"><p>Інформаційна система охоплює <b>дані, технічні пристрої, програмне забезпечення, мережі, людей і процедури</b>; комп'ютер або окрема програма є лише частиною системи. Якщо працівник не знає, як фіксувати повернення товару, навіть сучасна програма може показувати неправильні залишки.</p>
+          <p>Тому під час упровадження визначають: відповідальних за введення даних, правила перевірки, порядок виправлення помилок і спосіб передавання результатів іншим учасникам процесу.</p>
+          <div class="grid2" style="margin-bottom:12px">
+            <div class="card"><h4>Структуровані дані</h4>Мають визначені поля: код товару, назва, кількість, ціна, дата. Числову таблицю можна підсумувати формулою.</div>
+            <div class="card"><h4>Неструктуровані дані</h4>Тексти звернень, фото пошкоджених упаковок, аудіозаписи розмов. Текст претензії спочатку треба прочитати, визначити проблему і пов'язати із замовленням.</div>
+          </div></div>
+        </details>
+        <details class="acc"><summary><span>Матеріальний та інформаційний потоки</span><span class="arrow">▶</span></summary>
+          <div class="acc-body"><p>Товар фізично переміщується від постачальника до складу й магазину, а повідомлення про відвантаження може надійти <b>раніше</b>, щоб склад встиг підготувати працівників і місця зберігання. Якщо ж відомості отримані після прибуття автомобіля, приймання ускладнюється, попри те що вантаж доставлено.</p>
+          <p>Так само з покупцем: підтверджена інформація про затримку <b>до</b> оформлення замовлення дозволяє погодити реалістичний строк; <b>після</b> обіцяної дати підприємство вже пояснює відхилення та відновлює довіру.</p>
+          <div class="callout"><b>Баланс швидкості й достовірності.</b> Неперевірене припущення може спричинити неправильне рішення, а запізнілий факт — позбавити можливості запобігти проблемі. Тому визначають, хто підтверджує відомості, коли їх передають і хто використовує результат.</div></div>
+        </details>
+        <details class="acc"><summary><span>Інформаційна потреба починається з питання</span><span class="arrow">▶</span></summary>
+          <div class="acc-body"><p>Вибрати відповідні дані можна лише після того, як зрозуміло, яке рішення належить ухвалити: <i>чи вистачить запасу до наступної поставки? чи можна підтвердити замовлення? чому товар не продано в очікуваному обсязі?</i> Питання визначає, які дані треба зібрати, за який період і з якою точністю.</p>
+          <p>Для перевірки наявності під нове замовлення загальна кількість отриманих за місяць одиниць не допоможе. Потрібні: <b>поточні фізичні залишки, чинні резерви, обмеження продажу</b> й відомості про товари, що вже відвантажені, але ще не списані в системі.</p></div>
+        </details>
+      </article>
+
+      <article class="block" data-kind="sim" id="s1-3">
+        <header class="block-head"><span class="block-no">1.3</span><div><span class="kind"></span><h3>Одна подія — чотири погляди</h3></div></header>
+        <p class="lede">Продано 10 одиниць товару. Оберіть роль, щоб побачити, як ту саму подію використовує кожен працівник.</p>
+        <div class="btnrow" id="roleBtns">
+          <button class="btn ghost small" data-r="0">🧾 Касир</button>
+          <button class="btn ghost small" data-r="1">📦 Комірник</button>
+          <button class="btn ghost small" data-r="2">🛒 Закупівельник</button>
+          <button class="btn ghost small" data-r="3">📊 Керівник</button>
+        </div>
+        <div class="result-box role-out" id="roleOut"></div>
+        <div class="callout blue"><b>Одна подія, а не чотири продажі.</b> Інформаційна система повинна дозволяти різні подання, зберігаючи спільну основу. Коли кожний працівник повторно набирає число у власному файлі, зростає ризик розбіжностей. Тому працівники домовляються, яка подія вважається продажем, коли вона стає остаточною і хто може її виправити.</div>
+      </article>
+
+      <article class="block" data-kind="sim" id="s1-4">
+        <header class="block-head"><span class="block-no">1.4</span><div><span class="kind"></span><h3>Калькулятор запасу: число «чотири» не замінює аналізу</h3></div></header>
+        <p class="lede">Арифметичний запас = залишок ÷ середня реалізація. Але рішення про закупівлю залежить також від строку поставки, неробочих днів постачальника та можливого зростання попиту.</p>
+        <div class="calc">
+          <label class="field">Залишок, од.<input type="number" id="cStock" value="48" min="0"></label>
+          <label class="field">Продаж на день, од.<input type="number" id="cSales" value="12" min="0.1" step="0.5"></label>
+          <label class="field">Строк поставки, дн.<input type="number" id="cLead" value="3" min="0"></label>
+          <label class="field">Неробочі дні постачальника<input type="number" id="cOff" value="0" min="0"></label>
+          <label class="field">Зростання попиту, %<input type="number" id="cGrow" value="0" step="5"></label>
+        </div>
+        <div class="result-box" id="stockOut"></div>
+      </article>
+
+      <div class="group-label" data-g="B" data-title="Види даних і типові пастки"><b>B</b>Види даних і типові пастки</div>
+
+      <article class="block" data-kind="theory" id="s1-5">
+        <header class="block-head"><span class="block-no">1.5</span><div><span class="kind"></span><h3>Види даних у торгівлі</h3></div></header>
+        <div class="grid3">
+          <div class="card"><h4>Довідкові</h4>Відносно сталі об'єкти: товар, магазин, склад, постачальник, одиниця виміру.</div>
+          <div class="card"><h4>Операційні</h4>Окремі дії та події: надходження партії, продаж, повернення, резерв, зміна статусу доставки.</div>
+          <div class="card"><h4>Аналітичні</h4>Результат опрацювання операційних: виручка за тиждень, частка повернень, середні витрати на доставку.</div>
+        </div>
+        <div class="callout"><b>Ланцюг якості.</b> Помилка в довіднику може поширитися на багато операцій, а неправильний відбір операцій спотворює аналітичний показник. Керівник не виправить звіт оформленням діаграми, якщо код товару в первинних документах указано неправильно.</div>
+      </article>
+
+      <article class="block" data-kind="sim" id="s1-6">
+        <header class="block-head"><span class="block-no">1.6</span><div><span class="kind"></span><h3>Класифікатор: до якої групи належать дані?</h3></div></header>
+        <div id="clsData"></div>
+        <div class="sim-log" id="clsDataScore">Оберіть групу для кожного запису.</div>
+      </article>
+
+      <article class="block" data-kind="sim" id="s1-7">
+        <header class="block-head"><span class="block-no">1.7</span><div><span class="kind"></span><h3>Одиниця спостереження: скільки покупців?</h3></div></header>
+        <p class="lede">Одиниця спостереження визначає, чому відповідає один запис: чек, позиція чека, товар за день або магазин за місяць. Ось таблиця продажів, де один рядок дорівнює одній позиції чека.</p>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Чек</th><th>Позиція</th><th class="num">Кількість</th><th class="num">Сума, грн</th></tr></thead>
+          <tbody><tr><td class="mono">№ 5531</td><td>Молоко 2,5%</td><td class="num">2</td><td class="num">84,00</td></tr>
+          <tr><td class="mono">№ 5531</td><td>Хліб житній</td><td class="num">1</td><td class="num">32,50</td></tr>
+          <tr><td class="mono">№ 5531</td><td>Сир твердий</td><td class="num">1</td><td class="num">146,00</td></tr>
+          <tr><td class="mono">№ 5532</td><td>Вода 1,5 л</td><td class="num">6</td><td class="num">108,00</td></tr></tbody>
+        </table></div>
+        <div class="btnrow" id="uoBtns"><span style="font-size:14px;font-weight:700">Скільки покупок у таблиці?</span>
+          <button class="btn ghost small" data-a="4">4</button><button class="btn ghost small" data-a="10">10</button><button class="btn ghost small" data-a="2">2</button></div>
+        <div class="sim-log" id="uoOut">Оберіть відповідь.</div>
+      </article>
+
+      <article class="block" data-kind="sim" id="s1-8">
+        <header class="block-head"><span class="block-no">1.8</span><div><span class="kind"></span><h3>Чи можна це число додавати або усереднювати?</h3></div></header>
+        <p class="lede">Числовий тип не завжди означає кількісну характеристику. Натисніть картку, щоб перевірити себе.</p>
+        <div class="grid4" id="numCards"></div>
+      </article>
+
+      <div class="group-label" data-g="C" data-title="Життєвий цикл і компетентність"><b>C</b>Життєвий цикл і компетентність</div>
+
+      <article class="block" data-kind="data" id="s1-9">
+        <header class="block-head"><span class="block-no">1.9</span><div><span class="kind"></span><h3>Життєвий цикл даних</h3></div></header>
+        <div class="mindmap-wrap">
+          <svg class="mm" viewBox="0 0 1000 150" role="img" aria-label="Життєвий цикл даних">
+            <defs><marker id="arL" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" class="sv-arrow"/></marker></defs>
+            <g class="sv-line" marker-end="url(#arL)"><path class="mm-link" data-a="l0" data-b="l1" data-p="170 75 205 75"/><path class="mm-link" data-a="l1" data-b="l2" data-p="370 75 405 75"/><path class="mm-link" data-a="l2" data-b="l3" data-p="570 75 605 75"/><path class="mm-link" data-a="l3" data-b="l4" data-p="770 75 805 75"/></g>
+            <g class="mm-node" data-id="l0"><g class="mm-in"><rect x="10" y="40" width="160" height="70" rx="12" class="sv-core"/><text x="90" y="80" text-anchor="middle" class="sv-core-t" style="font-size:14px;font-family:var(--f-display)">Створення</text></g></g>
+            <g class="mm-node" data-id="l1"><g class="mm-in"><rect x="210" y="40" width="160" height="70" rx="12" class="sv-node st-blue"/><text x="290" y="80" text-anchor="middle" class="sv-t">Використання</text></g></g>
+            <g class="mm-node" data-id="l2"><g class="mm-in"><rect x="410" y="40" width="160" height="70" rx="12" class="sv-node st-red"/><text x="490" y="80" text-anchor="middle" class="sv-t">Зміна</text></g></g>
+            <g class="mm-node" data-id="l3"><g class="mm-in"><rect x="610" y="40" width="160" height="70" rx="12" class="sv-node st-olive"/><text x="690" y="80" text-anchor="middle" class="sv-t">Зберігання / архів</text></g></g>
+            <g class="mm-node" data-id="l4"><g class="mm-in"><rect x="810" y="40" width="180" height="70" rx="12" class="sv-node st-ok"/><text x="900" y="72" text-anchor="middle" class="sv-t">Завершення</text><text x="900" y="92" text-anchor="middle" class="sv-ts">активного використання</text></g></g>
+          </svg>
+        </div>
+        <div class="points">
+          <div class="point"><b>Запис живе довше за операцію</b><p>Після доставлення замовлення запис уже не потрібен диспетчеру, проте може знадобитися для претензії або аналізу сервісу.</p></div>
+          <div class="point ok"><b>Архівування</b><p>Прибирає завершені операції з робочого подання, не втрачаючи історії.</p></div>
+          <div class="point warn"><b>Безконтрольні копії</b><p>Працівники не розуміють, який файл чинний, і можуть використати застарілу ціну.</p></div>
+        </div>
+        <div class="callout blue"><b>Принцип.</b> Історію зберігають цілеспрямовано, а актуальність робочого подання підтримують окремо.</div>
+      </article>
+
+      <article class="block" data-kind="extra" id="s1-10">
+        <header class="block-head"><span class="block-no">1.10</span><div><span class="kind"></span><h3>Компетентність і спільний цикл логістики та ритейлу</h3></div></header>
+        <details class="acc"><summary><span>Цифрова компетентність: операції + оцінювання змісту</span><span class="arrow">▶</span></summary>
+          <div class="acc-body"><p>Людина може швидко вводити дані, але не помічати дублікати; будувати діаграму, але не перевіряти одиниці виміру; отримати відповідь ШІ, але прийняти вигадану дату за факт. Професійна діяльність потребує поєднання <b>технічної вправності, критичного мислення й комунікації</b>: комірник повідомляє про невідповідність, менеджер пояснює підставу зміни, керівник визначає відповідального. Можливість відтворити підстави й послідовність операцій відрізняє організовану роботу з даними від механічного користування комп'ютером.</p></div>
+        </details>
+        <details class="acc"><summary><span>Логістика і ритейл: спільний цикл</span><span class="arrow">▶</span></summary>
+          <div class="acc-body"><p>У логістиці важливі зв'язок запису з фізичним переміщенням, контроль строків і узгодження ресурсів. У ритейлі — правильність товарної інформації, обслуговування покупця й аналіз продажів. Помилка в резерві створює і складську проблему, і невиконану обіцянку покупцеві. Запис, який здається суто внутрішнім, може визначити, чи буде товар доставлено вчасно.</p></div>
+        </details>
+      </article>
+
+      <div class="takeaway" id="s1-end"><div class="tk-icon">✓</div><div><span class="tk-label">Висновок розділу</span><p>Для підтвердження продажу потрібна не найбільша кількість відомостей, а узгоджений набір актуальних даних про конкретний товар і конкретний склад. Якщо код, кількість, момент оновлення та стан резерву визначені однаково, продавець і комірник можуть обґрунтувати спільне рішення.</p></div></div>
+    </div>
+  </section>
+
+  <!-- ================= S2 ================= -->
+  <section class="panel" id="s2">
+    <header class="sec-head">
+      <div class="sec-idx">02</div>
+      <div>
+        <span class="sec-kicker">Розділ 2 / 4</span>
+        <h2>Цифрова економіка та зміни у торговельних бізнес-процесах</h2>
+        <p class="lede">Коли дані супроводжують весь шлях замовлення, змінюється організація торгівлі. Покупець може вибрати товар на сайті, отримати його в магазині й звернутися щодо повернення через інший канал, а підприємство має зберегти цілісну історію операції.</p>
+        <div class="sec-meta"></div>
+      </div>
+    </header>
+    <aside class="sec-toc" aria-label="Зміст розділу"><div class="toc-title">Зміст розділу</div><nav class="toc-list"></nav></aside>
+    <div class="sec-main">
+
+      <div class="group-label" data-g="A" data-title="Цифрова економіка і рівні змін"><b>A</b>Цифрова економіка і рівні змін</div>
+
+      <article class="block" data-kind="theory" id="s2-1">
+        <header class="block-head"><span class="block-no">2.1</span><div><span class="kind"></span><h3>Що таке цифрова економіка</h3></div></header>
+        <div class="definition"><span class="term">Цифрова економіка</span><p>характеризується широким використанням цифрових даних, мережевих зв'язків і програмних засобів у створенні та реалізації товарів і послуг.</p></div>
+        <span class="mini-title">Економічна цінність технології виникає, коли вона допомагає виконати конкретну роботу</span>
+        <ul class="checklist">
+          <li>зменшити помилки</li>
+          <li>скоротити час обслуговування</li>
+          <li>уникнути дефіциту</li>
+          <li>підвищити передбачуваність перевезень</li>
+        </ul>
+      </article>
+
+      <article class="block" data-kind="theory" id="s2-2">
+        <header class="block-head"><span class="block-no">2.2</span><div><span class="kind"></span><h3>Три рівні цифрових змін</h3></div></header>
+        <div class="grid3 levels">
+          <div class="card"><span class="lvl-n">1</span><h4>Оцифрування</h4>Переведення матеріалів у цифрову форму.<p class="ex"><b>Приклад:</b> сканування паперової накладної.</p></div>
+          <div class="card"><span class="lvl-n">2</span><h4>Автоматизація</h4>Виконання частини операцій програмою.<p class="ex"><b>Приклад:</b> після введення кількості й ціни система сама обчислює суму.</p></div>
+          <div class="card"><span class="lvl-n">3</span><h4>Цифрова трансформація</h4>Зміна організації процесу та взаємодії учасників.<p class="ex"><b>Приклад:</b> онлайн-замовлення → резерв у магазині → завдання на комплектування → повідомлення про готовність.</p></div>
+        </div>
+      </article>
+
+      <article class="block" data-kind="sim" id="s2-3">
+        <header class="block-head"><span class="block-no">2.3</span><div><span class="kind"></span><h3>Розпізнайте рівень змін</h3></div></header>
+        <div id="clsDigit"></div>
+        <div class="sim-log" id="clsDigitScore">Оберіть рівень для кожного прикладу.</div>
+      </article>
+
+      <div class="group-label" data-g="B" data-title="Канали продажу і процеси"><b>B</b>Канали продажу і процеси</div>
+
+      <article class="block" data-kind="theory" id="s2-4">
+        <header class="block-head"><span class="block-no">2.4</span><div><span class="kind"></span><h3>Електронна комерція та канали продажу</h3></div></header>
+        <div class="grid2">
+          <div class="card"><h4>Інтернет-магазин</h4>Власний каталог і правила продажу.</div>
+          <div class="card"><h4>Маркетплейс / платформа</h4>Об'єднує пропозиції багатьох продавців. Продавець враховує вимоги до оформлення, підтвердження й виконання замовлень. Оцінюють <b>повні витрати</b>: звернення, контент, доставку, скасування.</div>
+        </div>
+        <span class="mini-title">Наявність сторінки з товарами ще не забезпечує сервісу. Потрібні:</span>
+        <ul class="checklist">
+          <li>актуальні ціни</li>
+          <li>достовірні залишки</li>
+          <li>зрозумілі умови отримання</li>
+          <li>процедура опрацювання звернень</li>
+        </ul>
+        <div class="callout blue"><b>Що показувати покупцю?</b> Підприємство вирішує, що показувати: фізичний залишок, доступний до продажу залишок чи лише позначку наявності, і ці позначення мають відповідати фактичній можливості виконати замовлення.</div>
+      </article>
+
+      <article class="block" data-kind="sim" id="s2-5">
+        <header class="block-head"><span class="block-no">2.5</span><div><span class="kind"></span><h3>Багатоканальність vs омніканальність</h3></div></header>
+        <div class="btnrow" id="omniBtns">
+          <button class="btn small active" data-m="multi">Багатоканальність</button>
+          <button class="btn ghost small" data-m="omni">Омніканальність</button>
+        </div>
+        <div class="sim-stage"><svg id="omniStage" viewBox="0 0 700 250" role="img" aria-label="Схема каналів продажу"></svg></div>
+        <div class="sim-log" id="omniLog"></div>
+      </article>
+
+      <article class="block" data-kind="theory" id="s2-6">
+        <header class="block-head"><span class="block-no">2.6</span><div><span class="kind"></span><h3>Бізнес-процес і зайві дії</h3></div></header>
+        <p class="prose"><b>Бізнес-процес</b> — узгоджена послідовність дій, яка перетворює вхід на потрібний результат для певного отримувача.</p>
+        <div class="io">
+          <div class="io-cell"><span class="l">Вхід</span>Підтверджена потреба покупця</div>
+          <div class="io-arrow">→</div>
+          <div class="io-cell"><span class="l">Результат</span>Переданий товар і правильно зафіксований стан операції</div>
+        </div>
+        <div class="callout"><b>Пастка локальної швидкості.</b> Якщо менеджер миттєво погоджує всі замовлення без перевірки запасів, його особистий показник виглядає добре, а підприємство отримує скасування та конфлікти.</div>
+      </article>
+
+      <article class="block" data-kind="sim" id="s2-7">
+        <header class="block-head"><span class="block-no">2.7</span><div><span class="kind"></span><h3>Повторне введення адреси</h3></div></header>
+        <div class="btnrow" id="addrBtns">
+          <button class="btn small active" data-m="before">Було: 3 введення</button>
+          <button class="btn ghost small" data-m="after">Стало: спільний реєстр</button>
+        </div>
+        <div class="sim-stage"><svg id="addrStage" viewBox="0 0 760 170" role="img" aria-label="Схема введення адреси"></svg></div>
+        <div class="sim-log" id="addrLog"></div>
+      </article>
+
+      <div class="group-label" data-g="C" data-title="Ідентифікація та датчики"><b>C</b>Ідентифікація та датчики</div>
+
+      <article class="block" data-kind="theory" id="s2-8">
+        <header class="block-head"><span class="block-no">2.8</span><div><span class="kind"></span><h3>Ідентифікація та датчики</h3></div></header>
+        <div class="grid3">
+          <div class="card"><h4>Штрихкод</h4>Містить ідентифікатор, який зіставляють із записом у довіднику. Це не самостійна база характеристик і не перевірка фізичного стану товару.</div>
+          <div class="card"><h4>RFID</h4>Радіочастотна ідентифікація: мітки та зчитувачі розпізнають об'єкти. Вибір залежить від кількості операцій, умов зчитування і витрат, а не від новизни.</div>
+          <div class="card"><h4>IoT</h4>Підключені пристрої, що збирають і передають дані: датчики температури, засоби визначення місцеположення транспорту.</div>
+        </div>
+      </article>
+
+      <article class="block" data-kind="sim" id="s2-9">
+        <header class="block-head"><span class="block-no">2.9</span><div><span class="kind"></span><h3>Коробка чи одиниця? Помилка перерахунку</h3></div></header>
+        <p class="lede">Зісканований код упаковки треба правильно пов'язати з одиницею виміру. Змініть параметри та подивіться, що побачить система.</p>
+        <div class="calc">
+          <label class="field">Прийнято коробок<input type="number" id="bxN" value="10" min="0"></label>
+          <label class="field">Одиниць у коробці<input type="number" id="bxK" value="12" min="1"></label>
+          <label class="field">Правило перерахунку<select id="bxRule"><option value="0">не налаштоване</option><option value="1">налаштоване</option></select></label>
+        </div>
+        <div class="kv" id="bxOut"></div>
+      </article>
+
+      <article class="block" data-kind="sim" id="s2-10">
+        <header class="block-head"><span class="block-no">2.10</span><div><span class="kind"></span><h3>Журнал датчика температури</h3></div></header>
+        <p class="lede">Вантаж потребує режиму 2…6 °C. Натисніть на інтервал, щоб інтерпретувати показання.</p>
+        <div class="sim-stage"><svg id="sensStage" viewBox="0 0 700 200" role="img" aria-label="Графік температури"></svg></div>
+        <div class="sim-log" id="sensLog">Натисніть на будь-який стовпчик.</div>
+      </article>
+
+      <div class="group-label" data-g="D" data-title="Платформи, люди і зміни"><b>D</b>Платформи, люди і зміни</div>
+
+      <article class="block" data-kind="extra" id="s2-11">
+        <header class="block-head"><span class="block-no">2.11</span><div><span class="kind"></span><h3>Логістичні платформи та впровадження змін</h3></div></header>
+        <details class="acc"><summary><span>Логістичні платформи: пошук ≠ підтвердження допустимості</span><span class="arrow">▶</span></summary>
+          <div class="acc-body"><p>Платформи підтримують пошук перевізників, обмін заявками, погодження умов і контроль виконання. Проте знайдений виконавець ще не означає, що всі вимоги виконано: потрібні маса, обсяг, часові обмеження, адреса, особливості приймання. Якщо товар потребує температурного режиму, його описують у вимогах. Пошук варіантів і підтвердження допустимості — різні операції; це важливо і під час використання ШІ для вибору постачальника.</p></div>
+        </details>
+        <details class="acc"><summary><span>Люди і зміни: навчання та пілотне впровадження</span><span class="arrow">▶</span></summary>
+          <div class="acc-body"><p>Опір змінам не завжди означає небажання працювати: людина може не розуміти, навіщо нове поле, або боятися, що система не дозволить виправити помилку. Навчання пояснює зв'язок поля з наступним рішенням. Коли комірник бачить, що точний час комплектування допомагає диспетчеру планувати рейси, заповнення перестає бути формальністю.</p>
+          <div class="steps">
+            <div class="step"><b>Обмежена ділянка.</b> Новий реєстр запускають для одного магазину або однієї категорії товарів.</div>
+            <div class="step"><b>Порівняння з початковим станом.</b> Час опрацювання й помилки з урахуванням різниці обсягів і складності замовлень.</div>
+            <div class="step"><b>Пошук організаційних недоліків.</b> Незрозумілі статуси, зайві поля, відсутність відповідального за виправлення.</div>
+            <div class="step"><b>Поступове розширення.</b> Зберігаючи можливість повернутися до контрольованого резервного порядку.</div>
+          </div></div>
+        </details>
+      </article>
+
+      <div class="takeaway" id="s2-end"><div class="tk-icon">✓</div><div><span class="tk-label">Висновок розділу</span><p>Замовлення на самовивіз має завершитися підготовленим товаром у вибраному магазині, а не лише повідомленням про успішне оформлення. Для цього каталог, резервування, склад і обслуговування використовують спільні ідентифікатори та погоджені стани замовлення.</p></div></div>
+    </div>
+  </section>
+
+  <!-- ================= S3 ================= -->
+  <section class="panel" id="s3">
+    <header class="sec-head">
+      <div class="sec-idx">03</div>
+      <div>
+        <span class="sec-kicker">Розділ 3 / 4</span>
+        <h2>Інформаційні системи ритейлу й логістики та їх взаємодія</h2>
+        <p class="lede">Замовлення № 204: покупець обрав товар на сайті та замовив доставку. Менеджер перевіряє доступність, склад резервує та комплектує, диспетчер організовує перевезення. Дії виконують різні люди, але всі записи стосуються одного замовлення.</p>
+        <div class="sec-meta"></div>
+      </div>
+    </header>
+    <aside class="sec-toc" aria-label="Зміст розділу"><div class="toc-title">Зміст розділу</div><nav class="toc-list"></nav></aside>
+    <div class="sec-main">
+
+      <div class="group-label" data-g="A" data-title="Системи та шлях замовлення"><b>A</b>Системи та шлях замовлення</div>
+
+      <article class="block" data-kind="sim" id="s3-1">
+        <header class="block-head"><span class="block-no">3.1</span><div><span class="kind"></span><h3>Класи інформаційних систем</h3></div></header>
+        <p class="lede">Натисніть на систему. Назви слід розуміти як класи систем: функції окремих продуктів можуть частково перетинатися.</p>
+        <div class="btnrow" id="sysBtns"></div>
+        <div class="result-box" id="sysOut"></div>
+        <div class="table-wrap"><table>
+          <caption>Таблиця 1.1 · Призначення інформаційних систем у торгівлі</caption>
+          <thead><tr><th>ІС</th><th>Основні дані</th><th>Приклад операції</th><th>Професійний результат</th></tr></thead>
+          <tbody id="sysTable"></tbody>
+        </table></div>
+      </article>
+
+      <article class="block" data-kind="sim" id="s3-2">
+        <header class="block-head"><span class="block-no">3.2</span><div><span class="kind"></span><h3>Рисунок 1.1 · Інформаційний супровід замовлення № 204</h3></div></header>
+        <p class="lede">Проведіть замовлення через етапи. Кожен стан має власний момент підтвердження.</p>
+        <div class="mindmap-wrap"><svg id="flowStage" viewBox="0 0 1000 330" role="img" aria-label="Схема виконання замовлення"></svg></div>
+        <div class="btnrow">
+          <button class="btn" id="flowNext" type="button">▶ Наступний етап</button>
+          <button class="btn ghost" id="flowReset" type="button">⟲ Спочатку</button>
+          <span class="mono" id="flowStatus" style="font-size:13px;color:var(--ink-soft)"></span>
+        </div>
+        <div class="result-box" id="flowOut"></div>
+      </article>
+
+      <div class="group-label" data-g="B" data-title="Інтеграція та обмін даними"><b>B</b>Інтеграція та обмін даними</div>
+
+      <article class="block" data-kind="theory" id="s3-3">
+        <header class="block-head"><span class="block-no">3.3</span><div><span class="kind"></span><h3>Ідентифікатори та інтеграція</h3></div></header>
+        <p class="prose">Взаємодія систем починається з погоджених ідентифікаторів:</p>
+        <div class="grid2">
+          <div class="card"><h4>SKU</h4>Позначає окрему товарну позицію.</div>
+          <div class="card"><h4>Номер замовлення</h4>Пов'язує продаж, комплектування та доставку.</div>
+        </div>
+        <div class="callout"><b>Без спільних кодів обмін не допоможе.</b> Якщо в магазині й на складі один товар має різні непов'язані коди, автоматичний обмін не забезпечить достовірності. У невеликому підприємстві такий порядок можна реалізувати в електронній таблиці з погодженою структурою, правами й правилами оновлення.</div>
+        <span class="mini-title">Способи інтеграції</span>
+        <div class="grid3">
+          <div class="card"><h4>Передавання файлів</h4>Потребує погодження полів, формату дати, кодування, роздільника і пропущених значень.</div>
+          <div class="card"><h4>Спільна база</h4>Кілька програм працюють з однією базою за погодженими правами.</div>
+          <div class="card"><h4>API</h4>Програмний інтерфейс: сайт перевіряє доступний залишок, система доставки повертає статус відправлення.</div>
+        </div>
+      </article>
+
+      <article class="block" data-kind="sim" id="s3-4">
+        <header class="block-head"><span class="block-no">3.4</span><div><span class="kind"></span><h3>Контроль «передано – прийнято – відхилено»</h3></div></header>
+        <p class="lede">Файл із 120 рядками продажів передано на склад. Технічно він відкривається, але чи завершено обмін?</p>
+        <div class="btnrow">
+          <button class="btn" id="xchRun" type="button">Імпортувати файл</button>
+          <button class="btn ghost" id="xchFix" type="button">Виправити відхилені й повторити</button>
+        </div>
+        <div class="kv" id="xchOut"></div>
+        <div class="sim-log" id="xchLog">Натисніть «Імпортувати файл».</div>
+      </article>
+
+      <article class="block" data-kind="sim" id="s3-5">
+        <header class="block-head"><span class="block-no">3.5</span><div><span class="kind"></span><h3>Збій мережі і повторне повідомлення</h3></div></header>
+        <p class="lede">Каса надсилає на склад продаж <span class="mono">S‑1017</span> (3 одиниці). Після переривання мережі повідомлення надходить удруге.</p>
+        <div class="btnrow">
+          <label style="font-size:14px;font-weight:700;display:flex;gap:8px;align-items:center;cursor:pointer"><input type="checkbox" id="dupCtl"> контроль унікального ID операції</label>
+        </div>
+        <div class="btnrow">
+          <button class="btn" id="dupSend" type="button">Надіслати S‑1017</button>
+          <button class="btn warn" id="dupRetry" type="button">⚡ Збій → повторне надсилання</button>
+          <button class="btn ghost" id="dupReset" type="button">⟲ Скинути</button>
+        </div>
+        <div class="kv" id="dupOut"></div>
+        <div class="sim-log" id="dupLog">Залишок на складі: 50 од.</div>
+        <div class="callout"><b>Правило при збої.</b> Не створюють нове замовлення лише тому, що не побачили відповіді. Спочатку перевіряють стан попереднього запису та журнал передавання. Інакше спроба виправити технічну затримку породжує господарський дублікат.</div>
+      </article>
+
+      <div class="group-label" data-g="C" data-title="Основні дані та інфраструктура"><b>C</b>Основні дані та інфраструктура</div>
+
+      <article class="block" data-kind="extra" id="s3-6">
+        <header class="block-head"><span class="block-no">3.6</span><div><span class="kind"></span><h3>Основні дані, історія та інфраструктура</h3></div></header>
+        <details class="acc"><summary><span>Основні дані і основне джерело</span><span class="arrow">▶</span></summary>
+          <div class="acc-body"><p>Єдиний довідник товарів дозволяє однаково розпізнавати позицію у закупівлі, на складі, в каталозі та в продажу. Єдність не скасовує локальних характеристик: магазин має місце викладки, склад — адресу зберігання, сайт — додатковий опис. Важливо розділити спільні й локальні поля та визначити відповідального за кожне. Якщо два підрозділи одночасно змінюють ту саму ціну без погодження, інтеграція лише швидше поширює суперечність. Тому для кожного виду даних (товар, статус доставки, платіж) визначають <b>основне джерело</b>.</p></div>
+        </details>
+        <details class="acc"><summary><span>Поточні та історичні значення</span><span class="arrow">▶</span></summary>
+          <div class="acc-body"><p>Якщо закупівельна ціна зросла, минулі продажі не перераховують за новою собівартістю. Для аналітики зберігають значення, що діяли на момент операції. Так само з адресами, умовами доставки й знижками. Без цього звіт за попередній період може змінитися після звичайного оновлення товарної картки.</p></div>
+        </details>
+        <details class="acc"><summary><span>Затримка оновлення через API</span><span class="arrow">▶</span></summary>
+          <div class="acc-body"><p>Одна система передає подію одразу, інша оновлює показники періодично, тому між продажем і зміною доступного залишку виникає затримка. Якщо вона істотна, встановлюють додаткові резерви або обмеження підтвердження, передбачають повідомлення про помилку, повторну спробу й контроль суперечностей. Працівник має бачити <b>час актуальності</b> даних на екрані.</p></div>
+        </details>
+        <details class="acc"><summary><span>Робоче місце та правила підтримки</span><span class="arrow">▶</span></summary>
+          <div class="acc-body"><p>Робоче місце включає пристрій введення, програму, мережу й засоби перевірки результату. Мобільний термінал повинен дозволяти позначити невідповідність, а не примушувати підтверджувати наявність товару, якого немає. Для зони нестабільного зв'язку потрібен резервний порядок. Підприємство визначає, хто налаштовує облікові записи, оновлює програми і допомагає при збоях; документує основні налаштування, порядок звернення й експорт даних. Надмірна залежність від одного технічного фахівця теж є ризиком.</p></div>
+        </details>
+      </article>
+
+      <article class="block" data-kind="data" id="s3-7">
+        <header class="block-head"><span class="block-no">3.7</span><div><span class="kind"></span><h3>Таблиця 1.2 · Відомості, які поєднують торговельні операції</h3></div></header>
+        <div class="table-wrap" style="margin-bottom:0"><table>
+          <thead><tr><th>Об'єкт</th><th>Ідентифікатор</th><th>Що необхідно узгодити</th><th>Наслідок розбіжності</th></tr></thead>
+          <tbody>
+            <tr><td><b>Товар</b></td><td class="mono">Код SKU</td><td>Одиницю виміру та характеристику позиції</td><td>Неправильний товар або кількість</td></tr>
+            <tr><td><b>Замовлення</b></td><td class="mono">Номер замовлення</td><td>Статуси та історію змін</td><td>Повторне виконання або втрата заявки</td></tr>
+            <tr><td><b>Поставка</b></td><td class="mono">Номер поставки</td><td>Партію та фактичне приймання</td><td>Розбіжність запасу</td></tr>
+            <tr><td><b>Доставка</b></td><td class="mono">Номер відправлення</td><td>Адресу, час і підтвердження результату</td><td>Неправильне повідомлення покупцеві</td></tr>
+          </tbody>
+        </table></div>
+      </article>
+
+      <div class="takeaway" id="s3-end"><div class="tk-icon">✓</div><div><span class="tk-label">Висновок розділу</span><p>Інтеграція потрібна насамперед для збереження зв'язку між діями. Подія відвантаження повинна закрити резерв, змінити фізичний запас і передати диспетчеру підтверджену інформацію про вантаж. Якщо хоча б один перехід не зафіксований, системи показують різні стани, навіть коли кожна програма працює без збоїв.</p></div></div>
+    </div>
+  </section>
+
+  <!-- ================= S4 ================= -->
+  <section class="panel" id="s4">
+    <header class="sec-head">
+      <div class="sec-idx">04</div>
+      <div>
+        <span class="sec-kicker">Розділ 4 / 4</span>
+        <h2>Якість даних і оцінювання результатів цифровізації</h2>
+        <p class="lede">Сам факт установлення програми або збільшення кількості електронних записів не підтверджує поліпшення. Оцінювати варто вплив на виконання замовлень, точність залишків і витрати. Перевірка якості даних передує розрахункам, адже помилковий початковий стан спотворює всю оцінку.</p>
+        <div class="sec-meta"></div>
+      </div>
+    </header>
+    <aside class="sec-toc" aria-label="Зміст розділу"><div class="toc-title">Зміст розділу</div><nav class="toc-list"></nav></aside>
+    <div class="sec-main">
+
+      <div class="group-label" data-g="A" data-title="Якість даних і стан запасу"><b>A</b>Якість даних і стан запасу</div>
+
+      <article class="block" data-kind="sim" id="s4-1">
+        <header class="block-head"><span class="block-no">4.1</span><div><span class="kind"></span><h3>Шість характеристик якості даних</h3></div></header>
+        <p class="lede">Якість оцінюють за придатністю для конкретного рішення. Натисніть картку, щоб побачити приклад.</p>
+        <div class="grid3" id="qualCards"></div>
+      </article>
+
+      <article class="block" data-kind="sim" id="s4-2">
+        <header class="block-head"><span class="block-no">4.2</span><div><span class="kind"></span><h3>Три джерела — три різні числа</h3></div></header>
+        <div class="grid3">
+          <div class="card src-card"><span class="k">САЙТ · каталог</span><div class="l">показує</div><div class="big">30</div></div>
+          <div class="card src-card"><span class="k">СКЛАД · фізично</span><div class="l">одиниць</div><div class="big">24</div></div>
+          <div class="card src-card"><span class="k">МЕНЕДЖЕР · резерви</span><div class="l">зарезервовано</div><div class="big">18</div></div>
+        </div>
+        <div class="btnrow" id="srcBtns"><span style="font-size:14px;font-weight:700">Скільки можна підтвердити новому покупцю?</span>
+          <button class="btn ghost small" data-a="30">30</button><button class="btn ghost small" data-a="24">24</button><button class="btn ghost small" data-a="12">12</button><button class="btn ghost small" data-a="6">6</button></div>
+        <div class="sim-log" id="srcOut">Оберіть відповідь.</div>
+      </article>
+
+      <article class="block" data-kind="sim" id="s4-3">
+        <header class="block-head"><span class="block-no">4.3</span><div><span class="kind"></span><h3>Симулятор запасу · Рисунок 1.2 і Таблиця 1.3 наживо</h3></div></header>
+        <p class="lede">Стан після перевірки джерел: фізично 24, чинні резерви 18, доступно 6. Застосовуйте події та стежте, як змінюються три показники. Червона пунктирна лінія показує, скільки товару фактично лежить на полиці.</p>
+        <span class="mini-title">Коректні події</span>
+        <div class="btnrow" style="margin-top:0">
+          <button class="btn" data-ev="order" type="button">Нове замовлення на 8</button>
+          <button class="btn" data-ev="cancel" type="button">Скасування резерву на 4</button>
+          <button class="btn" data-ev="ship" type="button">Відвантаження 5 зарезервованих</button>
+        </div>
+        <span class="mini-title">Типові помилки обліку</span>
+        <div class="btnrow" style="margin-top:0">
+          <button class="btn warn small" data-ev="errIn" type="button">Помилка: скасування оформлено як надходження</button>
+          <button class="btn warn small" data-ev="errNoWriteoff" type="button">Помилка: резерв закрито без списання</button>
+          <button class="btn warn small" data-ev="errKeepRes" type="button">Помилка: списано, а резерв залишився</button>
+          <button class="btn ghost small" data-ev="reset" type="button">⟲ Скинути</button>
+        </div>
+        <span class="mini-title">Показники</span>
+        <div class="kv" id="invKv" style="margin-top:0"></div>
+        <div class="sim-stage" style="margin-top:12px"><svg id="invChart" viewBox="0 0 720 120" role="img" aria-label="Структура фізичного запасу"></svg></div>
+        <div class="sim-log" id="invLog"></div>
+        <div class="table-wrap"><table>
+          <caption>Журнал подій (стартові рядки відповідають Таблиці 1.3 лекції)</caption>
+          <thead><tr><th>Подія</th><th class="num">Фізичний запас</th><th class="num">Чинні резерви</th><th class="num">Доступний запас</th><th class="num">На полиці</th></tr></thead>
+          <tbody id="invTable"></tbody>
+        </table></div>
+        <span class="mini-title">Який показник для якого рішення</span>
+        <div class="grid3">
+          <div class="card"><h4>Фізичний залишок</h4>Для перевірки наявного товару.</div>
+          <div class="card"><h4>Резерв</h4>Для оцінювання вже прийнятих зобов'язань.</div>
+          <div class="card"><h4>Доступний</h4>Для нових підтверджень. Заблоковані, пошкоджені або непридатні до продажу одиниці віднімають окремо.</div>
+        </div>
+        <div class="callout blue"><b>Незалежне звіряння.</b> Комірник підтверджує фактичні одиниці, менеджер перевіряє перелік резервів, система показує журнал закритих замовлень. Кожне джерело підтверджує власну частину процесу. Це надійніше, ніж три звіти, що повторюють одну помилкову формулу.</div>
+      </article>
+
+      <article class="block" data-kind="extra" id="s4-4">
+        <header class="block-head"><span class="block-no">4.4</span><div><span class="kind"></span><h3>Придатність для використання та вартість помилки</h3></div></header>
+        <details class="acc"><summary><span>Придатність для використання та вартість помилки</span><span class="arrow">▶</span></summary>
+          <div class="acc-body"><p>Для попереднього аналізу попиту прийнятні денні підсумки, а для підтвердження останньої одиниці потрібна оперативна інформація про резерви. Неповну адресу виправляють до передавання перевізнику; помилку в необов'язковій аналітичній ознаці можна позначити для уточнення, не зупиняючи операцію.</p>
+          <p>Вартість помилки зростає з часом виявлення: неправильну кількість легко уточнити до резервування, після комплектування потрібне повторне опрацювання складу, після доставки може виникнути повернення. Список дозволених кодів запобігає невідомій позиції, але не визначає, чи покупець хотів саме цей товар; формула знайде від'ємний залишок, але причину розбіжності шукає людина.</p></div>
+        </details>
+      </article>
+
+      <div class="group-label" data-g="B" data-title="Оцінювання ефекту цифровізації"><b>B</b>Оцінювання ефекту цифровізації</div>
+
+      <article class="block" data-kind="sim" id="s4-5">
+        <header class="block-head"><span class="block-no">4.5</span><div><span class="kind"></span><h3>Калькулятор ефекту цифровізації</h3></div></header>
+        <p class="lede">Завантажте приклад із лекції або введіть власні дані. Калькулятор розділяє <b>вартісну оцінку звільненого часу</b> і <b>реальну грошову економію</b>, щоб не зараховувати ту саму вигоду двічі.</p>
+        <div class="btnrow" id="roiPresets">
+          <button class="btn ghost small" data-p="0">Приклад 1 · 600 замовлень</button>
+          <button class="btn ghost small active" data-p="1">Приклад 2 · 800 замовлень</button>
+          <button class="btn ghost small" data-p="2">Приклад 3 · охоплення 80%</button>
+        </div>
+        <div class="calc">
+          <label class="field">Замовлень / міс<input type="number" id="rN" min="0"></label>
+          <label class="field">Охоплення реєстром, %<input type="number" id="rCov" min="0" max="100"></label>
+          <label class="field">Час до, хв<input type="number" id="rTb" min="0" step="0.5"></label>
+          <label class="field">Час після, хв<input type="number" id="rTa" min="0" step="0.5"></label>
+          <label class="field">Вартість години, грн<input type="number" id="rRate" min="0"></label>
+          <label class="field">Помилки до, %<input type="number" id="rEb" min="0" step="0.5"></label>
+          <label class="field">Помилки після, %<input type="number" id="rEa" min="0" step="0.5"></label>
+          <label class="field">Витрати на 1 помилку, грн<input type="number" id="rCe" min="0"></label>
+          <label class="field">Підтримка / міс, грн<input type="number" id="rSup" min="0"></label>
+          <label class="field">Разове впровадження, грн<input type="number" id="rOne" min="0"></label>
+        </div>
+        <div class="kv" id="roiOut"></div>
+        <div class="sim-log" id="roiLog"></div>
+        <div class="callout"><b>Чому час ≠ гроші.</b> Якщо працівники отримують незмінну оплату, вартість звільненого часу не стає автоматичним зменшенням виплат. Підприємство отримує можливість виконати іншу корисну роботу або уникнути перевантаження; грошову економію визнають лише за конкретної зміни витрат. Простий строк окупності не враховує вартість грошей у часі та невизначеність, тому придатний для попереднього зіставлення варіантів.</div>
+      </article>
+
+      <article class="block" data-kind="theory" id="s4-6">
+        <header class="block-head"><span class="block-no">4.6</span><div><span class="kind"></span><h3>Вимоги до KPI</h3></div></header>
+        <p class="prose">KPI — ключовий показник результативності — відображає конкретну ціль. Якщо мета полягає у скороченні помилок, кількість придбаних комп'ютерів не є показником успіху. Кожен показник повинен мати:</p>
+        <div class="grid5">
+          <div class="card"><h4>Зміст</h4>Що саме вимірюємо.</div>
+          <div class="card"><h4>Формулу</h4>Знаменник: усі записи чи лише виконані замовлення?</div>
+          <div class="card"><h4>Період</h4>Однаковий до і після змін.</div>
+          <div class="card"><h4>Джерело</h4>Звідки беруться дані.</div>
+          <div class="card"><h4>Відповідального</h4>Хто підтримує показник.</div>
+        </div>
+        <div class="points">
+          <div class="point"><b>Однакові межі вимірювання</b><p>Середній час вимірюють від однакового початкового до однакового кінцевого моменту: для одного працівника «опрацювати» означає прийняти звернення, для іншого — повністю погодити замовлення.</p></div>
+          <div class="point warn"><b>Охоплення ≠ результат</b><p>Кількість користувачів чи введених рядків характеризує охоплення, а показники процесу мають показувати, чи зменшилися помилки, затримки та непродуктивні дії.</p></div>
+        </div>
+      </article>
+
+      <article class="block" data-kind="data" id="s4-7">
+        <header class="block-head"><span class="block-no">4.7</span><div><span class="kind"></span><h3>Структура професійного обґрунтування</h3></div></header>
+        <div class="mindmap-wrap" style="margin-bottom:0">
+          <svg class="mm" viewBox="0 0 1000 120" role="img" aria-label="Структура обґрунтування">
+            <defs><marker id="arJ" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" class="sv-arrow"/></marker></defs>
+            <g class="sv-line" marker-end="url(#arJ)"><path class="mm-link" data-a="j0" data-b="j1" data-p="225 60 260 60"/><path class="mm-link" data-a="j1" data-b="j2" data-p="485 60 520 60"/><path class="mm-link" data-a="j2" data-b="j3" data-p="745 60 780 60"/></g>
+            <g class="mm-node" data-id="j0"><g class="mm-in"><rect x="10" y="25" width="215" height="70" rx="12" class="sv-core"/><text x="117" y="66" text-anchor="middle" class="sv-core-t" style="font-family:var(--f-display);font-size:14px">Наявна проблема</text></g></g>
+            <g class="mm-node" data-id="j1"><g class="mm-in"><rect x="265" y="25" width="220" height="70" rx="12" class="sv-node st-blue"/><text x="375" y="66" text-anchor="middle" class="sv-t">Зміна процесу</text></g></g>
+            <g class="mm-node" data-id="j2"><g class="mm-in"><rect x="525" y="25" width="220" height="70" rx="12" class="sv-node st-red"/><text x="635" y="66" text-anchor="middle" class="sv-t">Очікуваний результат</text></g></g>
+            <g class="mm-node" data-id="j3"><g class="mm-in"><rect x="785" y="25" width="205" height="70" rx="12" class="sv-node st-ok"/><text x="887" y="66" text-anchor="middle" class="sv-t">Спосіб перевірки</text></g></g>
+          </svg>
+        </div>
+      </article>
+
+      <div class="takeaway" id="s4-end"><div class="tk-icon">✓</div><div><span class="tk-label">Висновок лекції</span><p>Цифрова технологія має цінність тоді, коли дозволяє підтвердити покупцеві здійсненне замовлення, підготувати правильний товар і виконати погоджені умови. Точність інформації забезпечує правильну дію, а вимірювання процесу дозволяє встановити економічний ефект. Найкоротша окупність не завжди означає найкращий результат, якщо варіант не забезпечує контролю, експорту даних, розподілу прав, історії та роботи при недоступності сервісу.</p></div></div>
+    </div>
+  </section>
+
+  <!-- ================= PRACTICE ================= -->
+  <section class="panel plain" id="practice">
+    <header class="sec-head">
+      <div class="sec-idx">✓</div>
+      <div>
+        <span class="sec-kicker">Практика</span>
+        <h2>Практика: ситуаційні кейси</h2>
+        <p class="lede">Прочитайте ситуацію, запишіть власну відповідь, а потім відкрийте розбір. Кожен кейс спирається на конкретний фрагмент лекції.</p>
+      </div>
+    </header>
+    <div class="sec-main"><div id="caseList"></div></div>
+  </section>
+
+  <!-- ================= QUIZ ================= -->
+  <section class="panel plain" id="quiz">
+    <header class="sec-head">
+      <div class="sec-idx">?</div>
+      <div>
+        <span class="sec-kicker">Самоперевірка</span>
+        <h2>Тест для самоперевірки</h2>
+        <p class="lede">Оберіть відповідь: правильна підсвітиться, а під питанням з'явиться пояснення.</p>
+      </div>
+    </header>
+    <div class="sec-main">
+      <div id="quizContainer"></div>
+      <div id="quizScoreBar"><span>Результат: <span id="quizScore">0 / 0</span></span><button class="btn small" id="quizReset" type="button">⟲ Пройти знову</button></div>
+    </div>
+  </section>
+
+  <!-- ================= REF ================= -->
+  <section class="panel plain" id="ref">
+    <header class="sec-head">
+      <div class="sec-idx">Aa</div>
+      <div>
+        <span class="sec-kicker">Довідка</span>
+        <h2>Глосарій лекції</h2>
+      </div>
+    </header>
+    <div class="sec-main"><dl class="gloss" id="glossList"></dl></div>
+  </section>
+
+  <footer>STEAM-HUB · ПУЕТ — інтерактивний конспект · Лекція 1 «Інформаційні технології як основа розвитку цифрової економіки»</footer>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const fmt = (n, d=0) => Number(n).toLocaleString('uk-UA', {minimumFractionDigits:d, maximumFractionDigits:d});
+
+/* ---------- theme ---------- */
+const root = document.documentElement;
+function curTheme(){ const t = root.getAttribute('data-theme'); if(t) return t; return matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; }
+function paintThemeBtn(){ $('#themeBtn').textContent = curTheme()==='dark' ? '☀ Світла тема' : '☾ Темна тема'; }
+try{ const s = localStorage.getItem('lec01-theme'); if(s) root.setAttribute('data-theme', s); }catch(e){}
+$('#themeBtn').addEventListener('click', ()=>{
+  const next = curTheme()==='dark' ? 'light' : 'dark';
+  root.setAttribute('data-theme', next);
+  try{ localStorage.setItem('lec01-theme', next); }catch(e){}
+  paintThemeBtn();
+});
+paintThemeBtn();
+
+/* ---------- tabs ---------- */
+function openTab(id, scroll=true){
+  if(!document.getElementById(id)) return;
+  $$('#tabsNav button').forEach(b=>b.classList.toggle('active', b.dataset.t===id));
+  $$('section.panel').forEach(p=>p.classList.toggle('active', p.id===id));
+  // keep the active tab visible in the horizontally scrolling tab bar, start the section contents from the beginning
+  const tabs = $('#tabsNav'), act = tabs.querySelector('button.active');
+  if(act) tabs.scrollTo({left: Math.max(0, act.offsetLeft - 12), behavior:'auto'});
+  const toc = document.getElementById(id).querySelector('.toc-list'); if(toc){ toc.scrollLeft = 0; toc.parentElement.scrollTop = 0; }
+  if(scroll){
+    // jump to the start of the new section (its header right under the sticky tabs), wherever the reader was
+    const panel = document.getElementById(id), nav = $('#tabsNav');
+    const y = panel.getBoundingClientRect().top + window.scrollY - nav.offsetHeight - 22;
+    window.scrollTo({top: Math.max(0, y), behavior:'auto'});
+  }
+}
+$$('#tabsNav button').forEach(b=>b.addEventListener('click', ()=>openTab(b.dataset.t)));
+$$('[data-go]').forEach(c=>c.addEventListener('click', ()=>openTab(c.dataset.go)));
+if(location.hash) openTab(location.hash.slice(1), false);
+
+/* toggle group helper */
+function group(sel, fn){
+  const btns = $$(sel);
+  btns.forEach(b=>b.addEventListener('click', ()=>{
+    btns.forEach(x=>{ x.classList.remove('active'); x.classList.add('ghost'); });
+    b.classList.add('active'); b.classList.remove('ghost'); fn(b);
+  }));
+}
+
+/* ---------- mind maps: nodes are pushed away from the cursor, threads follow ---------- */
+const MM = (()=>{
+  const MAX = 15, K = 0.13, DAMP = 0.74, PAD = 6;
+  const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const active = new Set(); let running = false;
+  function parse(svg){
+    const nodes = [...svg.querySelectorAll('.mm-node')].map(g=>{
+      const r = g.querySelector('rect');
+      const b = {x:+r.getAttribute('x'), y:+r.getAttribute('y'), w:+r.getAttribute('width'), h:+r.getAttribute('height')};
+      return {g, b, cx:b.x+b.w/2, cy:b.y+b.h/2, x:0, y:0, vx:0, vy:0, tx:0, ty:0};
+    });
+    const byId = {}; nodes.forEach(n=>byId[n.g.dataset.id] = n);
+    const links = [...svg.querySelectorAll('.mm-link')].map(p=>({p, a:byId[p.dataset.a], b:byId[p.dataset.b], c:p.dataset.p.trim().split(/[\s,]+/).map(Number)}));
+    svg._mm = {nodes, links};
+    render(svg);
+  }
+  function render(svg){
+    const {nodes, links} = svg._mm;
+    nodes.forEach(n=>n.g.setAttribute('transform', `translate(${n.x.toFixed(2)} ${n.y.toFixed(2)})`));
+    links.forEach(l=>{
+      const ax = l.a ? l.a.x : 0, ay = l.a ? l.a.y : 0, bx = l.b ? l.b.x : 0, by = l.b ? l.b.y : 0, [x1,y1,x2,y2] = l.c;
+      // control point lags behind the ends, so the thread bends like a string
+      const qx = (x1+x2)/2 + (ax+bx)*0.15, qy = (y1+y2)/2 + (ay+by)*0.15;
+      l.p.setAttribute('d', `M${(x1+ax).toFixed(2)},${(y1+ay).toFixed(2)} Q${qx.toFixed(2)},${qy.toFixed(2)} ${(x2+bx).toFixed(2)},${(y2+by).toFixed(2)}`);
+    });
+  }
+  function toSvg(svg, e){ const m = svg.getScreenCTM(); return m ? new DOMPoint(e.clientX, e.clientY).matrixTransform(m.inverse()) : null; }
+  function onMove(e){
+    const svg = e.currentTarget, pt = toSvg(svg, e); if(!svg._mm || !pt) return;
+    svg._mm.nodes.forEach(n=>{
+      const inside = pt.x > n.b.x-PAD && pt.x < n.b.x+n.b.w+PAD && pt.y > n.b.y-PAD && pt.y < n.b.y+n.b.h+PAD;
+      if(inside){
+        // vector from the cursor to the node centre: cursor on the left → node goes right, etc.
+        const nx = (n.cx-pt.x)/(n.b.w/2), ny = (n.cy-pt.y)/(n.b.h/2), len = Math.hypot(nx, ny) || 1, f = Math.min(1, len) * MAX / len;
+        n.tx = nx*f; n.ty = ny*f;
+      } else { n.tx = 0; n.ty = 0; }
+      n.g.classList.toggle('mm-hot', inside);
+    });
+    kick(svg);
+  }
+  function onLeave(e){ const svg = e.currentTarget; if(!svg._mm) return; svg._mm.nodes.forEach(n=>{ n.tx = 0; n.ty = 0; n.g.classList.remove('mm-hot'); }); kick(svg); }
+  function kick(svg){ active.add(svg); if(!running){ running = true; requestAnimationFrame(step); } }
+  function step(){
+    active.forEach(svg=>{
+      let moving = false;
+      svg._mm.nodes.forEach(n=>{
+        n.vx = (n.vx + (n.tx-n.x)*K) * DAMP; n.vy = (n.vy + (n.ty-n.y)*K) * DAMP; n.x += n.vx; n.y += n.vy;
+        if(Math.abs(n.tx-n.x) + Math.abs(n.ty-n.y) + Math.abs(n.vx) + Math.abs(n.vy) > 0.04) moving = true; else { n.x = n.tx; n.y = n.ty; n.vx = n.vy = 0; }
+      });
+      render(svg);
+      if(!moving) active.delete(svg);
+    });
+    if(active.size) requestAnimationFrame(step); else running = false;
+  }
+  function attach(svg){
+    if(!svg) return; parse(svg);
+    if(still || svg._mmBound) return; svg._mmBound = true;
+    svg.addEventListener('pointermove', onMove); svg.addEventListener('pointerleave', onLeave);
+  }
+  return {attach};
+})();
+$$('svg.mm').forEach(MM.attach);
+
+/* ---------- S1: DIKW ---------- */
+const dikw = [
+  ['Дані', '«48»', 'Зафіксоване значення. Сам по собі запис не дає підстав для управлінського рішення: невідомо, чого 48 і коли.'],
+  ['Контекст', '48 од. товару SKU‑1182 на складі №2 станом на 23.10', 'Запис набуває змісту: відомо, який товар, де і на яку дату.'],
+  ['Інформація', 'Запасу вистачить на 4 дні при продажу 12 од./день', 'Результат інтерпретації для керівника: 48 ÷ 12 = 4 дні.'],
+  ['Знання → рішення', 'Поставка займає 3 дні → замовлення треба оформити не пізніше ніж завтра', 'Знання про строк постачання дозволяє вирішити, коли оформити нове замовлення. ІТ прискорює обчислення, але за правильність припущень відповідає фахівець.']
+];
+function showDikw(i){ const d = dikw[i]; $('#dikwOut').innerHTML = `<div class="mono" style="font-size:12px;color:var(--ink-soft)">РІВЕНЬ ${i+1} / 4 · ${d[0].toUpperCase()}</div><div class="big" style="font-size:22px">${d[1]}</div><p style="margin:6px 0 0">${d[2]}</p>`; }
+group('#dikwBtns button', b=>showDikw(+b.dataset.i)); showDikw(0);
+
+/* ---------- S1: roles ---------- */
+const roles = [
+  ['Касир', 'Завершена операція обслуговування: покупець оплатив, чек видано.'],
+  ['Комірник', 'Підстава змінити доступний залишок: 10 одиниць більше не можна пропонувати іншим покупцям.'],
+  ['Закупівельник', 'Частина історії попиту: дані для планування наступного замовлення постачальнику.'],
+  ['Керівник', 'Внесок у результати магазину: виручка, план продажів, ефективність асортименту.']
+];
+group('#roleBtns button', b=>{ const r = roles[+b.dataset.r]; $('#roleOut').innerHTML = `<b style="font-family:var(--f-display);color:var(--red)">${r[0]}</b><p style="margin:6px 0 0">${r[1]}</p><p class="mono" style="font-size:12px;color:var(--ink-soft);margin:8px 0 0">Подія та сама: продаж 10 од. · одна спільна основа</p>`; });
+$('#roleBtns button').click();
+
+/* ---------- S1: stock calc ---------- */
+function calcStock(){
+  const st = +$('#cStock').value||0, s = Math.max(0.1, +$('#cSales').value||0.1), lead = +$('#cLead').value||0, off = +$('#cOff').value||0, g = +$('#cGrow').value||0;
+  const daily = s*(1+g/100);
+  const arith = st/s, real = st/daily, need = lead+off;
+  const margin = real - need;
+  let verdict, cls;
+  if(margin <= 0){ verdict = 'Оформити замовлення негайно: запасу не вистачить до прибуття поставки.'; cls='red'; }
+  else if(margin < 1){ verdict = 'Оформити замовлення сьогодні: запас майже дорівнює строку поставки.'; cls='red'; }
+  else { verdict = `Замовлення можна оформити не пізніше ніж через ${fmt(Math.floor(margin))} дн.`; cls='ok'; }
+  $('#stockOut').innerHTML = `<div class="kv" style="margin:0">
+    <div><div class="l">АРИФМЕТИЧНИЙ ЗАПАС</div><div class="v blue">${fmt(arith,1)} дн.</div></div>
+    <div><div class="l">З УРАХУВАННЯМ ПОПИТУ</div><div class="v blue">${fmt(real,1)} дн.</div></div>
+    <div><div class="l">ПОСТАВКА + НЕРОБОЧІ ДНІ</div><div class="v blue">${fmt(need)} дн.</div></div>
+    <div><div class="l">РЕЗЕРВ ЧАСУ</div><div class="v ${cls}">${fmt(margin,1)} дн.</div></div></div>
+    <p style="margin:12px 0 0"><b>Висновок:</b> ${verdict} Перевірте також доступне місце на складі.</p>`;
+}
+['#cStock','#cSales','#cLead','#cOff','#cGrow'].forEach(i=>$(i).addEventListener('input', calcStock)); calcStock();
+
+/* ---------- classifier helper ---------- */
+function classifier(boxSel, scoreSel, cats, items){
+  const box = $(boxSel); let done = 0, right = 0;
+  items.sort(()=>Math.random()-.5).forEach((it, idx)=>{
+    const d = document.createElement('div'); d.className = 'cls-item';
+    d.innerHTML = `<div class="txt">${it.t}</div><div class="opts">${cats.map((c,ci)=>`<button class="btn ghost small" type="button" data-c="${ci}">${c}</button>`).join('')}</div><div class="fb" hidden></div>`;
+    d.querySelectorAll('button').forEach(b=>b.addEventListener('click', ()=>{
+      if(d.dataset.done) return; d.dataset.done = 1; done++;
+      const ok = +b.dataset.c === it.c; if(ok) right++;
+      d.classList.add(ok ? 'right' : 'wrong');
+      d.querySelectorAll('button').forEach(x=>{ x.disabled = true; if(+x.dataset.c===it.c) x.classList.add('active'); });
+      const fb = d.querySelector('.fb'); fb.hidden = false; fb.textContent = (ok ? '✅ ' : '❌ Правильно: «'+cats[it.c]+'». ') + it.e;
+      $(scoreSel).textContent = `Виконано ${done} / ${items.length} · правильно ${right}` + (done===items.length ? (right===items.length ? ' · Чудово, усе правильно!' : ' · Перегляньте пояснення до помилок.') : '');
+    }));
+    box.appendChild(d);
+  });
+}
+classifier('#clsData', '#clsDataScore', ['Довідкові','Операційні','Аналітичні'], [
+  {t:'Картка товару: код, назва, одиниця виміру', c:0, e:'Описує відносно сталий об\'єкт — товар.'},
+  {t:'Реквізити та адреса постачальника', c:0, e:'Стала характеристика контрагента.'},
+  {t:'Надходження партії 12.10 на склад №2', c:1, e:'Фіксує окрему подію.'},
+  {t:'Повернення товару за чеком № 5531', c:1, e:'Окрема дія з товаром.'},
+  {t:'Зміна статусу доставки на «в дорозі»', c:1, e:'Подія в житті замовлення.'},
+  {t:'Виручка магазину за тиждень', c:2, e:'Отримана після опрацювання операційних даних.'},
+  {t:'Частка повернень за місяць', c:2, e:'Розрахунковий показник.'},
+  {t:'Середні витрати на доставку', c:2, e:'Підсумок, обчислений з багатьох операцій.'}
+]);
+
+/* ---------- unit of observation ---------- */
+$$('#uoBtns button').forEach(b=>b.addEventListener('click', ()=>{
+  $$('#uoBtns button').forEach(x=>{x.classList.remove('active'); x.classList.add('ghost');}); b.classList.add('active'); b.classList.remove('ghost');
+  const a = +b.dataset.a;
+  $('#uoOut').innerHTML = a===2 ? '✅ Правильно: 2 унікальні чеки. Рядки таблиці — це позиції, тож три рядки чека № 5531 не означають трьох покупців.'
+    : a===4 ? '❌ 4 — це кількість рядків, тобто позицій. Для підрахунку покупок треба визначити число унікальних чеків.'
+    : '❌ 10 — це сума кількостей одиниць товару, а не покупки. Правильна відповідь: 2 унікальні чеки.';
+}));
+
+/* ---------- numeric cards ---------- */
+const nums = [
+  ['Номер замовлення', '204, 205, 206', 'red', 'Ідентифікатор', 'Складається з цифр, але середнє арифметичне номерів не має професійного змісту.'],
+  ['Поштовий індекс', '36014', 'red', 'Ідентифікатор', 'Виглядає як число, але є кодом місця.'],
+  ['Код товару', '0451', 'red', 'Ідентифікатор', 'Якщо редактор видалить початковий нуль, об\'єкт може перестати правильно розпізнаватися.'],
+  ['Кількість', '12 од.', 'ok', 'Кількісна', 'Додавання і усереднення мають зміст.'],
+  ['Маса', '4,5 кг', 'ok', 'Кількісна', 'Арифметика допустима за однакової одиниці виміру.'],
+  ['Ціна', '146,00 грн', 'ok', 'Кількісна', 'Можна підсумовувати й порівнювати, зважаючи на дату дії ціни.'],
+  ['Тривалість', '7 хв', 'ok', 'Кількісна', 'Можна усереднювати, якщо однаково визначено початок і кінець.'],
+  ['Дата й час', '23.10 14:35', 'olive', 'Особливий тип', 'Потребує встановленого формату та часового поясу, якщо підприємство працює в кількох регіонах.']
+];
+$('#numCards').innerHTML = nums.map((n,i)=>`<div class="fcard" tabindex="0" role="button" aria-pressed="false"><div class="fcard-inner"><div class="fcard-face front"><span class="fnum">${String(i+1).padStart(2,'0')}</span><h4>${n[0]}</h4><div class="fval">${n[1]}</div><span class="fhint">↻ можна додавати чи усереднювати?</span></div><div class="fcard-face back"><span class="fback-t">${n[0]} · ${n[1]}</span><span class="badge ${n[2]}">${n[3]}</span><p>${n[4]}</p></div></div></div>`).join('');
+
+/* ---------- S2: digit classifier ---------- */
+classifier('#clsDigit', '#clsDigitScore', ['Оцифрування','Автоматизація','Трансформація'], [
+  {t:'Паперову накладну сканують і зберігають як PDF', c:0, e:'Матеріал лише переведено в цифрову форму.'},
+  {t:'Після введення кількості й ціни програма сама обчислює суму рахунку', c:1, e:'Програма виконує частину операції.'},
+  {t:'Онлайн-замовлення автоматично резервує товар у магазині, комплектувальник отримує завдання, а покупець повідомлення про готовність', c:2, e:'Змінено організацію процесу та взаємодію учасників.'},
+  {t:'Фото підписаного договору завантажено в спільну папку', c:0, e:'Цифрова копія без зміни процесу.'},
+  {t:'Система сама формує маршрутний лист із даних замовлення', c:1, e:'Автоматизовано окрему дію.'},
+  {t:'Працівник підтримки бачить історію замовлення незалежно від каналу, де почалося звернення', c:2, e:'Узгоджена омніканальна взаємодія змінює процес обслуговування.'}
+]);
+
+/* ---------- S2: omni ---------- */
+function drawOmni(mode){
+  const ch = [['Магазин',90],['Сайт',350],['Телефон',610]];
+  let s = `<rect width="700" height="250" class="sv-bg"/><defs><marker id="arO" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" class="sv-arrow"/></marker></defs>`;
+  let links = '', nodes = '';
+  ch.forEach(([n,x],i)=>{ nodes += `<g class="mm-node" data-id="c${i}"><g class="mm-in"><rect x="${x-70}" y="20" width="140" height="50" rx="10" class="sv-node st-blue"/><text x="${x}" y="51" text-anchor="middle" class="sv-t" style="font-weight:600">${n}</text></g></g>`; });
+  if(mode==='multi'){
+    ch.forEach(([n,x],i)=>{
+      links += `<path class="mm-link sv-line" data-a="c${i}" data-b="b${i}" data-p="${x} 70 ${x} 150" marker-end="url(#arO)"/>`;
+      nodes += `<g class="mm-node" data-id="b${i}"><g class="mm-in"><rect x="${x-80}" y="155" width="160" height="62" rx="10" class="sv-node st-red"/><text x="${x}" y="182" text-anchor="middle" class="sv-t">Окремий облік</text><text x="${x}" y="202" text-anchor="middle" class="sv-ts">${['довідник А','довідник Б','нотатки'][i]}</text></g></g>`;
+    });
+  } else {
+    ch.forEach(([n,x],i)=>{ links += `<path class="mm-link sv-line st-ok" data-a="c${i}" data-b="hub" data-p="${x} 70 350 150" marker-end="url(#arO)"/>`; });
+    nodes += `<g class="mm-node" data-id="hub"><g class="mm-in"><rect x="190" y="155" width="320" height="70" rx="12" class="sv-core"/><text x="350" y="186" text-anchor="middle" class="sv-core-t" style="font-family:var(--f-display);font-size:15px">Спільна історія замовлення</text><text x="350" y="208" text-anchor="middle" class="sv-core-t2" style="font-family:var(--f-mono);font-size:11px">єдині ID · статуси · розмежування доступу</text></g></g>`;
+  }
+  $('#omniStage').innerHTML = s + links + nodes;
+  MM.attach($('#omniStage'));
+  $('#omniLog').textContent = mode==='multi'
+    ? 'Кілька каналів працюють окремо. Покупець, що оформив замовлення на сайті, мусить повторно пояснювати деталі в магазині; замовлення може бути прийняте на позицію, якої фактично немає.'
+    : 'Канали узгоджені: працівник бачить історію незалежно від місця звернення. Потрібні спільні ідентифікатори, єдині правила статусів і доступна історія комунікації, але не кожен працівник бачить усі дані покупця.';
+}
+group('#omniBtns button', b=>drawOmni(b.dataset.m)); drawOmni('multi');
+
+/* ---------- S2: address ---------- */
+function drawAddr(mode){
+  let s = `<rect width="760" height="170" class="sv-bg"/><defs><marker id="arA" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" class="sv-arrow"/></marker></defs>`;
+  let links = '', nodes = '';
+  if(mode==='before'){
+    const n = [['Форма покупця','адреса',80],['Менеджер','✎ введення 1',270],['Диспетчер','✎ введення 2',460],['Маршрутний лист','✎ введення 3',650]];
+    n.forEach(([a,b,x],i)=>{
+      nodes += `<g class="mm-node" data-id="a${i}"><g class="mm-in"><rect x="${x-80}" y="55" width="160" height="62" rx="10" class="sv-node ${i?'st-red':'st-blue'}"/><text x="${x}" y="82" text-anchor="middle" class="sv-t" style="font-weight:600">${a}</text><text x="${x}" y="102" text-anchor="middle" class="sv-ts">${b}</text></g></g>`;
+      if(i<3) links += `<path class="mm-link sv-line" data-a="a${i}" data-b="a${i+1}" data-p="${x+80} 86 ${x+108} 86" marker-end="url(#arA)"/>`;
+    });
+  } else {
+    nodes += `<g class="mm-node" data-id="hub"><g class="mm-in"><rect x="270" y="50" width="220" height="70" rx="12" class="sv-core"/><text x="380" y="82" text-anchor="middle" class="sv-core-t" style="font-family:var(--f-display);font-size:14px">Спільний реєстр</text><text x="380" y="103" text-anchor="middle" class="sv-core-t2" style="font-family:var(--f-mono);font-size:11px">адреса введена 1 раз</text></g></g>`;
+    [['Форма покупця',90],['Менеджер',90],['Диспетчер',670],['Маршрутний лист',670]].forEach(([a,x],i)=>{
+      const y = i%2 ? 115 : 20;
+      nodes += `<g class="mm-node" data-id="s${i}"><g class="mm-in"><rect x="${x-80}" y="${y}" width="160" height="40" rx="10" class="sv-node st-ok"/><text x="${x}" y="${y+25}" text-anchor="middle" class="sv-t">${a}</text></g></g>`;
+      links += `<path class="mm-link sv-line st-ok" data-a="s${i}" data-b="hub" data-p="${x<380?x+80:x-80} ${y+20} ${x<380?270:490} 85"/>`;
+    });
+  }
+  $('#addrStage').innerHTML = s + links + nodes;
+  MM.attach($('#addrStage'));
+  $('#addrLog').textContent = mode==='before'
+    ? 'Три введення не створюють трьох інформаційних цінностей: вони збільшують трудомісткість і ризик помилки.'
+    : 'Повторний набір прибрано. Але потрібне ще й правило актуальності: якщо покупець змінив адресу після комплектування, диспетчер має отримати нове значення. Удосконалення поєднує технічний зв\'язок і організаційну процедуру.';
+}
+group('#addrBtns button', b=>drawAddr(b.dataset.m)); drawAddr('before');
+
+/* ---------- S2: boxes ---------- */
+function calcBox(){
+  const n = +$('#bxN').value||0, k = Math.max(1, +$('#bxK').value||1), rule = $('#bxRule').value==='1';
+  const real = n*k, sys = rule ? real : n, diff = real - sys;
+  $('#bxOut').innerHTML = `<div><div class="l">ФАКТИЧНО НА ПОЛИЦІ</div><div class="v blue">${fmt(real)} од.</div></div>
+    <div><div class="l">ПОКАЗУЄ СИСТЕМА</div><div class="v ${diff?'red':'ok'}">${fmt(sys)} од.</div></div>
+    <div><div class="l">РОЗБІЖНІСТЬ</div><div class="v ${diff?'red':'ok'}">${diff?'−'+fmt(diff):'0'} од.</div></div>`;
+}
+['#bxN','#bxK','#bxRule'].forEach(i=>$(i).addEventListener('input', calcBox)); calcBox();
+
+/* ---------- S2: sensor ---------- */
+const sens = [4.1,4.3,4.0,4.6,null,null,5.1,6.8,4.8,4.4,7.4,7.9,8.1,7.6];
+function drawSens(sel){
+  const W=700,H=200,pl=40,pb=30,pt=12, bw=(W-pl-10)/sens.length;
+  const y = v => H-pb-(v/10)*(H-pb-pt);
+  let s = `<rect width="${W}" height="${H}" class="sv-bg"/>`;
+  s += `<rect x="${pl}" y="${y(6)}" width="${W-pl-10}" height="${y(2)-y(6)}" style="fill:var(--tint-ok)"/>`;
+  [0,2,4,6,8,10].forEach(v=>{ s += `<line x1="${pl}" x2="${W-10}" y1="${y(v)}" y2="${y(v)}" style="stroke:var(--line)"/><text x="${pl-6}" y="${y(v)+4}" text-anchor="end" class="sv-ts">${v}°</text>`; });
+  sens.forEach((v,i)=>{
+    const x = pl + i*bw + 4, w = bw-8;
+    if(v===null){ s += `<rect x="${x}" y="${y(10)}" width="${w}" height="${y(0)-y(10)}" data-i="${i}" style="fill:transparent;stroke:var(--olive);stroke-dasharray:4 3;cursor:pointer" ${sel===i?'stroke-width="3"':''}/><text x="${x+w/2}" y="${y(5)}" text-anchor="middle" class="sv-ts" style="pointer-events:none">?</text>`; }
+    else { const bad = v>6||v<2; s += `<rect x="${x}" y="${y(v)}" width="${w}" height="${y(0)-y(v)}" rx="3" data-i="${i}" style="fill:${bad?'var(--red)':'var(--blue)'};cursor:pointer;opacity:${sel===i?1:.82}"/>`; }
+    s += `<text x="${x+w/2}" y="${H-12}" text-anchor="middle" class="sv-ts">${String(8+Math.floor(i/2)).padStart(2,'0')}:${i%2?'30':'00'}</text>`;
+  });
+  $('#sensStage').innerHTML = s;
+  $$('#sensStage rect[data-i]').forEach(r=>r.addEventListener('click', ()=>{ const i=+r.dataset.i; drawSens(i); sensInfo(i); }));
+}
+function sensInfo(i){
+  const v = sens[i]; let t;
+  if(v===null) t = '⚠ Показання відсутнє. Це не означає нормальний стан: можлива втрата зв\'язку або несправність датчика. Потрібно повідомити відповідального і перевірити вантаж.';
+  else if(i===7) t = `⚡ ${fmt(v,1)} °C: короткочасне відхилення (одне вимірювання), наступне вже в нормі. Важливо відрізняти його від тривалого порушення, якщо саме тривалість визначає наслідок.`;
+  else if(v>6) t = `🔴 ${fmt(v,1)} °C: тривале перевищення порогу (кілька вимірювань поспіль). За правилами потрібне повідомлення відповідального і рішення щодо вантажу.`;
+  else t = `✅ ${fmt(v,1)} °C у межах 2…6 °C. Показання прив'язане до конкретного датчика, місця і часу; один датчик не завжди характеризує весь вантаж.`;
+  $('#sensLog').textContent = t;
+}
+drawSens(-1);
+
+/* ---------- S3: systems ---------- */
+const systems = [
+  ['POS','Система в точці продажу','Продажі та повернення','Реєстрація покупки на касі','Оперативний облік реалізації'],
+  ['WMS','Система управління складом','Залишки та місця зберігання','Відбір товару за замовленням','Контроль складських операцій'],
+  ['TMS','Система управління перевезеннями','Маршрути та відвантаження','Планування рейсу','Координація доставки'],
+  ['CRM','Управління взаємовідносинами з клієнтами','Звернення та історія взаємодії','Опрацювання претензії','Узгоджене обслуговування'],
+  ['ERP','Планування ресурсів підприємства','Закупівлі, облік і ресурси','Узгодження потреби в закупівлі','Спільна облікова основа']
+];
+$('#sysBtns').innerHTML = systems.map((s,i)=>`<button class="btn ghost small" type="button" data-i="${i}">${s[0]}</button>`).join('');
+$('#sysTable').innerHTML = systems.map((s,i)=>`<tr data-i="${i}"><td class="mono"><b>${s[0]}</b></td><td>${s[2]}</td><td>${s[3]}</td><td>${s[4]}</td></tr>`).join('');
+group('#sysBtns button', b=>{ const i=+b.dataset.i, s=systems[i];
+  $$('#sysTable tr').forEach(r=>r.classList.toggle('hl', +r.dataset.i===i));
+  $('#sysOut').innerHTML = `<div class="big">${s[0]}</div><div class="mono" style="font-size:13px;color:var(--ink-soft)">${s[1]}</div><div class="kv"><div><div class="l">ОСНОВНІ ДАНІ</div><div>${s[2]}</div></div><div><div class="l">ПРИКЛАД ОПЕРАЦІЇ</div><div>${s[3]}</div></div><div><div class="l">РЕЗУЛЬТАТ</div><div>${s[4]}</div></div></div>`; });
+$('#sysBtns button').click();
+
+/* ---------- S3: flow 204 ---------- */
+const nodes = [
+  {x:30,y:30,t:['Замовлення № 204','товар · кількість · адреса']},
+  {x:360,y:30,t:['Менеджер','перевірка й підтвердження']},
+  {x:690,y:30,t:['Склад','резерв і комплектування']},
+  {x:690,y:220,t:['Диспетчер','передавання перевізнику']},
+  {x:360,y:220,t:['Підтвердження доставки','час і результат отримання']},
+  {x:30,y:220,t:['Оновлення обліку','запас · статус · результат']}
+];
+const stages = [
+  {n:0, st:'Прийняте', sys:'Сайт / система замовлень', is:'Потребу покупця зафіксовано: товар, кількість, адреса.', not:'Не означає, що товар є в наявності.'},
+  {n:1, st:'Підтверджене', sys:'ERP / WMS', is:'Менеджер перевірив доступний запас і погодив умови з покупцем.', not:'Не означає, що товар уже відкладено.'},
+  {n:2, st:'Зарезервоване → скомплектоване', sys:'WMS', is:'Склад створив резерв і зібрав позиції. Доступний запас зменшено.', not:'«Підготовлений» не означає «покупець отримав».'},
+  {n:3, st:'Передане перевізнику', sys:'TMS', is:'Відвантаження закрило резерв, змінило фізичний запас, диспетчер отримав підтверджені дані про вантаж.', not:'Не означає, що доставку виконано.'},
+  {n:4, st:'Доставлене', sys:'TMS / CRM', is:'Підтверджено час і результат отримання.', not:'Плановий час прибуття ≠ фактичний; їх зберігають окремо.'},
+  {n:5, st:'Облік оновлено', sys:'ERP', is:'Підтвердження повернулось у спільне середовище: запас, статус, результат. Дані використовують для обслуговування і аналізу.', not:'Якщо цей перехід не зафіксовано, системи показуватимуть різні стани.'}
+];
+let flowI = 0;
+function drawFlow(){
+  const W=280,H=86;
+  let s = `<defs><marker id="arF" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" class="sv-arrow"/></marker></defs>`;
+  const arrows = [[0,1,'310 73 355 73'],[1,2,'640 73 685 73'],[2,3,'830 116 830 215'],[3,4,'685 263 645 263'],[4,5,'355 263 315 263']];
+  arrows.forEach(([a,b,p])=> s += `<path class="mm-link sv-line" data-a="f${a}" data-b="f${b}" data-p="${p}" style="stroke:var(--ink-soft)" marker-end="url(#arF)"/>`);
+  s += `<text x="500" y="160" text-anchor="middle" class="sv-ts" style="font-size:12px">Один номер замовлення для всіх подій</text><text x="500" y="180" text-anchor="middle" class="sv-ts" style="font-size:12px;fill:var(--red)">№ 204</text>`;
+  nodes.forEach((n,i)=>{
+    const c = i===stages[flowI].n ? 'on' : (i < stages[flowI].n ? 'done' : '');
+    s += `<g class="mm-node" data-id="f${i}"><g class="mm-in"><rect x="${n.x}" y="${n.y}" width="${W}" height="${H}" rx="10" class="sv-node ${c}"/>`;
+    s += `<text x="${n.x+W/2}" y="${n.y+38}" text-anchor="middle" class="sv-t" style="font-weight:700;font-size:15px">${n.t[0]}</text><text x="${n.x+W/2}" y="${n.y+60}" text-anchor="middle" class="sv-ts" style="font-size:12px">${n.t[1]}</text>`;
+    if(i < stages[flowI].n) s += `<text x="${n.x+W-18}" y="${n.y+22}" text-anchor="middle" style="fill:var(--ok);font-size:16px">✓</text>`;
+    s += `</g></g>`;
+  });
+  $('#flowStage').innerHTML = s;
+  MM.attach($('#flowStage'));
+  const st = stages[flowI];
+  $('#flowStatus').textContent = `Етап ${flowI+1} / ${stages.length}`;
+  $('#flowOut').innerHTML = `<div class="mono" style="font-size:12px;color:var(--ink-soft)">СТАТУС · ${st.sys}</div><div class="big" style="font-size:22px">${st.st}</div><p style="margin:6px 0 4px">✅ ${st.is}</p><p style="margin:0;color:var(--red)">⚠ ${st.not}</p>`;
+  $('#flowNext').disabled = flowI === stages.length-1;
+}
+$('#flowNext').addEventListener('click', ()=>{ if(flowI<stages.length-1){ flowI++; drawFlow(); } });
+$('#flowReset').addEventListener('click', ()=>{ flowI=0; drawFlow(); });
+drawFlow();
+
+/* ---------- S3: exchange ---------- */
+let xch = null;
+function showXch(sent, acc, rej, msg){
+  $('#xchOut').innerHTML = `<div><div class="l">ПЕРЕДАНО</div><div class="v blue">${sent}</div></div><div><div class="l">ПРИЙНЯТО</div><div class="v ok">${acc}</div></div><div><div class="l">ВІДХИЛЕНО</div><div class="v ${rej?'red':'ok'}">${rej}</div></div>`;
+  $('#xchLog').innerHTML = msg;
+}
+$('#xchRun').addEventListener('click', ()=>{ xch = 1; showXch(120,113,7,'Файл завантажено, але 7 рядків відхилено: у 4 переплутано кількість і ціну, у 3 дата у форматі ММ/ДД. <b>Обмін не завершено.</b> Перевіряють число рядків, кількість унікальних операцій, підсумкові суми та перелік відхилених записів.'); });
+$('#xchFix').addEventListener('click', ()=>{ if(!xch){ $('#xchLog').textContent='Спершу імпортуйте файл.'; return; } showXch(120,120,0,'✅ Усі 120 рядків прийнято, підсумкова сума збігається з касою. Саме підтверджене опрацювання створює підставу використовувати дані далі.'); });
+showXch('—','—','—','Натисніть «Імпортувати файл».');
+
+/* ---------- S3: duplicates ---------- */
+let dup = {stock:50, seen:new Set(), writes:0};
+function showDup(msg){ $('#dupOut').innerHTML = `<div><div class="l">ЗАЛИШОК У СИСТЕМІ</div><div class="v ${dup.stock<47?'red':'blue'}">${dup.stock} од.</div></div><div><div class="l">ФАКТИЧНО ПРОДАНО</div><div class="v blue">${dup.seen.size?3:0} од.</div></div><div><div class="l">СПИСАНЬ ВИКОНАНО</div><div class="v ${dup.writes>1?'red':'ok'}">${dup.writes}</div></div>`; if(msg) $('#dupLog').textContent = msg; }
+function sendDup(isRetry){
+  const ctl = $('#dupCtl').checked;
+  if(isRetry && !dup.seen.size){ showDup('Спершу надішліть продаж S‑1017.'); return; }
+  if(ctl && dup.seen.has('S-1017')){ showDup('🛡 Отримувач розпізнав ID S‑1017 як уже опрацьований. Повтор проігноровано, підтвердження надіслано повторно.'); return; }
+  dup.seen.add('S-1017'); dup.stock -= 3; dup.writes++;
+  showDup(dup.writes>1 ? '❌ Повідомлення без контролю ID опрацьовано вдруге: товар списано двічі. Залишок у системі менший за фактичний.' : '✅ Продаж S‑1017 опрацьовано: списано 3 од.');
+}
+$('#dupSend').addEventListener('click', ()=>sendDup(false));
+$('#dupRetry').addEventListener('click', ()=>sendDup(true));
+$('#dupReset').addEventListener('click', ()=>{ dup = {stock:50, seen:new Set(), writes:0}; showDup('Залишок на складі: 50 од.'); });
+showDup();
+
+/* ---------- S4: quality ---------- */
+const qual = [
+  ['Точність','Відповідність фактичному стану.','Система показує 24 од., на полиці теж 24.'],
+  ['Повнота','Наявність потрібних відомостей.','Без номера квартири адресу доставки не можна передавати перевізнику.'],
+  ['Актуальність','Своєчасне оновлення.','Сайт показує 30 од., бо отримав оновлення ще до відвантаження шести.'],
+  ['Узгодженість','Однакове тлумачення значень у різних джерелах.','«Кількість» має прямо називати стан: фізичний, зарезервований чи доступний.'],
+  ['Унікальність','Відсутність повторного включення запису.','Дубль повідомлення про продаж збільшує підсумок без додаткової операції.'],
+  ['Валідність','Відповідність встановленим правилам формату і переліку.','Дата у правильному форматі ще не доводить, що подія справді відбулася в цей день.']
+];
+$('#qualCards').innerHTML = qual.map((q,i)=>`<div class="fcard" tabindex="0" role="button" aria-pressed="false"><div class="fcard-inner"><div class="fcard-face front"><span class="fnum">0${i+1}</span><h4>${q[0]}</h4><span class="fhint">↻ визначення і приклад</span></div><div class="fcard-face back"><span class="fback-t">${q[0]}</span><p><b>${q[1]}</b></p><p class="ex">Приклад: ${q[2]}</p></div></div></div>`).join('');
+
+/* ---------- S4: three sources ---------- */
+$$('#srcBtns button').forEach(b=>b.addEventListener('click', ()=>{
+  $$('#srcBtns button').forEach(x=>{x.classList.remove('active'); x.classList.add('ghost');}); b.classList.add('active'); b.classList.remove('ghost');
+  const a = +b.dataset.a;
+  $('#srcOut').innerHTML = a===6 ? '✅ Так: 24 фізичні − 18 чинних резервів = 6 доступних. Сайт показує 30, бо отримав останнє оновлення до відвантаження шести одиниць. Числа не є взаємними помилками: вони описують різні стани й моменти.'
+    : a===30 ? '❌ 30 — застаріле значення каталогу (до відвантаження 6 од.). Якщо орієнтуватися на нього, можна підтвердити неіснуючий товар.'
+    : a===24 ? '❌ 24 — фізичний запас, але 18 одиниць уже обіцяні іншим покупцям.'
+    : '❌ 12 не випливає з жодного джерела. Правильно: 24 − 18 = 6.';
+}));
+
+/* ---------- S4: inventory simulator ---------- */
+const INV0 = () => ({phys:24, res:18, shelf:24, rows:[['Після перевірки джерел',24,18,24]], unmet:0});
+let inv = INV0();
+function invAvail(){ return inv.phys - inv.res; }
+function drawInv(msg){
+  const a = invAvail(), mism = inv.phys !== inv.shelf;
+  $('#invKv').innerHTML = `<div><div class="l">ФІЗИЧНИЙ ЗАПАС (СИСТЕМА)</div><div class="v ${mism?'red':'blue'}">${inv.phys}</div></div>
+   <div><div class="l">ЧИННІ РЕЗЕРВИ</div><div class="v blue">${inv.res}</div></div>
+   <div><div class="l">ДОСТУПНИЙ ЗАПАС</div><div class="v ok">${a}</div></div>
+   <div><div class="l">НА ПОЛИЦІ ФАКТИЧНО</div><div class="v ${mism?'red':'blue'}">${inv.shelf}</div></div>`;
+  const max = 30, pl=10, W=700, sc = (W-pl-10)/max, y=34, h=46;
+  let s = `<rect width="720" height="120" class="sv-bg"/>`;
+  for(let v=0; v<=max; v+=5){ const x = pl+v*sc; s += `<line x1="${x}" x2="${x}" y1="24" y2="${y+h+6}" style="stroke:var(--line)"/><text x="${x}" y="108" text-anchor="middle" class="sv-ts">${v}</text>`; }
+  const rw = Math.max(0,inv.res)*sc, aw = Math.max(0,a)*sc;
+  s += `<rect x="${pl}" y="${y}" width="${rw}" height="${h}" class="sv-res"/>`;
+  if(rw>24) s += `<text x="${pl+rw/2}" y="${y+h/2+5}" text-anchor="middle" class="sv-wt" style="fill:var(--bg-panel)">резерв ${inv.res}</text>`;
+  s += `<rect x="${pl+rw}" y="${y}" width="${aw}" height="${h}" class="sv-avail"/>`;
+  if(aw>24) s += `<text x="${pl+rw+aw/2}" y="${y+h/2+5}" text-anchor="middle" class="sv-it">доступно ${a}</text>`;
+  const sx = pl+inv.shelf*sc; s += `<line x1="${sx}" x2="${sx}" y1="16" y2="${y+h+8}" class="sv-shelf"/><text x="${Math.min(sx, 650)}" y="13" text-anchor="middle" class="sv-ts" style="fill:var(--red)">полиця ${inv.shelf}</text>`;
+  $('#invChart').innerHTML = s;
+  $('#invTable').innerHTML = inv.rows.map((r,i)=>`<tr class="${i===inv.rows.length-1?'hl':''}"><td>${r[0]}</td><td class="num">${r[1]}</td><td class="num">${r[2]}</td><td class="num">${r[1]-r[2]}</td><td class="num">${r[3]}</td></tr>`).join('');
+  $('#invLog').innerHTML = msg || 'Оберіть подію. Почніть з «Скасування резерву на 4», потім «Відвантаження 5 зарезервованих», щоб відтворити Таблицю 1.3.';
+}
+function pushRow(name){ inv.rows.push([name, inv.phys, inv.res, inv.shelf]); }
+$$('[data-ev]').forEach(b=>b.addEventListener('click', ()=>{
+  const ev = b.dataset.ev; let m;
+  if(ev==='reset'){ inv = INV0(); drawInv(); return; }
+  if(ev==='order'){
+    const a = invAvail(), give = Math.min(8, Math.max(0,a));
+    inv.res += give; inv.unmet += 8-give; pushRow(`Нове замовлення: потреба 8, погоджено ${give}`);
+    m = give<8 ? `Доступно лише ${a}. Професійний порядок: погодити часткове виконання (${give} од.) або інше рішення з покупцем. Система зберігає <b>первинну потребу 8</b>, запропоновану кількість і результат погодження; невиконаний попит (${8-give} од.) залишається для аналітики.` : '✅ Доступного запасу достатньо: створено резерв на 8 од.';
+  }
+  if(ev==='cancel'){
+    if(inv.res<4){ drawInv('Немає чинних резервів на 4 одиниці.'); return; }
+    inv.res -= 4; pushRow('Скасування резерву на 4 одиниці');
+    m = '✅ Скасування не є надходженням: фізичний запас не змінився, резерви зменшились на 4, доступний запас зріс на 4.';
+  }
+  if(ev==='ship'){
+    if(inv.res<5 || inv.phys<5){ drawInv('Недостатньо зарезервованих одиниць для відвантаження 5.'); return; }
+    inv.res -= 5; inv.phys -= 5; inv.shelf -= 5; pushRow('Відвантаження 5 зарезервованих одиниць');
+    m = '✅ Резерв закрито разом зі списанням: фізичний −5, резерв −5. Доступний запас не змінився, бо ці одиниці й раніше були недоступні для нового продажу.';
+  }
+  if(ev==='errIn'){
+    if(inv.res<4){ drawInv('Немає резерву на 4 одиниці для цієї помилки.'); return; }
+    inv.phys += 4; pushRow('⚠ Скасування оформлено як надходження +4');
+    m = '❌ Система показує більше фізичних одиниць, ніж лежить на полиці, а резерв так і не скасовано. Технічна дія «додати 4» арифметично зрозуміла, але господарський зміст залежить від того, до якого показника вона належить.';
+  }
+  if(ev==='errNoWriteoff'){
+    if(inv.res<5){ drawInv('Недостатньо резервів для цієї помилки.'); return; }
+    inv.res -= 5; inv.shelf -= 5; pushRow('⚠ Відвантажено 5, резерв закрито без списання');
+    m = '❌ Товар фізично поїхав, але фізичний запас у системі не зменшено. Доступність <b>завищена</b>: можна підтвердити товар, якого вже немає.';
+  }
+  if(ev==='errKeepRes'){
+    if(inv.phys<5){ drawInv('Недостатньо запасу для цієї помилки.'); return; }
+    inv.phys -= 5; inv.shelf -= 5; pushRow('⚠ Списано 5, резерв не закрито');
+    m = '❌ Фізичний запас зменшено, а старий резерв залишився. Доступність <b>штучно занижена</b>: підприємство відмовляє покупцям, хоча товар є.';
+  }
+  drawInv(m);
+}));
+drawInv();
+
+/* ---------- S4: ROI ---------- */
+const presets = [
+  {rN:600,rCov:100,rTb:8,rTa:5,rRate:160,rEb:0,rEa:0,rCe:0,rSup:0,rOne:0, note:'Приклад 1: лише звільнений час — 1800 хв = 30 год × 160 грн = 4800 грн. Це потенціал використання робочого часу, а не грошова економія.'},
+  {rN:800,rCov:100,rTb:10,rTa:7,rRate:180,rEb:6,rEa:3,rCe:110,rSup:600,rOne:9000, note:'Приклад 2: помилок 48 → 24, зменшення витрат 2640 грн, мінус підтримка 600 = 2040 грн/міс. Окупність ≈ 4,41 міс.'},
+  {rN:1100,rCov:80,rTb:10,rTa:7,rRate:180,rEb:6,rEa:3,rCe:110,rSup:600,rOne:9000, note:'Приклад 3: новим порядком охоплено 880 замовлень, 220 — ручні. Очікувані помилки 39,6 проти 66; дробове значення — розрахункове очікування за частотою.'}
+];
+const rIds = ['rN','rCov','rTb','rTa','rRate','rEb','rEa','rCe','rSup','rOne'];
+let roiNote = '';
+function loadPreset(i){ const p = presets[i]; rIds.forEach(k=>$('#'+k).value = p[k]); roiNote = p.note; calcRoi(); }
+function calcRoi(){
+  const v = Object.fromEntries(rIds.map(k=>[k, +$('#'+k).value||0]));
+  const cov = Math.min(100,Math.max(0,v.rCov))/100, covered = v.rN*cov, manual = v.rN-covered;
+  const freedMin = covered*(v.rTb-v.rTa), hours = freedMin/60, timeVal = hours*v.rRate;
+  const errOld = v.rN*v.rEb/100, errNew = covered*v.rEa/100 + manual*v.rEb/100, errRed = errOld-errNew;
+  const errSave = errRed*v.rCe, money = errSave - v.rSup, broad = money + timeVal;
+  const pay = money>0 && v.rOne>0 ? v.rOne/money : null;
+  const dec = x => Number.isInteger(Math.round(x*100)/100) ? 0 : 1;
+  $('#roiOut').innerHTML = `
+    <div><div class="l">ЗВІЛЬНЕНО ЧАСУ</div><div class="v blue">${fmt(hours,dec(hours))} год</div><div class="k">${fmt(freedMin,dec(freedMin))} хв · ${fmt(covered,dec(covered))} замовл.</div></div>
+    <div><div class="l">ВАРТІСТЬ ЧАСУ (ОЦІНКА)</div><div class="v blue">${fmt(timeVal)} грн</div><div class="k">не є економією коштів</div></div>
+    <div><div class="l">ПОМИЛОК ДО → ПІСЛЯ</div><div class="v blue">${fmt(errOld,dec(errOld))} → ${fmt(errNew,dec(errNew))}</div><div class="k">зменшення ${fmt(errRed,dec(errRed))}</div></div>
+    <div><div class="l">ГРОШОВИЙ ЕФЕКТ / МІС</div><div class="v ${money>0?'ok':'red'}">${fmt(money)} грн</div><div class="k">${fmt(errSave)} − ${fmt(v.rSup)} підтримка</div></div>
+    <div><div class="l">ПРОСТА ОКУПНІСТЬ</div><div class="v ${pay?'ok':'red'}">${pay ? fmt(pay,2)+' міс' : '—'}</div><div class="k">${pay ? fmt(v.rOne)+' ÷ '+fmt(money) : 'немає додатного грошового ефекту'}</div></div>
+    <div><div class="l">ШИРША ОЦІНКА</div><div class="v blue">${fmt(broad)} грн</div><div class="k">гроші + вартість часу · інша інтерпретація</div></div>`;
+  $('#roiLog').innerHTML = roiNote || 'Власний сценарій. Порівняйте базовий та обережний варіанти: зменште охоплення або обсяг замовлень і подивіться, чи залишається рішення доцільним.';
+}
+rIds.forEach(k=>$('#'+k).addEventListener('input', ()=>{ roiNote=''; calcRoi(); }));
+group('#roiPresets button', b=>loadPreset(+b.dataset.p));
+loadPreset(1);
+
+/* ---------- practice cases ---------- */
+const cases = [
+  {t:'Наявність під нове замовлення', q:'Менеджер готує відповідь покупцю, чи є 15 одиниць товару. У звіті вказано, що за місяць надійшло 200 одиниць. Чи достатньо цих даних?', a:'Ні. Загальна кількість отриманих за місяць одиниць не відповідає на питання. Потрібні поточні фізичні залишки, чинні резерви, обмеження продажу й відомості про товари, що вже відвантажені, але ще не списані в системі. Інформаційна потреба пов\'язана з конкретною дією та моментом її виконання.'},
+  {t:'Скільки покупців у звіті?', q:'Аналітик рахує кількість покупців як число рядків у таблиці продажів, де один рядок дорівнює одній позиції чека. Що не так?', a:'Одиниця спостереження — позиція чека, а не покупка. Чек із трьома позиціями дає три рядки, але одного покупця. Для підрахунку покупок треба визначити число унікальних чеків.'},
+  {t:'Приймання коробками', q:'На склад прийнято 10 коробок по 12 одиниць. Система показала залишок 10 одиниць. Де причина і як її усунути?', a:'Код упаковки не пов\'язано з одиницею виміру: система інтерпретувала коробки як одиниці. Це системна помилка залишку (−110 од.). Потрібне правило перерахунку в довіднику і перевірка отриманого результату під час приймання.'},
+  {t:'Мовчазний датчик', q:'Датчик температури в рефрижераторі не передавав показань 40 хвилин. Диспетчер вирішив, що все гаразд, бо тривог не було. Чи правильно це?', a:'Ні. Відсутність показання не означає нормальний стан: можлива втрата зв\'язку або несправність. Для таких даних встановлюють правила перевірки, порогові значення й порядок повідомлення відповідального; також відрізняють короткочасне відхилення від тривалого порушення.'},
+  {t:'Немає відповіді від системи', q:'Після збою мережі працівник не побачив підтвердження замовлення і створив його ще раз. Які наслідки і як треба було діяти?', a:'Виник господарський дублікат: товар може бути зарезервовано або списано двічі. Спочатку перевіряють стан попереднього запису та журнал передавання. Операціям присвоюють унікальний номер і контролюють повторну обробку.'},
+  {t:'Успішний пілот?', q:'Після запуску нового реєстру в одному магазині середній час опрацювання замовлення скоротився з 10 до 6 хвилин. Але в цей період надходили переважно прості замовлення. Чи можна приписати ефект програмі?', a:'Не повністю. Для правильного порівняння треба врахувати різницю обсягів і складності замовлень, а також вимірювати час від однакового початкового до однакового кінцевого моменту. Пілот має також виявити організаційні недоліки: незрозумілі статуси, зайві поля, відсутність відповідального за виправлення.'}
+];
+$('#caseList').innerHTML = cases.map((c,i)=>`<div class="quiz-q"><h4><span class="idx" style="margin-right:8px">К${i+1}</span>${c.t}</h4><p>${c.q}</p>
+  <label class="field" for="case${i}">Ваша відповідь<textarea id="case${i}" rows="3" style="font-family:var(--f-body);font-size:15px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg-panel);color:var(--ink);width:100%"></textarea></label>
+  <div class="btnrow"><button class="btn ghost small" type="button" data-case="${i}">Показати розбір</button></div>
+  <div class="callout ok" id="caseA${i}" hidden><b>Розбір.</b> ${c.a}</div></div>`).join('');
+$$('[data-case]').forEach(b=>b.addEventListener('click', ()=>{ const el = $('#caseA'+b.dataset.case); el.hidden = !el.hidden; b.textContent = el.hidden ? 'Показати розбір' : 'Сховати розбір'; }));
+
+/* ---------- quiz ---------- */
+const quiz = [
+  {q:'Чим дані відрізняються від інформації?', o:['Нічим, це синоніми','Дані — зафіксовані значення; інформацією вони стають після інтерпретації в контексті','Інформація завжди числова, дані — текстові','Дані існують лише в комп\'ютері'], c:1, e:'Запис «48» стає інформацією, коли відомо, що це залишок конкретного товару, і з нього зроблено висновок про запас на 4 дні.'},
+  {q:'Що охоплює інформаційна система?', o:['Лише комп\'ютер','Лише програмне забезпечення','Дані, пристрої, ПЗ, мережі, людей і процедури','Лише базу даних'], c:2, e:'Комп\'ютер або програма — лише частина системи; без процедур і навчених людей навіть сучасна програма показує неправильні залишки.'},
+  {q:'До якої групи даних належить «частка повернень за місяць»?', o:['Довідкові','Операційні','Аналітичні','Неструктуровані'], c:2, e:'Аналітичні дані отримують після опрацювання операційних.'},
+  {q:'Чому не можна усереднювати номери замовлень?', o:['Вони занадто великі','Це ідентифікатори, а не кількісні характеристики','Вони містять літери','Їх зберігають у тексті'], c:1, e:'Числовий тип не означає кількісну природу; середнє номерів не має професійного змісту.'},
+  {q:'Чек містить три позиції. Скільки покупців він описує?', o:['Три','Одного','Залежить від суми','Неможливо визначити'], c:1, e:'Три рядки позицій не означають трьох покупців; рахують унікальні чеки.'},
+  {q:'Сканування паперової накладної в PDF — це…', o:['Оцифрування','Автоматизація','Цифрова трансформація','Інтеграція через API'], c:0, e:'Матеріал переведено в цифрову форму без зміни операцій чи процесу.'},
+  {q:'Чим омніканальність відрізняється від багатоканальності?', o:['Більшою кількістю каналів','Узгодженістю каналів: спільна історія, ID і статуси','Відсутністю магазину','Лише онлайн-продажами'], c:1, e:'Багатоканальність — кілька каналів; омніканальність — їх узгоджена робота без повторних пояснень покупця.'},
+  {q:'Яка система підтримує приймання, розміщення, відбір і відвантаження?', o:['POS','CRM','WMS','TMS'], c:2, e:'WMS — система управління складом.'},
+  {q:'Що позначає SKU?', o:['Номер відправлення','Окрему товарну позицію в обліку підприємства','Номер чека','Код складу'], c:1, e:'SKU пов\'язує товар у закупівлі, на складі, у каталозі та продажу.'},
+  {q:'Повідомлення «відправлено» в обміні між системами означає…', o:['Що дані точно опрацьовано','Не завжди, що друга система успішно опрацювала запис','Що замовлення доставлене','Що файл без помилок'], c:1, e:'Потрібен контроль «передано – прийнято – відхилено».'},
+  {q:'Фізично 20 од., зарезервовано 15. Скільки можна підтвердити новому покупцю?', o:['20','15','5','35'], c:2, e:'Доступний запас = фізичний − чинні резерви = 5.'},
+  {q:'Покупець скасував резерв на 4 одиниці. Що змінюється?', o:['Фізичний запас +4','Резерв −4, доступний +4, фізичний без змін','Усі показники +4','Нічого'], c:1, e:'Скасування не є надходженням і не збільшує фізичний залишок.'},
+  {q:'Скорочення часу звільнило 40 год на місяць (7200 грн за оцінкою). Оплата працівників незмінна. Це…', o:['Пряма економія 7200 грн','Вартісна оцінка звільненого часу, а не автоматична грошова економія','Збиток','Чистий прибуток'], c:1, e:'Грошову економію визнають лише за конкретної зміни витрат.'},
+  {q:'Разове впровадження 9000 грн, грошовий ефект 2040 грн/міс. Простий строк окупності?', o:['≈ 2,2 міс','≈ 4,41 міс','≈ 7,2 міс','≈ 9 міс'], c:1, e:'9000 ÷ 2040 ≈ 4,41 міс. Розрахунок не враховує вартість грошей у часі й невизначеність.'}
+];
+let score = 0, answered = new Set();
+function buildQuiz(){
+  score = 0; answered = new Set();
+  $('#quizContainer').innerHTML = quiz.map((it,qi)=>`<div class="quiz-q"><h4>${qi+1}. ${it.q}</h4>${it.o.map((o,oi)=>`<button class="opt" type="button" data-q="${qi}" data-o="${oi}">${o}</button>`).join('')}<div class="quiz-fb" id="fb-${qi}" hidden></div></div>`).join('');
+  $('#quizScore').textContent = `0 / ${quiz.length}`;
+}
+$('#quizContainer').addEventListener('click', e=>{
+  const t = e.target.closest('.opt'); if(!t) return;
+  const qi = +t.dataset.q, oi = +t.dataset.o; if(answered.has(qi)) return; answered.add(qi);
+  $$(`.opt[data-q="${qi}"]`).forEach(o=>{ o.disabled = true; if(+o.dataset.o===quiz[qi].c) o.classList.add('correct'); else if(+o.dataset.o===oi) o.classList.add('wrong'); });
+  const ok = oi===quiz[qi].c; if(ok) score++;
+  const fb = $('#fb-'+qi); fb.hidden = false; fb.innerHTML = (ok ? '✅ <b>Правильно.</b> ' : '❌ <b>Не зовсім.</b> ') + quiz[qi].e;
+  $('#quizScore').textContent = `${score} / ${quiz.length}` + (answered.size===quiz.length ? ` · ${Math.round(score/quiz.length*100)}%` : '');
+});
+$('#quizReset').addEventListener('click', buildQuiz);
+buildQuiz();
+
+/* ---------- glossary ---------- */
+const gloss = [
+  ['Дані','Зафіксовані значення або описи подій, які можна зберігати та опрацьовувати.'],
+  ['Інформація','Результат інтерпретації даних у контексті, придатний для рішення.'],
+  ['Інформаційна технологія','Організований спосіб збирання, передавання, зберігання, опрацювання і подання даних за допомогою засобів та правил.'],
+  ['Інформаційна система','Сукупність даних, технічних пристроїв, ПЗ, мереж, людей і процедур.'],
+  ['Структуровані / неструктуровані дані','Дані з визначеними полями / тексти, фото, аудіо, що потребують інших способів опрацювання.'],
+  ['Довідкові, операційні, аналітичні дані','Сталі об\'єкти / окремі події / результати опрацювання подій.'],
+  ['Одиниця спостереження','Те, чому відповідає один запис таблиці: чек, позиція, товар за день тощо.'],
+  ['Життєвий цикл даних','Створення, використання, зміна, зберігання й завершення активного використання.'],
+  ['Цифрова економіка','Широке використання цифрових даних, мереж і програмних засобів у створенні та реалізації товарів і послуг.'],
+  ['Оцифрування / автоматизація / трансформація','Цифрова форма / виконання операцій програмою / зміна організації процесу.'],
+  ['Омніканальність','Узгоджена робота каналів продажу й обслуговування зі спільною історією операції.'],
+  ['Маркетплейс','Платформа, що об\'єднує пропозиції багатьох продавців за спільними правилами.'],
+  ['IoT','Інтернет речей: підключені пристрої, що збирають і передають дані.'],
+  ['RFID','Радіочастотна ідентифікація за допомогою міток і зчитувачів.'],
+  ['Бізнес-процес','Узгоджена послідовність дій, що перетворює вхід на результат для отримувача.'],
+  ['POS / WMS / TMS / CRM / ERP','Каса / склад / перевезення / клієнти / планування ресурсів підприємства.'],
+  ['SKU','Код окремої товарної позиції в обліку підприємства.'],
+  ['API','Програмний інтерфейс, що визначає, як одна програма звертається до іншої.'],
+  ['Основні дані','Дані про об\'єкти, на які посилаються багато операцій; мають основне джерело.'],
+  ['Фізичний / резерв / доступний запас','Наявні одиниці / прийняті зобов\'язання / можливість нових підтверджень.'],
+  ['Якість даних','Точність, повнота, актуальність, узгодженість, унікальність, валідність.'],
+  ['Придатність для використання','Здатність набору даних служити конкретній меті.'],
+  ['KPI','Ключовий показник результативності зі змістом, формулою, періодом, джерелом і відповідальним.'],
+  ['Простий строк окупності','Разові витрати ÷ додатний щомісячний чистий ефект.'],
+  ['Пілотне впровадження','Перевірка рішення на обмеженій ділянці перед поступовим розширенням.']
+];
+$('#glossList').innerHTML = gloss.map(g=>`<div><dt>${g[0]}</dt><dd>${g[1]}</dd></div>`).join('');
+
+/* ---------- section contents, meta, scroll-spy, reading progress ---------- */
+const plural = (n, f) => f[(n%10===1 && n%100!==11) ? 0 : (n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20)) ? 1 : 2];
+const spyLinks = new Map();
+$$('section.panel').forEach(p=>{
+  const blocks = [...p.querySelectorAll('article.block')];
+  const groups = p.querySelectorAll('.group-label').length;
+  const meta = p.querySelector('.sec-meta');
+  if(meta && blocks.length){
+    const sims = blocks.filter(b=>b.dataset.kind==='sim').length;
+    meta.innerHTML = `<span><b>${blocks.length}</b> ${plural(blocks.length,['блок','блоки','блоків'])}</span>`
+      + (groups ? `<span><b>${groups}</b> ${plural(groups,['тематична група','тематичні групи','тематичних груп'])}</span>` : '')
+      + (sims ? `<span><b>${sims}</b> ${plural(sims,['симулятор','симулятори','симуляторів'])}</span>` : '');
+  }
+  const toc = p.querySelector('.toc-list'); if(!toc) return;
+  const link = (el, no, title, kind)=>{
+    const a = document.createElement('a'); a.href = '#'+el.id; a.dataset.kind = kind;
+    a.innerHTML = `<span class="toc-no">${no}</span><span>${title}</span>`;
+    a.addEventListener('click', e=>{ e.preventDefault(); el.scrollIntoView({behavior:'smooth', block:'start'}); });
+    toc.appendChild(a); spyLinks.set(el, a);
+  };
+  p.querySelectorAll('.group-label, article.block').forEach(el=>{
+    if(el.classList.contains('group-label')){
+      const g = document.createElement('div'); g.className = 'toc-group';
+      g.innerHTML = `<i>${el.dataset.g}</i>${el.dataset.title}`; toc.appendChild(g); return;
+    }
+    link(el, el.querySelector('.block-no').textContent, el.querySelector('h3').textContent, el.dataset.kind);
+  });
+  const tk = p.querySelector('.takeaway');
+  if(tk) link(tk, '✓', tk.querySelector('.tk-label').textContent, 'end');
+  const legend = document.createElement('div'); legend.className = 'toc-legend';
+  legend.innerHTML = '<span style="--k:var(--blue)">теорія</span><span style="--k:var(--sim)">симулятор</span><span style="--k:var(--ok)">схема</span><span style="--k:var(--ink-soft)">поглиблення</span>';
+  toc.parentElement.appendChild(legend);
+});
+const spy = new IntersectionObserver(entries=>{
+  entries.forEach(en=>{
+    if(!en.isIntersecting) return;
+    const a = spyLinks.get(en.target); if(!a) return;
+    const list = a.parentElement;
+    list.querySelectorAll('a').forEach(x=>x.classList.toggle('on', x===a));
+    if(list.scrollWidth > list.clientWidth + 4) list.scrollTo({left: a.offsetLeft - 12, behavior:'smooth'});
+    else if(list.parentElement.scrollHeight > list.parentElement.clientHeight + 4){
+      const box = list.parentElement, top = a.offsetTop - box.clientHeight/2;
+      box.scrollTo({top, behavior:'smooth'});
+    }
+  });
+}, {rootMargin:'-30% 0px -60% 0px'});
+spyLinks.forEach((a, el)=>spy.observe(el));
+
+const navProg = $('#navProgress');
+function updProgress(){ const max = document.documentElement.scrollHeight - innerHeight; navProg.style.width = (max > 0 ? Math.min(100, scrollY/max*100) : 0) + '%'; }
+addEventListener('scroll', updProgress, {passive:true});
+addEventListener('resize', updProgress);
+$$('#tabsNav button, [data-go]').forEach(b=>b.addEventListener('click', ()=>setTimeout(updProgress, 60)));
+updProgress();
+
+/* ---------- static explanation cards → 3D flip cards (topic in front, explanation behind) ---------- */
+$$('.sec-main .card').forEach(card=>{
+  if(card.matches('a.card, .src-card') || card.closest('.kv')) return;
+  const h = card.querySelector(':scope > h4'); if(!h) return;
+  const lvl = card.querySelector(':scope > .lvl-n');
+  const idx = [...card.parentElement.children].indexOf(card) + 1;
+  const title = h.innerHTML, plain = h.textContent;
+  h.remove(); if(lvl) lvl.remove();
+  const f = document.createElement('div');
+  f.className = 'fcard' + (lvl ? ' lvl' : '');
+  f.tabIndex = 0; f.setAttribute('role', 'button'); f.setAttribute('aria-pressed', 'false');
+  f.innerHTML = `<div class="fcard-inner"><div class="fcard-face front">${lvl ? `<span class="lvl-n">${lvl.textContent}</span><span class="fnum">Рівень ${lvl.textContent}</span>` : `<span class="fnum">${String(idx).padStart(2,'0')}</span>`}<h4>${title}</h4><span class="fhint">↻ натисніть, щоб перевернути</span></div>`
+    + `<div class="fcard-face back"><span class="fback-t">${plain}</span><div>${card.innerHTML.trim()}</div></div></div>`;
+  card.replaceWith(f);
+});
+function flipCard(f){ f.classList.toggle('flipped'); f.setAttribute('aria-pressed', f.classList.contains('flipped')); }
+document.addEventListener('click', e=>{ const f = e.target.closest('.fcard'); if(f) flipCard(f); });
+document.addEventListener('keydown', e=>{ if((e.key==='Enter' || e.key===' ') && e.target.classList && e.target.classList.contains('fcard')){ e.preventDefault(); flipCard(e.target); } });
+
+/* ---------- scroll reveal: blocks, cards, lists, diagrams, charts ---------- */
+function clearLater(el){ (el._rvT || []).forEach(clearTimeout); el._rvT = []; }
+function later(el, fn, ms){ (el._rvT = el._rvT || []).push(setTimeout(fn, ms)); }
+function resetLinks(svg){ svg.querySelectorAll('.mm-link').forEach(p=>{ p.style.strokeDasharray = ''; p.style.strokeDashoffset = ''; p.style.transition = ''; p.style.markerEnd = ''; }); }
+function mmReveal(svg){
+  clearLater(svg);
+  svg.classList.remove('mm-wait', 'mm-anim'); svg.getBoundingClientRect(); svg.classList.add('mm-anim');
+  svg.querySelectorAll('.mm-in').forEach((g,i)=>g.style.setProperty('--i', i));
+  svg.querySelectorAll('.mm-link').forEach((p,i)=>{
+    const L = p.getTotalLength();
+    p.style.transition = 'none'; p.style.markerEnd = 'none';   // arrowhead appears when the line is drawn
+    p.style.strokeDasharray = L; p.style.strokeDashoffset = L; p.getBoundingClientRect();
+    p.style.transition = `stroke-dashoffset .9s cubic-bezier(.6,0,.2,1) ${0.3 + i*0.12}s`; p.style.strokeDashoffset = '0';
+    later(svg, ()=>{ p.style.markerEnd = ''; }, (1.15 + i*0.12) * 1000);
+  });
+  later(svg, ()=>{ svg.classList.remove('mm-anim'); resetLinks(svg); }, 2800);
+}
+function mmReset(svg){ clearLater(svg); svg.classList.remove('mm-anim'); svg.classList.add('mm-wait'); resetLinks(svg); }
+function chartReveal(svg){
+  clearLater(svg);
+  svg.classList.remove('ch-wait', 'ch-anim'); svg.getBoundingClientRect(); svg.classList.add('ch-anim');
+  svg.querySelectorAll('rect[data-i], .sv-res, .sv-avail').forEach((r,i)=>r.style.setProperty('--i', i));
+  later(svg, ()=>svg.classList.remove('ch-anim'), 2000);
+}
+function chartReset(svg){ clearLater(svg); svg.classList.remove('ch-anim'); svg.classList.add('ch-wait'); }
+
+/* Animations replay every time: an element resets once it is fully off screen
+   (or its section is closed) and plays again when it comes back into view. */
+if(!matchMedia('(prefers-reduced-motion: reduce)').matches && 'IntersectionObserver' in window){
+  const set = new Set($$('.sec-main > *'));
+  const staggered = $$('.fcard, .points > .point, .checklist > li, .io > *, .steps > .step, .gloss > div, .cls-item, .plan-card, .quiz-q');
+  staggered.forEach(el=>set.add(el));
+  set.forEach(el=>{
+    el.classList.add('rv');
+    if(staggered.includes(el)){ const sib = [...el.parentElement.children]; el.style.setProperty('--i', Math.min(sib.indexOf(el), 8)); }
+  });
+  // show when noticeably inside the viewport, hide only when completely outside — no flicker at the edges
+  const rvIn = new IntersectionObserver(es=>es.forEach(en=>{ if(en.isIntersecting) en.target.classList.add('in'); }), {threshold:0.06, rootMargin:'0px 0px -6% 0px'});
+  const rvOut = new IntersectionObserver(es=>es.forEach(en=>{
+    if(en.isIntersecting) return;
+    en.target.classList.remove('in');
+    en.target.classList.toggle('from-top', en.boundingClientRect.top < 0);   // left upwards → comes back from above
+  }), {threshold:0});
+  set.forEach(el=>{ rvIn.observe(el); rvOut.observe(el); });
+
+  const maps = $$('svg.mm, #omniStage, #addrStage, #flowStage'), charts = $$('#sensStage, #invChart');
+  maps.forEach(x=>x.classList.add('mm-wait')); charts.forEach(x=>x.classList.add('ch-wait', 'ch-svg'));
+  const svgIn = new IntersectionObserver(es=>es.forEach(en=>{
+    const x = en.target; if(!en.isIntersecting || x._shown) return; x._shown = true;
+    x.classList.contains('ch-svg') ? chartReveal(x) : mmReveal(x);
+  }), {threshold:0.3});
+  const svgOut = new IntersectionObserver(es=>es.forEach(en=>{
+    const x = en.target; if(en.isIntersecting || !x._shown) return; x._shown = false;
+    x.classList.contains('ch-svg') ? chartReset(x) : mmReset(x);
+  }), {threshold:0});
+  [...maps, ...charts].forEach(x=>{ svgIn.observe(x); svgOut.observe(x); });
+}
+</script>
+</body></html>

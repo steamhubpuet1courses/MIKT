@@ -1,0 +1,1350 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Аналітична записка · Тема 1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;600;700;800&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<script>
+(function(){ try{ var t = localStorage.getItem('sr1-theme'); if(t==='dark'||t==='light') document.documentElement.setAttribute('data-theme', t); }catch(e){} })();
+</script>
+<style>
+/* Layout: HUD-панель → hero → липкі вкладки → одна активна панель-етап (дизайн-система лекції 1).
+   Усередині етапу: шапка → зміст (праворуч / згори на мобільних) → тематичні групи → нумеровані блоки → висновок. */
+:root{
+  --bg:#f2f4fa; --bg-panel:#ffffff; --bg-soft:#f5f7fc; --grid:rgba(36,71,184,.05); --grid-dot:rgba(36,71,184,.13);
+  --ink:#10142b; --ink-soft:#5b6283; --on-ink:#ffffff;
+  --blue:#3d6cf0; --blue-deep:#2447b8; --blue-bright:#5b8cff;
+  --red:#e0405a; --olive:#d99a00; --olive-ink:#946800; --ok:#0d9b8a; --sim:#e8731c;
+  --core:#1b2559; --core-2:#2b3f8f;
+  --line:#e1e5f1; --line-strong:#cdd3e6; --nav-bg:rgba(255,255,255,.82);
+  --tint-blue:rgba(61,108,240,.08); --tint-red:rgba(224,64,90,.08); --tint-olive:rgba(217,154,0,.1); --tint-ok:rgba(13,155,138,.1); --tint-sim:rgba(232,115,28,.09);
+  --glow-1:rgba(61,108,240,.10); --glow-2:rgba(13,155,138,.07);
+  --shadow:0 1px 2px rgba(16,20,43,.04), 0 8px 26px rgba(16,20,43,.06);
+  --shadow-lg:0 2px 6px rgba(16,20,43,.05), 0 24px 60px rgba(16,20,43,.12);
+  --radius:18px;
+  --hero-bg:radial-gradient(700px 380px at 88% -5%, rgba(61,108,240,.2), transparent 62%), radial-gradient(520px 320px at 5% 115%, rgba(13,155,138,.16), transparent 62%), linear-gradient(135deg, #ffffff 0%, #eef2ff 55%, #e6f5f2 100%);
+  --hero-border:#e1e5f1; --hero-ink:#10142b; --hero-grid:rgba(36,71,184,.07); --hero-num:rgba(36,71,184,.15);
+  --hero-h1:linear-gradient(92deg,#10142b 25%, #2447b8 70%, #0d9b8a); --hero-sub:#4f5675;
+  --hero-tag-c:#0b7f72; --hero-tag-bg:rgba(13,155,138,.08); --hero-tag-b:rgba(13,155,138,.35);
+  --hero-chip-bg:rgba(255,255,255,.75); --hero-chip-b:#dfe3f0; --hero-chip-c:#10142b; --hero-chip-n:#3d6cf0;
+  --f-display:'Unbounded', 'Segoe UI', system-ui, sans-serif;
+  --f-body:'Manrope', 'Segoe UI', system-ui, sans-serif;
+  --f-mono:'JetBrains Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#070a14; --bg-panel:#0e1328; --bg-soft:#141a35; --grid:rgba(120,145,255,.04); --grid-dot:rgba(140,165,255,.14);
+    --ink:#e8ecff; --ink-soft:#9aa3c8; --on-ink:#0b0f1f;
+    --blue:#5b8cff; --blue-deep:#9db8ff; --blue-bright:#7aa2ff;
+    --red:#ff6b81; --olive:#ffb84d; --olive-ink:#ffc46b; --ok:#2fd9bb; --sim:#ffa04d;
+    --core:#24326e; --core-2:#3550b0;
+    --line:#212947; --line-strong:#313b64; --nav-bg:rgba(14,19,40,.82);
+    --tint-blue:rgba(91,140,255,.13); --tint-red:rgba(255,107,129,.12); --tint-olive:rgba(255,184,77,.12); --tint-ok:rgba(47,217,187,.11); --tint-sim:rgba(255,160,77,.12);
+    --glow-1:rgba(91,140,255,.14); --glow-2:rgba(47,217,187,.06);
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
+    --shadow-lg:0 2px 6px rgba(0,0,0,.3), 0 26px 64px rgba(0,0,0,.5); color-scheme:dark;
+    --hero-bg:radial-gradient(700px 380px at 88% -5%, rgba(91,140,255,.5), transparent 62%), radial-gradient(520px 320px at 5% 115%, rgba(47,217,187,.3), transparent 62%), linear-gradient(135deg, #0c1331 0%, #15204f 55%, #0f2a46 100%);
+    --hero-border:rgba(255,255,255,.06); --hero-ink:#fff; --hero-grid:rgba(255,255,255,.05); --hero-num:rgba(255,255,255,.13);
+    --hero-h1:linear-gradient(92deg,#ffffff 25%, #b7cbff 70%, #8ff2dd); --hero-sub:rgba(232,238,255,.78);
+    --hero-tag-c:#9ff0e0; --hero-tag-bg:rgba(47,217,187,.1); --hero-tag-b:rgba(47,217,187,.38);
+    --hero-chip-bg:rgba(255,255,255,.07); --hero-chip-b:rgba(255,255,255,.16); --hero-chip-c:#dfe6ff; --hero-chip-n:#8ff2dd;
+  }
+}
+:root[data-theme="dark"]{
+  --hero-bg:radial-gradient(700px 380px at 88% -5%, rgba(91,140,255,.5), transparent 62%), radial-gradient(520px 320px at 5% 115%, rgba(47,217,187,.3), transparent 62%), linear-gradient(135deg, #0c1331 0%, #15204f 55%, #0f2a46 100%);
+  --hero-border:rgba(255,255,255,.06); --hero-ink:#fff; --hero-grid:rgba(255,255,255,.05); --hero-num:rgba(255,255,255,.13);
+  --hero-h1:linear-gradient(92deg,#ffffff 25%, #b7cbff 70%, #8ff2dd); --hero-sub:rgba(232,238,255,.78);
+  --hero-tag-c:#9ff0e0; --hero-tag-bg:rgba(47,217,187,.1); --hero-tag-b:rgba(47,217,187,.38);
+  --hero-chip-bg:rgba(255,255,255,.07); --hero-chip-b:rgba(255,255,255,.16); --hero-chip-c:#dfe6ff; --hero-chip-n:#8ff2dd;
+  --bg:#070a14; --bg-panel:#0e1328; --bg-soft:#141a35; --grid:rgba(120,145,255,.04); --grid-dot:rgba(140,165,255,.14);
+  --ink:#e8ecff; --ink-soft:#9aa3c8; --on-ink:#0b0f1f;
+  --blue:#5b8cff; --blue-deep:#9db8ff; --blue-bright:#7aa2ff;
+  --red:#ff6b81; --olive:#ffb84d; --olive-ink:#ffc46b; --ok:#2fd9bb; --sim:#ffa04d;
+  --core:#24326e; --core-2:#3550b0;
+  --line:#212947; --line-strong:#313b64; --nav-bg:rgba(14,19,40,.82);
+  --tint-blue:rgba(91,140,255,.13); --tint-red:rgba(255,107,129,.12); --tint-olive:rgba(255,184,77,.12); --tint-ok:rgba(47,217,187,.11); --tint-sim:rgba(255,160,77,.12);
+  --glow-1:rgba(91,140,255,.14); --glow-2:rgba(47,217,187,.06);
+  --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
+  --shadow-lg:0 2px 6px rgba(0,0,0,.3), 0 26px 64px rgba(0,0,0,.5); color-scheme:dark;
+}
+
+/* ---------- база ---------- */
+*{box-sizing:border-box;}
+body{
+  background:
+    radial-gradient(1100px 600px at 90% -10%, var(--glow-1), transparent 60%),
+    radial-gradient(900px 520px at -10% 5%, var(--glow-2), transparent 60%),
+    linear-gradient(var(--grid) 1px, transparent 1px) 0 0/40px 40px,
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px) 0 0/40px 40px,
+    var(--bg);
+  background-attachment:fixed;
+  color:var(--ink); font-family:var(--f-body); font-size:16px; line-height:1.68; min-height:100vh;
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;}
+body::before{content:""; position:fixed; inset:0 0 auto; height:env(safe-area-inset-top,0px); z-index:60; background:var(--bg);}
+::selection{background:var(--blue); color:#fff;}
+h1,h2,h3,h4{margin:0 0 .5em; text-wrap:balance; line-height:1.25;}
+h3,h4{font-family:var(--f-body); font-weight:800; letter-spacing:-.005em;}
+.mono,code{font-family:var(--f-mono);}
+p{margin:0 0 .8em;}
+b,strong{font-weight:700;}
+.frame{max-width:1240px; margin:0 auto; padding-block:18px 80px; padding-left:max(16px, env(safe-area-inset-left,0px)); padding-right:max(16px, env(safe-area-inset-right,0px));}
+
+/* ---------- HUD ---------- */
+.hud-bar{display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between; padding:9px 10px 9px 18px; background:var(--nav-bg);
+  backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+  border:1px solid var(--line); border-radius:14px; margin-bottom:14px; box-shadow:var(--shadow);
+  font-family:var(--f-mono); font-size:11.5px; letter-spacing:.04em; color:var(--ink-soft);}
+.hud-bar .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ok);margin-right:8px;box-shadow:0 0 0 3px var(--tint-ok);}
+.theme-btn{font-family:var(--f-body); font-weight:700; font-size:12.5px; background:var(--bg-soft); color:var(--ink); border:1px solid var(--line); border-radius:10px; padding:7px 13px; cursor:pointer; transition:.18s;}
+.theme-btn:hover{border-color:var(--blue); color:var(--blue-deep); background:var(--tint-blue);}
+
+/* ---------- HERO (світлий у світлій темі, темний у темній) ---------- */
+header.hero{position:relative; isolation:isolate; overflow:hidden; border-radius:26px; color:var(--hero-ink);
+  padding:clamp(28px,5vw,56px) clamp(20px,4.5vw,54px) clamp(26px,4.5vw,48px); margin-bottom:16px;
+  background:var(--hero-bg); border:1px solid var(--hero-border); box-shadow:var(--shadow-lg);}
+header.hero::before{content:""; position:absolute; inset:0; z-index:-1;
+  background:linear-gradient(var(--hero-grid) 1px, transparent 1px) 0 0/34px 34px,
+             linear-gradient(90deg, var(--hero-grid) 1px, transparent 1px) 0 0/34px 34px;
+  -webkit-mask-image:linear-gradient(105deg, transparent 20%, #000 75%); mask-image:linear-gradient(105deg, transparent 20%, #000 75%);}
+.hero-num{position:absolute; right:-12px; bottom:-0.28em; z-index:-1; font-family:var(--f-display); font-weight:800; line-height:1;
+  font-size:clamp(150px,25vw,300px); letter-spacing:-.06em; color:transparent; -webkit-text-stroke:1.5px var(--hero-num); user-select:none; pointer-events:none;}
+.hero-tag{display:inline-block; font-family:var(--f-mono); font-size:11.5px; letter-spacing:.14em;
+  color:var(--hero-tag-c); background:var(--hero-tag-bg); border:1px solid var(--hero-tag-b); padding:5px 13px; border-radius:20px; margin-bottom:20px;}
+header.hero h1{font-family:var(--f-display); font-size:clamp(24px,3.9vw,44px); font-weight:700; line-height:1.16; letter-spacing:-.015em; max-width:900px;
+  background:var(--hero-h1); -webkit-background-clip:text; background-clip:text; color:transparent;}
+header.hero p.sub{color:var(--hero-sub); max-width:760px; font-size:17.5px; margin:14px 0 26px; line-height:1.6;}
+.hero-meta{display:flex; flex-wrap:wrap; gap:10px;}
+.chip{background:var(--bg-soft); border:1px solid var(--line); border-radius:10px; padding:6px 12px; font-size:13px; color:var(--ink);}
+header.hero .chip{display:inline-flex; align-items:baseline; gap:8px; background:var(--hero-chip-bg); border-color:var(--hero-chip-b); color:var(--hero-chip-c);
+  backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); padding:9px 15px; border-radius:13px; font-size:14px; font-weight:600;}
+header.hero .chip b{font-family:var(--f-display); font-size:17px; color:var(--hero-chip-n);}
+
+/* ---------- вкладки ---------- */
+nav.tabs{position:sticky; top:calc(env(safe-area-inset-top,0px) + 8px); z-index:50; display:flex; gap:4px; overflow-x:auto; background:var(--nav-bg);
+  backdrop-filter:blur(14px) saturate(1.4); -webkit-backdrop-filter:blur(14px) saturate(1.4);
+  border:1px solid var(--line); border-radius:16px; padding:6px; margin-bottom:20px; box-shadow:var(--shadow); scrollbar-width:none;}
+nav.tabs::-webkit-scrollbar{display:none;}
+nav.tabs button{flex:0 0 auto; font-family:var(--f-body); font-weight:700; font-size:13.5px; background:transparent; color:var(--ink-soft);
+  border:1px solid transparent; padding:9px 15px; border-radius:11px; cursor:pointer; transition:.18s; white-space:nowrap;}
+nav.tabs button:hover{background:var(--bg-soft); color:var(--ink);}
+nav.tabs button.active{background:linear-gradient(135deg, var(--core), var(--core-2)); color:#fff; box-shadow:0 6px 16px rgba(27,37,89,.28);}
+.nav-progress{position:absolute; left:16px; right:16px; bottom:0; height:2px; border-radius:2px; overflow:hidden; pointer-events:none;}
+.nav-progress i{display:block; height:100%; width:0; background:linear-gradient(90deg, var(--blue), var(--ok)); transition:width .12s linear;}
+button:focus-visible, .opt:focus-visible, summary:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, a:focus-visible{outline:2px solid var(--blue-bright); outline-offset:2px;}
+
+/* ---------- панель-розділ ---------- */
+section.panel{display:none; margin-bottom:22px;}
+section.panel.active{display:grid; grid-template-columns:minmax(0,1fr) 262px; gap:20px 24px; align-items:start; animation:fadeIn .4s ease;}
+section.panel.plain.active{display:block;}
+@keyframes fadeIn{from{opacity:.3; transform:translateY(8px);} to{opacity:1; transform:none;}}
+.sec-head{grid-column:1 / -1; position:relative; overflow:hidden; display:grid; grid-template-columns:auto minmax(0,1fr); gap:clamp(14px,3vw,30px); align-items:start;
+  background:var(--bg-panel); border:1px solid var(--line); border-radius:22px; padding:clamp(20px,3.4vw,34px); box-shadow:var(--shadow);}
+section.panel.plain .sec-head{margin-bottom:18px;}
+.sec-head::after{content:""; position:absolute; right:-90px; top:-110px; width:300px; height:300px; border-radius:50%; background:radial-gradient(circle, var(--tint-blue), transparent 70%); pointer-events:none;}
+.sec-idx{font-family:var(--f-display); font-weight:800; font-size:clamp(42px,6.5vw,74px); line-height:.92; letter-spacing:-.05em;
+  background:linear-gradient(140deg, var(--blue), var(--ok)); -webkit-background-clip:text; background-clip:text; color:transparent; min-width:1.2em;}
+.sec-kicker{font-family:var(--f-mono); font-size:11.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--blue);}
+.sec-head h2{font-family:var(--f-display); font-weight:700; font-size:clamp(19px,2.4vw,26px); line-height:1.28; letter-spacing:-.01em; margin:8px 0 12px;}
+.sec-head .lede{margin:0; max-width:80ch;}
+.sec-meta{display:flex; flex-wrap:wrap; gap:8px; margin-top:16px;}
+.sec-meta:empty{display:none;}
+.sec-meta span{font-size:12.5px; font-weight:600; padding:5px 11px; border-radius:999px; background:var(--bg-soft); border:1px solid var(--line); color:var(--ink-soft);}
+.sec-meta span b{font-family:var(--f-display); color:var(--ink); margin-right:3px;}
+.sec-main{min-width:0; grid-column:1; grid-row:2;}
+.sec-head, .sec-toc{min-width:0;}
+@media(max-width:640px){ .sec-head{grid-template-columns:minmax(0,1fr); gap:4px;} }
+
+/* ---------- зміст розділу + scroll-spy ---------- */
+.sec-toc{grid-column:2; grid-row:2; position:sticky; top:84px; max-height:calc(100vh - 104px); overflow:auto; scrollbar-width:thin;
+  background:var(--bg-panel); border:1px solid var(--line); border-radius:18px; padding:16px 12px 14px; box-shadow:var(--shadow);}
+.toc-title{font-family:var(--f-mono); font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--ink-soft); padding:0 8px 6px;}
+.toc-list{display:flex; flex-direction:column; gap:1px;}
+.toc-group{font-size:11.5px; font-weight:800; color:var(--ink); padding:12px 8px 4px; display:flex; gap:8px; align-items:center;}
+.toc-group i{font-style:normal; font-family:var(--f-display); font-size:10.5px; color:#fff; background:var(--core); width:20px; height:20px; border-radius:6px; display:grid; place-items:center; flex:none;}
+.toc-list a{--k:var(--blue); --kt:var(--tint-blue); display:flex; gap:8px; padding:6px 8px; border-radius:9px; font-size:13px; line-height:1.38; color:var(--ink-soft); text-decoration:none; transition:.15s;}
+.toc-list a[data-kind="sim"]{--k:var(--sim); --kt:var(--tint-sim);}
+.toc-list a[data-kind="data"]{--k:var(--ok); --kt:var(--tint-ok);}
+.toc-list a[data-kind="extra"]{--k:var(--ink-soft); --kt:var(--bg-soft);}
+.toc-list a[data-kind="end"]{--k:var(--ok); --kt:var(--tint-ok); margin-top:8px; border-top:1px dashed var(--line); padding-top:10px; border-radius:0 0 9px 9px;}
+.toc-list a .toc-no{font-family:var(--f-mono); font-size:11px; font-weight:700; color:var(--k); min-width:30px; padding-top:1px;}
+.toc-list a:hover{background:var(--bg-soft); color:var(--ink);}
+.toc-list a.on{background:var(--kt); color:var(--ink); font-weight:700; box-shadow:inset 3px 0 0 var(--k);}
+.toc-legend{display:flex; flex-wrap:wrap; gap:6px 12px; margin:12px 8px 0; padding-top:12px; border-top:1px solid var(--line); font-size:11px; color:var(--ink-soft);}
+.toc-legend span::before{content:""; display:inline-block; width:8px; height:8px; border-radius:2px; margin-right:6px; background:var(--k);}
+@media(max-width:1020px){
+  section.panel.active{grid-template-columns:minmax(0,1fr);}
+  .sec-toc{grid-column:1; grid-row:auto; position:sticky; top:72px; z-index:40; max-height:none; overflow:visible; padding:8px; border-radius:14px; background:var(--nav-bg);
+    backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);}
+  .sec-main{grid-row:auto;}
+  .toc-title, .toc-group, .toc-legend{display:none;}
+  .toc-list{flex-direction:row; overflow-x:auto; gap:4px; scrollbar-width:none;}
+  .toc-list::-webkit-scrollbar{display:none;}
+  .toc-list a{flex:0 0 auto; white-space:nowrap; max-width:240px; overflow:hidden; text-overflow:ellipsis; border:1px solid var(--line); background:var(--bg-panel);}
+  .toc-list a[data-kind="end"]{margin-top:0; border-top:1px solid var(--line); padding-top:6px; border-radius:9px;}
+}
+
+/* ---------- тематичні групи ---------- */
+.group-label{display:flex; align-items:center; gap:12px; margin:30px 2px 14px; font-weight:800; font-size:13px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-soft);}
+.sec-main > .group-label:first-child{margin-top:4px;}
+.group-label b{font-family:var(--f-display); font-size:12.5px; color:#fff; background:linear-gradient(135deg,var(--core),var(--core-2)); width:30px; height:30px; border-radius:9px; display:grid; place-items:center; letter-spacing:0; flex:none;}
+.group-label::after{content:""; flex:1; height:1px; background:linear-gradient(90deg, var(--line-strong), transparent);}
+
+/* ---------- блоки ---------- */
+article.block{--k:var(--blue); --kt:var(--tint-blue); position:relative; background:var(--bg-panel); border:1px solid var(--line); border-radius:var(--radius);
+  padding:22px clamp(16px,2.6vw,28px) 24px; box-shadow:var(--shadow); margin-bottom:16px; scroll-margin-top:90px; min-width:0;}
+@media(max-width:1020px){ article.block{scroll-margin-top:136px;} }
+article.block::before{content:""; position:absolute; left:-1px; top:24px; height:44px; width:4px; border-radius:0 4px 4px 0; background:var(--k);}
+article.block[data-kind="sim"]{--k:var(--sim); --kt:var(--tint-sim);}
+article.block[data-kind="data"]{--k:var(--ok); --kt:var(--tint-ok);}
+article.block[data-kind="extra"]{--k:var(--ink-soft); --kt:var(--bg-soft);}
+.block-head{display:flex; gap:14px; align-items:center; margin-bottom:14px;}
+.block-no{flex:none; min-width:48px; height:48px; padding:0 8px; border-radius:14px; display:grid; place-items:center;
+  font-family:var(--f-display); font-weight:700; font-size:14px; color:var(--k); background:var(--kt); border:1px solid color-mix(in srgb, var(--k) 28%, transparent);}
+.kind{display:block; font-family:var(--f-mono); font-size:10.5px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:var(--k);}
+.block-head h3{margin:3px 0 0; font-size:clamp(17px,1.9vw,19.5px); line-height:1.3;}
+.block > .lede:first-of-type{margin-top:-2px;}
+
+/* ---------- текст ---------- */
+.lede{color:var(--ink-soft); font-size:16px; max-width:78ch;}
+.prose{max-width:80ch;}
+.prose p{color:var(--ink);}
+.muted{color:var(--ink-soft);}
+.mini-title{display:block; font-family:var(--f-mono); font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-soft); margin:20px 0 10px;}
+.mini-title:first-child{margin-top:4px;}
+.tag-sim{display:inline-block; font-family:var(--f-mono); font-size:10.5px; font-weight:700; letter-spacing:.1em; color:var(--sim); background:var(--tint-sim); border:1px solid color-mix(in srgb, var(--sim) 40%, transparent); border-radius:6px; padding:1px 7px; margin:0 2px; vertical-align:middle;}
+.definition{position:relative; padding:20px 22px 20px 24px; border-radius:16px; background:linear-gradient(135deg, var(--tint-blue), transparent 80%); border:1px solid color-mix(in srgb, var(--blue) 25%, transparent);}
+.definition .term{display:block; font-family:var(--f-display); font-weight:700; font-size:18px; color:var(--blue-deep); margin-bottom:4px;}
+.definition p{margin:0; font-size:17px;}
+.points{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; margin:14px 0;}
+.point{padding:14px 16px; border-radius:14px; background:var(--bg-soft); border:1px solid var(--line); border-top:3px solid var(--blue);}
+.point.warn{border-top-color:var(--red);}
+.point.ok{border-top-color:var(--ok);}
+.point b{display:block; font-weight:800; margin-bottom:4px;}
+.point p{margin:0; color:var(--ink-soft); font-size:15px; line-height:1.6;}
+.checklist{list-style:none; padding:0; margin:0; display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:8px;}
+.checklist li{display:flex; gap:10px; align-items:flex-start; padding:10px 14px; border-radius:12px; background:var(--tint-ok); border:1px solid color-mix(in srgb,var(--ok) 25%,transparent); font-weight:600; font-size:15px; line-height:1.45;}
+.checklist li::before{content:"✓"; color:var(--ok); font-weight:800;}
+.io{display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); gap:12px; align-items:stretch; margin:14px 0;}
+.io-cell{padding:14px 16px; border-radius:14px; background:var(--bg-soft); border:1px solid var(--line); font-weight:700; line-height:1.45;}
+.io-cell .l{display:block; font-family:var(--f-mono); font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--blue); margin-bottom:5px; font-weight:700;}
+.io-arrow{display:grid; place-items:center; font-size:22px; color:var(--blue); font-weight:800;}
+@media(max-width:640px){ .io{grid-template-columns:minmax(0,1fr);} .io-arrow{transform:rotate(90deg);} }
+
+/* ---------- висновок ---------- */
+.takeaway{position:relative; overflow:hidden; display:grid; grid-template-columns:auto minmax(0,1fr); gap:18px; align-items:start; padding:24px clamp(18px,3vw,28px);
+  border-radius:20px; margin:26px 0 6px; color:#fff; scroll-margin-top:90px;
+  background:radial-gradient(420px 220px at 100% 0%, rgba(47,217,187,.35), transparent 65%), linear-gradient(135deg, #15204f, #1d3270);
+  box-shadow:var(--shadow-lg);}
+.tk-icon{width:46px; height:46px; border-radius:14px; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.2); display:grid; place-items:center; font-size:20px; font-weight:800; color:#8ff2dd;}
+.tk-label{font-family:var(--f-mono); font-size:11px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:#8ff2dd;}
+.takeaway p{margin:6px 0 0; color:rgba(240,244,255,.9); font-size:16.5px; line-height:1.65; max-width:84ch;}
+
+/* ---------- акордеони ---------- */
+details.acc{border:1px solid var(--line); border-radius:14px; margin-bottom:10px; overflow:hidden; background:var(--bg-panel); transition:border-color .2s, box-shadow .2s;}
+details.acc[open]{border-color:color-mix(in srgb, var(--blue) 35%, var(--line)); box-shadow:0 6px 20px rgba(36,71,184,.07);}
+details.acc summary{cursor:pointer; list-style:none; padding:14px 16px 14px 18px; display:flex; justify-content:space-between; gap:12px; align-items:center;
+  font-weight:700; font-size:15.5px; line-height:1.4; transition:background .15s;}
+details.acc summary::-webkit-details-marker{display:none;}
+details.acc summary:hover{background:var(--bg-soft); color:var(--blue-deep);}
+details.acc summary .arrow{flex:0 0 auto; width:28px; height:28px; border-radius:50%; display:grid; place-items:center; font-size:9px; color:var(--blue);
+  background:var(--tint-blue); transition:transform .25s;}
+details.acc[open] summary .arrow{transform:rotate(90deg);}
+details.acc .acc-body{padding:14px 20px 8px; max-width:86ch; border-top:1px dashed var(--line);}
+
+/* ---------- сітки й картки ---------- */
+.grid2{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px;}
+.grid3{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px;}
+.grid4{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px;}
+.grid5{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px;}
+@media(max-width:900px){.grid4{grid-template-columns:repeat(2,minmax(0,1fr));}}
+@media(max-width:800px){.grid2,.grid3{grid-template-columns:minmax(0,1fr);}}
+@media(max-width:480px){.grid4{grid-template-columns:minmax(0,1fr);}}
+.card{background:var(--bg-soft); border:1px solid var(--line); border-radius:14px; padding:16px 18px; min-width:0; line-height:1.55;}
+.card h4{color:var(--blue-deep); font-size:15.5px; margin-bottom:6px;}
+.card p:last-child{margin-bottom:0;}
+.card .k{font-family:var(--f-mono); font-size:11.5px; color:var(--ink-soft);}
+a.card{color:inherit; text-decoration:none; cursor:pointer; transition:.2s;}
+a.card:hover{border-color:var(--blue); transform:translateY(-3px); box-shadow:var(--shadow);}
+.levels .card{position:relative; padding-top:18px; overflow:hidden;}
+.lvl-n{position:absolute; right:12px; top:4px; font-family:var(--f-display); font-weight:800; font-size:48px; line-height:1; color:var(--blue); opacity:.13;}
+.levels .card:nth-child(2){border-color:color-mix(in srgb, var(--blue) 30%, var(--line));}
+.levels .card:nth-child(3){border-color:color-mix(in srgb, var(--ok) 40%, var(--line)); background:linear-gradient(160deg, var(--tint-ok), var(--bg-soft) 70%);}
+.levels .ex{margin-top:10px; padding-top:10px; border-top:1px dashed var(--line-strong); font-size:14.5px; color:var(--ink-soft);}
+.plan-card{display:flex; flex-direction:column; gap:4px; background:var(--bg-panel);}
+.plan-card .plan-n{font-family:var(--f-display); font-weight:800; font-size:30px; line-height:1; margin-bottom:8px;
+  background:linear-gradient(140deg, var(--blue), var(--ok)); -webkit-background-clip:text; background-clip:text; color:transparent;}
+.plan-card p{color:var(--ink-soft); font-size:14.5px; flex:1;}
+.plan-card .k{color:var(--blue-deep); font-weight:700;}
+.src-card{background:var(--bg-panel); text-align:left;}
+.src-card .l{font-family:var(--f-mono); font-size:11px; color:var(--ink-soft); margin-top:8px;}
+.src-card .big{font-family:var(--f-display); font-weight:800; font-size:34px; line-height:1.1; color:var(--blue-deep);}
+
+/* ---------- кнопки ---------- */
+.btn{font-family:var(--f-body); font-weight:700; font-size:13.5px; cursor:pointer; border:1px solid var(--core); background:var(--core); color:#fff; padding:9px 16px; border-radius:11px; transition:.18s; line-height:1.3;}
+.btn:hover{background:var(--blue); border-color:var(--blue); color:#fff; transform:translateY(-1px);}
+.btn.ghost{background:var(--bg-panel); color:var(--ink); border-color:var(--line-strong);}
+.btn.ghost:hover{border-color:var(--blue); color:var(--blue-deep); background:var(--tint-blue);}
+.btn.warn{background:var(--bg-panel); color:var(--red); border-color:color-mix(in srgb, var(--red) 45%, transparent);}
+.btn.warn:hover{background:var(--tint-red); color:var(--red);}
+.btn.small{padding:6px 12px; font-size:12.5px; border-radius:9px;}
+.btn.active{background:var(--blue); border-color:var(--blue); color:#fff; box-shadow:0 4px 12px color-mix(in srgb, var(--blue) 30%, transparent);}
+.btn:disabled{opacity:.5; cursor:default; transform:none;}
+.btn.active:disabled{opacity:1;}
+.btnrow{display:flex; gap:8px; flex-wrap:wrap; margin:12px 0; align-items:center;}
+
+/* ---------- сцени симуляторів ---------- */
+.mindmap-wrap{background:radial-gradient(var(--grid-dot) 1px, transparent 1.2px) 0 0/18px 18px, var(--bg-soft); border:1px solid var(--line); border-radius:16px; padding:14px; margin:14px 0; overflow-x:auto;}
+.mindmap-wrap svg{width:100%; min-width:560px; height:auto; display:block;}
+.sim-stage{background:var(--bg-soft); border:1px solid var(--line); border-radius:16px; padding:12px; overflow-x:auto;}
+.sim-stage svg{width:100%; height:auto; display:block;}
+.sim-log{position:relative; background:var(--bg-soft); border:1px solid var(--line); border-radius:12px; padding:11px 16px 11px 34px; font-size:14.5px; line-height:1.55; min-height:46px; margin-top:10px; color:var(--ink);}
+.sim-log::before{content:"›"; position:absolute; left:14px; top:8px; font-family:var(--f-mono); font-weight:700; font-size:18px; color:var(--sim);}
+.result-box{background:linear-gradient(135deg, var(--tint-blue), transparent 85%), var(--bg-panel); border:1px solid color-mix(in srgb, var(--blue) 35%, var(--line)); border-radius:14px; padding:16px 20px; margin-top:10px;}
+.result-box .big{font-size:24px; line-height:1.3; color:var(--blue-deep); font-family:var(--f-display); font-weight:700; font-variant-numeric:tabular-nums; margin:2px 0;}
+
+/* svg tokens */
+.sv-bg{fill:var(--bg-soft);} .sv-node{fill:var(--bg-panel); stroke:var(--line-strong); stroke-width:2;}
+.sv-core{fill:var(--core);} .sv-core-t{fill:#ffffff;} .sv-core-t2{fill:#9fd8ff;}
+.sv-t{fill:var(--ink); font-family:var(--f-body); font-size:13px;} .sv-ts{fill:var(--ink-soft); font-family:var(--f-mono); font-size:10.5px;}
+.sv-line{stroke:var(--line-strong); stroke-width:2; fill:none;} .sv-arrow{fill:var(--ink-soft);}
+.st-blue{stroke:var(--blue);} .st-red{stroke:var(--red);} .st-olive{stroke:var(--olive);} .st-ok{stroke:var(--ok);}
+.sv-node.on{fill:var(--tint-blue); stroke:var(--blue); stroke-width:3;}
+.sv-node.done{stroke:var(--ok);}
+.sv-res{fill:var(--blue-deep);} .sv-avail{fill:var(--tint-ok); stroke:var(--ok); stroke-width:2;}
+.sv-shelf{stroke:var(--red); stroke-width:2.5; stroke-dasharray:5 4;}
+.sv-wt{fill:#fff; font-family:var(--f-mono); font-size:13px; font-weight:700;}
+.sv-it{fill:var(--ink); font-family:var(--f-mono); font-size:13px; font-weight:700;}
+
+/* ---------- таблиці ---------- */
+.table-wrap{overflow-x:auto; margin:12px 0; border:1px solid var(--line); border-radius:14px; background:var(--bg-panel);}
+table{border-collapse:separate; border-spacing:0; width:100%; font-size:14.5px;}
+th,td{padding:10px 14px; text-align:left; vertical-align:top; border-bottom:1px solid var(--line);}
+tbody tr:last-child td{border-bottom:none;}
+th{background:var(--bg-soft); font-size:11.5px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-soft);}
+tbody tr:nth-child(even) td{background:color-mix(in srgb, var(--bg-soft) 60%, transparent);}
+td.num, th.num{text-align:right; font-variant-numeric:tabular-nums; font-family:var(--f-mono);}
+caption{caption-side:top; text-align:left; font-family:var(--f-mono); font-size:11.5px; font-weight:700; letter-spacing:.06em; color:var(--ink-soft); padding:12px 14px 10px; border-bottom:1px solid var(--line);}
+tr.hl td{background:var(--tint-blue) !important;}
+tr.hl td:first-child{box-shadow:inset 3px 0 0 var(--blue);}
+
+/* ---------- кроки ---------- */
+.steps{counter-reset:step; margin-top:12px;}
+.step{position:relative; padding:6px 10px 16px 34px; border-left:2px solid var(--line-strong); margin-left:14px;}
+.step:last-child{border-left-color:transparent;}
+.step::before{counter-increment:step; content:counter(step); position:absolute; left:-15px; top:4px; width:28px; height:28px; border-radius:50%;
+  background:linear-gradient(135deg, var(--blue), var(--ok)); color:#fff; display:flex; align-items:center; justify-content:center; font-family:var(--f-display); font-weight:700; font-size:12px; box-shadow:0 0 0 4px var(--bg-panel);}
+.step b{font-weight:800;}
+
+/* ---------- виноски ---------- */
+.callout{--c:var(--red); --ct:var(--tint-red); position:relative; border:1px solid color-mix(in srgb, var(--c) 26%, transparent); border-left:4px solid var(--c); background:var(--ct);
+  padding:13px 18px; border-radius:6px 14px 14px 6px; margin:14px 0; max-width:88ch; line-height:1.6;}
+.callout.blue{--c:var(--blue); --ct:var(--tint-blue);}
+.callout.ok{--c:var(--ok); --ct:var(--tint-ok);}
+.callout > b:first-child{display:block; color:var(--c); font-weight:800; margin-bottom:2px;}
+.callout.blue > b:first-child{color:var(--blue-deep);}
+
+/* ---------- поля ---------- */
+.field{display:flex; flex-direction:column; gap:5px; font-size:12px; font-weight:700; color:var(--ink-soft);}
+.field input, .field select{font-family:var(--f-mono); font-size:15px; padding:9px 11px; border:1px solid var(--line-strong); border-radius:10px; background:var(--bg-panel); color:var(--ink); width:100%; transition:border-color .15s, box-shadow .15s;}
+.field input:focus, .field select:focus, .field textarea:focus{outline:none; border-color:var(--blue); box-shadow:0 0 0 3px var(--tint-blue);}
+.calc{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin:12px 0; padding:16px; border-radius:14px; background:var(--bg-soft); border:1px solid var(--line);}
+.kv{display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:10px; margin-top:10px;}
+.kv > div{background:var(--bg-panel); border:1px solid var(--line); border-radius:14px; padding:12px 14px; min-width:0;}
+.kv .l{font-family:var(--f-mono); font-size:10.5px; font-weight:700; color:var(--ink-soft); letter-spacing:.08em;}
+.kv .v{font-family:var(--f-display); font-weight:700; font-size:20px; line-height:1.35; font-variant-numeric:tabular-nums;}
+.kv .v.red{color:var(--red);} .kv .v.ok{color:var(--ok);} .kv .v.blue{color:var(--blue-deep);}
+.kv .k{font-size:12px; color:var(--ink-soft);}
+
+/* класифікатор */
+.cls-item{display:flex; flex-wrap:wrap; gap:8px 12px; align-items:center; justify-content:space-between; padding:11px 14px; border:1px solid var(--line); border-radius:12px; background:var(--bg-panel); margin-bottom:8px; transition:.2s;}
+.cls-item .txt{flex:1 1 260px; min-width:0; font-weight:600;}
+.cls-item .opts{display:flex; gap:6px; flex-wrap:wrap;}
+.cls-item.right{border-color:var(--ok); background:var(--tint-ok);}
+.cls-item.wrong{border-color:var(--red); background:var(--tint-red);}
+.cls-item .fb{flex-basis:100%; font-size:14px; color:var(--ink-soft);}
+
+/* картки-перевертні */
+.flip{cursor:pointer; text-align:left; font:inherit; color:inherit; width:100%; background:var(--bg-panel); transition:.2s;}
+.flip:hover{border-color:var(--blue); transform:translateY(-2px);}
+.flip .back{display:none; color:var(--ink-soft); font-size:14px; margin-top:8px; padding-top:8px; border-top:1px dashed var(--line-strong);}
+.flip.open .back{display:block;}
+.flip.open{border-color:var(--blue); background:linear-gradient(160deg, var(--tint-blue), var(--bg-panel) 70%);}
+.flip .hint{font-family:var(--f-mono); font-size:11px; color:var(--blue); margin-top:6px;}
+.flip.open .hint{display:none;}
+.badge{display:inline-block; font-family:var(--f-mono); font-size:11px; font-weight:700; padding:2px 9px; border-radius:20px; border:1px solid currentColor;}
+.badge.ok{color:var(--ok);} .badge.red{color:var(--red);} .badge.olive{color:var(--olive-ink);} .badge.blue{color:var(--blue-deep);}
+
+.role-out{min-height:84px;}
+
+/* ---------- практика й тест ---------- */
+.quiz-q{border:1px solid var(--line); border-radius:var(--radius); padding:20px clamp(16px,2.6vw,24px); margin-bottom:14px; background:var(--bg-panel); box-shadow:var(--shadow);}
+.quiz-q h4{font-size:16.5px; margin-bottom:12px; display:flex; gap:10px; align-items:baseline;}
+.quiz-q textarea{font-family:var(--f-body) !important; border-radius:10px !important;}
+.opt{display:block; width:100%; text-align:left; margin-bottom:8px; padding:11px 14px; border-radius:11px; border:1px solid var(--line-strong); background:var(--bg-soft); color:var(--ink); cursor:pointer; font-family:var(--f-body); font-size:15px; font-weight:600; transition:.15s;}
+.opt:hover:not(:disabled){border-color:var(--blue); background:var(--tint-blue);}
+.opt:disabled{cursor:default;}
+.opt.correct{background:var(--tint-ok); border-color:var(--ok); color:var(--ink);}
+.opt.correct::after{content:"  ✓"; color:var(--ok); font-weight:800;}
+.opt.wrong{background:var(--tint-red); border-color:var(--red);}
+.quiz-fb{font-size:14.5px; margin-top:8px; color:var(--ink-soft); padding:10px 14px; border-radius:10px; background:var(--bg-soft);}
+#quizScoreBar{position:sticky; bottom:calc(env(safe-area-inset-bottom,0px) + 12px); background:linear-gradient(135deg, var(--core), var(--core-2)); color:#fff; padding:12px 14px 12px 20px; border-radius:16px; font-weight:700; display:flex; flex-wrap:wrap; gap:10px; justify-content:space-between; align-items:center; box-shadow:var(--shadow-lg);}
+#quizScore{font-family:var(--f-display);}
+#quizScoreBar .btn{background:#fff; color:var(--core); border-color:#fff;}
+.idx{font-family:var(--f-mono); font-size:12px; color:#fff; background:linear-gradient(135deg, var(--sim), var(--red)); padding:3px 9px; border-radius:7px; font-weight:700; flex:0 0 auto;}
+
+/* ---------- глосарій ---------- */
+.gloss{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin:0;}
+@media(max-width:800px){.gloss{grid-template-columns:minmax(0,1fr);}}
+.gloss div{padding:14px 16px; border:1px solid var(--line); border-radius:14px; background:var(--bg-panel); border-left:3px solid var(--blue);}
+.gloss dt{font-weight:800; color:var(--blue-deep); font-size:15.5px;}
+.gloss dd{margin:4px 0 0; color:var(--ink-soft); font-size:15px; line-height:1.55;}
+footer{text-align:center; color:var(--ink-soft); font-family:var(--f-mono); font-size:11.5px; padding:24px 0 0;}
+
+
+/* ---------- поява під час прокручування ---------- */
+.rv{opacity:0; transform:translateY(26px); transition:opacity .7s ease, transform .8s cubic-bezier(.16,1,.3,1); transition-delay:calc(var(--i,0) * 70ms);}
+.rv.from-top{transform:translateY(-26px);}
+.rv.in{opacity:1; transform:none;}
+
+/* ---------- ментальні карти: поява + відштовхування ---------- */
+.mindmap-wrap svg, .sim-stage svg{overflow:visible;}
+.mm-node .mm-in{transform-box:fill-box; transform-origin:center;}
+.mm-node rect{transition:stroke-width .2s, filter .25s;}
+.mm-node.mm-hot rect{stroke-width:3; filter:drop-shadow(0 8px 16px rgba(36,71,184,.28));}
+.mm-wait .mm-in, .mm-wait .mm-link{opacity:0;}
+.mm-anim .mm-in{animation:mmPop .75s cubic-bezier(.2,1.35,.4,1) both; animation-delay:calc(var(--i,0) * 95ms + 80ms);}
+@keyframes mmPop{from{opacity:0; transform:translateY(14px) scale(.8);} to{opacity:1; transform:none;}}
+
+/* ---------- графіки ---------- */
+.ch-wait rect[data-i], .ch-wait .sv-res, .ch-wait .sv-avail{opacity:0;}
+.ch-anim rect[data-i]{transform-box:fill-box; transform-origin:50% 100%; animation:barUp .8s cubic-bezier(.2,1,.3,1) both; animation-delay:calc(var(--i,0) * 55ms);}
+.ch-anim .sv-res, .ch-anim .sv-avail{transform-box:fill-box; transform-origin:0 50%; animation:barRight .9s cubic-bezier(.2,1,.3,1) both; animation-delay:calc(var(--i,0) * 180ms + 100ms);}
+@keyframes barUp{from{transform:scaleY(0);} to{transform:none;}}
+@keyframes barRight{from{transform:scaleX(0);} to{transform:none;}}
+
+/* ---------- картки-перевертні ---------- */
+.fcard{position:relative; perspective:1100px; cursor:pointer; outline:none; min-width:0; -webkit-tap-highlight-color:transparent;}
+.fcard-inner{display:grid; height:100%; transform-style:preserve-3d; transition:transform .8s cubic-bezier(.3,1.3,.45,1);}
+.fcard:hover .fcard-inner{transform:rotateY(-8deg) rotateX(3deg);}
+.fcard.flipped .fcard-inner{transform:rotateY(180deg);}
+.fcard.flipped:hover .fcard-inner{transform:rotateY(172deg) rotateX(3deg);}
+.fcard:focus-visible .fcard-face{outline:2px solid var(--blue-bright); outline-offset:2px;}
+.fcard-face{grid-area:1 / 1; position:relative; overflow:hidden; display:flex; flex-direction:column; min-height:136px; padding:16px 18px;
+  border-radius:16px; border:1px solid var(--line); -webkit-backface-visibility:hidden; backface-visibility:hidden;}
+.fcard-face.front{background:linear-gradient(155deg, var(--bg-panel) 30%, var(--bg-soft)); box-shadow:var(--shadow);}
+.fcard-face.front::after{content:""; position:absolute; right:-36px; top:-36px; width:120px; height:120px; border-radius:50%; background:radial-gradient(circle, var(--tint-blue), transparent 70%); pointer-events:none;}
+.fcard-face.front h4{margin:auto 0 0; padding-top:14px; font-size:16.5px; line-height:1.3; color:var(--ink);}
+.fnum{font-family:var(--f-display); font-weight:800; font-size:13px; color:var(--blue);}
+.fval{font-family:var(--f-mono); font-size:15px; color:var(--blue-deep); margin-top:4px;}
+.fhint{margin-top:10px; font-family:var(--f-mono); font-size:10.5px; letter-spacing:.06em; color:var(--ink-soft); transition:color .2s;}
+.fcard:hover .fhint{color:var(--blue);}
+.fcard-face.back{transform:rotateY(180deg); font-size:14.5px; line-height:1.55; color:var(--ink);
+  background:linear-gradient(155deg, var(--tint-blue), transparent 75%), var(--bg-panel); border-color:color-mix(in srgb, var(--blue) 40%, var(--line)); box-shadow:var(--shadow);}
+.fback-t{font-family:var(--f-mono); font-size:10.5px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--blue); margin-bottom:8px;}
+.fcard-face.back p{margin:6px 0 0;}
+.fcard-face.back .badge{align-self:flex-start;}
+.fcard-face.back .ex{margin-top:10px; padding-top:10px; border-top:1px dashed var(--line-strong); font-size:14px; color:var(--ink-soft);}
+.fcard.lvl .lvl-n{position:absolute; right:14px; top:6px; font-family:var(--f-display); font-weight:800; font-size:54px; line-height:1; color:var(--blue); opacity:.16;}
+.levels .fcard:nth-child(2) .fcard-face{border-color:color-mix(in srgb, var(--blue) 30%, var(--line));}
+.levels .fcard:nth-child(3) .fcard-face{border-color:color-mix(in srgb, var(--ok) 45%, var(--line));}
+.levels .fcard:nth-child(3) .front{background:linear-gradient(155deg, var(--tint-ok), var(--bg-panel) 70%);}
+
+@media (prefers-reduced-motion: reduce){ .rv{opacity:1; transform:none;} .fcard:hover .fcard-inner{transform:none;} .fcard.flipped .fcard-inner{transform:rotateY(180deg);} }
+
+@media (prefers-reduced-motion: reduce){ *{animation:none !important; transition:none !important;} html{scroll-behavior:auto;} }
+
+/* ================= Самостійна робота: компоненти сторінки ================= */
+.block-head .pick{margin-left:auto; align-self:center;}
+@media(max-width:640px){ .block-head{flex-wrap:wrap;} .block-head .pick{margin-left:62px;} }
+
+.task-box{position:relative; padding:18px 22px; border-radius:16px; margin-bottom:14px; max-width:92ch; font-size:16.5px; line-height:1.65;
+  background:linear-gradient(135deg, var(--tint-blue), transparent 80%); border:1px solid color-mix(in srgb, var(--blue) 25%, transparent);}
+.callout b.lbl{display:block; font-family:var(--f-mono); font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--c); margin-bottom:4px;}
+.callout.important{--c:var(--red); --ct:var(--tint-red);}
+.callout.attention{--c:var(--olive); --ct:var(--tint-olive);}
+.callout.attention b.lbl{color:var(--olive-ink);}
+.callout.advice{--c:var(--ok); --ct:var(--tint-ok);}
+
+/* картки питань на огляді */
+.qcard{position:relative;}
+.qcard.chosen{border-color:color-mix(in srgb, var(--ok) 55%, transparent); background:linear-gradient(160deg, var(--tint-ok), var(--bg-panel) 70%);}
+.qstar{position:absolute; right:14px; top:14px; font-size:11.5px; font-weight:800; color:var(--ok); background:var(--tint-ok); border:1px solid color-mix(in srgb, var(--ok) 40%, transparent); padding:3px 10px; border-radius:999px;}
+
+/* кнопки */
+.btn.big{font-size:15px; padding:13px 24px; border-radius:13px; background:linear-gradient(135deg, var(--core), var(--core-2)); border-color:transparent; box-shadow:0 10px 24px rgba(27,37,89,.25);}
+.btn.big:hover{background:var(--blue);}
+.btn.x{padding:4px 9px; font-size:12px; background:transparent; color:var(--red); border-color:var(--line-strong); border-radius:8px;}
+.btn.x:hover{background:var(--tint-red); color:var(--red); border-color:var(--red); transform:none;}
+.btnrow.qsteps{justify-content:space-between; margin-top:2px;}
+
+/* таблиця джерел */
+table.edit{min-width:760px;}
+table.edit td{padding:7px 8px; vertical-align:middle;}
+table.edit td.n, table.edit th.n{width:40px; text-align:center; font-family:var(--f-mono); color:var(--ink-soft);}
+table.edit td.del, table.edit th.del{width:48px; text-align:center;}
+table.edit input, table.edit select, table.edit textarea{width:100%; border:1px solid var(--line-strong); border-radius:9px; padding:7px 9px; font-family:var(--f-body); font-size:14px; background:var(--bg-panel); color:var(--ink); transition:border-color .15s, box-shadow .15s;}
+
+/* поля записки */
+.fld{margin-bottom:16px;}
+.fld label{display:block; font-size:14px; font-weight:800; color:var(--ink); margin-bottom:6px;}
+textarea, input.txt, select.txt{width:100%; border:1px solid var(--line-strong); border-radius:12px; padding:11px 13px; font-family:var(--f-body); font-size:15.5px; line-height:1.55; background:var(--bg-panel); color:var(--ink); resize:vertical; transition:border-color .15s, box-shadow .15s;}
+textarea{min-height:84px;}
+textarea::placeholder, input.txt::placeholder{color:var(--ink-soft); opacity:.75;}
+textarea:focus, input.txt:focus, select.txt:focus, table.edit input:focus, table.edit textarea:focus, table.edit select:focus{outline:none; border-color:var(--blue); box-shadow:0 0 0 3px var(--tint-blue);}
+.wc{font-family:var(--f-mono); font-size:11px; color:var(--ink-soft); text-align:right; margin-top:4px;}
+.wc.ok{color:var(--ok);} .wc.bad{color:var(--red);}
+
+/* вибір, чек-листи, перемикачі */
+.choice{display:flex; gap:8px; flex-wrap:wrap; margin:6px 0 12px;}
+.choice button{font-family:var(--f-body); font-weight:700; font-size:14.5px; padding:10px 16px; border-radius:12px; border:1px solid var(--line-strong); background:var(--bg-panel); color:var(--ink); cursor:pointer; transition:.18s;}
+.choice button:hover{border-color:var(--blue); background:var(--tint-blue);}
+.choice button.on{background:var(--blue); border-color:var(--blue); color:#fff; box-shadow:0 4px 12px color-mix(in srgb, var(--blue) 30%, transparent);}
+.check{display:flex; gap:12px; align-items:flex-start; padding:12px 14px; border:1px solid var(--line); border-radius:12px; margin-bottom:8px; background:var(--bg-panel); cursor:pointer; font-weight:600; line-height:1.5; transition:background .2s, border-color .2s;}
+.check:hover{border-color:var(--line-strong);}
+.check input{width:20px; height:20px; margin-top:2px; accent-color:var(--ok); flex:none;}
+.check.done{background:var(--tint-ok); border-color:color-mix(in srgb, var(--ok) 50%, transparent);}
+.toggle{display:flex; gap:12px; align-items:flex-start; padding:12px 14px; border:1px solid var(--line); border-radius:12px; background:var(--bg-panel); cursor:pointer; margin-bottom:8px; font-weight:600; line-height:1.5; transition:background .2s, border-color .2s;}
+.toggle input{width:20px; height:20px; margin-top:2px; accent-color:var(--red); flex:none;}
+.toggle.on{border-color:color-mix(in srgb, var(--red) 55%, transparent); background:var(--tint-red);}
+.req-list{display:flex; flex-wrap:wrap; gap:6px; margin:8px 0;}
+.req{font-family:var(--f-mono); font-size:12px; padding:3px 9px; border-radius:20px; border:1px solid var(--line); color:var(--ink-soft);}
+.req.on{border-color:var(--ok); color:var(--ok); background:var(--tint-ok);}
+.req.on::before{content:"✓ ";}
+.order-item{display:flex; gap:10px; align-items:center; padding:10px 14px; border:1px solid var(--line); border-radius:12px; background:var(--bg-panel); margin-bottom:6px;}
+.order-item .n{font-family:var(--f-display); color:var(--blue); font-weight:700; width:24px;}
+.order-item .t{flex:1; min-width:0;}
+.order-item.good{border-color:var(--ok); background:var(--tint-ok);}
+.order-item.bad{border-color:var(--red); background:var(--tint-red);}
+.kv .v:not(.red):not(.ok){color:var(--blue-deep);}
+
+/* тест */
+.block .quiz-q{background:var(--bg-soft); box-shadow:none;}
+.quiz-opt{display:block; width:100%; text-align:left; margin-bottom:8px; padding:11px 14px; border-radius:11px; border:1px solid var(--line-strong); background:var(--bg-panel); color:var(--ink); cursor:pointer; font-family:var(--f-body); font-size:15px; font-weight:600; transition:.15s;}
+.quiz-opt:hover:not(:disabled){border-color:var(--blue); background:var(--tint-blue);}
+.quiz-opt:disabled{cursor:default;}
+.quiz-opt.correct{background:var(--tint-ok); border-color:var(--ok);}
+.quiz-opt.correct::after{content:"  ✓"; color:var(--ok); font-weight:800;}
+.quiz-opt.wrong{background:var(--tint-red); border-color:var(--red);}
+
+/* заповненість: смуги ростуть під час появи */
+.stat{display:grid; grid-template-columns:minmax(170px,1.4fr) 3fr minmax(70px,auto); gap:14px; align-items:center; padding:10px 14px; border:1px solid var(--line); border-radius:12px; background:var(--bg-soft); margin-bottom:8px; font-size:14px; font-weight:600;}
+.stat > span:last-child{font-family:var(--f-mono); text-align:right; color:var(--ink-soft);}
+.stat .bar, .sb .bar{height:10px; background:var(--bg-panel); border:1px solid var(--line); border-radius:6px; overflow:hidden;}
+.stat .bar i, .sb .bar i{display:block; height:100%; border-radius:6px; background:linear-gradient(90deg, var(--blue), var(--ok)); transform-origin:0 50%; transition:transform 1s cubic-bezier(.2,1,.3,1) .2s;}
+.stat.rv .bar i{transform:scaleX(0);}
+.stat.rv.in .bar i{transform:none;}
+@media(max-width:600px){ .stat{grid-template-columns:1fr auto;} .stat .bar{grid-column:1 / -1; grid-row:2;} }
+.score-bars{display:grid; gap:8px; margin-top:10px;}
+.sb{display:grid; grid-template-columns:minmax(180px,1.6fr) 3fr 48px; gap:12px; align-items:center; font-size:14.5px;}
+.sb .pt{font-family:var(--f-mono); text-align:right;}
+@media(max-width:600px){ .sb{grid-template-columns:1fr 48px;} .sb .bar{grid-column:1 / -1; grid-row:2;} }
+.codebox{position:relative; background:#0b1022; color:#dfe6ff; border-radius:14px; padding:14px 16px; margin:12px 0;}
+.codebox pre{margin:0; white-space:pre-wrap; font-family:var(--f-mono); font-size:13px; line-height:1.6; padding-right:96px;}
+.codebox .btn{position:absolute; top:10px; right:10px; background:rgba(255,255,255,.1); border-color:rgba(255,255,255,.3); color:#fff;}
+
+/* питання і тренажери: навігатор */
+.qlayout{display:grid; grid-template-columns:minmax(220px,268px) minmax(0,1fr); gap:20px; align-items:start;}
+.qnav{display:flex; flex-direction:column; gap:4px; position:sticky; top:84px; padding:12px 10px; background:var(--bg-panel); border:1px solid var(--line); border-radius:18px; box-shadow:var(--shadow);}
+.qnav::before{content:"Вісім питань"; font-family:var(--f-mono); font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--ink-soft); padding:2px 8px 6px;}
+.qbtn{display:flex; gap:10px; align-items:flex-start; text-align:left; padding:9px 10px; border:1px solid transparent; border-radius:11px; background:transparent; color:var(--ink-soft); cursor:pointer; font-family:var(--f-body); font-size:13.5px; font-weight:600; line-height:1.38; transition:.15s;}
+.qbtn:hover{background:var(--bg-soft); color:var(--ink);}
+.qbtn.active{background:var(--tint-blue); color:var(--ink); box-shadow:inset 3px 0 0 var(--blue); font-weight:800;}
+.qbtn .num{font-family:var(--f-display); font-weight:700; font-size:12px; color:var(--blue); flex:0 0 auto; min-width:16px; padding-top:1px;}
+.qbtn .st{margin-left:auto; color:var(--ok); font-size:14px; flex:0 0 auto;}
+#qview{min-width:0;}
+@media(max-width:900px){
+  .qlayout{grid-template-columns:minmax(0,1fr);}
+  .qnav{top:72px; z-index:40; flex-direction:row; overflow-x:auto; padding:8px; border-radius:14px; background:var(--nav-bg); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); scrollbar-width:none;}
+  .qnav::-webkit-scrollbar{display:none;}
+  .qnav::before{display:none;}
+  .qnav .qbtn{flex:0 0 auto; max-width:240px; white-space:nowrap; border-color:var(--line); background:var(--bg-panel);}
+}
+.pick{flex:none; font-family:var(--f-body); font-weight:800; font-size:13.5px; padding:10px 16px; border-radius:12px; border:1px solid color-mix(in srgb, var(--ok) 55%, transparent); background:var(--bg-panel); color:var(--ok); cursor:pointer; transition:.18s; white-space:nowrap;}
+.pick:hover:not(:disabled){background:var(--tint-ok);}
+.pick.on{background:var(--ok); border-color:var(--ok); color:var(--on-ink); box-shadow:0 6px 16px color-mix(in srgb, var(--ok) 35%, transparent);}
+.pick:disabled{opacity:.45; cursor:not-allowed;}
+.sel-bar{display:flex; flex-wrap:wrap; gap:8px 10px; align-items:center; padding:12px 16px; border:1px dashed color-mix(in srgb, var(--ok) 55%, transparent); border-radius:14px; background:var(--tint-ok); margin-bottom:18px; font-size:14px; font-weight:700;}
+.sel-bar .chip{background:var(--bg-panel); font-weight:700; border-radius:999px;}
+.hintcards{margin-top:4px;}
+.hintcards .fcard-face{min-height:150px;}
+.hintcards .fcard-face.back{font-size:15px;}
+
+/* записка */
+.hint-line{font-size:14px; font-weight:600; padding:10px 14px; border-radius:12px; margin:-4px 0 6px; border:1px solid var(--line); background:var(--bg-soft); color:var(--ink-soft);}
+.hint-line.warn{border-color:color-mix(in srgb, var(--olive) 55%, transparent); background:var(--tint-olive); color:var(--ink);}
+.hint-line.good{border-color:color-mix(in srgb, var(--ok) 55%, transparent); background:var(--tint-ok); color:var(--ink);}
+.src-links{display:flex; flex-wrap:wrap; gap:8px;}
+.src-links label{display:flex; gap:6px; align-items:center; font-size:13px; font-weight:600; padding:6px 12px; border:1px solid var(--line-strong); border-radius:999px; cursor:pointer; background:var(--bg-panel); transition:.15s;}
+.src-links label.on{border-color:var(--blue); background:var(--tint-blue); color:var(--blue-deep);}
+.src-preview{margin:0; padding-left:26px; font-size:15px; line-height:1.6;}
+.src-preview li{margin-bottom:6px; padding-left:4px;}
+.src-preview li::marker{font-family:var(--f-mono); color:var(--blue); font-weight:700;}
+.empty{border:1px dashed var(--line-strong); border-radius:18px; padding:28px; text-align:center; color:var(--ink-soft); background:var(--bg-panel); font-weight:600; margin-bottom:16px;}
+.note-block{border:1px solid var(--line); border-radius:var(--radius); padding:18px; margin-bottom:16px; background:var(--bg-panel);}
+</style>
+</head>
+<body>
+<div class="frame">
+  <div class="hud-bar">
+    <span><span class="dot"></span>SYSTEM: STEAM‑HUB / IT‑ECONOMY.LAB — ОНЛАЙН · САМОСТІЙНА РОБОТА: 01</span>
+    <button class="theme-btn" id="themeBtn" type="button">☾ Темна тема</button>
+  </div>
+
+  <header class="hero">
+    <span class="hero-num" aria-hidden="true">01</span>
+    <span class="hero-tag">// SELF_STUDY_01 · ANALYTIC.NOTE + REPORT.DOCX</span>
+    <h1>Самостійна робота до теми 1. Аналітична записка</h1>
+    <p class="sub">Вісім питань до теми «Інформаційні технології — основа розвитку цифрової економіки», кожне з тренажером. Оберіть два питання, напишіть аналітичну записку з власними прикладами для логістики або ритейлу, додайте джерела й завантажте готовий файл Word.</p>
+    <div class="hero-meta">
+      <span class="chip"><b>8</b> питань на вибір</span>
+      <span class="chip"><b>8</b> тренажерів</span>
+      <span class="chip"><b>2</b> питання в записці</span>
+      <span class="chip"><b>.docx</b> звіт у Word</span>
+    </div>
+  </header>
+
+  <nav class="tabs" id="tabsNav" aria-label="Розділи">
+    <button data-t="intro" class="active">🗺 Огляд</button>
+    <button data-t="qs">❔ Питання і тренажери</button>
+    <button data-t="note">✍️ Записка</button>
+    <button data-t="src">📚 Джерела</button>
+    <button data-t="check">✅ Самоперевірка</button>
+    <button data-t="rep">📄 Звіт</button>
+    <div class="nav-progress" aria-hidden="true"><i id="navProgress"></i></div>
+  </nav>
+
+  <!-- ================= INTRO ================= -->
+  <section class="panel active" id="intro">
+    <header class="sec-head">
+      <div class="sec-idx">00</div>
+      <div>
+        <span class="sec-kicker">Огляд</span>
+        <h2>Що потрібно зробити</h2>
+        <p class="lede">Оберіть два питання, напишіть за ними аналітичну записку з власними прикладами, додайте джерела, перевірте себе й завантажте звіт.</p>
+        <div class="sec-meta"><span><b>8</b> питань на вибір</span><span><b>2</b> обрати для записки</span><span><b>6</b> етапів роботи</span></div>
+      </div>
+    </header>
+    <aside class="sec-toc" aria-label="Зміст розділу"><div class="toc-title">Зміст розділу</div><nav class="toc-list"></nav>
+      <div class="toc-legend"><span style="--k:var(--blue)">завдання і текст</span><span style="--k:var(--sim)">питання і тест</span><span style="--k:var(--ok)">списки й перевірка</span></div></aside>
+    <div class="sec-main">
+      <article class="block" data-kind="theory" id="in-1">
+        <header class="block-head"><span class="block-no">1</span><div><span class="kind">◆  Завдання</span><h3>Форма роботи</h3></div></header>
+        <div class="task-box">Аналітична записка за двома обраними питаннями з прикладами для логістики або ритейлу. Укажіть використані джерела і поясніть власний приклад, не обмежуючись визначеннями.</div>
+        <div class="callout important"><b class="lbl">Як працювати зі сторінкою</b>Усе, що ви пишете, автоматично зберігається в цьому браузері. На іншому пристрої поля будуть порожні, тому наприкінці відкрийте вкладку «Звіт», впишіть ПІБ і групу та завантажте файл Word.</div>
+      </article>
+
+      <article class="block" data-kind="data" id="in-2">
+        <header class="block-head"><span class="block-no">2</span><div><span class="kind">▦  Маршрут</span><h3>Маршрут роботи</h3></div></header>
+        <div class="steps">
+          <div class="step"><b>Перегляньте питання.</b> На вкладці «Питання і тренажери» кожне питання має коротку підказку з лекції та інтерактивну модель. Пограйте з нею: це підкаже ідею для власного прикладу.</div>
+          <div class="step"><b>Оберіть два питання.</b> Кнопка «☆ Обрати для записки» біля питання. Змінити вибір можна будь-коли.</div>
+          <div class="step"><b>Додайте джерела.</b> Вкладка «Джерела»: лекція, підручники, статті, офіційні сайти. Кожне джерело отримує номер.</div>
+          <div class="step"><b>Напишіть записку.</b> Для кожного питання: ключові поняття, аналіз, власний приклад і висновок із нього, посилання на джерела. Додайте вступ і загальний висновок.</div>
+          <div class="step"><b>Перевірте себе.</b> Чек-лист і короткий тест на вкладці «Самоперевірка».</div>
+          <div class="step"><b>Завантажте звіт.</b> Вкладка «Звіт» сформує файл .docx з усім написаним.</div>
+        </div>
+      </article>
+
+      <article class="block" data-kind="sim" id="in-3">
+        <header class="block-head"><span class="block-no">3</span><div><span class="kind">❔  Вибір</span><h3>Вісім питань</h3></div></header>
+        <p class="lede">Натисніть картку, щоб відкрити питання та його тренажер.</p>
+        <div class="grid2" id="introQs"></div>
+        <div class="callout attention"><b class="lbl">Не обмежуйтеся визначеннями</b>Визначення — лише старт. Сильна записка показує, <b>як</b> поняття працює в конкретній ситуації: хто з працівників що робить, які дані використовує, що піде не так без правильної організації і як це вплине на покупця, склад або доставку.</div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ================= QUESTIONS ================= -->
+  <section class="panel plain" id="qs">
+    <header class="sec-head">
+      <div class="sec-idx">01</div>
+      <div>
+        <span class="sec-kicker">Етап 1 · питання</span>
+        <h2>Питання і тренажери</h2>
+        <p class="lede">Кожне питання має підказку з лекції та інтерактивну модель. Пограйте з нею — це підкаже ідею для власного прикладу, — і оберіть два питання для записки.</p>
+      </div>
+    </header>
+    <div class="sec-main">
+      <div class="sel-bar" id="selBar"></div>
+      <div class="qlayout">
+        <div class="qnav" id="qnav"></div>
+        <div id="qview"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= NOTE ================= -->
+  <section class="panel" id="note">
+    <header class="sec-head">
+      <div class="sec-idx">02</div>
+      <div>
+        <span class="sec-kicker">Етап 2 · текст</span>
+        <h2>Аналітична записка</h2>
+        <p class="lede">Пишіть своїми словами. Підказка під кожним прикладом показує, чи достатньо розгорнуто пояснення.</p>
+      </div>
+    </header>
+    <aside class="sec-toc" aria-label="Зміст розділу"><div class="toc-title">Зміст записки</div><nav class="toc-list"></nav></aside>
+    <div class="sec-main">
+      <article class="block" data-kind="theory" id="n-intro-b">
+        <header class="block-head"><span class="block-no">1</span><div><span class="kind">◆  Текст записки</span><h3>Вступ</h3></div></header>
+        <div class="fld" style="margin-bottom:0"><label for="n_intro">Мета записки та чому обрано саме ці питання</label><textarea id="n_intro" data-save data-wc rows="4" placeholder="Наприклад: записка розглядає… на прикладі… Ці питання обрано, тому що…"></textarea><div class="wc"></div></div>
+      </article>
+      <div id="noteBlocks"></div>
+      <article class="block" data-kind="theory" id="n-concl-b">
+        <header class="block-head"><span class="block-no" id="nConclNo">4</span><div><span class="kind">◆  Текст записки</span><h3>Загальний висновок</h3></div></header>
+        <div class="fld" style="margin-bottom:0"><label for="n_concl">Що спільного між двома питаннями і які практичні рекомендації випливають</label><textarea id="n_concl" data-save data-wc rows="5"></textarea><div class="wc"></div></div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ================= SOURCES ================= -->
+  <section class="panel plain" id="src">
+    <header class="sec-head">
+      <div class="sec-idx">03</div>
+      <div>
+        <span class="sec-kicker">Етап 3 · джерела</span>
+        <h2>Використані джерела</h2>
+        <p class="lede">Додайте кожне джерело окремим рядком. Номер джерела використовується для посилань у записці. Для сайтів вкажіть адресу й дату звернення.</p>
+      </div>
+    </header>
+    <div class="sec-main">
+      <article class="block" data-kind="data" id="src-1">
+        <header class="block-head"><span class="block-no">1</span><div><span class="kind">▦  Таблиця</span><h3>Список джерел</h3></div></header>
+        <div class="table-wrap"><table class="edit" id="tblSrc"></table></div>
+        <div class="btnrow" style="margin-bottom:0"><button class="btn ghost small" type="button" id="addSrc">+ Додати джерело</button><span class="mono" id="srcCount" style="font-size:12.5px;color:var(--ink-soft)"></span></div>
+      </article>
+      <article class="block" data-kind="data" id="src-2">
+        <header class="block-head"><span class="block-no">2</span><div><span class="kind">▦  Попередній перегляд</span><h3>Так джерела виглядатимуть у звіті</h3></div></header>
+        <ol class="src-preview" id="srcPreview"></ol>
+      </article>
+      <div class="callout advice"><b class="lbl">Порада</b>Конспект лекції теж є джерелом. Але записка буде переконливішою, якщо додати хоча б одне зовнішнє: підручник, наукову статтю або сайт професійної організації. Перевіряйте, чи збігаються визначення в різних джерелах.</div>
+    </div>
+  </section>
+
+  <!-- ================= SELF CHECK ================= -->
+  <section class="panel" id="check">
+    <header class="sec-head">
+      <div class="sec-idx">04</div>
+      <div>
+        <span class="sec-kicker">Етап 4 · перевірка</span>
+        <h2>Самоперевірка</h2>
+        <p class="lede">Автоматичний і ручний чек-листи та короткий тест за темою: переконайтеся, що записка готова до звіту.</p>
+      </div>
+    </header>
+    <aside class="sec-toc" aria-label="Зміст розділу"><div class="toc-title">Зміст розділу</div><nav class="toc-list"></nav>
+      <div class="toc-legend"><span style="--k:var(--ok)">чек-листи</span><span style="--k:var(--sim)">тест</span></div></aside>
+    <div class="sec-main">
+      <article class="block" data-kind="data" id="chk-1">
+        <header class="block-head"><span class="block-no">1</span><div><span class="kind">▦  Автоматично</span><h3>Автоматичний чек-лист</h3></div></header>
+        <p class="lede">Позначки оновлюються самі, коли ви заповнюєте записку.</p>
+        <div id="autoCheck"></div>
+      </article>
+      <article class="block" data-kind="data" id="chk-2">
+        <header class="block-head"><span class="block-no">2</span><div><span class="kind">▦  Вручну</span><h3>Ручний чек-лист</h3></div></header>
+        <label class="check"><input type="checkbox" id="ch_m1" data-save><span>Мій приклад описує конкретну ситуацію (хто, що, з якими даними), а не загальну фразу.</span></label>
+        <label class="check"><input type="checkbox" id="ch_m2" data-save><span>Я пояснив(-ла), що з прикладу випливає для рішення або процесу.</span></label>
+        <label class="check"><input type="checkbox" id="ch_m3" data-save><span>Визначення з різних джерел я порівняв(-ла), а не скопіював(-ла) одне.</span></label>
+        <label class="check" style="margin-bottom:0"><input type="checkbox" id="ch_m4" data-save><span>У прикладах немає справжніх персональних даних (адрес, телефонів, прізвищ клієнтів).</span></label>
+      </article>
+      <article class="block" data-kind="sim" id="chk-3">
+        <header class="block-head"><span class="block-no">3</span><div><span class="kind">▶  Тест</span><h3>Тест за темою</h3></div></header>
+        <div id="quizBox"></div>
+        <div id="quizScoreBar"><span id="quizScore">Результат: 0 / 0</span><button class="btn small" id="quizReset" type="button">Пройти знову</button></div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ================= REPORT ================= -->
+  <section class="panel plain" id="rep">
+    <header class="sec-head">
+      <div class="sec-idx">05</div>
+      <div>
+        <span class="sec-kicker">Етап 5 · звіт</span>
+        <h2>Звіт для завантаження</h2>
+        <p class="lede">Вкажіть дані студента, перевірте заповненість і завантажте аналітичну записку у форматі Word (.docx).</p>
+      </div>
+    </header>
+    <div class="sec-main">
+      <article class="block" data-kind="theory" id="rep-1">
+        <header class="block-head"><span class="block-no">1</span><div><span class="kind">◆  Дані</span><h3>Дані студента</h3></div></header>
+        <div class="grid2">
+          <div class="fld" style="margin-bottom:0"><label for="rep_name">ПІБ студента</label><input class="txt" id="rep_name" data-save placeholder="Прізвище Ім'я По батькові"></div>
+          <div class="fld" style="margin-bottom:0"><label for="rep_group">Група</label><input class="txt" id="rep_group" data-save placeholder="Наприклад, ІТ-21"></div>
+        </div>
+      </article>
+      <article class="block" data-kind="data" id="rep-2">
+        <header class="block-head"><span class="block-no">2</span><div><span class="kind">▦  Прогрес</span><h3>Заповненість</h3></div></header>
+        <div id="stats"></div>
+      </article>
+      <article class="block" data-kind="sim" id="rep-3">
+        <header class="block-head"><span class="block-no">3</span><div><span class="kind">⬇  Файл</span><h3>Завантаження</h3></div></header>
+        <div class="callout important"><b class="lbl">Важливо</b>Порожні поля у звіті позначаються як «не заповнено». Файл формується у вашому браузері й нікуди не надсилається.</div>
+        <div class="btnrow">
+          <button class="btn big" id="dlBtn" type="button">⬇ Завантажити записку (.docx)</button>
+          <button class="btn warn" id="clearBtn" type="button">Очистити всі відповіді</button>
+        </div>
+        <div id="repMsg" role="status" aria-live="polite" style="font-size:14px;font-weight:600;color:var(--ink-soft)"></div>
+      </article>
+    </div>
+  </section>
+
+  <footer>STEAM-HUB · ПУЕТ · Самостійна робота до теми 1 «Інформаційні технології – основа розвитку цифрової економіки»</footer>
+</div>
+
+<script>
+(function(){
+'use strict';
+var $ = function(s, r){ return (r||document).querySelector(s); };
+var $$ = function(s, r){ return Array.prototype.slice.call((r||document).querySelectorAll(s)); };
+var root = document.documentElement;
+function esc(s){ return String(s==null?'':s).replace(/[<>&"]/g, function(c){ return {'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]; }); }
+function fmt(n, d){ if(n==null || isNaN(n)) return '—'; return Number(n).toLocaleString('uk-UA', {minimumFractionDigits:d||0, maximumFractionDigits:d||0}); }
+function words(s){ var m = String(s||'').trim().match(/\S+/g); return m ? m.length : 0; }
+
+/* ================= QUESTIONS ================= */
+var Q = [
+  {t:'Як відрізняються дані, інформація і знання на прикладі контролю товарних запасів?', short:'Дані, інформація, знання',
+   hint:'Дані — зафіксовані значення («48»). Інформація — результат інтерпретації в контексті («запасу вистачить на 4 дні»). Знання дозволяє ухвалити рішення («поставка триває 3 дні, тож замовляти треба сьогодні»). ІТ прискорює обчислення, але за правильність припущень відповідає фахівець.',
+   idea:'Опишіть конкретний товар і склад: які записи є в системі, хто їх інтерпретує і яке рішення приймає.'},
+  {t:'Чим оцифрування накладної відрізняється від автоматизації приймання та цифрової зміни всього процесу постачання?', short:'Оцифрування · автоматизація · трансформація',
+   hint:'Оцифрування — переведення в цифрову форму (скан накладної). Автоматизація — програма виконує частину операції (сама рахує суму, звіряє кількість). Цифрова трансформація змінює організацію процесу та взаємодію учасників: постачальник надсилає електронне повідомлення про відвантаження, склад заздалегідь планує приймання.',
+   idea:'Візьміть один процес постачання й опишіть, як він виглядає на кожному з трьох рівнів.'},
+  {t:'Які дані повинні бути спільними для інтернет-магазину, складу й служби доставки?', short:'Спільні дані каналів',
+   hint:'Взаємодія починається з погоджених ідентифікаторів: номер замовлення, SKU. Спільні — дані, які використовують кілька учасників; локальні — ті, що потрібні одному (адреса комірки, маршрут). Для кожного виду даних визначають основне джерело.',
+   idea:'Пройдіть шлях одного замовлення й позначте, хто з учасників створює, а хто використовує кожне поле.'},
+  {t:'Як відрізняються функції POS, WMS, TMS, CRM та ERP і де вони можуть перетинатися?', short:'POS · WMS · TMS · CRM · ERP',
+   hint:'POS — каса; WMS — склад; TMS — перевезення; CRM — взаємодія з клієнтами; ERP — спільна облікова основа. Назви слід розуміти як класи систем: функції окремих продуктів можуть частково перетинатися (повернення товару торкається POS, WMS і CRM).',
+   idea:'Візьміть одну операцію, яку виконують кілька систем, і поясніть, хто з них є основним джерелом даних.'},
+  {t:'За яких умов штрихкодування або RFID може бути доцільним для торговельного підприємства?', short:'Штрихкод чи RFID',
+   hint:'Штрихкод містить ідентифікатор, який зіставляють з довідником; не перевіряє фізичного стану товару. RFID зчитує мітки без прямої видимості. Вибір залежить від кількості операцій, умов зчитування і витрат, а не від новизни технології.',
+   idea:'Опишіть конкретну ділянку (каса, приймання палет, інвентаризація одягу) і поясніть, чому той чи інший спосіб ідентифікації виправданий.'},
+  {t:'Як неузгоджені одиниці виміру, дублікати й застарілі залишки впливають на рішення про закупівлю?', short:'Якість даних і закупівля',
+   hint:'Коли приймають 10 коробок, а система записує 10 одиниць, виникає системна помилка залишку. Повторне повідомлення без контролю унікального номера дублює операцію. Застарілий залишок не враховує вже відвантажений товар. Кожна помилка змінює розрахунок потреби в закупівлі.',
+   idea:'Покажіть розрахунок замовлення постачальнику з правильними даними та з однією з помилок.'},
+  {t:'Чому звільнений робочий час не завжди означає зменшення грошових витрат?', short:'Час ≠ гроші',
+   hint:'Якщо працівники отримують незмінну оплату, вартість звільненого часу не стає автоматичним зменшенням виплат. Підприємство отримує можливість виконати іншу роботу; грошову економію визнають лише за конкретної зміни витрат.',
+   idea:'Порахуйте вартісну оцінку звільненого часу для умовного магазину й поясніть, за яких рішень вона стане реальною економією.'},
+  {t:'Які показники та резервні процедури слід передбачити під час переходу на цифровий облік замовлень?', short:'KPI і резервні процедури',
+   hint:'Показник має зміст, формулу, період, джерело й відповідального і відображає мету (частка помилок, час опрацювання). Кількість встановлених програм не є показником результату. Резервний порядок: тимчасові номери, звіряння після відновлення, контроль дублікатів.',
+   idea:'Запропонуйте 2–3 показники для конкретного магазину чи складу й опишіть, що робити, коли реєстр недоступний.'}
+];
+
+/* ================= STATE ================= */
+var KEY = 'sr1-note-v1';
+var store = {};
+try{ store = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; }catch(e){ store = {}; }
+store.f = store.f || {}; store.chosen = store.chosen || []; store.src = store.src || [{a:'',t:'',y:'',w:''},{a:'',t:'',y:'',w:''}];
+store.links = store.links || {}; store.quiz = store.quiz || []; store.sim = store.sim || {}; store.cls = store.cls || {};
+if(store.cur==null) store.cur = 0;
+var saveT = null;
+function persist(){ clearTimeout(saveT); saveT = setTimeout(function(){ try{ localStorage.setItem(KEY, JSON.stringify(store)); }catch(e){} }, 150); }
+function fv(id){ return store.f[id]==null ? '' : String(store.f[id]); }
+
+/* ================= THEME & TABS ================= */
+function curTheme(){ var t = root.getAttribute('data-theme'); if(t) return t; return matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; }
+function paintTheme(){ $('#themeBtn').textContent = curTheme()==='dark' ? '☀ Світла тема' : '☾ Темна тема'; }
+$('#themeBtn').addEventListener('click', function(){ var n = curTheme()==='dark'?'light':'dark'; root.setAttribute('data-theme', n); try{ localStorage.setItem('sr1-theme', n); }catch(e){} paintTheme(); });
+paintTheme();
+function openTab(id, scroll){
+  if(!document.getElementById(id)) return;
+  $$('#tabsNav button').forEach(function(b){ b.classList.toggle('active', b.dataset.t===id); });
+  $$('section.panel').forEach(function(p){ p.classList.toggle('active', p.id===id); });
+  try{ sessionStorage.setItem('sr1-tab', id); }catch(e){}
+  if(id==='qs') renderQnav();
+  if(id==='note') renderNotes();
+  if(id==='check') autoCheck();
+  if(id==='rep') stats();
+  var tabs = $('#tabsNav'), act = $('button.active', tabs);
+  if(act) tabs.scrollTo({left:Math.max(0, act.offsetLeft-12), behavior:'auto'});
+  var toc = $('#'+id+' .toc-list'); if(toc){ toc.scrollLeft = 0; toc.parentNode.scrollTop = 0; }
+  // jump to the start of the new stage (its header right under the sticky tabs), wherever the reader was
+  if(scroll!==false){ var y = document.getElementById(id).getBoundingClientRect().top + window.scrollY - tabs.offsetHeight - 22; window.scrollTo({top:Math.max(0, y), behavior:'auto'}); }
+}
+$$('#tabsNav button').forEach(function(b){ b.addEventListener('click', function(){ openTab(b.dataset.t); }); });
+document.addEventListener('click', function(e){ var g = e.target.closest('[data-go]'); if(g){ if(g.dataset.q!=null){ store.cur = +g.dataset.q; persist(); renderQnav(); renderQ(); } openTab(g.dataset.go); } });
+
+/* ================= INTRO CARDS ================= */
+function renderIntro(){
+  $('#introQs').innerHTML = Q.map(function(q,i){ var on = store.chosen.indexOf(i)>-1;
+    return '<a class="card plan-card qcard'+(on?' chosen':'')+'" href="javascript:void(0)" data-go="qs" data-q="'+i+'"><span class="plan-n">0'+(i+1)+'</span>'+(on?'<span class="qstar">★ обрано</span>':'')+'<h4>'+esc(q.short)+'</h4><p>'+esc(q.t)+'</p><span class="k">Відкрити тренажер →</span></a>'; }).join('');
+}
+
+/* ================= CHOOSING ================= */
+function toggleChoose(i){
+  var k = store.chosen.indexOf(i);
+  if(k>-1) store.chosen.splice(k,1);
+  else if(store.chosen.length<2) store.chosen.push(i);
+  store.chosen.sort(function(a,b){return a-b;});
+  persist(); renderSel(); renderQnav(); renderIntro();
+  var pk = $('#pickBtn'); if(pk) paintPick(pk, store.cur);
+}
+function renderSel(){
+  var c = store.chosen;
+  $('#selBar').innerHTML = 'Обрано для записки: '+(c.length ? c.map(function(i){ return '<span class="chip">★ '+(i+1)+' · '+esc(Q[i].short)+'</span>'; }).join('') : '<span>ще нічого</span>')+' <span>('+c.length+' / 2)</span>'+(c.length===2 ? ' <button class="btn small" type="button" data-go="note">Перейти до записки →</button>' : '');
+}
+function paintPick(btn, i){
+  var on = store.chosen.indexOf(i)>-1; btn.classList.toggle('on', on);
+  btn.textContent = on ? '★ Обрано для записки' : '☆ Обрати для записки';
+  btn.disabled = !on && store.chosen.length>=2;
+  btn.title = btn.disabled ? 'Уже обрано два питання. Зніміть вибір з іншого, щоб обрати це.' : '';
+}
+function renderQnav(){
+  $('#qnav').innerHTML = Q.map(function(q,i){ return '<button type="button" class="qbtn'+(i===store.cur?' active':'')+'" data-i="'+i+'"><span class="num">'+(i+1)+'</span><span>'+esc(q.short)+'</span>'+(store.chosen.indexOf(i)>-1?'<span class="st">★</span>':'')+'</button>'; }).join('');
+  $$('#qnav .qbtn').forEach(function(b){ b.addEventListener('click', function(){ store.cur = +b.dataset.i; persist(); renderQnav(); renderQ(); toQ(); }); });
+  var nv = $('#qnav'), ac = $('.qbtn.active', nv); if(ac && nv.scrollWidth > nv.clientWidth) nv.scrollLeft = Math.max(0, ac.offsetLeft - 12);   // phone strip: show the active question
+}
+
+/* ================= SIM HELPERS ================= */
+function classifier(box, key, cats, items){
+  var st = store.cls[key] = store.cls[key] || {};
+  items.forEach(function(it, i){
+    var d = document.createElement('div'); d.className = 'cls-item';
+    d.innerHTML = '<div class="txt">'+esc(it.t)+'</div><div class="opts">'+cats.map(function(c,ci){ return '<button class="btn ghost small" type="button" data-c="'+ci+'">'+esc(c)+'</button>'; }).join('')+'</div><div class="fb" hidden></div>';
+    var right = [].concat(it.c);
+    function apply(ch){
+      var ok = right.indexOf(ch)>-1; d.classList.add(ok?'right':'wrong');
+      $$('button', d).forEach(function(b){ b.disabled = true; if(right.indexOf(+b.dataset.c)>-1) b.classList.add('active'); });
+      var fb = $('.fb', d); fb.hidden = false; fb.textContent = (ok ? '✅ ' : '❌ Орієнтир: «'+right.map(function(r){return cats[r];}).join(' / ')+'». ')+it.e;
+    }
+    $$('button', d).forEach(function(b){ b.addEventListener('click', function(){ if(st[i]!=null) return; st[i] = +b.dataset.c; persist(); apply(st[i]); score(); }); });
+    if(st[i]!=null) apply(st[i]);
+    box.appendChild(d);
+  });
+  var log = document.createElement('div'); log.className = 'sim-log'; box.appendChild(log);
+  var reset = document.createElement('div'); reset.className = 'btnrow'; reset.innerHTML = '<button class="btn ghost small" type="button">⟲ Пройти знову</button>'; box.appendChild(reset);
+  $('button', reset).addEventListener('click', function(){ store.cls[key] = {}; persist(); renderQ(); });
+  function score(){ var n=0, r=0; items.forEach(function(it,i){ if(st[i]!=null){ n++; if([].concat(it.c).indexOf(st[i])>-1) r++; } }); log.textContent = 'Виконано '+n+' / '+items.length+' · правильно '+r; }
+  score();
+}
+function simVal(k, d){ var v = store.sim[k]; return v==null ? d : v; }
+function numInput(id, label, val, attrs){ return '<label class="field" for="'+id+'">'+label+'<input type="number" id="'+id+'" value="'+val+'" '+(attrs||'')+'></label>'; }
+
+/* ================= SIMULATORS ================= */
+var SIMS = [
+/* Q1 DIKW */
+function(box){
+  box.innerHTML = '<p class="lede">Змініть параметри товару: чотири рівні оновляться.</p><div class="calc">'+numInput('s1_stock','Залишок, од.',simVal('s1_stock',48),'min="0"')+numInput('s1_sales','Продаж на день, од.',simVal('s1_sales',12),'min="0.5" step="0.5"')+numInput('s1_lead','Строк поставки, дн.',simVal('s1_lead',3),'min="0"')+'</div><div class="grid2" id="s1_out"></div>';
+  function upd(){
+    var st = +$('#s1_stock').value||0, s = Math.max(0.5, +$('#s1_sales').value||0.5), l = +$('#s1_lead').value||0;
+    store.sim.s1_stock = st; store.sim.s1_sales = s; store.sim.s1_lead = l; persist();
+    var days = st/s, margin = days - l;
+    var dec = margin<=0 ? 'Оформити замовлення негайно: запасу не вистачить до прибуття поставки.' : margin<1 ? 'Оформити замовлення сьогодні.' : 'Замовлення можна оформити не пізніше ніж через '+fmt(Math.floor(margin))+' дн.';
+    $('#s1_out').innerHTML = [['1 · Дані','«'+fmt(st)+'», «'+fmt(s,1)+'», «'+fmt(l)+'»','Окремі зафіксовані значення без контексту.'],
+      ['2 · Контекст', fmt(st)+' од. SKU‑1182 на складі №2 станом на сьогодні', 'Відомо, що, де і коли.'],
+      ['3 · Інформація', 'Запасу вистачить на '+fmt(days,1)+' дн.', 'Результат інтерпретації: '+fmt(st)+' ÷ '+fmt(s,1)+'.'],
+      ['4 · Знання → рішення', dec, 'Поєднання інформації зі знанням строку поставки ('+fmt(l)+' дн.). Фахівець ще перевіряє неробочі дні постачальника, зростання попиту й місце на складі.']]
+      .map(function(r){ return '<div class="card"><h4>'+r[0]+'</h4><b>'+esc(r[1])+'</b><p style="margin:6px 0 0;color:var(--ink-soft);font-size:14.5px">'+esc(r[2])+'</p></div>'; }).join('');
+  }
+  $$('input', box).forEach(function(i){ i.addEventListener('input', upd); }); upd();
+},
+/* Q2 levels */
+function(box){
+  box.innerHTML = '<p class="lede">Віднесіть кожну зміну в процесі постачання до рівня цифрових змін.</p>';
+  classifier(box, 'q2', ['Оцифрування','Автоматизація','Трансформація'], [
+    {t:'Паперову накладну постачальника сканують і зберігають у PDF', c:0, e:'Документ лише переведено в цифрову форму, процес не змінився.'},
+    {t:'Під час приймання сканер звіряє фактичну кількість із накладною і сам показує розбіжності', c:1, e:'Програма виконує частину операції приймання.'},
+    {t:'Постачальник заздалегідь надсилає електронне повідомлення про відвантаження, склад за ним планує людей і місця зберігання', c:2, e:'Змінено взаємодію учасників і порядок підготовки до приймання.'},
+    {t:'Бухгалтер вносить дані зі скану накладної вручну в облікову програму', c:0, e:'Цифрова копія є, але дані переносяться вручну.'},
+    {t:'Система після підтвердження приймання сама збільшує залишок і закриває замовлення постачальнику', c:1, e:'Автоматизовано окремі облікові дії.'},
+    {t:'Замовлення постачальнику формується автоматично за прогнозом, постачальник підтверджує його у спільному кабінеті', c:2, e:'Змінено весь процес замовлення й погодження між підприємствами.'}
+  ]);
+},
+/* Q3 shared */
+function(box){
+  box.innerHTML = '<p class="lede">Замовлення проходить сайт → склад → доставку. Які дані мають бути спільними, а які залишаються локальними для одного учасника?</p>';
+  classifier(box, 'q3', ['Спільні','Локальні'], [
+    {t:'Номер замовлення', c:0, e:'Пов\'язує всі події замовлення: без нього склад і доставка не можуть однозначно знайти запис.'},
+    {t:'Код товару (SKU) та одиниця виміру', c:0, e:'Сайт продає, склад відбирає, доставка рахує місця — усі мають розуміти позицію однаково.'},
+    {t:'Статус замовлення', c:0, e:'Покупець, склад і диспетчер мають бачити однаковий стан виконання.'},
+    {t:'Адреса та часове вікно доставки', c:0, e:'Вводиться на сайті, потрібна доставці, а склад планує за нею відвантаження.'},
+    {t:'Адреса комірки зберігання на складі', c:1, e:'Потрібна лише комірникам; сайту й доставці вона не потрібна.'},
+    {t:'Маршрут рейсу і порядок об\'їзду', c:1, e:'Робочі дані служби доставки.'},
+    {t:'Маркетинговий опис товару і фото', c:1, e:'Належить каталогу сайту; склад працює з кодом і характеристиками.'},
+    {t:'Резерв під замовлення', c:0, e:'Створює склад, але від нього залежить, що сайт може пообіцяти новому покупцю.'}
+  ]);
+},
+/* Q4 systems */
+function(box){
+  box.innerHTML = '<p class="lede">Яка система є основною для операції? Деякі операції лежать на перетині кількох систем: тоді правильних варіантів кілька.</p>';
+  classifier(box, 'q4', ['POS','WMS','TMS','CRM','ERP'], [
+    {t:'Реєстрація покупки на касі', c:0, e:'POS — система в точці продажу.'},
+    {t:'Відбір товару за замовленням', c:1, e:'WMS керує прийманням, розміщенням, відбором і відвантаженням.'},
+    {t:'Планування рейсу й контроль доставки', c:2, e:'TMS — управління перевезеннями.'},
+    {t:'Опрацювання претензії покупця', c:3, e:'CRM зберігає історію звернень.'},
+    {t:'Узгодження потреби в закупівлі', c:4, e:'ERP поєднує облік і планування ресурсів.'},
+    {t:'Повернення товару покупцем у магазин', c:[0,3], e:'Перетин: каса оформлює повернення (POS), історію звернення бачить CRM, а склад потім приймає товар (WMS).'},
+    {t:'Відвантаження замовлення перевізнику', c:[1,2], e:'Перетин: WMS фіксує відвантаження й списання, TMS — передачу у рейс.'}
+  ]);
+},
+/* Q5 barcode vs RFID */
+function(box){
+  var F = [
+    ['s5_vol','Скільки одиниць проходить через ділянку щодня?',['до 500','500–5000','понад 5000'],[0,1,2]],
+    ['s5_bulk','Чи треба зчитувати багато одиниць одночасно (палета, коробка, стелаж)?',['ні','іноді','постійно'],[0,1,2]],
+    ['s5_vis','Чи можна навести сканер на кожну позначку?',['так, легко','не завжди','ні'],[0,1,2]],
+    ['s5_price','Вартість товарної одиниці відносно вартості мітки',['низька','середня','висока'],[0,1,2]],
+    ['s5_track','Чи потрібна ідентифікація окремої одиниці (серія, партія, крадіжки)?',['ні','для частини товару','так'],[0,1,2]]
+  ];
+  box.innerHTML = '<p class="lede">Навчальна модель міркувань: опишіть ділянку, і модель покаже, на що схиляються аргументи. Це не правило, а підказка для вашого аналізу.</p>'+F.map(function(f){ return '<div class="fld"><label>'+f[1]+'</label><div class="choice" data-f="'+f[0]+'">'+f[2].map(function(o,i){ return '<button type="button" data-v="'+i+'">'+o+'</button>'; }).join('')+'</div></div>'; }).join('')+'<div class="result-box" id="s5_out"></div>';
+  function upd(){
+    var v = {}; F.forEach(function(f){ v[f[0]] = simVal(f[0], 0); });
+    $$('.choice', box).forEach(function(g){ $$('button', g).forEach(function(b){ b.classList.toggle('on', +b.dataset.v===v[g.dataset.f]); }); });
+    var score = v.s5_vol + 1.5*v.s5_bulk + v.s5_vis + v.s5_price + v.s5_track - 1;
+    var why = [];
+    if(v.s5_bulk===2) why.push('масове зчитування без розпакування — головна перевага RFID');
+    if(v.s5_vis===2) why.push('без прямої видимості штрихкод не зчитується');
+    if(v.s5_price===0) why.push('дешевий товар: вартість мітки суттєво збільшує витрати');
+    if(v.s5_vol===0) why.push('малий потік операцій: витрати на зчитувачі можуть не окупитися');
+    if(v.s5_track===2) why.push('потрібна ідентифікація окремих одиниць: штрихкоду товарної позиції недостатньо');
+    var verdict = score>=6 ? ['RFID варто розглянути','ok'] : score>=3 ? ['Штрихкод, RFID — для окремих зон чи категорій','olive'] : ['Штрихкодування достатньо','blue'];
+    $('#s5_out').innerHTML = '<div class="mono" style="font-size:12px;color:var(--ink-soft)">ОЦІНКА АРГУМЕНТІВ · '+fmt(score,1)+' / 9</div><div style="height:10px;background:var(--bg-soft);border:1px solid var(--line);border-radius:6px;overflow:hidden;margin:6px 0 10px"><i style="display:block;height:100%;width:'+Math.max(4,Math.min(100,score/9*100))+'%;background:linear-gradient(90deg,var(--blue),var(--ok))"></i></div><b style="font-family:var(--f-display);font-size:18px">'+verdict[0]+'</b>'+(why.length?'<ul style="margin:8px 0 0">'+why.map(function(w){ return '<li>'+esc(w)+'</li>'; }).join('')+'</ul>':'')+'<p style="margin:8px 0 0;color:var(--ink-soft);font-size:14px">В обох випадках код потрібно правильно пов\'язати з довідником і одиницею виміру; ідентифікація сама по собі не перевіряє фізичного стану товару.</p>';
+  }
+  $$('.choice button', box).forEach(function(b){ b.addEventListener('click', function(){ store.sim[b.parentNode.dataset.f] = +b.dataset.v; persist(); upd(); }); });
+  upd();
+},
+/* Q6 data quality and purchasing */
+function(box){
+  var E = [
+    ['s6_units','Неузгоджені одиниці: прийнято 2 коробки по 12 од., у систему записано «2»', -22],
+    ['s6_dup','Дублікат: повідомлення про надходження партії 10 од. опрацьовано двічі', 10],
+    ['s6_stale','Застарілий залишок: відвантаження 8 од. ще не потрапило в систему', 8]
+  ];
+  box.innerHTML = '<p class="lede">Фактичний доступний запас — 24 од. Продаж — 12 од./день, поставка — 3 дні, тож на період поставки потрібно 36 од. Правильне замовлення: 36 − 24 = <b>12 од.</b> Увімкніть помилки й подивіться, що порахує система.</p>'+
+    E.map(function(e){ return '<label class="toggle" for="'+e[0]+'"><input type="checkbox" id="'+e[0]+'"><span>'+esc(e[1])+'</span></label>'; }).join('')+'<div class="kv" id="s6_kv"></div><div class="sim-log" id="s6_log"></div>';
+  function upd(){
+    var sys = 24; E.forEach(function(e){ var on = !!store.sim[e[0]]; $('#'+e[0]).checked = on; $('#'+e[0]).parentNode.classList.toggle('on', on); if(on) sys += e[2]; });
+    var order = Math.max(0, 36 - sys), diff = order - 12;
+    $('#s6_kv').innerHTML = '<div><div class="l">ФАКТИЧНИЙ ЗАПАС</div><div class="v">24 од.</div></div><div><div class="l">ЗАПАС У СИСТЕМІ</div><div class="v '+(sys!==24?'red':'ok')+'">'+sys+' од.</div></div><div><div class="l">СИСТЕМА РАДИТЬ ЗАМОВИТИ</div><div class="v '+(diff?'red':'ok')+'">'+order+' од.</div></div><div><div class="l">ВІДХИЛЕННЯ</div><div class="v '+(diff?'red':'ok')+'">'+(diff>0?'+':'')+diff+' од.</div></div>';
+    $('#s6_log').textContent = diff>0 ? 'Надлишкова закупівля на '+diff+' од.: заморожені кошти, зайве місце на складі, ризик уцінки.' : diff<0 ? 'Недостатня закупівля на '+(-diff)+' од.: дефіцит до наступної поставки, втрачені продажі, невиконані обіцянки покупцям.' : (sys===24 ? 'Дані узгоджені: рішення про закупівлю правильне.' : 'Помилки взаємно компенсувались: число випадково правильне, але дані недостовірні.');
+  }
+  E.forEach(function(e){ $('#'+e[0]).addEventListener('change', function(){ store.sim[e[0]] = this.checked; persist(); upd(); }); });
+  upd();
+},
+/* Q7 time vs money */
+function(box){
+  box.innerHTML = '<p class="lede">Умовний магазин скорочує час опрацювання замовлення. Порівняйте вартісну оцінку часу і реальну зміну грошових витрат.</p><div class="calc">'+
+    numInput('s7_n','Замовлень / міс',simVal('s7_n',800),'min="0"')+numInput('s7_save','Економія, хв / замовлення',simVal('s7_save',3),'min="0" step="0.5"')+numInput('s7_rate','Вартість години, грн',simVal('s7_rate',180),'min="0"')+'</div>'+
+    '<div class="fld"><label>Що відбувається зі звільненим часом?</label><div class="choice" id="s7_mode"><button type="button" data-v="0">Працівники роблять іншу роботу, оплата незмінна</button><button type="button" data-v="1">Скорочено оплачувані понаднормові години</button><button type="button" data-v="2">Не продовжено договір із сумісником</button></div></div>'+
+    '<div class="calc" id="s7_cutWrap">'+numInput('s7_cut','Скільки оплачуваних годин реально скорочено',simVal('s7_cut',20),'min="0"')+'</div><div class="kv" id="s7_kv"></div><div class="sim-log" id="s7_log"></div>';
+  function upd(){
+    var n = +$('#s7_n').value||0, sv = +$('#s7_save').value||0, r = +$('#s7_rate').value||0, mode = simVal('s7_mode',0), cut = +$('#s7_cut').value||0;
+    store.sim.s7_n=n; store.sim.s7_save=sv; store.sim.s7_rate=r; store.sim.s7_cut=cut; persist();
+    var h = n*sv/60, val = h*r, cash = mode===0 ? 0 : Math.min(cut, h)*r;
+    $$('#s7_mode button').forEach(function(b){ b.classList.toggle('on', +b.dataset.v===mode); });
+    $('#s7_cutWrap').hidden = mode===0;
+    $('#s7_kv').innerHTML = '<div><div class="l">ЗВІЛЬНЕНО ЧАСУ</div><div class="v">'+fmt(h,1)+' год</div></div><div><div class="l">ВАРТІСНА ОЦІНКА ЧАСУ</div><div class="v">'+fmt(val)+' грн</div></div><div><div class="l">РЕАЛЬНА ЕКОНОМІЯ КОШТІВ</div><div class="v '+(cash?'ok':'red')+'">'+fmt(cash)+' грн</div></div>';
+    $('#s7_log').textContent = mode===0 ? 'Оплата незмінна: '+fmt(val)+' грн — це можливість використати час (обслуговування покупців, перевірки), а не зменшення витрат.' : 'Грошова економія виникає лише на '+fmt(Math.min(cut,h),1)+' год, які реально перестали оплачувати. Решта звільненого часу залишається можливістю.'+(cut>h?' Скоротити більше годин, ніж звільнено, не вийде.':'');
+  }
+  $$('input', box).forEach(function(i){ i.addEventListener('input', upd); });
+  $$('#s7_mode button').forEach(function(b){ b.addEventListener('click', function(){ store.sim.s7_mode = +b.dataset.v; persist(); upd(); }); });
+  upd();
+},
+/* Q8 KPI */
+function(box){
+  box.innerHTML = '<p class="lede">Які з цих показників справді контролюють результат переходу на цифровий облік замовлень, а які лише описують охоплення чи витрати?</p>';
+  classifier(box, 'q8', ['Показник результату','Не показує результату'], [
+    {t:'Частка замовлень із помилками за місяць', c:0, e:'Прямо відображає мету — зменшення помилок. Важливо не змінювати знаменник при порівнянні.'},
+    {t:'Середній час від надходження до підтвердження замовлення', c:0, e:'Показує швидкість процесу, якщо початок і кінець вимірюються однаково.'},
+    {t:'Кількість встановлених програм і комп\'ютерів', c:1, e:'Описує витрати, а не результат процесу.'},
+    {t:'Кількість дублікатів, виявлених після відновлення роботи реєстру', c:0, e:'Контролює якість резервної процедури.'},
+    {t:'Кількість рядків, введених у реєстр', c:1, e:'Характеризує активність, а не якість чи швидкість.'},
+    {t:'Частка замовлень, що пройшли через новий реєстр', c:0, e:'Показник охоплення: без нього не можна чесно оцінити ефект (як у сценарії з 80 %).'}
+  ]);
+  var p = document.createElement('div'); p.className = 'callout advice'; p.innerHTML = '<b class="lbl">Резервна процедура</b>Тимчасові номери в резервному бланку → заборона підтверджувати наявність без складу → внесення записів після відновлення → звіряння номерів і пошук дублікатів → фіксація кількості перенесених замовлень.'; box.appendChild(p);
+}
+];
+
+function fcardHtml(num, title, hint, back){
+  return '<div class="fcard" tabindex="0" role="button" aria-pressed="false"><div class="fcard-inner"><div class="fcard-face front"><span class="fnum">'+num+'</span><h4>'+title+'</h4><span class="fhint">'+hint+'</span></div>'+
+    '<div class="fcard-face back"><span class="fback-t">'+title+'</span>'+back+'</div></div></div>';
+}
+function renderQ(){
+  var i = store.cur, q = Q[i];
+  $('#qview').innerHTML = '<article class="block" data-kind="theory" id="qv-q"><header class="block-head"><span class="block-no">'+(i+1)+'</span><div><span class="kind">◆  Питання '+(i+1)+' / '+Q.length+'</span><h3>'+esc(q.t)+'</h3></div><button class="pick" type="button" id="pickBtn"></button></header>'+
+    '<div class="grid2 hintcards">'+fcardHtml('01', 'Підказка з лекції', '↻ натисніть, щоб прочитати', '<p>'+esc(q.hint)+'</p>')+fcardHtml('02', 'Ідея для власного прикладу', '↻ натисніть, щоб побачити', '<p>'+esc(q.idea)+'</p>')+'</div></article>'+
+    '<article class="block" data-kind="sim" id="qv-sim"><header class="block-head"><span class="block-no">SIM</span><div><span class="kind">▶  Тренажер</span><h3>'+esc(q.short)+'</h3></div></header><div id="simBox"></div></article>'+
+    '<div class="btnrow qsteps">'+(i>0?'<button class="btn ghost" type="button" id="prevQ">← Питання '+i+'</button>':'<span></span>')+(i<Q.length-1?'<button class="btn" type="button" id="nextQ">Питання '+(i+2)+' →</button>':'')+'</div>';
+  var pk = $('#pickBtn'); paintPick(pk, i); pk.addEventListener('click', function(){ toggleChoose(i); });
+  if($('#prevQ')) $('#prevQ').addEventListener('click', function(){ store.cur--; persist(); renderQnav(); renderQ(); toQ(); });
+  if($('#nextQ')) $('#nextQ').addEventListener('click', function(){ store.cur++; persist(); renderQnav(); renderQ(); toQ(); });
+  SIMS[i]($('#simBox'));
+}
+// after switching questions: show the active one in the navigator and bring its start into view
+function toQ(){
+  var nav = $('#qnav'), act = $('.qbtn.active', nav), row = nav.scrollWidth > nav.clientWidth;
+  if(act && row) nav.scrollTo({left:Math.max(0, act.offsetLeft-12), behavior:'auto'});
+  var top = $('#qview').getBoundingClientRect().top, off = $('#tabsNav').offsetHeight + 22 + (row ? nav.offsetHeight + 10 : 0);
+  if(top < off) window.scrollTo({top:Math.max(0, top + window.scrollY - off), behavior:'auto'});
+}
+
+/* ================= SOURCES ================= */
+function srcText(s){ var a = String(s.a||'').trim(), t = String(s.t||'').trim(), y = String(s.y||'').trim(), w = String(s.w||'').trim();
+  if(!a && !t) return ''; return [a ? a+'.' : '', t ? t+'.' : '', w ? w+(/[.]$/.test(w)?'':'.') : '', y ? y+'.' : ''].filter(Boolean).join(' '); }
+function renderSrc(){
+  var h = '<thead><tr><th class="n">№</th><th style="width:24%">Автор(и) / організація</th><th style="width:30%">Назва</th><th style="width:10%">Рік</th><th style="width:30%">Видавництво / журнал / URL і дата звернення</th><th class="del"></th></tr></thead><tbody>';
+  store.src.forEach(function(s,i){ h += '<tr><td class="n">'+(i+1)+'</td>'+['a','t','y','w'].map(function(k){ return '<td><input id="src_'+i+'_'+k+'" data-si="'+i+'" data-sk="'+k+'" value="'+esc(s[k])+'" aria-label="Джерело '+(i+1)+'"></td>'; }).join('')+'<td class="del">'+(store.src.length>1?'<button class="btn x" type="button" data-sdel="'+i+'" aria-label="Видалити">✕</button>':'')+'</td></tr>'; });
+  $('#tblSrc').innerHTML = h+'</tbody>';
+  srcPreview();
+}
+function srcPreview(){
+  var list = store.src.map(srcText);
+  $('#srcPreview').innerHTML = list.map(function(t){ return '<li>'+(t ? esc(t) : '<span style="color:var(--ink-soft)">— порожній рядок —</span>')+'</li>'; }).join('');
+  $('#srcCount').textContent = 'Заповнено джерел: '+list.filter(Boolean).length;
+}
+$('#tblSrc').addEventListener('input', function(e){ var t = e.target; if(t.dataset.si==null) return; store.src[+t.dataset.si][t.dataset.sk] = t.value; persist(); srcPreview(); });
+$('#tblSrc').addEventListener('click', function(e){ var b = e.target.closest('[data-sdel]'); if(!b) return; var k = +b.dataset.sdel; store.src.splice(k,1);
+  Object.keys(store.links).forEach(function(q){ store.links[q] = (store.links[q]||[]).filter(function(n){ return n!==k; }).map(function(n){ return n>k ? n-1 : n; }); });
+  persist(); renderSrc(); });
+$('#addSrc').addEventListener('click', function(){ store.src.push({a:'',t:'',y:'',w:''}); persist(); renderSrc(); });
+
+/* ================= NOTE ================= */
+var SPHERES = ['','Логістика','Ритейл','Логістика і ритейл'];
+function renderNotes(){
+  var box = $('#noteBlocks');
+  $('#nConclNo').textContent = store.chosen.length + 2;
+  if(!store.chosen.length){ box.innerHTML = '<div class="empty">Ще не обрано жодного питання.<div class="btnrow" style="justify-content:center"><button class="btn" type="button" data-go="qs">Обрати питання →</button></div></div>'; buildToc($('#note')); return; }
+  var srcs = store.src.map(srcText);
+  box.innerHTML = store.chosen.map(function(i, k){
+    var p = 'n'+i+'_';
+    return '<article class="block" data-kind="theory" id="nq'+i+'" data-toc="Питання '+(i+1)+' · '+esc(Q[i].short)+'"><header class="block-head"><span class="block-no">'+(k+2)+'</span><div><span class="kind">◆  Питання '+(i+1)+'</span><h3>'+esc(Q[i].t)+'</h3></div></header>'+
+      '<span class="mini-title">A · Поняття й аналіз</span>'+
+      '<div class="fld"><label for="'+p+'def">Ключові поняття (коротко, з посиланням на джерело)</label><textarea id="'+p+'def" data-save data-wc rows="4"></textarea><div class="wc"></div></div>'+
+      '<div class="fld"><label for="'+p+'an">Аналіз: як це працює, чим відрізняється, від чого залежить</label><textarea id="'+p+'an" data-save data-wc rows="7"></textarea><div class="wc"></div></div>'+
+      '<span class="mini-title">B · Власний приклад</span>'+
+      '<div class="grid2"><div class="fld"><label for="'+p+'sph">Сфера власного прикладу</label><select class="txt" id="'+p+'sph" data-save>'+SPHERES.map(function(s){ return '<option value="'+s+'">'+(s||'— оберіть —')+'</option>'; }).join('')+'</select></div><div></div></div>'+
+      '<div class="fld"><label for="'+p+'ex">Власний приклад: ситуація (хто, що робить, з якими даними)</label><textarea id="'+p+'ex" data-save data-wc rows="6" placeholder="'+esc(Q[i].idea)+'"></textarea><div class="wc"></div></div>'+
+      '<div class="fld"><label for="'+p+'ex2">Пояснення прикладу: що з нього випливає для рішення чи процесу</label><textarea id="'+p+'ex2" data-save data-wc rows="5"></textarea><div class="wc"></div></div>'+
+      '<div class="hint-line" id="hint_'+i+'"></div>'+
+      '<span class="mini-title">C · Джерела, на які спирається відповідь</span><div><div class="src-links" data-q="'+i+'">'+(srcs.some(Boolean) ? srcs.map(function(t,si){ if(!t) return ''; var on = (store.links[i]||[]).indexOf(si)>-1; return '<label class="'+(on?'on':'')+'" title="'+esc(t)+'"><input type="checkbox" data-sl="'+si+'"'+(on?' checked':'')+'> ['+(si+1)+'] '+esc(t.length>40?t.slice(0,39)+'…':t)+'</label>'; }).join('') : '<span class="mono" style="font-size:12.5px;color:var(--ink-soft)">Спершу додайте джерела на вкладці «Джерела».</span> <button class="btn ghost small" type="button" data-go="src">До джерел →</button>')+'</div></div></article>';
+  }).join('');
+  bindSave(box);
+  $$('.src-links', box).forEach(function(g){ $$('input', g).forEach(function(c){ c.addEventListener('change', function(){ var q = +g.dataset.q, a = store.links[q] = store.links[q]||[], n = +c.dataset.sl; var k = a.indexOf(n); if(c.checked && k<0) a.push(n); if(!c.checked && k>-1) a.splice(k,1); a.sort(function(x,y){return x-y;}); c.parentNode.classList.toggle('on', c.checked); persist(); }); }); });
+  store.chosen.forEach(noteHint);
+  buildToc($('#note'));
+}
+function noteHint(i){
+  var el = $('#hint_'+i); if(!el) return;
+  var p = 'n'+i+'_', d = words(fv(p+'def')), an = words(fv(p+'an')), ex = words(fv(p+'ex')), ex2 = words(fv(p+'ex2'));
+  var msg, cls;
+  if(!d && !an && !ex) { msg = 'Почніть з ключових понять або одразу з прикладу.'; cls = ''; }
+  else if(ex < 40) { msg = '⚠ Приклад поки короткий ('+ex+' сл.). Опишіть конкретну ситуацію: хто, що робить, які дані використовує, що може піти не так.'; cls = 'warn'; }
+  else if(ex2 < 25) { msg = '⚠ Поясніть приклад: що з нього випливає для рішення чи процесу ('+ex2+' сл.).'; cls = 'warn'; }
+  else if(d > an + ex + ex2) { msg = '⚠ Визначень більше, ніж аналізу й прикладу. Завдання просить не обмежуватися визначеннями.'; cls = 'warn'; }
+  else { msg = '✓ Баланс добрий: визначення '+d+' сл., аналіз '+an+' сл., приклад і пояснення '+(ex+ex2)+' сл.'; cls = 'good'; }
+  el.className = 'hint-line '+cls; el.textContent = msg;
+}
+
+/* ================= SAVE BINDING ================= */
+function wc(el){ var w = el.parentNode.querySelector('.wc'); if(w) w.textContent = 'слів: '+words(el.value); }
+function bindSave(scope){
+  $$('[data-save]', scope).forEach(function(el){
+    if(el._bound) return; el._bound = true; var k = el.id;
+    if(store.f[k]!==undefined){ if(el.type==='checkbox') el.checked = !!store.f[k]; else el.value = store.f[k]; }
+    if(el.type==='checkbox' && el.closest('.check')) el.closest('.check').classList.toggle('done', el.checked);
+    if(el.hasAttribute('data-wc')) wc(el);
+    el.addEventListener(el.type==='checkbox'||el.tagName==='SELECT' ? 'change' : 'input', function(){
+      store.f[k] = el.type==='checkbox' ? el.checked : el.value; persist();
+      if(el.hasAttribute('data-wc')) wc(el);
+      if(el.type==='checkbox' && el.closest('.check')) el.closest('.check').classList.toggle('done', el.checked);
+      var m = /^n(\d)_/.exec(k); if(m) noteHint(+m[1]);
+    });
+  });
+}
+
+/* ================= SELF CHECK ================= */
+function autoItems(){
+  var c = store.chosen, items = [];
+  items.push(['Обрано два питання', c.length===2]);
+  items.push(['Для кожного питання є власний приклад (≥ 40 слів)', c.length>0 && c.every(function(i){ return words(fv('n'+i+'_ex'))>=40; })]);
+  items.push(['Для кожного прикладу вказано сферу (логістика або ритейл)', c.length>0 && c.every(function(i){ return fv('n'+i+'_sph'); })]);
+  items.push(['Приклади пояснено, а не лише описано', c.length>0 && c.every(function(i){ return words(fv('n'+i+'_ex2'))>=25; })]);
+  items.push(['Аналізу й прикладів більше, ніж визначень', c.length>0 && c.every(function(i){ var p='n'+i+'_'; return words(fv(p+'def')) <= words(fv(p+'an'))+words(fv(p+'ex'))+words(fv(p+'ex2')) && words(fv(p+'an'))>0; })]);
+  items.push(['Є список джерел', store.src.map(srcText).filter(Boolean).length>0]);
+  items.push(['До кожного питання прив\'язано хоча б одне джерело', c.length>0 && c.every(function(i){ return (store.links[i]||[]).length>0; })]);
+  items.push(['Написано вступ і загальний висновок', !!fv('n_intro').trim() && !!fv('n_concl').trim()]);
+  return items;
+}
+function autoCheck(){ $('#autoCheck').innerHTML = autoItems().map(function(it){ return '<div class="check'+(it[1]?' done':'')+'" style="cursor:default"><span style="font-size:16px;width:20px;text-align:center;color:'+(it[1]?'var(--ok)':'var(--ink-soft)')+'">'+(it[1]?'✓':'○')+'</span><span>'+esc(it[0])+'</span></div>'; }).join(''); }
+
+var QZ = [
+  {q:'Запис «48» без зазначення товару, складу й дати — це…', o:['Дані','Інформація','Знання','Рішення'], ok:0, e:'Окреме зафіксоване значення стає інформацією лише в контексті.'},
+  {q:'Скан паперової накладної в PDF — це…', o:['Оцифрування','Автоматизація','Цифрова трансформація','Інтеграція'], ok:0, e:'Документ переведено в цифрову форму без зміни операцій.'},
+  {q:'Яке поле обов\'язково має бути спільним для сайту, складу й доставки?', o:['Адреса комірки зберігання','Номер замовлення','Маршрут рейсу','Маркетинговий опис'], ok:1, e:'Номер замовлення пов\'язує всі події.'},
+  {q:'Яка система підтримує приймання, розміщення й відбір товару?', o:['POS','CRM','WMS','TMS'], ok:2, e:'WMS — система управління складом.'},
+  {q:'Головна перевага RFID над штрихкодом —', o:['Мітка завжди дешевша','Зчитування без прямої видимості й багатьох міток одночасно','Перевіряє фізичний стан товару','Не потребує довідника'], ok:1, e:'Мітку теж треба пов\'язати з довідником, і стан товару вона не перевіряє.'},
+  {q:'Партія надходження внесена двічі. Як це вплине на закупівлю?', o:['Ніяк','Система порадить замовити менше, ніж потрібно','Система порадить замовити більше','Закупівля стане неможливою'], ok:1, e:'Завищений залишок зменшує розрахункову потребу і веде до дефіциту.'},
+  {q:'Звільнено 40 год/міс, оплата незмінна. Реальна економія коштів…', o:['40 × вартість години','Нуль, доки не змінено конкретні витрати','Половина вартості часу','Дорівнює разовим витратам'], ok:1, e:'Вартісна оцінка часу — це можливість, а не зменшення виплат.'},
+  {q:'Що НЕ є показником результату цифрового обліку замовлень?', o:['Частка помилкових замовлень','Середній час підтвердження','Кількість встановлених програм','Кількість дублікатів після збою'], ok:2, e:'Кількість програм описує витрати, а не результат процесу.'}
+];
+function renderQuiz(){
+  $('#quizBox').innerHTML = QZ.map(function(x,i){ return '<div class="quiz-q" data-i="'+i+'"><h4>'+(i+1)+'. '+esc(x.q)+'</h4>'+x.o.map(function(o,j){ return '<button class="quiz-opt" type="button" data-j="'+j+'">'+esc(o)+'</button>'; }).join('')+'<div class="quiz-fb" hidden></div></div>'; }).join('');
+  $$('.quiz-q').forEach(function(q){ var i = +q.dataset.i; $$('.quiz-opt', q).forEach(function(o){ o.addEventListener('click', function(){ if(store.quiz[i]!=null) return; store.quiz[i] = +o.dataset.j; persist(); paintQ(q,i); qScore(); }); }); if(store.quiz[i]!=null) paintQ(q,i); });
+  qScore();
+}
+function paintQ(q, i){ var x = QZ[i], ch = store.quiz[i]; $$('.quiz-opt', q).forEach(function(o,j){ o.disabled = true; if(j===x.ok) o.classList.add('correct'); else if(j===ch) o.classList.add('wrong'); }); var f = $('.quiz-fb', q); f.hidden = false; f.innerHTML = (ch===x.ok ? '✅ <b>Правильно.</b> ' : '❌ <b>Не зовсім.</b> ')+esc(x.e); }
+function qRes(){ var n=0, s=0; QZ.forEach(function(x,i){ if(store.quiz[i]!=null){ n++; if(store.quiz[i]===x.ok) s++; } }); return {n:n, s:s}; }
+function qScore(){ var r = qRes(); $('#quizScore').textContent = 'Результат: '+r.s+' / '+QZ.length+(r.n===QZ.length ? ' · тест завершено' : ''); }
+$('#quizReset').addEventListener('click', function(){ store.quiz = []; persist(); renderQuiz(); });
+
+/* ================= STATS ================= */
+function stats(){
+  var c = store.chosen, rows = [['Обрано питань', c.length, 2]];
+  c.forEach(function(i){ var p = 'n'+i+'_', n = ['def','an','sph','ex','ex2'].filter(function(k){ return fv(p+k).trim(); }).length; rows.push(['Питання '+(i+1)+' · розділи', n, 5]); });
+  rows.push(['Вступ і висновок', (fv('n_intro').trim()?1:0)+(fv('n_concl').trim()?1:0), 2]);
+  rows.push(['Джерела', Math.min(store.src.map(srcText).filter(Boolean).length, 3), 3]);
+  var ai = autoItems(); rows.push(['Автоматичний чек-лист', ai.filter(function(x){return x[1];}).length, ai.length]);
+  rows.push(['Тест', qRes().n, QZ.length]);
+  var total = 0; c.forEach(function(i){ ['def','an','ex','ex2'].forEach(function(k){ total += words(fv('n'+i+'_'+k)); }); }); total += words(fv('n_intro')) + words(fv('n_concl'));
+  $('#stats').innerHTML = rows.map(function(r){ return '<div class="stat"><span>'+r[0]+'</span><div class="bar"><i style="width:'+Math.round(r[1]/r[2]*100)+'%"></i></div><span>'+(r[0]==='Джерела' ? store.src.map(srcText).filter(Boolean).length : r[1]+' / '+r[2])+'</span></div>'; }).join('') + '<p class="mono" style="font-size:12.5px;color:var(--ink-soft);margin-top:8px">Обсяг записки: '+total+' слів</p>';
+}
+
+/* ================= DOCX ================= */
+function x(s){ return String(s==null?'':s).replace(/[<>&"]/g, function(c){ return {'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]; }).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g,''); }
+function run(t, o){ o=o||{}; return '<w:r><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>'+(o.b?'<w:b/>':'')+(o.i?'<w:i/>':'')+(o.c?'<w:color w:val="'+o.c+'"/>':'')+'<w:sz w:val="'+(o.s||28)+'"/><w:lang w:val="uk-UA"/></w:rPr><w:t xml:space="preserve">'+x(t)+'</w:t></w:r>'; }
+function para(t, o){ o=o||{}; return '<w:p><w:pPr>'+(o.k?'<w:keepNext/>':'')+'<w:spacing w:before="'+(o.sb||0)+'" w:after="'+(o.sa==null?120:o.sa)+'" w:line="'+(o.ln||300)+'" w:lineRule="auto"/>'+(o.ind?'<w:ind w:firstLine="709"/>':'')+(o.al?'<w:jc w:val="'+o.al+'"/>':'')+'</w:pPr>'+(Array.isArray(t) ? t.map(function(p){ return run(p[0], p[1]); }).join('') : run(t, o))+'</w:p>'; }
+function paras(t, o){ t = String(t||'').trim(); o = o||{}; if(!t) return para('— не заповнено —', {i:1, c:'888888', s:o.s}); return t.split(/\n+/).map(function(l){ return para(l, o); }).join(''); }
+function h1(t){ return para(t, {b:1, s:28, k:1, sb:240, sa:120, c:'004384'}); }
+function h2(t){ return para(t, {b:1, s:28, k:1, sb:120, sa:60}); }
+var BODY = {ind:1, al:'both'};
+function buildDoc(){
+  var d = new Date().toLocaleDateString('uk-UA'), s = '';
+  var srcs = store.src.map(srcText), numMap = {}, n = 0; srcs.forEach(function(t,i){ if(t){ n++; numMap[i] = n; } });
+  s += para('АНАЛІТИЧНА ЗАПИСКА', {b:1, s:32, al:'center', sa:60});
+  s += para('Самостійна робота до теми 1 «Інформаційні технології – основа розвитку цифрової економіки»', {b:1, s:26, al:'center', sa:240});
+  s += para([['Студент: ',{b:1}],[fv('rep_name').trim()||'—',{}]], {sa:40}) + para([['Група: ',{b:1}],[fv('rep_group').trim()||'—',{}]], {sa:40}) + para([['Дата: ',{b:1}],[d,{}]], {sa:40});
+  s += para([['Обрані питання: ',{b:1}],[store.chosen.map(function(i){ return '№ '+(i+1); }).join(', ')||'—',{}]], {sa:200});
+  s += h1('Вступ') + paras(fv('n_intro'), BODY);
+  store.chosen.forEach(function(i, k){
+    var p = 'n'+i+'_', links = (store.links[i]||[]).filter(function(si){ return numMap[si]; }).map(function(si){ return '['+numMap[si]+']'; });
+    s += h1((k+1)+'. '+Q[i].t);
+    s += h2('Ключові поняття') + paras(fv(p+'def'), BODY);
+    s += h2('Аналіз') + paras(fv(p+'an'), BODY);
+    s += h2('Власний приклад'+(fv(p+'sph') ? ' ('+fv(p+'sph').toLowerCase()+')' : '')) + paras(fv(p+'ex'), BODY);
+    s += h2('Що випливає з прикладу') + paras(fv(p+'ex2'), BODY);
+    s += para([['Джерела: ',{b:1, s:24}],[links.length ? links.join(', ') : 'не вказано',{s:24, i:!links.length}]], {sb:60});
+  });
+  s += h1('Загальний висновок') + paras(fv('n_concl'), BODY);
+  s += h1('Список використаних джерел');
+  var list = srcs.filter(Boolean);
+  s += list.length ? list.map(function(t,i){ return para((i+1)+'. '+t, {al:'both'}); }).join('') : para('— джерела не вказано —', {i:1, c:'888888'});
+  s += h1('Додаток. Самоперевірка');
+  autoItems().forEach(function(it){ s += para((it[1]?'☑ ':'☐ ')+it[0], {s:24, sa:40}); });
+  [['ch_m1','Приклад описує конкретну ситуацію'],['ch_m2','Пояснено, що з прикладу випливає'],['ch_m3','Визначення з різних джерел порівняно'],['ch_m4','Немає справжніх персональних даних']].forEach(function(m){ s += para((store.f[m[0]]?'☑ ':'☐ ')+m[1]+' (позначка студента)', {s:24, sa:40}); });
+  var q = qRes(); s += para('Тест за темою: '+q.s+' з '+QZ.length+(q.n<QZ.length ? ' (відповідей: '+q.n+')' : ''), {b:1, s:24, sb:120});
+  return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>'+s+'<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1134" w:right="851" w:bottom="1134" w:left="1701" w:header="708" w:footer="708" w:gutter="0"/></w:sectPr></w:body></w:document>';
+}
+function crc32(b){ var t = crc32.t; if(!t){ t = crc32.t = new Int32Array(256); for(var n=0;n<256;n++){ var c=n; for(var k=0;k<8;k++) c = c&1 ? 0xEDB88320^(c>>>1) : c>>>1; t[n]=c; } } var crc=-1; for(var i=0;i<b.length;i++) crc = t[(crc^b[i])&255]^(crc>>>8); return (crc^-1)>>>0; }
+function u(n, val){ var a=[]; for(var i=0;i<n;i++){ a.push(val&255); val = val>>>8; } return a; }
+function zip(files){
+  var enc = new TextEncoder(), parts = [], cd = [], off = 0;
+  files.forEach(function(f){
+    var nm = enc.encode(f.n), d = enc.encode(f.d), c = crc32(d);
+    var lh = new Uint8Array([].concat(u(4,0x04034b50),u(2,20),u(2,0x800),u(2,0),u(2,0),u(2,33),u(4,c),u(4,d.length),u(4,d.length),u(2,nm.length),u(2,0)));
+    parts.push(lh, nm, d);
+    cd.push(new Uint8Array([].concat(u(4,0x02014b50),u(2,20),u(2,20),u(2,0x800),u(2,0),u(2,0),u(2,33),u(4,c),u(4,d.length),u(4,d.length),u(2,nm.length),u(2,0),u(2,0),u(2,0),u(2,0),u(4,0),u(4,off))), nm);
+    off += lh.length + nm.length + d.length;
+  });
+  var cs = 0; cd.forEach(function(p){ cs += p.length; });
+  var end = new Uint8Array([].concat(u(4,0x06054b50),u(2,0),u(2,0),u(2,files.length),u(2,files.length),u(4,cs),u(4,off),u(2,0)));
+  return new Blob(parts.concat(cd, [end]), {type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+}
+$('#dlBtn').addEventListener('click', function(){
+  var nmv = fv('rep_name').trim(), g = fv('rep_group').trim();
+  if(!nmv || !g){ $('#repMsg').textContent = !nmv && !g ? 'Вкажіть ПІБ і групу, щоб завантажити документ.' : !nmv ? 'Вкажіть ПІБ.' : 'Вкажіть групу.'; (!nmv ? $('#rep_name') : $('#rep_group')).focus(); return; }
+  if(!store.chosen.length){ $('#repMsg').textContent = 'Оберіть хоча б одне питання на вкладці «Питання і тренажери».'; return; }
+  try{
+    var X = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
+    var blob = zip([
+      {n:'[Content_Types].xml', d:X+'<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>'},
+      {n:'_rels/.rels', d:X+'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>'},
+      {n:'word/document.xml', d:buildDoc()}
+    ]);
+    var file = nmv.replace(/[\\\/:*?"<>|]+/g,'').replace(/\s+/g,'_');
+    var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'СР1_Аналітична_записка_'+file+'.docx'; a.style.display = 'none';
+    document.body.appendChild(a); a.click();
+    setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(a.href); }, 4000);
+    $('#repMsg').textContent = (store.chosen.length<2 ? 'Увага: обрано лише одне питання, а потрібно два. ' : '') + 'Записку сформовано. Перевірте папку «Завантаження».';
+  }catch(err){ $('#repMsg').textContent = 'Не вдалося сформувати файл: '+err.message+'. Спробуйте інший браузер (Chrome, Edge, Firefox).'; }
+});
+var clearArm = 0;
+$('#clearBtn').addEventListener('click', function(){
+  var b = this;
+  if(Date.now()-clearArm > 4000){ clearArm = Date.now(); b.textContent = 'Натисніть ще раз для підтвердження'; setTimeout(function(){ b.textContent = 'Очистити всі відповіді'; }, 4000); return; }
+  try{ localStorage.removeItem(KEY); }catch(e){} location.reload();
+});
+
+/* ================= INIT ================= */
+bindSave(document);
+renderIntro(); renderSel(); renderQnav(); renderQ(); renderSrc(); renderQuiz(); renderNotes();
+var startTab = null; try{ startTab = sessionStorage.getItem('sr1-tab'); }catch(e){}
+if(location.hash && document.getElementById(location.hash.slice(1))) startTab = location.hash.slice(1);
+if(startTab) openTab(startTab, false);
+
+/* ================= FLIP CARDS ================= */
+function flipCard(f){ f.classList.toggle('flipped'); f.setAttribute('aria-pressed', f.classList.contains('flipped')); }
+document.addEventListener('click', function(e){ var f = e.target.closest('.fcard'); if(f) flipCard(f); });
+document.addEventListener('keydown', function(e){ var t = e.target; if((e.key==='Enter' || e.key===' ') && t.classList && t.classList.contains('fcard')){ e.preventDefault(); flipCard(t); } });
+
+/* ================= STAGE CONTENTS + SCROLL-SPY ================= */
+var spy = null;
+function buildToc(panel){
+  var toc = $('.toc-list', panel); if(!toc) return;
+  toc.innerHTML = '';
+  $$('article.block', panel).forEach(function(el){
+    var a = document.createElement('a'); a.href = '#'+el.id; a.setAttribute('data-kind', el.getAttribute('data-kind'));
+    a.innerHTML = '<span class="toc-no">'+esc($('.block-no', el).textContent)+'</span><span>'+esc(el.getAttribute('data-toc') || $('h3', el).textContent)+'</span>';
+    a.addEventListener('click', function(e){ e.preventDefault(); el.scrollIntoView({behavior:'smooth', block:'start'}); });
+    toc.appendChild(a); el._tocLink = a;
+    if(spy) spy.observe(el);
+  });
+}
+if('IntersectionObserver' in window){
+  spy = new IntersectionObserver(function(es){ es.forEach(function(en){
+    var a = en.target._tocLink; if(!en.isIntersecting || !a || !a.parentNode) return;
+    var list = a.parentNode; $$('a', list).forEach(function(x){ x.classList.toggle('on', x===a); });
+    if(list.scrollWidth > list.clientWidth + 4) list.scrollTo({left:a.offsetLeft-12, behavior:'smooth'});
+  }); }, {rootMargin:'-30% 0px -60% 0px'});
+}
+$$('section.panel').forEach(buildToc);
+
+/* reading progress under the tabs */
+function updProgress(){ var max = document.documentElement.scrollHeight - innerHeight; $('#navProgress').style.width = (max>0 ? Math.min(100, scrollY/max*100) : 0)+'%'; }
+window.addEventListener('scroll', updProgress, {passive:true});
+window.addEventListener('resize', updProgress);
+document.addEventListener('click', function(){ setTimeout(updProgress, 60); });
+updProgress();
+
+/* ================= SCROLL REVEAL (replays every time) =================
+   An element resets once it is fully off screen (or its stage is closed) and animates again when it comes back.
+   Content rendered later (questions, note blocks, checklists, progress bars) is picked up automatically. */
+var RV_SEL = '.sec-main > *, article.block, .fcard, .steps > .step, #introQs > .card, .check, .cls-item, .quiz-q, .stat',
+    RV_SOLO = '.sec-main > *, article.block';
+var rvIn = null, rvOut = null;
+function rvScan(scope){
+  $$(RV_SEL, scope).forEach(function(el){
+    if(el.classList.contains('rv')) return;
+    el.classList.add('rv');
+    if(!el.matches(RV_SOLO)) el.style.setProperty('--i', Math.min(Array.prototype.indexOf.call(el.parentNode.children, el), 8));
+    rvIn.observe(el); rvOut.observe(el);
+  });
+}
+if(!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) && 'IntersectionObserver' in window && 'MutationObserver' in window){
+  // show when noticeably inside the viewport, hide only when completely outside — no flicker at the edges
+  rvIn = new IntersectionObserver(function(es){ es.forEach(function(en){ if(en.isIntersecting) en.target.classList.add('in'); }); }, {threshold:0.06, rootMargin:'0px 0px -6% 0px'});
+  rvOut = new IntersectionObserver(function(es){ es.forEach(function(en){
+    if(en.isIntersecting) return;
+    en.target.classList.remove('in');
+    en.target.classList.toggle('from-top', en.boundingClientRect.top < 0);   // left upwards → comes back from above
+  }); }, {threshold:0});
+  rvScan(document);
+  new MutationObserver(function(){ rvScan(document); }).observe($('.frame'), {childList:true, subtree:true});
+}
+
+window.__sr1 = {buildDoc:buildDoc};
+})();
+</script>
+</body>
+</html>
