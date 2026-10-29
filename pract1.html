@@ -1,0 +1,1816 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Проєкт опрацювання замовлень</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;600;700;800&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<script>
+(function(){ try{ var t = localStorage.getItem('pz1-theme'); if(t==='dark'||t==='light') document.documentElement.setAttribute('data-theme', t); }catch(e){} })();
+</script>
+<style>
+/* Layout: HUD-панель → hero → липкі вкладки → одна активна панель-етап (дизайн-система лекції 1).
+   Усередині етапу: шапка → зміст (праворуч / згори на мобільних) → тематичні групи → нумеровані блоки → висновок. */
+:root{
+  --bg:#f2f4fa; --bg-panel:#ffffff; --bg-soft:#f5f7fc; --grid:rgba(36,71,184,.05); --grid-dot:rgba(36,71,184,.13);
+  --ink:#10142b; --ink-soft:#5b6283; --on-ink:#ffffff;
+  --blue:#3d6cf0; --blue-deep:#2447b8; --blue-bright:#5b8cff;
+  --red:#e0405a; --olive:#d99a00; --olive-ink:#946800; --ok:#0d9b8a; --sim:#e8731c;
+  --core:#1b2559; --core-2:#2b3f8f;
+  --line:#e1e5f1; --line-strong:#cdd3e6; --nav-bg:rgba(255,255,255,.82);
+  --tint-blue:rgba(61,108,240,.08); --tint-red:rgba(224,64,90,.08); --tint-olive:rgba(217,154,0,.1); --tint-ok:rgba(13,155,138,.1); --tint-sim:rgba(232,115,28,.09);
+  --glow-1:rgba(61,108,240,.10); --glow-2:rgba(13,155,138,.07);
+  --shadow:0 1px 2px rgba(16,20,43,.04), 0 8px 26px rgba(16,20,43,.06);
+  --shadow-lg:0 2px 6px rgba(16,20,43,.05), 0 24px 60px rgba(16,20,43,.12);
+  --radius:18px;
+  --hero-bg:radial-gradient(700px 380px at 88% -5%, rgba(61,108,240,.2), transparent 62%), radial-gradient(520px 320px at 5% 115%, rgba(13,155,138,.16), transparent 62%), linear-gradient(135deg, #ffffff 0%, #eef2ff 55%, #e6f5f2 100%);
+  --hero-border:#e1e5f1; --hero-ink:#10142b; --hero-grid:rgba(36,71,184,.07); --hero-num:rgba(36,71,184,.15);
+  --hero-h1:linear-gradient(92deg,#10142b 25%, #2447b8 70%, #0d9b8a); --hero-sub:#4f5675;
+  --hero-tag-c:#0b7f72; --hero-tag-bg:rgba(13,155,138,.08); --hero-tag-b:rgba(13,155,138,.35);
+  --hero-chip-bg:rgba(255,255,255,.75); --hero-chip-b:#dfe3f0; --hero-chip-c:#10142b; --hero-chip-n:#3d6cf0;
+  --f-display:'Unbounded', 'Segoe UI', system-ui, sans-serif;
+  --f-body:'Manrope', 'Segoe UI', system-ui, sans-serif;
+  --f-mono:'JetBrains Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#070a14; --bg-panel:#0e1328; --bg-soft:#141a35; --grid:rgba(120,145,255,.04); --grid-dot:rgba(140,165,255,.14);
+    --ink:#e8ecff; --ink-soft:#9aa3c8; --on-ink:#0b0f1f;
+    --blue:#5b8cff; --blue-deep:#9db8ff; --blue-bright:#7aa2ff;
+    --red:#ff6b81; --olive:#ffb84d; --olive-ink:#ffc46b; --ok:#2fd9bb; --sim:#ffa04d;
+    --core:#24326e; --core-2:#3550b0;
+    --line:#212947; --line-strong:#313b64; --nav-bg:rgba(14,19,40,.82);
+    --tint-blue:rgba(91,140,255,.13); --tint-red:rgba(255,107,129,.12); --tint-olive:rgba(255,184,77,.12); --tint-ok:rgba(47,217,187,.11); --tint-sim:rgba(255,160,77,.12);
+    --glow-1:rgba(91,140,255,.14); --glow-2:rgba(47,217,187,.06);
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
+    --shadow-lg:0 2px 6px rgba(0,0,0,.3), 0 26px 64px rgba(0,0,0,.5); color-scheme:dark;
+    --hero-bg:radial-gradient(700px 380px at 88% -5%, rgba(91,140,255,.5), transparent 62%), radial-gradient(520px 320px at 5% 115%, rgba(47,217,187,.3), transparent 62%), linear-gradient(135deg, #0c1331 0%, #15204f 55%, #0f2a46 100%);
+    --hero-border:rgba(255,255,255,.06); --hero-ink:#fff; --hero-grid:rgba(255,255,255,.05); --hero-num:rgba(255,255,255,.13);
+    --hero-h1:linear-gradient(92deg,#ffffff 25%, #b7cbff 70%, #8ff2dd); --hero-sub:rgba(232,238,255,.78);
+    --hero-tag-c:#9ff0e0; --hero-tag-bg:rgba(47,217,187,.1); --hero-tag-b:rgba(47,217,187,.38);
+    --hero-chip-bg:rgba(255,255,255,.07); --hero-chip-b:rgba(255,255,255,.16); --hero-chip-c:#dfe6ff; --hero-chip-n:#8ff2dd;
+  }
+}
+:root[data-theme="dark"]{
+  --hero-bg:radial-gradient(700px 380px at 88% -5%, rgba(91,140,255,.5), transparent 62%), radial-gradient(520px 320px at 5% 115%, rgba(47,217,187,.3), transparent 62%), linear-gradient(135deg, #0c1331 0%, #15204f 55%, #0f2a46 100%);
+  --hero-border:rgba(255,255,255,.06); --hero-ink:#fff; --hero-grid:rgba(255,255,255,.05); --hero-num:rgba(255,255,255,.13);
+  --hero-h1:linear-gradient(92deg,#ffffff 25%, #b7cbff 70%, #8ff2dd); --hero-sub:rgba(232,238,255,.78);
+  --hero-tag-c:#9ff0e0; --hero-tag-bg:rgba(47,217,187,.1); --hero-tag-b:rgba(47,217,187,.38);
+  --hero-chip-bg:rgba(255,255,255,.07); --hero-chip-b:rgba(255,255,255,.16); --hero-chip-c:#dfe6ff; --hero-chip-n:#8ff2dd;
+  --bg:#070a14; --bg-panel:#0e1328; --bg-soft:#141a35; --grid:rgba(120,145,255,.04); --grid-dot:rgba(140,165,255,.14);
+  --ink:#e8ecff; --ink-soft:#9aa3c8; --on-ink:#0b0f1f;
+  --blue:#5b8cff; --blue-deep:#9db8ff; --blue-bright:#7aa2ff;
+  --red:#ff6b81; --olive:#ffb84d; --olive-ink:#ffc46b; --ok:#2fd9bb; --sim:#ffa04d;
+  --core:#24326e; --core-2:#3550b0;
+  --line:#212947; --line-strong:#313b64; --nav-bg:rgba(14,19,40,.82);
+  --tint-blue:rgba(91,140,255,.13); --tint-red:rgba(255,107,129,.12); --tint-olive:rgba(255,184,77,.12); --tint-ok:rgba(47,217,187,.11); --tint-sim:rgba(255,160,77,.12);
+  --glow-1:rgba(91,140,255,.14); --glow-2:rgba(47,217,187,.06);
+  --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
+  --shadow-lg:0 2px 6px rgba(0,0,0,.3), 0 26px 64px rgba(0,0,0,.5); color-scheme:dark;
+}
+
+/* ---------- база ---------- */
+*{box-sizing:border-box;}
+body{
+  background:
+    radial-gradient(1100px 600px at 90% -10%, var(--glow-1), transparent 60%),
+    radial-gradient(900px 520px at -10% 5%, var(--glow-2), transparent 60%),
+    linear-gradient(var(--grid) 1px, transparent 1px) 0 0/40px 40px,
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px) 0 0/40px 40px,
+    var(--bg);
+  background-attachment:fixed;
+  color:var(--ink); font-family:var(--f-body); font-size:16px; line-height:1.68; min-height:100vh;
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;}
+body::before{content:""; position:fixed; inset:0 0 auto; height:env(safe-area-inset-top,0px); z-index:60; background:var(--bg);}
+::selection{background:var(--blue); color:#fff;}
+h1,h2,h3,h4{margin:0 0 .5em; text-wrap:balance; line-height:1.25;}
+h3,h4{font-family:var(--f-body); font-weight:800; letter-spacing:-.005em;}
+.mono,code{font-family:var(--f-mono);}
+p{margin:0 0 .8em;}
+b,strong{font-weight:700;}
+.frame{max-width:1240px; margin:0 auto; padding-block:18px 80px; padding-left:max(16px, env(safe-area-inset-left,0px)); padding-right:max(16px, env(safe-area-inset-right,0px));}
+
+/* ---------- HUD ---------- */
+.hud-bar{display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between; padding:9px 10px 9px 18px; background:var(--nav-bg);
+  backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+  border:1px solid var(--line); border-radius:14px; margin-bottom:14px; box-shadow:var(--shadow);
+  font-family:var(--f-mono); font-size:11.5px; letter-spacing:.04em; color:var(--ink-soft);}
+.hud-bar .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ok);margin-right:8px;box-shadow:0 0 0 3px var(--tint-ok);}
+.theme-btn{font-family:var(--f-body); font-weight:700; font-size:12.5px; background:var(--bg-soft); color:var(--ink); border:1px solid var(--line); border-radius:10px; padding:7px 13px; cursor:pointer; transition:.18s;}
+.theme-btn:hover{border-color:var(--blue); color:var(--blue-deep); background:var(--tint-blue);}
+
+/* ---------- HERO (світлий у світлій темі, темний у темній) ---------- */
+header.hero{position:relative; isolation:isolate; overflow:hidden; border-radius:26px; color:var(--hero-ink);
+  padding:clamp(28px,5vw,56px) clamp(20px,4.5vw,54px) clamp(26px,4.5vw,48px); margin-bottom:16px;
+  background:var(--hero-bg); border:1px solid var(--hero-border); box-shadow:var(--shadow-lg);}
+header.hero::before{content:""; position:absolute; inset:0; z-index:-1;
+  background:linear-gradient(var(--hero-grid) 1px, transparent 1px) 0 0/34px 34px,
+             linear-gradient(90deg, var(--hero-grid) 1px, transparent 1px) 0 0/34px 34px;
+  -webkit-mask-image:linear-gradient(105deg, transparent 20%, #000 75%); mask-image:linear-gradient(105deg, transparent 20%, #000 75%);}
+.hero-num{position:absolute; right:-12px; bottom:-0.28em; z-index:-1; font-family:var(--f-display); font-weight:800; line-height:1;
+  font-size:clamp(150px,25vw,300px); letter-spacing:-.06em; color:transparent; -webkit-text-stroke:1.5px var(--hero-num); user-select:none; pointer-events:none;}
+.hero-tag{display:inline-block; font-family:var(--f-mono); font-size:11.5px; letter-spacing:.14em;
+  color:var(--hero-tag-c); background:var(--hero-tag-bg); border:1px solid var(--hero-tag-b); padding:5px 13px; border-radius:20px; margin-bottom:20px;}
+header.hero h1{font-family:var(--f-display); font-size:clamp(24px,3.9vw,44px); font-weight:700; line-height:1.16; letter-spacing:-.015em; max-width:900px;
+  background:var(--hero-h1); -webkit-background-clip:text; background-clip:text; color:transparent;}
+header.hero p.sub{color:var(--hero-sub); max-width:760px; font-size:17.5px; margin:14px 0 26px; line-height:1.6;}
+.hero-meta{display:flex; flex-wrap:wrap; gap:10px;}
+.chip{background:var(--bg-soft); border:1px solid var(--line); border-radius:10px; padding:6px 12px; font-size:13px; color:var(--ink);}
+header.hero .chip{display:inline-flex; align-items:baseline; gap:8px; background:var(--hero-chip-bg); border-color:var(--hero-chip-b); color:var(--hero-chip-c);
+  backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); padding:9px 15px; border-radius:13px; font-size:14px; font-weight:600;}
+header.hero .chip b{font-family:var(--f-display); font-size:17px; color:var(--hero-chip-n);}
+
+/* ---------- вкладки ---------- */
+nav.tabs{position:sticky; top:calc(env(safe-area-inset-top,0px) + 8px); z-index:50; display:flex; gap:4px; overflow-x:auto; background:var(--nav-bg);
+  backdrop-filter:blur(14px) saturate(1.4); -webkit-backdrop-filter:blur(14px) saturate(1.4);
+  border:1px solid var(--line); border-radius:16px; padding:6px; margin-bottom:20px; box-shadow:var(--shadow); scrollbar-width:none;}
+nav.tabs::-webkit-scrollbar{display:none;}
+nav.tabs button{flex:0 0 auto; font-family:var(--f-body); font-weight:700; font-size:13.5px; background:transparent; color:var(--ink-soft);
+  border:1px solid transparent; padding:9px 15px; border-radius:11px; cursor:pointer; transition:.18s; white-space:nowrap;}
+nav.tabs button:hover{background:var(--bg-soft); color:var(--ink);}
+nav.tabs button.active{background:linear-gradient(135deg, var(--core), var(--core-2)); color:#fff; box-shadow:0 6px 16px rgba(27,37,89,.28);}
+.nav-progress{position:absolute; left:16px; right:16px; bottom:0; height:2px; border-radius:2px; overflow:hidden; pointer-events:none;}
+.nav-progress i{display:block; height:100%; width:0; background:linear-gradient(90deg, var(--blue), var(--ok)); transition:width .12s linear;}
+button:focus-visible, .opt:focus-visible, summary:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, a:focus-visible{outline:2px solid var(--blue-bright); outline-offset:2px;}
+
+/* ---------- панель-розділ ---------- */
+section.panel{display:none; margin-bottom:22px;}
+section.panel.active{display:grid; grid-template-columns:minmax(0,1fr) 262px; gap:20px 24px; align-items:start; animation:fadeIn .4s ease;}
+section.panel.plain.active{display:block;}
+@keyframes fadeIn{from{opacity:.3; transform:translateY(8px);} to{opacity:1; transform:none;}}
+.sec-head{grid-column:1 / -1; position:relative; overflow:hidden; display:grid; grid-template-columns:auto minmax(0,1fr); gap:clamp(14px,3vw,30px); align-items:start;
+  background:var(--bg-panel); border:1px solid var(--line); border-radius:22px; padding:clamp(20px,3.4vw,34px); box-shadow:var(--shadow);}
+section.panel.plain .sec-head{margin-bottom:18px;}
+.sec-head::after{content:""; position:absolute; right:-90px; top:-110px; width:300px; height:300px; border-radius:50%; background:radial-gradient(circle, var(--tint-blue), transparent 70%); pointer-events:none;}
+.sec-idx{font-family:var(--f-display); font-weight:800; font-size:clamp(42px,6.5vw,74px); line-height:.92; letter-spacing:-.05em;
+  background:linear-gradient(140deg, var(--blue), var(--ok)); -webkit-background-clip:text; background-clip:text; color:transparent; min-width:1.2em;}
+.sec-kicker{font-family:var(--f-mono); font-size:11.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--blue);}
+.sec-head h2{font-family:var(--f-display); font-weight:700; font-size:clamp(19px,2.4vw,26px); line-height:1.28; letter-spacing:-.01em; margin:8px 0 12px;}
+.sec-head .lede{margin:0; max-width:80ch;}
+.sec-meta{display:flex; flex-wrap:wrap; gap:8px; margin-top:16px;}
+.sec-meta:empty{display:none;}
+.sec-meta span{font-size:12.5px; font-weight:600; padding:5px 11px; border-radius:999px; background:var(--bg-soft); border:1px solid var(--line); color:var(--ink-soft);}
+.sec-meta span b{font-family:var(--f-display); color:var(--ink); margin-right:3px;}
+.sec-main{min-width:0; grid-column:1; grid-row:2;}
+.sec-head, .sec-toc{min-width:0;}
+@media(max-width:640px){ .sec-head{grid-template-columns:minmax(0,1fr); gap:4px;} }
+
+/* ---------- зміст розділу + scroll-spy ---------- */
+.sec-toc{grid-column:2; grid-row:2; position:sticky; top:84px; max-height:calc(100vh - 104px); overflow:auto; scrollbar-width:thin;
+  background:var(--bg-panel); border:1px solid var(--line); border-radius:18px; padding:16px 12px 14px; box-shadow:var(--shadow);}
+.toc-title{font-family:var(--f-mono); font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--ink-soft); padding:0 8px 6px;}
+.toc-list{display:flex; flex-direction:column; gap:1px;}
+.toc-group{font-size:11.5px; font-weight:800; color:var(--ink); padding:12px 8px 4px; display:flex; gap:8px; align-items:center;}
+.toc-group i{font-style:normal; font-family:var(--f-display); font-size:10.5px; color:#fff; background:var(--core); width:20px; height:20px; border-radius:6px; display:grid; place-items:center; flex:none;}
+.toc-list a{--k:var(--blue); --kt:var(--tint-blue); display:flex; gap:8px; padding:6px 8px; border-radius:9px; font-size:13px; line-height:1.38; color:var(--ink-soft); text-decoration:none; transition:.15s;}
+.toc-list a[data-kind="sim"]{--k:var(--sim); --kt:var(--tint-sim);}
+.toc-list a[data-kind="data"]{--k:var(--ok); --kt:var(--tint-ok);}
+.toc-list a[data-kind="extra"]{--k:var(--ink-soft); --kt:var(--bg-soft);}
+.toc-list a[data-kind="end"]{--k:var(--ok); --kt:var(--tint-ok); margin-top:8px; border-top:1px dashed var(--line); padding-top:10px; border-radius:0 0 9px 9px;}
+.toc-list a .toc-no{font-family:var(--f-mono); font-size:11px; font-weight:700; color:var(--k); min-width:30px; padding-top:1px;}
+.toc-list a:hover{background:var(--bg-soft); color:var(--ink);}
+.toc-list a.on{background:var(--kt); color:var(--ink); font-weight:700; box-shadow:inset 3px 0 0 var(--k);}
+.toc-legend{display:flex; flex-wrap:wrap; gap:6px 12px; margin:12px 8px 0; padding-top:12px; border-top:1px solid var(--line); font-size:11px; color:var(--ink-soft);}
+.toc-legend span::before{content:""; display:inline-block; width:8px; height:8px; border-radius:2px; margin-right:6px; background:var(--k);}
+@media(max-width:1020px){
+  section.panel.active{grid-template-columns:minmax(0,1fr);}
+  .sec-toc{grid-column:1; grid-row:auto; position:sticky; top:72px; z-index:40; max-height:none; overflow:visible; padding:8px; border-radius:14px; background:var(--nav-bg);
+    backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);}
+  .sec-main{grid-row:auto;}
+  .toc-title, .toc-group, .toc-legend{display:none;}
+  .toc-list{flex-direction:row; overflow-x:auto; gap:4px; scrollbar-width:none;}
+  .toc-list::-webkit-scrollbar{display:none;}
+  .toc-list a{flex:0 0 auto; white-space:nowrap; max-width:240px; overflow:hidden; text-overflow:ellipsis; border:1px solid var(--line); background:var(--bg-panel);}
+  .toc-list a[data-kind="end"]{margin-top:0; border-top:1px solid var(--line); padding-top:6px; border-radius:9px;}
+}
+
+/* ---------- тематичні групи ---------- */
+.group-label{display:flex; align-items:center; gap:12px; margin:30px 2px 14px; font-weight:800; font-size:13px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-soft);}
+.sec-main > .group-label:first-child{margin-top:4px;}
+.group-label b{font-family:var(--f-display); font-size:12.5px; color:#fff; background:linear-gradient(135deg,var(--core),var(--core-2)); width:30px; height:30px; border-radius:9px; display:grid; place-items:center; letter-spacing:0; flex:none;}
+.group-label::after{content:""; flex:1; height:1px; background:linear-gradient(90deg, var(--line-strong), transparent);}
+
+/* ---------- блоки ---------- */
+article.block{--k:var(--blue); --kt:var(--tint-blue); position:relative; background:var(--bg-panel); border:1px solid var(--line); border-radius:var(--radius);
+  padding:22px clamp(16px,2.6vw,28px) 24px; box-shadow:var(--shadow); margin-bottom:16px; scroll-margin-top:90px; min-width:0;}
+@media(max-width:1020px){ article.block{scroll-margin-top:136px;} }
+article.block::before{content:""; position:absolute; left:-1px; top:24px; height:44px; width:4px; border-radius:0 4px 4px 0; background:var(--k);}
+article.block[data-kind="sim"]{--k:var(--sim); --kt:var(--tint-sim);}
+article.block[data-kind="data"]{--k:var(--ok); --kt:var(--tint-ok);}
+article.block[data-kind="extra"]{--k:var(--ink-soft); --kt:var(--bg-soft);}
+.block-head{display:flex; gap:14px; align-items:center; margin-bottom:14px;}
+.block-no{flex:none; min-width:48px; height:48px; padding:0 8px; border-radius:14px; display:grid; place-items:center;
+  font-family:var(--f-display); font-weight:700; font-size:14px; color:var(--k); background:var(--kt); border:1px solid color-mix(in srgb, var(--k) 28%, transparent);}
+.kind{display:block; font-family:var(--f-mono); font-size:10.5px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:var(--k);}
+.block-head h3{margin:3px 0 0; font-size:clamp(17px,1.9vw,19.5px); line-height:1.3;}
+.block > .lede:first-of-type{margin-top:-2px;}
+
+/* ---------- текст ---------- */
+.lede{color:var(--ink-soft); font-size:16px; max-width:78ch;}
+.prose{max-width:80ch;}
+.prose p{color:var(--ink);}
+.muted{color:var(--ink-soft);}
+.mini-title{display:block; font-family:var(--f-mono); font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-soft); margin:20px 0 10px;}
+.mini-title:first-child{margin-top:4px;}
+.tag-sim{display:inline-block; font-family:var(--f-mono); font-size:10.5px; font-weight:700; letter-spacing:.1em; color:var(--sim); background:var(--tint-sim); border:1px solid color-mix(in srgb, var(--sim) 40%, transparent); border-radius:6px; padding:1px 7px; margin:0 2px; vertical-align:middle;}
+.definition{position:relative; padding:20px 22px 20px 24px; border-radius:16px; background:linear-gradient(135deg, var(--tint-blue), transparent 80%); border:1px solid color-mix(in srgb, var(--blue) 25%, transparent);}
+.definition .term{display:block; font-family:var(--f-display); font-weight:700; font-size:18px; color:var(--blue-deep); margin-bottom:4px;}
+.definition p{margin:0; font-size:17px;}
+.points{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; margin:14px 0;}
+.point{padding:14px 16px; border-radius:14px; background:var(--bg-soft); border:1px solid var(--line); border-top:3px solid var(--blue);}
+.point.warn{border-top-color:var(--red);}
+.point.ok{border-top-color:var(--ok);}
+.point b{display:block; font-weight:800; margin-bottom:4px;}
+.point p{margin:0; color:var(--ink-soft); font-size:15px; line-height:1.6;}
+.checklist{list-style:none; padding:0; margin:0; display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:8px;}
+.checklist li{display:flex; gap:10px; align-items:flex-start; padding:10px 14px; border-radius:12px; background:var(--tint-ok); border:1px solid color-mix(in srgb,var(--ok) 25%,transparent); font-weight:600; font-size:15px; line-height:1.45;}
+.checklist li::before{content:"✓"; color:var(--ok); font-weight:800;}
+.io{display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); gap:12px; align-items:stretch; margin:14px 0;}
+.io-cell{padding:14px 16px; border-radius:14px; background:var(--bg-soft); border:1px solid var(--line); font-weight:700; line-height:1.45;}
+.io-cell .l{display:block; font-family:var(--f-mono); font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--blue); margin-bottom:5px; font-weight:700;}
+.io-arrow{display:grid; place-items:center; font-size:22px; color:var(--blue); font-weight:800;}
+@media(max-width:640px){ .io{grid-template-columns:minmax(0,1fr);} .io-arrow{transform:rotate(90deg);} }
+
+/* ---------- висновок ---------- */
+.takeaway{position:relative; overflow:hidden; display:grid; grid-template-columns:auto minmax(0,1fr); gap:18px; align-items:start; padding:24px clamp(18px,3vw,28px);
+  border-radius:20px; margin:26px 0 6px; color:#fff; scroll-margin-top:90px;
+  background:radial-gradient(420px 220px at 100% 0%, rgba(47,217,187,.35), transparent 65%), linear-gradient(135deg, #15204f, #1d3270);
+  box-shadow:var(--shadow-lg);}
+.tk-icon{width:46px; height:46px; border-radius:14px; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.2); display:grid; place-items:center; font-size:20px; font-weight:800; color:#8ff2dd;}
+.tk-label{font-family:var(--f-mono); font-size:11px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:#8ff2dd;}
+.takeaway p{margin:6px 0 0; color:rgba(240,244,255,.9); font-size:16.5px; line-height:1.65; max-width:84ch;}
+
+/* ---------- акордеони ---------- */
+details.acc{border:1px solid var(--line); border-radius:14px; margin-bottom:10px; overflow:hidden; background:var(--bg-panel); transition:border-color .2s, box-shadow .2s;}
+details.acc[open]{border-color:color-mix(in srgb, var(--blue) 35%, var(--line)); box-shadow:0 6px 20px rgba(36,71,184,.07);}
+details.acc summary{cursor:pointer; list-style:none; padding:14px 16px 14px 18px; display:flex; justify-content:space-between; gap:12px; align-items:center;
+  font-weight:700; font-size:15.5px; line-height:1.4; transition:background .15s;}
+details.acc summary::-webkit-details-marker{display:none;}
+details.acc summary:hover{background:var(--bg-soft); color:var(--blue-deep);}
+details.acc summary .arrow{flex:0 0 auto; width:28px; height:28px; border-radius:50%; display:grid; place-items:center; font-size:9px; color:var(--blue);
+  background:var(--tint-blue); transition:transform .25s;}
+details.acc[open] summary .arrow{transform:rotate(90deg);}
+details.acc .acc-body{padding:14px 20px 8px; max-width:86ch; border-top:1px dashed var(--line);}
+
+/* ---------- сітки й картки ---------- */
+.grid2{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px;}
+.grid3{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px;}
+.grid4{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px;}
+.grid5{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px;}
+@media(max-width:900px){.grid4{grid-template-columns:repeat(2,minmax(0,1fr));}}
+@media(max-width:800px){.grid2,.grid3{grid-template-columns:minmax(0,1fr);}}
+@media(max-width:480px){.grid4{grid-template-columns:minmax(0,1fr);}}
+.card{background:var(--bg-soft); border:1px solid var(--line); border-radius:14px; padding:16px 18px; min-width:0; line-height:1.55;}
+.card h4{color:var(--blue-deep); font-size:15.5px; margin-bottom:6px;}
+.card p:last-child{margin-bottom:0;}
+.card .k{font-family:var(--f-mono); font-size:11.5px; color:var(--ink-soft);}
+a.card{color:inherit; text-decoration:none; cursor:pointer; transition:.2s;}
+a.card:hover{border-color:var(--blue); transform:translateY(-3px); box-shadow:var(--shadow);}
+.levels .card{position:relative; padding-top:18px; overflow:hidden;}
+.lvl-n{position:absolute; right:12px; top:4px; font-family:var(--f-display); font-weight:800; font-size:48px; line-height:1; color:var(--blue); opacity:.13;}
+.levels .card:nth-child(2){border-color:color-mix(in srgb, var(--blue) 30%, var(--line));}
+.levels .card:nth-child(3){border-color:color-mix(in srgb, var(--ok) 40%, var(--line)); background:linear-gradient(160deg, var(--tint-ok), var(--bg-soft) 70%);}
+.levels .ex{margin-top:10px; padding-top:10px; border-top:1px dashed var(--line-strong); font-size:14.5px; color:var(--ink-soft);}
+.plan-card{display:flex; flex-direction:column; gap:4px; background:var(--bg-panel);}
+.plan-card .plan-n{font-family:var(--f-display); font-weight:800; font-size:30px; line-height:1; margin-bottom:8px;
+  background:linear-gradient(140deg, var(--blue), var(--ok)); -webkit-background-clip:text; background-clip:text; color:transparent;}
+.plan-card p{color:var(--ink-soft); font-size:14.5px; flex:1;}
+.plan-card .k{color:var(--blue-deep); font-weight:700;}
+.src-card{background:var(--bg-panel); text-align:left;}
+.src-card .l{font-family:var(--f-mono); font-size:11px; color:var(--ink-soft); margin-top:8px;}
+.src-card .big{font-family:var(--f-display); font-weight:800; font-size:34px; line-height:1.1; color:var(--blue-deep);}
+
+/* ---------- кнопки ---------- */
+.btn{font-family:var(--f-body); font-weight:700; font-size:13.5px; cursor:pointer; border:1px solid var(--core); background:var(--core); color:#fff; padding:9px 16px; border-radius:11px; transition:.18s; line-height:1.3;}
+.btn:hover{background:var(--blue); border-color:var(--blue); color:#fff; transform:translateY(-1px);}
+.btn.ghost{background:var(--bg-panel); color:var(--ink); border-color:var(--line-strong);}
+.btn.ghost:hover{border-color:var(--blue); color:var(--blue-deep); background:var(--tint-blue);}
+.btn.warn{background:var(--bg-panel); color:var(--red); border-color:color-mix(in srgb, var(--red) 45%, transparent);}
+.btn.warn:hover{background:var(--tint-red); color:var(--red);}
+.btn.small{padding:6px 12px; font-size:12.5px; border-radius:9px;}
+.btn.active{background:var(--blue); border-color:var(--blue); color:#fff; box-shadow:0 4px 12px color-mix(in srgb, var(--blue) 30%, transparent);}
+.btn:disabled{opacity:.5; cursor:default; transform:none;}
+.btn.active:disabled{opacity:1;}
+.btnrow{display:flex; gap:8px; flex-wrap:wrap; margin:12px 0; align-items:center;}
+
+/* ---------- сцени симуляторів ---------- */
+.mindmap-wrap{background:radial-gradient(var(--grid-dot) 1px, transparent 1.2px) 0 0/18px 18px, var(--bg-soft); border:1px solid var(--line); border-radius:16px; padding:14px; margin:14px 0; overflow-x:auto;}
+.mindmap-wrap svg{width:100%; min-width:560px; height:auto; display:block;}
+.sim-stage{background:var(--bg-soft); border:1px solid var(--line); border-radius:16px; padding:12px; overflow-x:auto;}
+.sim-stage svg{width:100%; height:auto; display:block;}
+.sim-log{position:relative; background:var(--bg-soft); border:1px solid var(--line); border-radius:12px; padding:11px 16px 11px 34px; font-size:14.5px; line-height:1.55; min-height:46px; margin-top:10px; color:var(--ink);}
+.sim-log::before{content:"›"; position:absolute; left:14px; top:8px; font-family:var(--f-mono); font-weight:700; font-size:18px; color:var(--sim);}
+.result-box{background:linear-gradient(135deg, var(--tint-blue), transparent 85%), var(--bg-panel); border:1px solid color-mix(in srgb, var(--blue) 35%, var(--line)); border-radius:14px; padding:16px 20px; margin-top:10px;}
+.result-box .big{font-size:24px; line-height:1.3; color:var(--blue-deep); font-family:var(--f-display); font-weight:700; font-variant-numeric:tabular-nums; margin:2px 0;}
+
+/* svg tokens */
+.sv-bg{fill:var(--bg-soft);} .sv-node{fill:var(--bg-panel); stroke:var(--line-strong); stroke-width:2;}
+.sv-core{fill:var(--core);} .sv-core-t{fill:#ffffff;} .sv-core-t2{fill:#9fd8ff;}
+.sv-t{fill:var(--ink); font-family:var(--f-body); font-size:13px;} .sv-ts{fill:var(--ink-soft); font-family:var(--f-mono); font-size:10.5px;}
+.sv-line{stroke:var(--line-strong); stroke-width:2; fill:none;} .sv-arrow{fill:var(--ink-soft);}
+.st-blue{stroke:var(--blue);} .st-red{stroke:var(--red);} .st-olive{stroke:var(--olive);} .st-ok{stroke:var(--ok);}
+.sv-node.on{fill:var(--tint-blue); stroke:var(--blue); stroke-width:3;}
+.sv-node.done{stroke:var(--ok);}
+.sv-res{fill:var(--blue-deep);} .sv-avail{fill:var(--tint-ok); stroke:var(--ok); stroke-width:2;}
+.sv-shelf{stroke:var(--red); stroke-width:2.5; stroke-dasharray:5 4;}
+.sv-wt{fill:#fff; font-family:var(--f-mono); font-size:13px; font-weight:700;}
+.sv-it{fill:var(--ink); font-family:var(--f-mono); font-size:13px; font-weight:700;}
+
+/* ---------- таблиці ---------- */
+.table-wrap{overflow-x:auto; margin:12px 0; border:1px solid var(--line); border-radius:14px; background:var(--bg-panel);}
+table{border-collapse:separate; border-spacing:0; width:100%; font-size:14.5px;}
+th,td{padding:10px 14px; text-align:left; vertical-align:top; border-bottom:1px solid var(--line);}
+tbody tr:last-child td{border-bottom:none;}
+th{background:var(--bg-soft); font-size:11.5px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-soft);}
+tbody tr:nth-child(even) td{background:color-mix(in srgb, var(--bg-soft) 60%, transparent);}
+td.num, th.num{text-align:right; font-variant-numeric:tabular-nums; font-family:var(--f-mono);}
+caption{caption-side:top; text-align:left; font-family:var(--f-mono); font-size:11.5px; font-weight:700; letter-spacing:.06em; color:var(--ink-soft); padding:12px 14px 10px; border-bottom:1px solid var(--line);}
+tr.hl td{background:var(--tint-blue) !important;}
+tr.hl td:first-child{box-shadow:inset 3px 0 0 var(--blue);}
+
+/* ---------- кроки ---------- */
+.steps{counter-reset:step; margin-top:12px;}
+.step{position:relative; padding:6px 10px 16px 34px; border-left:2px solid var(--line-strong); margin-left:14px;}
+.step:last-child{border-left-color:transparent;}
+.step::before{counter-increment:step; content:counter(step); position:absolute; left:-15px; top:4px; width:28px; height:28px; border-radius:50%;
+  background:linear-gradient(135deg, var(--blue), var(--ok)); color:#fff; display:flex; align-items:center; justify-content:center; font-family:var(--f-display); font-weight:700; font-size:12px; box-shadow:0 0 0 4px var(--bg-panel);}
+.step b{font-weight:800;}
+
+/* ---------- виноски ---------- */
+.callout{--c:var(--red); --ct:var(--tint-red); position:relative; border:1px solid color-mix(in srgb, var(--c) 26%, transparent); border-left:4px solid var(--c); background:var(--ct);
+  padding:13px 18px; border-radius:6px 14px 14px 6px; margin:14px 0; max-width:88ch; line-height:1.6;}
+.callout.blue{--c:var(--blue); --ct:var(--tint-blue);}
+.callout.ok{--c:var(--ok); --ct:var(--tint-ok);}
+.callout > b:first-child{display:block; color:var(--c); font-weight:800; margin-bottom:2px;}
+.callout.blue > b:first-child{color:var(--blue-deep);}
+
+/* ---------- поля ---------- */
+.field{display:flex; flex-direction:column; gap:5px; font-size:12px; font-weight:700; color:var(--ink-soft);}
+.field input, .field select{font-family:var(--f-mono); font-size:15px; padding:9px 11px; border:1px solid var(--line-strong); border-radius:10px; background:var(--bg-panel); color:var(--ink); width:100%; transition:border-color .15s, box-shadow .15s;}
+.field input:focus, .field select:focus, .field textarea:focus{outline:none; border-color:var(--blue); box-shadow:0 0 0 3px var(--tint-blue);}
+.calc{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin:12px 0; padding:16px; border-radius:14px; background:var(--bg-soft); border:1px solid var(--line);}
+.kv{display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:10px; margin-top:10px;}
+.kv > div{background:var(--bg-panel); border:1px solid var(--line); border-radius:14px; padding:12px 14px; min-width:0;}
+.kv .l{font-family:var(--f-mono); font-size:10.5px; font-weight:700; color:var(--ink-soft); letter-spacing:.08em;}
+.kv .v{font-family:var(--f-display); font-weight:700; font-size:20px; line-height:1.35; font-variant-numeric:tabular-nums;}
+.kv .v.red{color:var(--red);} .kv .v.ok{color:var(--ok);} .kv .v.blue{color:var(--blue-deep);}
+.kv .k{font-size:12px; color:var(--ink-soft);}
+
+/* класифікатор */
+.cls-item{display:flex; flex-wrap:wrap; gap:8px 12px; align-items:center; justify-content:space-between; padding:11px 14px; border:1px solid var(--line); border-radius:12px; background:var(--bg-panel); margin-bottom:8px; transition:.2s;}
+.cls-item .txt{flex:1 1 260px; min-width:0; font-weight:600;}
+.cls-item .opts{display:flex; gap:6px; flex-wrap:wrap;}
+.cls-item.right{border-color:var(--ok); background:var(--tint-ok);}
+.cls-item.wrong{border-color:var(--red); background:var(--tint-red);}
+.cls-item .fb{flex-basis:100%; font-size:14px; color:var(--ink-soft);}
+
+/* картки-перевертні */
+.flip{cursor:pointer; text-align:left; font:inherit; color:inherit; width:100%; background:var(--bg-panel); transition:.2s;}
+.flip:hover{border-color:var(--blue); transform:translateY(-2px);}
+.flip .back{display:none; color:var(--ink-soft); font-size:14px; margin-top:8px; padding-top:8px; border-top:1px dashed var(--line-strong);}
+.flip.open .back{display:block;}
+.flip.open{border-color:var(--blue); background:linear-gradient(160deg, var(--tint-blue), var(--bg-panel) 70%);}
+.flip .hint{font-family:var(--f-mono); font-size:11px; color:var(--blue); margin-top:6px;}
+.flip.open .hint{display:none;}
+.badge{display:inline-block; font-family:var(--f-mono); font-size:11px; font-weight:700; padding:2px 9px; border-radius:20px; border:1px solid currentColor;}
+.badge.ok{color:var(--ok);} .badge.red{color:var(--red);} .badge.olive{color:var(--olive-ink);} .badge.blue{color:var(--blue-deep);}
+
+.role-out{min-height:84px;}
+
+/* ---------- практика й тест ---------- */
+.quiz-q{border:1px solid var(--line); border-radius:var(--radius); padding:20px clamp(16px,2.6vw,24px); margin-bottom:14px; background:var(--bg-panel); box-shadow:var(--shadow);}
+.quiz-q h4{font-size:16.5px; margin-bottom:12px; display:flex; gap:10px; align-items:baseline;}
+.quiz-q textarea{font-family:var(--f-body) !important; border-radius:10px !important;}
+.opt{display:block; width:100%; text-align:left; margin-bottom:8px; padding:11px 14px; border-radius:11px; border:1px solid var(--line-strong); background:var(--bg-soft); color:var(--ink); cursor:pointer; font-family:var(--f-body); font-size:15px; font-weight:600; transition:.15s;}
+.opt:hover:not(:disabled){border-color:var(--blue); background:var(--tint-blue);}
+.opt:disabled{cursor:default;}
+.opt.correct{background:var(--tint-ok); border-color:var(--ok); color:var(--ink);}
+.opt.correct::after{content:"  ✓"; color:var(--ok); font-weight:800;}
+.opt.wrong{background:var(--tint-red); border-color:var(--red);}
+.quiz-fb{font-size:14.5px; margin-top:8px; color:var(--ink-soft); padding:10px 14px; border-radius:10px; background:var(--bg-soft);}
+#quizScoreBar{position:sticky; bottom:calc(env(safe-area-inset-bottom,0px) + 12px); background:linear-gradient(135deg, var(--core), var(--core-2)); color:#fff; padding:12px 14px 12px 20px; border-radius:16px; font-weight:700; display:flex; flex-wrap:wrap; gap:10px; justify-content:space-between; align-items:center; box-shadow:var(--shadow-lg);}
+#quizScore{font-family:var(--f-display);}
+#quizScoreBar .btn{background:#fff; color:var(--core); border-color:#fff;}
+.idx{font-family:var(--f-mono); font-size:12px; color:#fff; background:linear-gradient(135deg, var(--sim), var(--red)); padding:3px 9px; border-radius:7px; font-weight:700; flex:0 0 auto;}
+
+/* ---------- глосарій ---------- */
+.gloss{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin:0;}
+@media(max-width:800px){.gloss{grid-template-columns:minmax(0,1fr);}}
+.gloss div{padding:14px 16px; border:1px solid var(--line); border-radius:14px; background:var(--bg-panel); border-left:3px solid var(--blue);}
+.gloss dt{font-weight:800; color:var(--blue-deep); font-size:15.5px;}
+.gloss dd{margin:4px 0 0; color:var(--ink-soft); font-size:15px; line-height:1.55;}
+footer{text-align:center; color:var(--ink-soft); font-family:var(--f-mono); font-size:11.5px; padding:24px 0 0;}
+
+
+/* ---------- поява під час прокручування ---------- */
+.rv{opacity:0; transform:translateY(26px); transition:opacity .7s ease, transform .8s cubic-bezier(.16,1,.3,1); transition-delay:calc(var(--i,0) * 70ms);}
+.rv.from-top{transform:translateY(-26px);}
+.rv.in{opacity:1; transform:none;}
+
+/* ---------- ментальні карти: поява + відштовхування ---------- */
+.mindmap-wrap svg, .sim-stage svg{overflow:visible;}
+.mm-node .mm-in{transform-box:fill-box; transform-origin:center;}
+.mm-node rect{transition:stroke-width .2s, filter .25s;}
+.mm-node.mm-hot rect{stroke-width:3; filter:drop-shadow(0 8px 16px rgba(36,71,184,.28));}
+.mm-wait .mm-in, .mm-wait .mm-link{opacity:0;}
+.mm-anim .mm-in{animation:mmPop .75s cubic-bezier(.2,1.35,.4,1) both; animation-delay:calc(var(--i,0) * 95ms + 80ms);}
+@keyframes mmPop{from{opacity:0; transform:translateY(14px) scale(.8);} to{opacity:1; transform:none;}}
+
+/* ---------- графіки ---------- */
+.ch-wait rect[data-i], .ch-wait .sv-res, .ch-wait .sv-avail{opacity:0;}
+.ch-anim rect[data-i]{transform-box:fill-box; transform-origin:50% 100%; animation:barUp .8s cubic-bezier(.2,1,.3,1) both; animation-delay:calc(var(--i,0) * 55ms);}
+.ch-anim .sv-res, .ch-anim .sv-avail{transform-box:fill-box; transform-origin:0 50%; animation:barRight .9s cubic-bezier(.2,1,.3,1) both; animation-delay:calc(var(--i,0) * 180ms + 100ms);}
+@keyframes barUp{from{transform:scaleY(0);} to{transform:none;}}
+@keyframes barRight{from{transform:scaleX(0);} to{transform:none;}}
+
+/* ---------- картки-перевертні ---------- */
+.fcard{position:relative; perspective:1100px; cursor:pointer; outline:none; min-width:0; -webkit-tap-highlight-color:transparent;}
+.fcard-inner{display:grid; height:100%; transform-style:preserve-3d; transition:transform .8s cubic-bezier(.3,1.3,.45,1);}
+.fcard:hover .fcard-inner{transform:rotateY(-8deg) rotateX(3deg);}
+.fcard.flipped .fcard-inner{transform:rotateY(180deg);}
+.fcard.flipped:hover .fcard-inner{transform:rotateY(172deg) rotateX(3deg);}
+.fcard:focus-visible .fcard-face{outline:2px solid var(--blue-bright); outline-offset:2px;}
+.fcard-face{grid-area:1 / 1; position:relative; overflow:hidden; display:flex; flex-direction:column; min-height:136px; padding:16px 18px;
+  border-radius:16px; border:1px solid var(--line); -webkit-backface-visibility:hidden; backface-visibility:hidden;}
+.fcard-face.front{background:linear-gradient(155deg, var(--bg-panel) 30%, var(--bg-soft)); box-shadow:var(--shadow);}
+.fcard-face.front::after{content:""; position:absolute; right:-36px; top:-36px; width:120px; height:120px; border-radius:50%; background:radial-gradient(circle, var(--tint-blue), transparent 70%); pointer-events:none;}
+.fcard-face.front h4{margin:auto 0 0; padding-top:14px; font-size:16.5px; line-height:1.3; color:var(--ink);}
+.fnum{font-family:var(--f-display); font-weight:800; font-size:13px; color:var(--blue);}
+.fval{font-family:var(--f-mono); font-size:15px; color:var(--blue-deep); margin-top:4px;}
+.fhint{margin-top:10px; font-family:var(--f-mono); font-size:10.5px; letter-spacing:.06em; color:var(--ink-soft); transition:color .2s;}
+.fcard:hover .fhint{color:var(--blue);}
+.fcard-face.back{transform:rotateY(180deg); font-size:14.5px; line-height:1.55; color:var(--ink);
+  background:linear-gradient(155deg, var(--tint-blue), transparent 75%), var(--bg-panel); border-color:color-mix(in srgb, var(--blue) 40%, var(--line)); box-shadow:var(--shadow);}
+.fback-t{font-family:var(--f-mono); font-size:10.5px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--blue); margin-bottom:8px;}
+.fcard-face.back p{margin:6px 0 0;}
+.fcard-face.back .badge{align-self:flex-start;}
+.fcard-face.back .ex{margin-top:10px; padding-top:10px; border-top:1px dashed var(--line-strong); font-size:14px; color:var(--ink-soft);}
+.fcard.lvl .lvl-n{position:absolute; right:14px; top:6px; font-family:var(--f-display); font-weight:800; font-size:54px; line-height:1; color:var(--blue); opacity:.16;}
+.levels .fcard:nth-child(2) .fcard-face{border-color:color-mix(in srgb, var(--blue) 30%, var(--line));}
+.levels .fcard:nth-child(3) .fcard-face{border-color:color-mix(in srgb, var(--ok) 45%, var(--line));}
+.levels .fcard:nth-child(3) .front{background:linear-gradient(155deg, var(--tint-ok), var(--bg-panel) 70%);}
+
+@media (prefers-reduced-motion: reduce){ .rv{opacity:1; transform:none;} .fcard:hover .fcard-inner{transform:none;} .fcard.flipped .fcard-inner{transform:rotateY(180deg);} }
+
+@media (prefers-reduced-motion: reduce){ *{animation:none !important; transition:none !important;} html{scroll-behavior:auto;} }
+
+/* ================= Самостійна робота: компоненти сторінки ================= */
+.block-head .pick{margin-left:auto; align-self:center;}
+@media(max-width:640px){ .block-head{flex-wrap:wrap;} .block-head .pick{margin-left:62px;} }
+
+.task-box{position:relative; padding:18px 22px; border-radius:16px; margin-bottom:14px; max-width:92ch; font-size:16.5px; line-height:1.65;
+  background:linear-gradient(135deg, var(--tint-blue), transparent 80%); border:1px solid color-mix(in srgb, var(--blue) 25%, transparent);}
+.callout b.lbl{display:block; font-family:var(--f-mono); font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--c); margin-bottom:4px;}
+.callout.important{--c:var(--red); --ct:var(--tint-red);}
+.callout.attention{--c:var(--olive); --ct:var(--tint-olive);}
+.callout.attention b.lbl{color:var(--olive-ink);}
+.callout.advice{--c:var(--ok); --ct:var(--tint-ok);}
+
+/* картки питань на огляді */
+.qcard{position:relative;}
+.qcard.chosen{border-color:color-mix(in srgb, var(--ok) 55%, transparent); background:linear-gradient(160deg, var(--tint-ok), var(--bg-panel) 70%);}
+.qstar{position:absolute; right:14px; top:14px; font-size:11.5px; font-weight:800; color:var(--ok); background:var(--tint-ok); border:1px solid color-mix(in srgb, var(--ok) 40%, transparent); padding:3px 10px; border-radius:999px;}
+
+/* кнопки */
+.btn.big{font-size:15px; padding:13px 24px; border-radius:13px; background:linear-gradient(135deg, var(--core), var(--core-2)); border-color:transparent; box-shadow:0 10px 24px rgba(27,37,89,.25);}
+.btn.big:hover{background:var(--blue);}
+.btn.x{padding:4px 9px; font-size:12px; background:transparent; color:var(--red); border-color:var(--line-strong); border-radius:8px;}
+.btn.x:hover{background:var(--tint-red); color:var(--red); border-color:var(--red); transform:none;}
+.btnrow.qsteps{justify-content:space-between; margin-top:2px;}
+
+/* таблиця джерел */
+table.edit{min-width:760px;}
+table.edit td{padding:7px 8px; vertical-align:middle;}
+table.edit td.n, table.edit th.n{width:40px; text-align:center; font-family:var(--f-mono); color:var(--ink-soft);}
+table.edit td.del, table.edit th.del{width:48px; text-align:center;}
+table.edit input, table.edit select, table.edit textarea{width:100%; border:1px solid var(--line-strong); border-radius:9px; padding:7px 9px; font-family:var(--f-body); font-size:14px; background:var(--bg-panel); color:var(--ink); transition:border-color .15s, box-shadow .15s;}
+
+/* поля записки */
+.fld{margin-bottom:16px;}
+.fld label{display:block; font-size:14px; font-weight:800; color:var(--ink); margin-bottom:6px;}
+textarea, input.txt, select.txt{width:100%; border:1px solid var(--line-strong); border-radius:12px; padding:11px 13px; font-family:var(--f-body); font-size:15.5px; line-height:1.55; background:var(--bg-panel); color:var(--ink); resize:vertical; transition:border-color .15s, box-shadow .15s;}
+textarea{min-height:84px;}
+textarea::placeholder, input.txt::placeholder{color:var(--ink-soft); opacity:.75;}
+textarea:focus, input.txt:focus, select.txt:focus, table.edit input:focus, table.edit textarea:focus, table.edit select:focus{outline:none; border-color:var(--blue); box-shadow:0 0 0 3px var(--tint-blue);}
+.wc{font-family:var(--f-mono); font-size:11px; color:var(--ink-soft); text-align:right; margin-top:4px;}
+.wc.ok{color:var(--ok);} .wc.bad{color:var(--red);}
+
+/* вибір, чек-листи, перемикачі */
+.choice{display:flex; gap:8px; flex-wrap:wrap; margin:6px 0 12px;}
+.choice button{font-family:var(--f-body); font-weight:700; font-size:14.5px; padding:10px 16px; border-radius:12px; border:1px solid var(--line-strong); background:var(--bg-panel); color:var(--ink); cursor:pointer; transition:.18s;}
+.choice button:hover{border-color:var(--blue); background:var(--tint-blue);}
+.choice button.on{background:var(--blue); border-color:var(--blue); color:#fff; box-shadow:0 4px 12px color-mix(in srgb, var(--blue) 30%, transparent);}
+.check{display:flex; gap:12px; align-items:flex-start; padding:12px 14px; border:1px solid var(--line); border-radius:12px; margin-bottom:8px; background:var(--bg-panel); cursor:pointer; font-weight:600; line-height:1.5; transition:background .2s, border-color .2s;}
+.check:hover{border-color:var(--line-strong);}
+.check input{width:20px; height:20px; margin-top:2px; accent-color:var(--ok); flex:none;}
+.check.done{background:var(--tint-ok); border-color:color-mix(in srgb, var(--ok) 50%, transparent);}
+.toggle{display:flex; gap:12px; align-items:flex-start; padding:12px 14px; border:1px solid var(--line); border-radius:12px; background:var(--bg-panel); cursor:pointer; margin-bottom:8px; font-weight:600; line-height:1.5; transition:background .2s, border-color .2s;}
+.toggle input{width:20px; height:20px; margin-top:2px; accent-color:var(--red); flex:none;}
+.toggle.on{border-color:color-mix(in srgb, var(--red) 55%, transparent); background:var(--tint-red);}
+.req-list{display:flex; flex-wrap:wrap; gap:6px; margin:8px 0;}
+.req{font-family:var(--f-mono); font-size:12px; padding:3px 9px; border-radius:20px; border:1px solid var(--line); color:var(--ink-soft);}
+.req.on{border-color:var(--ok); color:var(--ok); background:var(--tint-ok);}
+.req.on::before{content:"✓ ";}
+.order-item{display:flex; gap:10px; align-items:center; padding:10px 14px; border:1px solid var(--line); border-radius:12px; background:var(--bg-panel); margin-bottom:6px;}
+.order-item .n{font-family:var(--f-display); color:var(--blue); font-weight:700; width:24px;}
+.order-item .t{flex:1; min-width:0;}
+.order-item.good{border-color:var(--ok); background:var(--tint-ok);}
+.order-item.bad{border-color:var(--red); background:var(--tint-red);}
+.kv .v:not(.red):not(.ok){color:var(--blue-deep);}
+
+/* тест */
+.block .quiz-q{background:var(--bg-soft); box-shadow:none;}
+.quiz-opt{display:block; width:100%; text-align:left; margin-bottom:8px; padding:11px 14px; border-radius:11px; border:1px solid var(--line-strong); background:var(--bg-panel); color:var(--ink); cursor:pointer; font-family:var(--f-body); font-size:15px; font-weight:600; transition:.15s;}
+.quiz-opt:hover:not(:disabled){border-color:var(--blue); background:var(--tint-blue);}
+.quiz-opt:disabled{cursor:default;}
+.quiz-opt.correct{background:var(--tint-ok); border-color:var(--ok);}
+.quiz-opt.correct::after{content:"  ✓"; color:var(--ok); font-weight:800;}
+.quiz-opt.wrong{background:var(--tint-red); border-color:var(--red);}
+
+/* заповненість: смуги ростуть під час появи */
+.stat{display:grid; grid-template-columns:minmax(170px,1.4fr) 3fr minmax(70px,auto); gap:14px; align-items:center; padding:10px 14px; border:1px solid var(--line); border-radius:12px; background:var(--bg-soft); margin-bottom:8px; font-size:14px; font-weight:600;}
+.stat > span:last-child{font-family:var(--f-mono); text-align:right; color:var(--ink-soft);}
+.stat .bar, .sb .bar{height:10px; background:var(--bg-panel); border:1px solid var(--line); border-radius:6px; overflow:hidden;}
+.stat .bar i, .sb .bar i{display:block; height:100%; border-radius:6px; background:linear-gradient(90deg, var(--blue), var(--ok)); transform-origin:0 50%; transition:transform 1s cubic-bezier(.2,1,.3,1) .2s;}
+.stat.rv .bar i{transform:scaleX(0);}
+.stat.rv.in .bar i{transform:none;}
+@media(max-width:600px){ .stat{grid-template-columns:1fr auto;} .stat .bar{grid-column:1 / -1; grid-row:2;} }
+.score-bars{display:grid; gap:8px; margin-top:10px;}
+.sb{display:grid; grid-template-columns:minmax(180px,1.6fr) 3fr 48px; gap:12px; align-items:center; font-size:14.5px;}
+.sb .pt{font-family:var(--f-mono); text-align:right;}
+@media(max-width:600px){ .sb{grid-template-columns:1fr 48px;} .sb .bar{grid-column:1 / -1; grid-row:2;} }
+.codebox{position:relative; background:#0b1022; color:#dfe6ff; border-radius:14px; padding:14px 16px; margin:12px 0;}
+.codebox pre{margin:0; white-space:pre-wrap; font-family:var(--f-mono); font-size:13px; line-height:1.6; padding-right:96px;}
+.codebox .btn{position:absolute; top:10px; right:10px; background:rgba(255,255,255,.1); border-color:rgba(255,255,255,.3); color:#fff;}
+
+/* питання і тренажери: навігатор */
+.qlayout{display:grid; grid-template-columns:minmax(220px,268px) minmax(0,1fr); gap:20px; align-items:start;}
+.qnav{display:flex; flex-direction:column; gap:4px; position:sticky; top:84px; padding:12px 10px; background:var(--bg-panel); border:1px solid var(--line); border-radius:18px; box-shadow:var(--shadow);}
+.qnav::before{content:"Вісім питань"; font-family:var(--f-mono); font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--ink-soft); padding:2px 8px 6px;}
+.qbtn{display:flex; gap:10px; align-items:flex-start; text-align:left; padding:9px 10px; border:1px solid transparent; border-radius:11px; background:transparent; color:var(--ink-soft); cursor:pointer; font-family:var(--f-body); font-size:13.5px; font-weight:600; line-height:1.38; transition:.15s;}
+.qbtn:hover{background:var(--bg-soft); color:var(--ink);}
+.qbtn.active{background:var(--tint-blue); color:var(--ink); box-shadow:inset 3px 0 0 var(--blue); font-weight:800;}
+.qbtn .num{font-family:var(--f-display); font-weight:700; font-size:12px; color:var(--blue); flex:0 0 auto; min-width:16px; padding-top:1px;}
+.qbtn .st{margin-left:auto; color:var(--ok); font-size:14px; flex:0 0 auto;}
+#qview{min-width:0;}
+@media(max-width:900px){
+  .qlayout{grid-template-columns:minmax(0,1fr);}
+  .qnav{top:72px; z-index:40; flex-direction:row; overflow-x:auto; padding:8px; border-radius:14px; background:var(--nav-bg); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); scrollbar-width:none;}
+  .qnav::-webkit-scrollbar{display:none;}
+  .qnav::before{display:none;}
+  .qnav .qbtn{flex:0 0 auto; max-width:240px; white-space:nowrap; border-color:var(--line); background:var(--bg-panel);}
+}
+.pick{flex:none; font-family:var(--f-body); font-weight:800; font-size:13.5px; padding:10px 16px; border-radius:12px; border:1px solid color-mix(in srgb, var(--ok) 55%, transparent); background:var(--bg-panel); color:var(--ok); cursor:pointer; transition:.18s; white-space:nowrap;}
+.pick:hover:not(:disabled){background:var(--tint-ok);}
+.pick.on{background:var(--ok); border-color:var(--ok); color:var(--on-ink); box-shadow:0 6px 16px color-mix(in srgb, var(--ok) 35%, transparent);}
+.pick:disabled{opacity:.45; cursor:not-allowed;}
+.sel-bar{display:flex; flex-wrap:wrap; gap:8px 10px; align-items:center; padding:12px 16px; border:1px dashed color-mix(in srgb, var(--ok) 55%, transparent); border-radius:14px; background:var(--tint-ok); margin-bottom:18px; font-size:14px; font-weight:700;}
+.sel-bar .chip{background:var(--bg-panel); font-weight:700; border-radius:999px;}
+.hintcards{margin-top:4px;}
+.hintcards .fcard-face{min-height:150px;}
+.hintcards .fcard-face.back{font-size:15px;}
+
+/* записка */
+.hint-line{font-size:14px; font-weight:600; padding:10px 14px; border-radius:12px; margin:-4px 0 6px; border:1px solid var(--line); background:var(--bg-soft); color:var(--ink-soft);}
+.hint-line.warn{border-color:color-mix(in srgb, var(--olive) 55%, transparent); background:var(--tint-olive); color:var(--ink);}
+.hint-line.good{border-color:color-mix(in srgb, var(--ok) 55%, transparent); background:var(--tint-ok); color:var(--ink);}
+.src-links{display:flex; flex-wrap:wrap; gap:8px;}
+.src-links label{display:flex; gap:6px; align-items:center; font-size:13px; font-weight:600; padding:6px 12px; border:1px solid var(--line-strong); border-radius:999px; cursor:pointer; background:var(--bg-panel); transition:.15s;}
+.src-links label.on{border-color:var(--blue); background:var(--tint-blue); color:var(--blue-deep);}
+.src-preview{margin:0; padding-left:26px; font-size:15px; line-height:1.6;}
+.src-preview li{margin-bottom:6px; padding-left:4px;}
+.src-preview li::marker{font-family:var(--f-mono); color:var(--blue); font-weight:700;}
+.empty{border:1px dashed var(--line-strong); border-radius:18px; padding:28px; text-align:center; color:var(--ink-soft); background:var(--bg-panel); font-weight:600; margin-bottom:16px;}
+.note-block{border:1px solid var(--line); border-radius:var(--radius); padding:18px; margin-bottom:16px; background:var(--bg-panel);}
+
+/* ================= Практичне заняття: розрахунки, схеми, оцінювання ================= */
+/* .calc у дизайн-системі — сітка полів; таблицю тренажера повертаємо до звичайної таблиці */
+table.calc{display:table; min-width:720px; padding:0; margin:0; background:none; border:0; border-radius:0; gap:0;}
+table.calc td{vertical-align:middle;}
+table.calc td input{width:100%; min-width:84px; border:1px solid var(--line-strong); border-radius:9px; padding:7px 9px; font-family:var(--f-mono); font-size:14px; text-align:right; background:var(--bg-panel); color:var(--ink); font-variant-numeric:tabular-nums; transition:border-color .15s, box-shadow .15s, background .2s;}
+table.calc td input:focus{outline:none; border-color:var(--blue); box-shadow:0 0 0 3px var(--tint-blue);}
+table.calc td.na{color:var(--ink-soft); text-align:center; font-family:var(--f-mono);}
+table.calc td input.good{border-color:var(--ok); background:var(--tint-ok);}
+table.calc td input.bad{border-color:var(--red); background:var(--tint-red);}
+table.calc td input.miss{border-color:var(--olive); border-style:dashed;}
+table.calc th.unit, table.calc td.unit{font-family:var(--f-mono); font-size:12px; color:var(--ink-soft); white-space:nowrap;}
+table.calc input[type=checkbox]{width:18px !important; min-width:0 !important; height:18px; accent-color:var(--red); vertical-align:middle;}
+.check-out{font-size:14px; font-weight:700; color:var(--ink-soft);}
+
+.canvas-wrap{background:radial-gradient(var(--grid-dot) 1px, transparent 1.2px) 0 0/18px 18px, var(--bg-soft); border:1px solid var(--line); border-radius:16px; padding:10px; margin:12px 0 4px;}
+.canvas-wrap canvas{display:block; width:100%; height:auto; border-radius:10px;}
+
+/* оцінювання: смуги ростуть під час появи */
+.sb{padding:10px 14px; border:1px solid var(--line); border-radius:12px; background:var(--bg-soft); font-weight:600;}
+.sb .pt{font-family:var(--f-display); font-weight:700; color:var(--blue-deep);}
+.sb.rv .bar i{transform:scaleX(0);}
+.sb.rv.in .bar i{transform:none;}
+
+/* варіанти: передня сторона картки */
+.fprice{font-family:var(--f-mono); font-size:12.5px; color:var(--ink-soft); margin-top:6px; line-height:1.5;}
+.fcard.picked .fcard-face{border-color:var(--blue); box-shadow:0 0 0 3px var(--tint-blue), var(--shadow);}
+
+/* вибір рішення: картки з полями не перевертаються */
+#choiceBlocks .card, #partBlocks .card{background:var(--bg-soft);}
+#choiceBlocks .card h4, #partBlocks .card h4{color:var(--ink); font-size:16px; margin-bottom:10px;}
+#choiceBlocks .choice button{min-width:56px; font-family:var(--f-display); font-size:16px;}
+</style>
+</head>
+<body>
+<div class="frame">
+  <div class="hud-bar">
+    <span><span class="dot"></span>SYSTEM: STEAM‑HUB / IT‑ECONOMY.LAB — ОНЛАЙН · ПРАКТИЧНЕ ЗАНЯТТЯ: 01</span>
+    <button class="theme-btn" id="themeBtn" type="button">☾ Темна тема</button>
+  </div>
+
+  <header class="hero">
+    <span class="hero-num" aria-hidden="true">01</span>
+    <span class="hero-tag">// PRACTICE_01 · ORDER.FLOW + REPORT.DOCX</span>
+    <h1>Практичне заняття 1. Проєкт цифрового опрацювання замовлень</h1>
+    <p class="sub">Інтерактивний робочий зошит до теми 1 «Інформаційні технології — основа розвитку цифрової економіки»: схеми процесів, що будуються під час введення, словник полів із перевіркою, розрахунковий тренажер, діаграма та звіт, який завантажується як файл Word.</p>
+    <div class="hero-meta">
+      <span class="chip"><b>8</b> завдань</span>
+      <span class="chip"><b>3</b> студенти в групі</span>
+      <span class="chip"><b>SIM</b> тренажер розрахунків</span>
+      <span class="chip"><b>.docx</b> звіт у Word</span>
+    </div>
+  </header>
+
+  <nav class="tabs" id="tabsNav" aria-label="Завдання">
+    <button data-t="intro" class="active">🗺 Огляд</button>
+    <button data-t="t1">01 · Поточний процес</button>
+    <button data-t="t2">02 · Новий процес</button>
+    <button data-t="t3">03 · Словник полів</button>
+    <button data-t="t4">04–05 · Розрахунок</button>
+    <button data-t="t6">06 · Змінені умови</button>
+    <button data-t="t7">07 · Рішення</button>
+    <button data-t="t8">08 · Перевірка і висновок</button>
+    <button data-t="quiz">❓ Тест</button>
+    <button data-t="rep">📄 Звіт</button>
+    <div class="nav-progress" aria-hidden="true"><i id="navProgress"></i></div>
+  </nav>
+
+  <!-- ================= OVERVIEW ================= -->
+  <section class="panel active" id="intro">
+    <header class="sec-head">
+      <div class="sec-idx">00</div>
+      <div>
+        <span class="sec-kicker">Огляд</span>
+        <h2>Умова та вихідні дані</h2>
+        <p class="lede"><b>Мета:</b> спроєктувати процес опрацювання замовлень, оцінити варіанти його цифровізації та обґрунтувати рішення за змінених умов. Робота в групах по 3 студенти. Інструменти: електронна таблиця, текстовий редактор і засіб побудови схем.</p>
+        <div class="sec-meta"><span><b>8</b> завдань</span><span><b>3</b> варіанти цифровізації</span><span><b>10</b> балів</span></div>
+      </div>
+    </header>
+    <aside class="sec-toc" aria-label="Зміст розділу"><div class="toc-title">Зміст розділу</div><nav class="toc-list"></nav>
+      <div class="toc-legend"><span style="--k:var(--blue)">умова</span><span style="--k:var(--sim)">інтерактив</span><span style="--k:var(--ok)">таблиці · оцінювання</span></div></aside>
+    <div class="sec-main">
+      <div class="callout important"><b class="lbl">Як працювати із зошитом</b>Виконуйте завдання 1–8 у полях на сторінці. Відповіді автоматично зберігаються в цьому браузері й потрапляють у звіт. На іншому пристрої поля будуть порожні, тому наприкінці відкрийте вкладку «Звіт», впишіть групу та ПІБ учасників і завантажте файл Word.</div>
+
+      <article class="block" data-kind="theory" id="in-1">
+        <header class="block-head"><span class="block-no">1</span><div><span class="kind">◆  Кейс</span><h3>Ситуація «ПолтаваМаркет»</h3></div></header>
+        <div class="task-box">«ПолтаваМаркет» має магазин, склад і службу доставки. Менеджер приймає замовлення телефоном або через форму, переносить дані у власну таблицю, надсилає повідомлення складу в чаті. Склад повідомляє про комплектування у цьому ж чаті. Диспетчер веде окремий список доставок. Номер замовлення не завжди передається між працівниками; виправлення адреси можуть залишитися лише в одному списку.</div>
+        <span class="mini-title">Вихідні дані</span>
+        <div class="kv" style="margin-top:0">
+          <div><div class="l">ЗАМОВЛЕНЬ / МІС</div><div class="v">800</div></div>
+          <div><div class="l">РУЧНЕ ОПРАЦЮВАННЯ</div><div class="v">10 хв</div></div>
+          <div><div class="l">ЧАСТКА ПОМИЛОК</div><div class="v">6 %</div></div>
+          <div><div class="l">ВИТРАТИ НА 1 ПОМИЛКУ</div><div class="v">110 грн</div></div>
+          <div><div class="l">ВАРТІСТЬ ГОДИНИ</div><div class="v">180 грн</div></div>
+          <div><div class="l">РАЗОВИЙ БЮДЖЕТ</div><div class="v">18 000 грн</div></div>
+        </div>
+      </article>
+
+      <article class="block" data-kind="sim" id="in-2">
+        <header class="block-head"><span class="block-no">2</span><div><span class="kind">▶  Інтерактив</span><h3>Таблиця 1.1 · Варіанти цифровізації</h3></div></header>
+        <p class="lede">Натисніть на картку варіанта: вона перевернеться й покаже, на що звернути увагу, а рядок варіанта підсвітиться в таблиці.</p>
+        <div class="grid3" id="varCards"></div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Код</th><th>Рішення</th><th class="num">Разові витрати, грн</th><th class="num">Щомісячні витрати, грн</th><th class="num">Час, хв / замовл.</th><th class="num">Частка помилок</th></tr></thead>
+          <tbody id="varTable"></tbody>
+        </table></div>
+        <div class="callout attention"><b class="lbl">Правила розрахунку</b>Скорочення часу <b>не зменшує</b> фактичну заробітну плату: звільнений час можна використати для обслуговування покупців. Витрати на виправлення помилок і щомісячне обслуговування системи є грошовими витратами. Податки, інфляцію та дисконтування не враховуйте.</div>
+      </article>
+
+      <article class="block" data-kind="theory" id="in-3">
+        <header class="block-head"><span class="block-no">3</span><div><span class="kind">◆  Результат</span><h3>Що подати</h3></div></header>
+        <div class="grid2">
+          <div class="fcard" tabindex="0" role="button" aria-pressed="false"><div class="fcard-inner"><div class="fcard-face front"><span class="fnum">01</span><h4>Електронна таблиця</h4><span class="fhint">↻ натисніть, щоб перевернути</span></div>
+            <div class="fcard-face back"><span class="fback-t">Електронна таблиця</span><p>Формули для двох сценаріїв і діаграма. Результати перенесіть у тренажер на вкладках 04–06: він перевірить числа.</p></div></div></div>
+          <div class="fcard" tabindex="0" role="button" aria-pressed="false"><div class="fcard-inner"><div class="fcard-face front"><span class="fnum">02</span><h4>Документ</h4><span class="fhint">↻ натисніть, щоб перевернути</span></div>
+            <div class="fcard-face back"><span class="fback-t">Документ</span><p>Схеми, словник полів і висновок обсягом 150–200 слів із внеском учасників і результатом взаємної перевірки. Його сформує вкладка «Звіт».</p></div></div></div>
+        </div>
+      </article>
+
+      <article class="block" data-kind="data" id="in-4">
+        <header class="block-head"><span class="block-no">4</span><div><span class="kind">▦  Оцінювання</span><h3>Оцінювання · 10 балів</h3></div></header>
+        <div class="score-bars">
+          <div class="sb"><span>Правильність розрахунків і розмежування ефектів</span><div class="bar"><i style="width:100%"></i></div><span class="pt">3</span></div>
+          <div class="sb"><span>Схеми та словник полів</span><div class="bar"><i style="width:66.7%"></i></div><span class="pt">2</span></div>
+          <div class="sb"><span>Перерахунок змінених умов</span><div class="bar"><i style="width:66.7%"></i></div><span class="pt">2</span></div>
+          <div class="sb"><span>Обґрунтоване рішення й контроль впровадження</span><div class="bar"><i style="width:66.7%"></i></div><span class="pt">2</span></div>
+          <div class="sb"><span>Взаємна перевірка</span><div class="bar"><i style="width:33.3%"></i></div><span class="pt">1</span></div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ================= T1 ================= -->
+  <section class="panel" id="t1">
+    <header class="sec-head">
+      <div class="sec-idx">01</div>
+      <div>
+        <span class="sec-kicker">Завдання 1</span>
+        <h2>Схема поточного процесу</h2>
+        <p class="lede">Побудуйте схему поточного процесу з щонайменше шести операцій. Для кожної операції позначте виконавця, вхідні дані та результат. Визначте чотири конкретні місця виникнення помилок або затримок і поясніть їхній вплив на магазин, склад або доставку.</p>
+      </div>
+    </header>
+    <aside class="sec-toc" aria-label="Зміст розділу"><div class="toc-title">Зміст завдання</div><nav class="toc-list"></nav>
+      <div class="toc-legend"><span style="--k:var(--blue)">заповнити</span><span style="--k:var(--sim)">тренажер</span><span style="--k:var(--ok)">схема</span></div></aside>
+    <div class="sec-main">
+      <article class="block" data-kind="sim" id="t1-1">
+        <header class="block-head"><span class="block-no">1.1</span><div><span class="kind">▶  Розминка</span><h3>Детектор ризиків</h3></div></header>
+        <p class="lede">Оцініть кожне твердження з умови. Це допоможе знайти місця помилок для таблиці нижче.</p>
+        <div id="detector"></div>
+        <div class="sim-log" id="detScore">Оцініть усі твердження.</div>
+      </article>
+
+      <article class="block" data-kind="theory" id="t1-2">
+        <header class="block-head"><span class="block-no">1.2</span><div><span class="kind">◆  Заповнити</span><h3>Операції поточного процесу</h3></div></header>
+        <p class="lede">Заповнюйте рядки: схема будується автоматично. Мінімум шість операцій.</p>
+        <div class="table-wrap"><table class="edit" id="tblProc1"></table></div>
+        <div class="btnrow" style="margin-bottom:0"><button class="btn ghost small" type="button" data-add="proc1">+ Додати операцію</button><span class="check-out" id="proc1Count"></span></div>
+      </article>
+
+      <article class="block" data-kind="theory" id="t1-3">
+        <header class="block-head"><span class="block-no">1.3</span><div><span class="kind">◆  Заповнити</span><h3>Місця помилок і затримок</h3></div></header>
+        <p class="lede">Прив'яжіть кожне місце до номера операції: на схемі з'явиться червоний маркер.</p>
+        <div class="table-wrap"><table class="edit" id="tblRisks"></table></div>
+        <details class="acc"><summary><span>Підказка: як описати вплив</span><span class="arrow">▶</span></summary>
+          <div class="acc-body"><p>Назвіть конкретне місце (наприклад, перенесення даних між двома списками), що саме може статися (втрата номера, стара адреса, затримка підтвердження) і для кого це наслідок: покупець не отримує товар вчасно, склад комплектує зайве, диспетчер везе на неправильну адресу.</p></div>
+        </details>
+      </article>
+
+      <article class="block" data-kind="data" id="t1-4">
+        <header class="block-head"><span class="block-no">1.4</span><div><span class="kind">▦  Схема</span><h3>Схема поточного процесу</h3></div></header>
+        <p class="lede">Будується з таблиць вище; червоний маркер «!» показує операцію з ризиком. Ця схема потрапить у звіт.</p>
+        <div class="canvas-wrap"><canvas id="cvProc1" aria-label="Схема поточного процесу"></canvas></div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ================= T2 ================= -->
+  <section class="panel" id="t2">
+    <header class="sec-head">
+      <div class="sec-idx">02</div>
+      <div>
+        <span class="sec-kicker">Завдання 2</span>
+        <h2>Схема запропонованого процесу</h2>
+        <p class="lede">Побудуйте схему запропонованого процесу з єдиним номером замовлення. Передбачте приймання, перевірку наявності, погодження, комплектування, передачу перевізнику, завершення та скасування. Покажіть, хто може змінити адресу після погодження і як ця зміна потрапляє до диспетчера.</p>
+      </div>
+    </header>
+    <aside class="sec-toc" aria-label="Зміст розділу"><div class="toc-title">Зміст завдання</div><nav class="toc-list"></nav>
+      <div class="toc-legend"><span style="--k:var(--blue)">заповнити</span><span style="--k:var(--ok)">схема</span></div></aside>
+    <div class="sec-main">
+      <article class="block" data-kind="theory" id="t2-1">
+        <header class="block-head"><span class="block-no">2.1</span><div><span class="kind">◆  Заповнити</span><h3>Етапи та статуси</h3></div></header>
+        <div class="fld" style="max-width:420px"><label for="t2_idfmt">Формат єдиного номера замовлення (приклад)</label><input class="txt" id="t2_idfmt" data-save placeholder="Наприклад, PM-2610-0001"></div>
+        <p class="lede">Обов'язкові етапи вже внесено. Опишіть статус у реєстрі, виконавця та що фіксується. Етап зі словом «скасування» схема покаже окремою гілкою.</p>
+        <div class="req-list" id="stageReq"></div>
+        <div class="table-wrap"><table class="edit" id="tblProc2"></table></div>
+        <div class="btnrow" style="margin-bottom:0"><button class="btn ghost small" type="button" data-add="proc2">+ Додати етап</button></div>
+      </article>
+
+      <article class="block" data-kind="data" id="t2-2">
+        <header class="block-head"><span class="block-no">2.2</span><div><span class="kind">▦  Схема</span><h3>Схема запропонованого процесу</h3></div></header>
+        <div class="canvas-wrap"><canvas id="cvProc2" aria-label="Схема запропонованого процесу"></canvas></div>
+      </article>
+
+      <article class="block" data-kind="theory" id="t2-3">
+        <header class="block-head"><span class="block-no">2.3</span><div><span class="kind">◆  Заповнити</span><h3>Зміна адреси після погодження</h3></div></header>
+        <div class="grid2">
+          <div class="fld"><label for="t2_who">Хто може змінити адресу після погодження?</label><textarea id="t2_who" data-save rows="3" placeholder="Роль, права, умови…"></textarea></div>
+          <div class="fld"><label for="t2_how">Як зміна потрапляє до диспетчера?</label><textarea id="t2_how" data-save rows="3" placeholder="Що фіксується в реєстрі, як диспетчер дізнається, що робити, якщо товар уже передано перевізнику…"></textarea></div>
+        </div>
+        <div class="callout advice" style="margin-bottom:0"><b class="lbl">Порада</b>Спирайтеся на лекцію: «Замовлення прийняте» не означає «товар підготовлений», а «підготовлений» не означає «покупець отримав». Кожен етап має власний стан і момент підтвердження.</div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ================= T3 ================= -->
+  <section class="panel" id="t3">
+    <header class="sec-head">
+      <div class="sec-idx">03</div>
+      <div>
+        <span class="sec-kicker">Завдання 3</span>
+        <h2>Словник полів реєстру</h2>
+        <p class="lede">Складіть словник щонайменше десяти полів реєстру. Для кожного поля зазначте назву, тип даних, обов'язковість, приклад і правило перевірки. Серед полів мають бути ідентифікатор, канал надходження, товар, кількість, адреса, відповідальний, статус і час останньої зміни. Не використовуйте справжніх адрес і номерів телефонів.</p>
+      </div>
+    </header>
+    <aside class="sec-toc" aria-label="Зміст розділу"><div class="toc-title">Зміст завдання</div><nav class="toc-list"></nav>
+      <div class="toc-legend"><span style="--k:var(--blue)">заповнити</span><span style="--k:var(--sim)">тренажер</span><span style="--k:var(--ink-soft)">підказка</span></div></aside>
+    <div class="sec-main">
+      <article class="block" data-kind="sim" id="t3-1">
+        <header class="block-head"><span class="block-no">3.1</span><div><span class="kind">▶  Тренажер</span><h3>Контроль обов'язкових полів</h3></div></header>
+        <p class="lede">Позначка вмикається, коли назва поля містить відповідне слово.</p>
+        <div class="req-list" id="dictReq"></div>
+        <div class="sim-log" id="dictWarn">Заповніть словник.</div>
+      </article>
+
+      <article class="block" data-kind="theory" id="t3-2">
+        <header class="block-head"><span class="block-no">3.2</span><div><span class="kind">◆  Заповнити</span><h3>Словник полів</h3></div></header>
+        <div class="table-wrap"><table class="edit" id="tblDict"></table></div>
+        <div class="btnrow" style="margin-bottom:0"><button class="btn ghost small" type="button" data-add="dict">+ Додати поле</button><span class="check-out" id="dictCount"></span></div>
+      </article>
+
+      <article class="block" data-kind="extra" id="t3-3">
+        <header class="block-head"><span class="block-no">3.3</span><div><span class="kind">＋  Підказка</span><h3>Тип даних і правило перевірки</h3></div></header>
+        <details class="acc" style="margin-bottom:0"><summary><span>Як обрати тип і сформулювати правило</span><span class="arrow">▶</span></summary>
+          <div class="acc-body"><p>Номер замовлення, код товару чи телефон складаються з цифр, але є <b>ідентифікаторами</b>: їх не додають і не усереднюють. Кількість і ціна є кількісними. Дата й час потребують формату. Статус краще задавати <b>переліком</b> допустимих значень. Правило перевірки має бути таким, щоб його можна було перевірити формулою або списком: «ціле число > 0», «значення зі списку», «формат ДД.ММ.РРРР ГГ:ХХ».</p></div>
+        </details>
+      </article>
+    </div>
+  </section>
+
+  <!-- ================= T4–5 ================= -->
+  <section class="panel" id="t4">
+    <header class="sec-head">
+      <div class="sec-idx">04</div>
+      <div>
+        <span class="sec-kicker">Завдання 4–5</span>
+        <h2>Розрахунок ефекту: початкова ситуація</h2>
+        <p class="lede">Розрахунки виконуйте в електронній таблиці з формулами, а результати переносьте в тренажер: він позначає правильні й помилкові клітинки, але не показує відповідей. Окупність і години округлюйте до сотих.</p>
+      </div>
+    </header>
+    <aside class="sec-toc" aria-label="Зміст розділу"><div class="toc-title">Зміст завдання</div><nav class="toc-list"></nav>
+      <div class="toc-legend"><span style="--k:var(--blue)">завдання</span><span style="--k:var(--sim)">тренажер</span><span style="--k:var(--ok)">діаграма</span></div></aside>
+    <div class="sec-main">
+      <article class="block" data-kind="theory" id="t4-1">
+        <header class="block-head"><span class="block-no">4.1</span><div><span class="kind">◆  Завдання 4</span><h3>Що розрахувати</h3></div></header>
+        <div class="task-box">У таблиці з формулами визначте для поточного процесу та кожного варіанта кількість помилок, трудомісткість у годинах, прямі витрати на помилки. Розрахуйте звільнені години, їхню вартісну оцінку та зменшення прямих витрат. Окремо визначте щомісячний грошовий ефект і ефект з урахуванням оцінки звільненого часу. Для обох оцінок визначте строк простої окупності разових витрат. Якщо ефект не додатний, позначте окупність як таку, що не визначається.</div>
+        <details class="acc" style="margin-bottom:0"><summary><span>Підказка: логіка формул</span><span class="arrow">▶</span></summary>
+          <div class="acc-body">
+          <div class="codebox"><button class="btn small copy" type="button">Копіювати</button><pre>Помилки, шт           = Замовлення × Частка помилок
+Трудомісткість, год   = Замовлення × Хвилини на замовлення / 60
+Прямі витрати, грн    = Помилки × 110
+Звільнені години      = Трудомісткість поточна − Трудомісткість варіанта
+Вартісна оцінка часу  = Звільнені години × 180
+Зменшення витрат      = Витрати поточні − Витрати варіанта
+Грошовий ефект / міс  = Зменшення витрат − Щомісячні витрати
+Ефект з оцінкою часу  = Грошовий ефект + Вартісна оцінка часу
+Окупність, міс        = ЯКЩО(Ефект > 0; Разові витрати / Ефект; "не визначається")</pre></div></div>
+        </details>
+      </article>
+
+      <article class="block" data-kind="sim" id="t4-2">
+        <header class="block-head"><span class="block-no">4.2</span><div><span class="kind">▶  Тренажер</span><h3>Перевірка · сценарій 1 (800 замовлень)</h3></div></header>
+        <div class="table-wrap"><table class="calc" id="calc1"></table></div>
+        <div class="btnrow" style="margin-bottom:0"><button class="btn" type="button" data-check="1">✓ Перевірити розрахунок</button><span class="check-out" id="check1Out"></span></div>
+      </article>
+
+      <article class="block" data-kind="sim" id="t4-3">
+        <header class="block-head"><span class="block-no">5.1</span><div><span class="kind">▶  Завдання 5 · тренажер</span><h3>Результат за 12 місяців</h3></div></header>
+        <div class="task-box">Обчисліть результат за 12 місяців: дванадцять щомісячних ефектів мінус разові витрати. Побудуйте одну діаграму для порівняння варіантів за грошовим ефектом. Не змішуйте в одному показнику фактичну економію коштів і можливості використання часу.</div>
+        <div class="table-wrap"><table class="calc" id="calc12"></table></div>
+        <div class="btnrow" style="margin-bottom:0"><button class="btn" type="button" data-check="12">✓ Перевірити результат за 12 міс</button><span class="check-out" id="check12Out"></span></div>
+      </article>
+
+      <article class="block" data-kind="data" id="t4-4">
+        <header class="block-head"><span class="block-no">5.2</span><div><span class="kind">▦  Діаграма</span><h3>Діаграма грошового ефекту</h3></div></header>
+        <p class="lede">Діаграма будується з ваших чисел і потрапить у звіт. Оберіть показник.</p>
+        <div class="btnrow" id="chartBtns">
+          <button class="btn small active" type="button" data-m="money">Щомісячний грошовий ефект</button>
+          <button class="btn ghost small" type="button" data-m="y12m">Грошовий результат за 12 міс</button>
+        </div>
+        <div class="canvas-wrap"><canvas id="cvChart" aria-label="Діаграма грошового ефекту"></canvas></div>
+        <div class="fld" style="margin:14px 0 0"><label for="t5_note">Коротко: що показує діаграма?</label><textarea id="t5_note" data-save rows="3" placeholder="Який варіант має найбільший грошовий ефект, чим відрізняється картина з урахуванням оцінки часу…"></textarea></div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ================= T6 ================= -->
+  <section class="panel" id="t6">
+    <header class="sec-head">
+      <div class="sec-idx">06</div>
+      <div>
+        <span class="sec-kicker">Завдання 6</span>
+        <h2>Змінені умови</h2>
+        <p class="lede">Надходить 1100 замовлень на місяць, але новим рішенням користуються лише для 80 % замовлень. Решта 20 % проходить за початковим ручним процесом. Щомісячна плата залишається повною. До разових витрат кожного варіанта додається 3600 грн оплачуваного зовнішнього навчання; загальний бюджет усе ще 18 000 грн. Перерахуйте трудомісткість, помилки, обидва ефекти й окупність. Позначте варіанти, що перевищують бюджет.</p>
+      </div>
+    </header>
+    <aside class="sec-toc" aria-label="Зміст розділу"><div class="toc-title">Зміст завдання</div><nav class="toc-list"></nav>
+      <div class="toc-legend"><span style="--k:var(--blue)">умова · висновок</span><span style="--k:var(--sim)">тренажер</span></div></aside>
+    <div class="sec-main">
+      <article class="block" data-kind="theory" id="t6-1">
+        <header class="block-head"><span class="block-no">6.1</span><div><span class="kind">◆  Умова</span><h3>Нові вихідні дані</h3></div></header>
+        <div class="kv" style="margin-top:0">
+          <div><div class="l">ЗАМОВЛЕНЬ / МІС</div><div class="v">1100</div></div>
+          <div><div class="l">НОВИЙ ПРОЦЕС</div><div class="v">80 %</div></div>
+          <div><div class="l">РУЧНИЙ ПРОЦЕС</div><div class="v">20 %</div></div>
+          <div><div class="l">НАВЧАННЯ</div><div class="v">+3600 грн</div></div>
+          <div><div class="l">БЮДЖЕТ</div><div class="v">18 000 грн</div></div>
+        </div>
+        <details class="acc" style="margin-bottom:0"><summary><span>Підказка: змішаний потік замовлень</span><span class="arrow">▶</span></summary>
+          <div class="acc-body"><div class="codebox"><button class="btn small copy" type="button">Копіювати</button><pre>Нових = 1100 × 80 %       Ручних = 1100 × 20 %
+Помилки варіанта     = Нових × Частка варіанта + Ручних × 6 %
+Трудомісткість, год  = (Нових × Хв варіанта + Ручних × 10) / 60
+Разові витрати       = Разові витрати варіанта + 3600
+Перевищення бюджету  = ЯКЩО(Разові витрати > 18000; "так"; "ні")</pre></div>
+          <p>Дробова кількість помилок є розрахунковим очікуванням за частотою, її не округлюють до цілого.</p></div>
+        </details>
+      </article>
+
+      <article class="block" data-kind="sim" id="t6-2">
+        <header class="block-head"><span class="block-no">6.2</span><div><span class="kind">▶  Тренажер</span><h3>Перевірка · сценарій 2</h3></div></header>
+        <div class="table-wrap"><table class="calc" id="calc2"></table></div>
+        <div class="btnrow" style="margin-bottom:0"><button class="btn" type="button" data-check="2">✓ Перевірити перерахунок</button><span class="check-out" id="check2Out"></span></div>
+      </article>
+
+      <article class="block" data-kind="theory" id="t6-3">
+        <header class="block-head"><span class="block-no">6.3</span><div><span class="kind">◆  Висновок</span><h3>Що змінилося</h3></div></header>
+        <div class="fld" style="margin-bottom:0"><label for="t6_note">Що змінилося порівняно з початковою ситуацією?</label><textarea id="t6_note" data-save rows="4"></textarea></div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ================= T7 ================= -->
+  <section class="panel" id="t7">
+    <header class="sec-head">
+      <div class="sec-idx">07</div>
+      <div>
+        <span class="sec-kicker">Завдання 7</span>
+        <h2>Вибір рішення і контроль впровадження</h2>
+        <p class="lede">Оберіть рішення для початкової ситуації та для змінених умов. Обґрунтуйте кожен вибір числом, обмеженням і організаційним аргументом. Визначте три показники контролю впровадження, джерело даних, відповідального та запропоновану ціль. Опишіть порядок роботи при тимчасовій недоступності реєстру і подальшого внесення записів без дублікатів.</p>
+      </div>
+    </header>
+    <aside class="sec-toc" aria-label="Зміст розділу"><div class="toc-title">Зміст завдання</div><nav class="toc-list"></nav>
+      <div class="toc-legend"><span style="--k:var(--blue)">заповнити</span><span style="--k:var(--sim)">тренажер</span></div></aside>
+    <div class="sec-main">
+      <article class="block" data-kind="theory" id="t7-1">
+        <header class="block-head"><span class="block-no">7.1</span><div><span class="kind">◆  Заповнити</span><h3>Вибір рішення</h3></div></header>
+        <div class="grid2" id="choiceBlocks"></div>
+      </article>
+
+      <article class="block" data-kind="theory" id="t7-2">
+        <header class="block-head"><span class="block-no">7.2</span><div><span class="kind">◆  Заповнити</span><h3>Показники контролю впровадження</h3></div></header>
+        <div class="table-wrap"><table class="edit" id="tblKpi"></table></div>
+        <details class="acc" style="margin-bottom:0"><summary><span>Підказка: вимоги до показника</span><span class="arrow">▶</span></summary>
+          <div class="acc-body"><p>Показник має визначений зміст, формулу, період, джерело і відповідального. Він відображає мету впровадження: якщо мета полягає у скороченні помилок, кількість встановлених програм не є показником успіху. Ціль записуйте числом і періодом.</p></div>
+        </details>
+      </article>
+
+      <article class="block" data-kind="sim" id="t7-3">
+        <header class="block-head"><span class="block-no">7.3</span><div><span class="kind">▶  Тренажер</span><h3>Реєстр недоступний</h3></div></header>
+        <p class="lede">Розставте кроки в логічному порядку кнопками ↑ ↓, потім перевірте. Після цього опишіть власний порядок для «ПолтаваМаркет».</p>
+        <div id="orderBox"></div>
+        <div class="btnrow"><button class="btn" type="button" id="orderCheck">✓ Перевірити порядок</button><button class="btn ghost small" type="button" id="orderShuffle">⟲ Перемішати</button></div>
+        <div class="sim-log" id="orderLog">Розставте кроки.</div>
+        <div class="fld" style="margin:16px 0 0"><label for="t7_offline">Порядок роботи при недоступності реєстру та внесення записів без дублікатів</label><textarea id="t7_offline" data-save rows="6"></textarea></div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ================= T8 ================= -->
+  <section class="panel" id="t8">
+    <header class="sec-head">
+      <div class="sec-idx">08</div>
+      <div>
+        <span class="sec-kicker">Завдання 8</span>
+        <h2>Взаємна перевірка і висновок</h2>
+        <p class="lede">Обміняйтеся розрахунками з іншою групою. Перевірте один варіант вручну, узгодженість одиниць вимірювання та дотримання бюджету. Внесіть одну змістовну поправку або письмово підтвердьте результат перевірки. Кожен учасник пояснює одну формулу та одну зміну процесу.</p>
+      </div>
+    </header>
+    <aside class="sec-toc" aria-label="Зміст розділу"><div class="toc-title">Зміст завдання</div><nav class="toc-list"></nav>
+      <div class="toc-legend"><span style="--k:var(--blue)">заповнити</span><span style="--k:var(--ok)">перевірка</span></div></aside>
+    <div class="sec-main">
+      <article class="block" data-kind="data" id="t8-1">
+        <header class="block-head"><span class="block-no">8.1</span><div><span class="kind">▦  Перевірка</span><h3>Взаємна перевірка</h3></div></header>
+        <div class="grid2">
+          <div class="fld"><label for="t8_peer">Група, з якою обмінялися розрахунками</label><input class="txt" id="t8_peer" data-save placeholder="Наприклад, група 2 (ІТ-21)"></div>
+          <div class="fld"><label for="t8_var">Перевірений варіант і сценарій</label><select class="txt" id="t8_var" data-save>
+            <option value="">— оберіть —</option><option>А · сценарій 1</option><option>Б · сценарій 1</option><option>В · сценарій 1</option><option>А · сценарій 2</option><option>Б · сценарій 2</option><option>В · сценарій 2</option></select></div>
+        </div>
+        <label class="check"><input type="checkbox" id="t8_c1" data-save><span>Варіант перевірено вручну (без формул таблиці)</span></label>
+        <label class="check"><input type="checkbox" id="t8_c2" data-save><span>Одиниці вимірювання узгоджені (хвилини / години, грн / міс, шт)</span></label>
+        <label class="check"><input type="checkbox" id="t8_c3" data-save><span>Дотримання бюджету 18 000 грн перевірено</span></label>
+        <div class="fld" style="margin-top:14px"><label>Результат перевірки</label>
+          <div class="choice" id="peerRes"><button type="button" data-v="fix">Внесено поправку</button><button type="button" data-v="ok">Результат підтверджено</button></div></div>
+        <div class="fld" style="margin-bottom:0"><label for="t8_text">Опис поправки або письмове підтвердження</label><textarea id="t8_text" data-save rows="4"></textarea></div>
+      </article>
+
+      <article class="block" data-kind="theory" id="t8-2">
+        <header class="block-head"><span class="block-no">8.2</span><div><span class="kind">◆  Заповнити</span><h3>Пояснення учасників</h3></div></header>
+        <div class="grid3" id="partBlocks"></div>
+      </article>
+
+      <article class="block" data-kind="theory" id="t8-3">
+        <header class="block-head"><span class="block-no">8.3</span><div><span class="kind">◆  Заповнити</span><h3>Висновок (150–200 слів)</h3></div></header>
+        <div class="fld"><label for="t8_concl">Висновок</label><textarea id="t8_concl" data-save data-wc="150-200" rows="9" placeholder="Яке рішення обрано для кожної ситуації і чому, що змінюється в процесі, як контролюватимете результат…"></textarea><div class="wc"></div></div>
+        <div class="fld" style="margin-bottom:0"><label for="t8_contrib">Внесок учасників і результат взаємної перевірки (кінець висновку)</label><textarea id="t8_contrib" data-save rows="4"></textarea></div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ================= QUIZ ================= -->
+  <section class="panel plain" id="quiz">
+    <header class="sec-head">
+      <div class="sec-idx">?</div>
+      <div>
+        <span class="sec-kicker">Самоперевірка</span>
+        <h2>Тест для самоперевірки</h2>
+        <p class="lede">Оберіть відповідь: одразу з'явиться оцінка й пояснення. Результат потрапить у звіт.</p>
+      </div>
+    </header>
+    <div class="sec-main">
+      <div id="quizBox"></div>
+      <div id="quizScoreBar"><span id="quizScore">Результат: 0 / 0</span><button class="btn small" id="quizReset" type="button">Пройти знову</button></div>
+    </div>
+  </section>
+
+  <!-- ================= REPORT ================= -->
+  <section class="panel plain" id="rep">
+    <header class="sec-head">
+      <div class="sec-idx">↓</div>
+      <div>
+        <span class="sec-kicker">Звіт</span>
+        <h2>Звіт для завантаження</h2>
+        <p class="lede">Вкажіть групу та учасників, перевірте заповненість і завантажте звіт у форматі Word (.docx). У звіт потраплять таблиці, обидві схеми процесів і діаграма.</p>
+      </div>
+    </header>
+    <div class="sec-main">
+      <article class="block" data-kind="theory" id="rep-1">
+        <header class="block-head"><span class="block-no">1</span><div><span class="kind">◆  Дані</span><h3>Група та учасники</h3></div></header>
+        <div class="grid2">
+          <div class="fld"><label for="rep_group">Академічна група</label><input class="txt" id="rep_group" data-save placeholder="Наприклад, ІТ-21"></div>
+          <div class="fld"><label for="rep_team">Номер / назва робочої групи</label><input class="txt" id="rep_team" data-save placeholder="Наприклад, Група 1"></div>
+        </div>
+        <div class="grid3">
+          <div class="fld" style="margin-bottom:0"><label for="rep_p1">Учасник 1 (ПІБ)</label><input class="txt" id="rep_p1" data-save placeholder="Прізвище Ім'я По батькові"></div>
+          <div class="fld" style="margin-bottom:0"><label for="rep_p2">Учасник 2 (ПІБ)</label><input class="txt" id="rep_p2" data-save placeholder="Прізвище Ім'я По батькові"></div>
+          <div class="fld" style="margin-bottom:0"><label for="rep_p3">Учасник 3 (ПІБ)</label><input class="txt" id="rep_p3" data-save placeholder="Прізвище Ім'я По батькові"></div>
+        </div>
+      </article>
+      <article class="block" data-kind="data" id="rep-2">
+        <header class="block-head"><span class="block-no">2</span><div><span class="kind">▦  Прогрес</span><h3>Заповненість</h3></div></header>
+        <div id="stats"></div>
+      </article>
+      <article class="block" data-kind="sim" id="rep-3">
+        <header class="block-head"><span class="block-no">3</span><div><span class="kind">⬇  Файл</span><h3>Завантаження</h3></div></header>
+        <div class="callout important"><b class="lbl">Важливо</b>Порожні поля у звіті позначаються як «не заповнено». Файл формується у вашому браузері й нікуди не надсилається.</div>
+        <div class="btnrow">
+          <button class="btn big" id="dlBtn" type="button">⬇ Завантажити звіт (.docx)</button>
+          <button class="btn warn" id="clearBtn" type="button">Очистити всі відповіді</button>
+        </div>
+        <div id="repMsg" role="status" aria-live="polite" style="font-size:14px;font-weight:600;color:var(--ink-soft)"></div>
+      </article>
+    </div>
+  </section>
+
+  <footer>STEAM-HUB · ПУЕТ · Практичне заняття 1 «Проєкт цифрового опрацювання замовлень» · Тема 1</footer>
+</div>
+
+<script>
+(function(){
+'use strict';
+var $ = function(s, r){ return (r||document).querySelector(s); };
+var $$ = function(s, r){ return Array.prototype.slice.call((r||document).querySelectorAll(s)); };
+var root = document.documentElement;
+function esc(s){ return String(s==null?'':s).replace(/[<>&"]/g, function(c){ return {'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]; }); }
+function fmt(n, d){ if(n==null || isNaN(n)) return '—'; return Number(n).toLocaleString('uk-UA', {minimumFractionDigits:d||0, maximumFractionDigits:d||0}); }
+
+/* ================= DATA ================= */
+var V = {
+  A:{c:'А', n:'Спільний реєстр із правилами заповнення', one:9000, mon:600, t:7, e:3, tip:'Найдешевше з «повних» рішень. Подумайте, як правила заповнення змінюють частку помилок і що буде з людьми, які продовжать вести власні файли.'},
+  B:{c:'Б', n:'Інтегрована система замовлень і складу', one:18000, mon:1300, t:4, e:1, tip:'Найменше помилок і часу, але разові витрати дорівнюють усьому бюджету. Що станеться, коли до них додасться навчання?'},
+  C:{c:'В', n:'Окремі стандартизовані шаблони', one:4000, mon:200, t:8, e:5, tip:'Найдешевший старт і мала абонплата, але номер замовлення все ще може не передаватися між шаблонами.'}
+};
+var VK = ['A','B','C'];
+var BUDGET = 18000;
+function compute(sc){
+  var N = sc===2 ? 1100 : 800, cov = sc===2 ? 0.8 : 1, extra = sc===2 ? 3600 : 0;
+  var cur = {err:N*0.06, hours:N*10/60}; cur.cost = cur.err*110;
+  var out = {cur:cur};
+  VK.forEach(function(k){
+    var v = V[k], nw = N*cov, mn = N-nw, r = {};
+    r.one = v.one + extra;
+    r.err = nw*v.e/100 + mn*0.06;
+    r.hours = (nw*v.t + mn*10)/60;
+    r.cost = r.err*110;
+    r.freedH = cur.hours - r.hours;
+    r.freedV = r.freedH*180;
+    r.red = cur.cost - r.cost;
+    r.money = r.red - v.mon;
+    r.broad = r.money + r.freedV;
+    r.payM = r.money>0 ? r.one/r.money : null;
+    r.payB = r.broad>0 ? r.one/r.broad : null;
+    r.y12m = 12*r.money - r.one;
+    r.y12b = 12*r.broad - r.one;
+    r.over = r.one > BUDGET;
+    out[k] = r;
+  });
+  return out;
+}
+var METRICS = [
+  ['err','Кількість помилкових замовлень','шт',1],
+  ['hours','Трудомісткість','год',1],
+  ['cost','Прямі витрати на помилки','грн',1],
+  ['freedH','Звільнені години','год',0],
+  ['freedV','Вартісна оцінка звільненого часу','грн',0],
+  ['red','Зменшення прямих витрат','грн',0],
+  ['money','Щомісячний грошовий ефект','грн',0],
+  ['broad','Ефект з урахуванням оцінки часу','грн',0],
+  ['payM','Окупність за грошовим ефектом','міс',0],
+  ['payB','Окупність з урахуванням оцінки часу','міс',0]
+];
+var M12 = [['y12m','Результат за 12 міс · грошовий','грн',0],['y12b','Результат за 12 міс · з оцінкою часу','грн',0]];
+var M2 = [['one','Разові витрати з навчанням','грн',0]].concat(METRICS);
+var TABLES = {1:{id:'calc1', rows:METRICS, out:'#check1Out'}, 12:{id:'calc12', rows:M12, out:'#check12Out', sc:1}, 2:{id:'calc2', rows:M2, out:'#check2Out', budget:true}};
+
+var DET = [
+  {t:'Менеджер переносить дані з форми у власну таблицю.', c:1, e:'Повторне введення: зайвий час і ризик помилки під час перенесення.'},
+  {t:'Номер замовлення не завжди передається між працівниками.', c:1, e:'Без спільного ідентифікатора склад і диспетчер не можуть однозначно пов\'язати свої дії з замовленням; можливі дублікати й втрати.'},
+  {t:'Підприємство має магазин, склад і службу доставки.', c:0, e:'Це опис структури, а не джерело помилки.'},
+  {t:'Склад повідомляє про комплектування в загальному чаті.', c:1, e:'Повідомлення губиться серед інших, немає статусу й часу підтвердження.'},
+  {t:'Виправлення адреси можуть залишитися лише в одному списку.', c:1, e:'Диспетчер може відправити товар на стару адресу.'},
+  {t:'Замовлення надходять телефоном або через форму.', c:0, e:'Кілька каналів самі по собі не є помилкою, але канал варто фіксувати окремим полем реєстру.'},
+  {t:'Диспетчер веде окремий список доставок.', c:1, e:'Окремий список не отримує змін від менеджера і складу: розбіжність статусів.'}
+];
+var STAGES = ['Приймання','Перевірка наявності','Погодження','Комплектування','Передача перевізнику','Завершення','Скасування'];
+var DICT_REQ = [['Ідентифікатор',/ідентиф|номер|id/i],['Канал',/канал/i],['Товар',/товар|sku|позиц/i],['Кількість',/кільк/i],['Адреса',/адрес/i],['Відповідальний',/відповід/i],['Статус',/статус/i],['Час останньої зміни',/час|дата|змін/i]];
+var TYPES = ['','Ідентифікатор (текст)','Текст','Ціле число','Десяткове число','Дата й час','Перелік значень','Логічне (так/ні)'];
+var ORDER = [
+  'Зафіксувати час початку недоступності та повідомити відповідального',
+  'Приймати замовлення в резервний бланк із тимчасовим номером',
+  'Не підтверджувати наявність без звернення до складу',
+  'Після відновлення внести записи з резервного бланка в реєстр',
+  'Звірити тимчасові номери з реєстром і прибрати дублікати',
+  'Закрити резервний бланк і записати, скільки замовлень перенесено'
+];
+var QZ = [
+  {q:'Скорочення часу не зменшує зарплату. Вартісна оцінка звільненого часу — це…', o:['Пряма економія коштів підприємства','Оцінка можливості використати час для іншої роботи','Додатковий прибуток від продажу','Податкова пільга'], ok:1, e:'Грошову економію визнають лише за конкретної зміни витрат; тут звільнений час можна спрямувати на обслуговування покупців.'},
+  {q:'Щомісячний грошовий ефект варіанта дорівнює…', o:['Зменшенню прямих витрат на помилки мінус щомісячні витрати','Вартісній оцінці часу плюс зменшенню витрат','Разовим витратам, поділеним на 12','Кількості звільнених годин × 180'], ok:0, e:'Гроші — це лише ті витрати, які реально змінюються: помилки й обслуговування системи.'},
+  {q:'Як визначають строк простої окупності?', o:['Щомісячний ефект ÷ разові витрати','Разові витрати ÷ додатний щомісячний ефект','Разові витрати − 12 ефектів','Бюджет ÷ кількість замовлень'], ok:1, e:'Якщо ефект не додатний, окупність не визначається.'},
+  {q:'Новим рішенням користуються для 80 % із 1100 замовлень. Як рахують помилки?', o:['1100 × частка помилок варіанта','880 × частка варіанта + 220 × 6 %','880 × 6 %','1100 × 80 % × 6 %'], ok:1, e:'20 % замовлень проходять за початковим ручним процесом з частотою помилок 6 %.'},
+  {q:'Навіщо в запропонованому процесі єдиний номер замовлення?', o:['Щоб гарно виглядав звіт','Щоб пов\'язати всі події замовлення та уникнути дублікатів і втрат','Щоб збільшити кількість полів','Щоб не потрібна була адреса'], ok:1, e:'Номер пов\'язує приймання, комплектування й доставку: це спільна основа для всіх учасників.'},
+  {q:'Які варіанти перевищують бюджет за змінених умов?', o:['Жоден','Лише Б','А і Б','Усі три'], ok:1, e:'Б: 18 000 + 3600 = 21 600 грн > 18 000 грн. А: 12 600 грн, В: 7600 грн.'}
+];
+
+/* ================= STATE ================= */
+var KEY = 'pz1-orders-v1';
+var store = {};
+try{ store = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; }catch(e){ store = {}; }
+function blank(n, keys, preset){ var a=[]; for(var i=0;i<n;i++){ var o={}; keys.forEach(function(k){ o[k]=''; }); if(preset) o[preset.k]=preset.v[i]||''; a.push(o);} return a; }
+store.f = store.f || {};
+store.proc1 = store.proc1 || blank(6, ['op','who','inp','out']);
+store.risks = store.risks || blank(4, ['op','place','area','impact']);
+store.proc2 = store.proc2 || blank(7, ['st','status','who','fix'], {k:'st', v:STAGES});
+store.dict = store.dict || blank(10, ['name','type','req','ex','rule']);
+store.kpi = store.kpi || blank(3, ['name','src','resp','goal']);
+store.checks = store.checks || {};
+store.det = store.det || {};
+store.quiz = store.quiz || [];
+store.choice = store.choice || {};
+if(!store.order || store.order.length !== ORDER.length) store.order = shuffle(ORDER.map(function(_,i){ return i; }));
+var saveT = null;
+function persist(){ clearTimeout(saveT); saveT = setTimeout(function(){ try{ localStorage.setItem(KEY, JSON.stringify(store)); }catch(e){} }, 150); }
+function shuffle(a){ a = a.slice(); for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; } if(a.every(function(v,i){return v===i;})) a.push(a.shift()); return a; }
+function fv(id){ return (store.f[id]==null?'':String(store.f[id])); }
+
+/* ================= THEME ================= */
+function curTheme(){ var t = root.getAttribute('data-theme'); if(t) return t; return matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; }
+function paintTheme(){ $('#themeBtn').textContent = curTheme()==='dark' ? '☀ Світла тема' : '☾ Темна тема'; }
+$('#themeBtn').addEventListener('click', function(){
+  var n = curTheme()==='dark' ? 'light' : 'dark'; root.setAttribute('data-theme', n);
+  try{ localStorage.setItem('pz1-theme', n); }catch(e){}
+  paintTheme(); redrawAll();
+});
+paintTheme();
+try{ matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(){ paintTheme(); redrawAll(); }); }catch(e){}
+
+/* ================= TABS ================= */
+function openTab(id, scroll){
+  if(!document.getElementById(id)) return;
+  $$('#tabsNav button').forEach(function(b){ b.classList.toggle('active', b.dataset.t===id); });
+  $$('section.panel').forEach(function(p){ p.classList.toggle('active', p.id===id); });
+  try{ sessionStorage.setItem('pz1-tab', id); }catch(e){}
+  if(id==='rep') stats();
+  setTimeout(redrawAll, 30);
+  var tabs = $('#tabsNav'), act = $('button.active', tabs);
+  if(act) tabs.scrollTo({left:Math.max(0, act.offsetLeft-12), behavior:'auto'});
+  var toc = $('#'+id+' .toc-list'); if(toc){ toc.scrollLeft = 0; toc.parentNode.scrollTop = 0; }
+  // jump to the start of the new task (its header right under the sticky tabs), wherever the reader was
+  if(scroll!==false){ var y = document.getElementById(id).getBoundingClientRect().top + window.scrollY - tabs.offsetHeight - 22; window.scrollTo({top:Math.max(0, y), behavior:'auto'}); }
+}
+$$('#tabsNav button').forEach(function(b){ b.addEventListener('click', function(){ openTab(b.dataset.t); }); });
+
+/* ================= OVERVIEW ================= */
+$('#varCards').innerHTML = VK.map(function(k){ var v=V[k]; return '<div class="fcard" tabindex="0" role="button" aria-pressed="false" data-k="'+k+'"><div class="fcard-inner"><div class="fcard-face front"><span class="fnum">Варіант '+v.c+'</span><h4>'+esc(v.n)+'</h4><div class="fprice">'+fmt(v.one)+' грн разово<br>'+fmt(v.mon)+' грн / міс</div><span class="fhint">↻ на що звернути увагу</span></div><div class="fcard-face back"><span class="fback-t">Варіант '+v.c+' · на що звернути увагу</span><p>'+esc(v.tip)+'</p></div></div></div>'; }).join('');
+$('#varTable').innerHTML = VK.map(function(k){ var v=V[k]; return '<tr data-k="'+k+'"><td class="mono"><b>'+v.c+'</b></td><td>'+esc(v.n)+'</td><td class="num">'+fmt(v.one)+'</td><td class="num">'+fmt(v.mon)+'</td><td class="num">'+v.t+'</td><td class="num">'+v.e+' %</td></tr>'; }).join('');
+function pickVariant(c){
+  var on = !c.classList.contains('flipped');
+  $$('#varCards .fcard').forEach(function(x){ x.classList.remove('flipped','picked'); x.setAttribute('aria-pressed','false'); });
+  if(on){ c.classList.add('flipped','picked'); c.setAttribute('aria-pressed','true'); }
+  $$('#varTable tr').forEach(function(r){ r.classList.toggle('hl', on && r.dataset.k===c.dataset.k); });
+}
+$('#varCards').addEventListener('click', function(e){ var c = e.target.closest('.fcard'); if(c) pickVariant(c); });
+$('#varCards').addEventListener('keydown', function(e){ var c = e.target.closest('.fcard'); if(c && (e.key==='Enter' || e.key===' ')){ e.preventDefault(); pickVariant(c); } });
+
+/* ================= DETECTOR ================= */
+function renderDet(){
+  var box = $('#detector'); box.innerHTML = '';
+  DET.forEach(function(d, i){
+    var el = document.createElement('div'); el.className = 'cls-item';
+    el.innerHTML = '<div class="txt">'+esc(d.t)+'</div><div class="opts"><button class="btn ghost small" type="button" data-c="1">⚠ Створює ризик</button><button class="btn ghost small" type="button" data-c="0">Не є проблемою</button></div><div class="fb" hidden></div>';
+    function apply(ch){
+      var ok = ch===d.c; el.classList.add(ok?'right':'wrong');
+      $$('button', el).forEach(function(b){ b.disabled = true; if(+b.dataset.c===ch) b.classList.add('active'); });
+      var fb = $('.fb', el); fb.hidden = false; fb.textContent = (ok?'✅ ':'❌ ')+d.e;
+    }
+    $$('button', el).forEach(function(b){ b.addEventListener('click', function(){ if(store.det[i]!=null) return; store.det[i] = +b.dataset.c; apply(+b.dataset.c); persist(); detScore(); }); });
+    if(store.det[i]!=null) apply(store.det[i]);
+    box.appendChild(el);
+  });
+  detScore();
+}
+function detResult(){ var n=0, r=0; DET.forEach(function(d,i){ if(store.det[i]!=null){ n++; if(store.det[i]===d.c) r++; } }); return {n:n, r:r}; }
+function detScore(){ var s = detResult(); $('#detScore').textContent = 'Оцінено '+s.n+' / '+DET.length+' · правильно '+s.r + (s.n===DET.length ? ' · Тепер перенесіть знайдені ризики в таблицю «Місця помилок».' : ''); }
+renderDet();
+
+/* ================= EDITABLE TABLES ================= */
+var TBL = {
+  proc1:{el:'#tblProc1', min:6, cols:[{k:'op',l:'Операція',w:'24%'},{k:'who',l:'Виконавець',w:'16%'},{k:'inp',l:'Вхідні дані',w:'27%',ta:1},{k:'out',l:'Результат',w:'27%',ta:1}], after:function(){ $('#proc1Count').textContent = 'Заповнено операцій: '+filledRows('proc1','op')+' (мінімум 6)'; drawProc1(); refreshRiskOps(); }},
+  risks:{el:'#tblRisks', min:4, fixed:true, cols:[{k:'op',l:'Опер. №',w:'11%',sel:'ops'},{k:'place',l:'Місце помилки / затримки',w:'30%',ta:1},{k:'area',l:'Вплив на',w:'16%',sel:['','Магазин','Склад','Доставка','Магазин і склад','Склад і доставка','Усі підрозділи']},{k:'impact',l:'Пояснення впливу',w:'37%',ta:1}], after:function(){ drawProc1(); }},
+  proc2:{el:'#tblProc2', min:7, cols:[{k:'st',l:'Етап',w:'20%'},{k:'status',l:'Статус у реєстрі',w:'20%'},{k:'who',l:'Виконавець',w:'18%'},{k:'fix',l:'Що фіксується / дані',w:'36%',ta:1}], after:function(){ stageReq(); drawProc2(); }},
+  dict:{el:'#tblDict', min:10, cols:[{k:'name',l:'Назва поля',w:'18%'},{k:'type',l:'Тип даних',w:'17%',sel:TYPES},{k:'req',l:'Обов.',w:'10%',sel:['','так','ні']},{k:'ex',l:'Приклад',w:'20%'},{k:'rule',l:'Правило перевірки',w:'29%',ta:1}], after:function(){ dictCheck(); }},
+  kpi:{el:'#tblKpi', min:3, fixed:true, cols:[{k:'name',l:'Показник (формула, період)',w:'34%',ta:1},{k:'src',l:'Джерело даних',w:'22%',ta:1},{k:'resp',l:'Відповідальний',w:'18%'},{k:'goal',l:'Запропонована ціль',w:'22%',ta:1}]}
+};
+function filledRows(key, k){ return store[key].filter(function(r){ return String(r[k]||'').trim(); }).length; }
+function opOptions(){ var o=['']; store.proc1.forEach(function(r,i){ o.push(String(i+1)); }); return o; }
+function renderTable(key){
+  var T = TBL[key], rows = store[key];
+  var h = '<thead><tr><th class="n">№</th>'+T.cols.map(function(c){ return '<th style="width:'+c.w+'">'+c.l+'</th>'; }).join('')+(T.fixed?'':'<th class="del"></th>')+'</tr></thead><tbody>';
+  rows.forEach(function(r, ri){
+    h += '<tr><td class="n">'+(ri+1)+'</td>';
+    T.cols.forEach(function(c){
+      var val = r[c.k]==null?'':r[c.k], id = 'e_'+key+'_'+ri+'_'+c.k, attr = 'id="'+id+'" data-k="'+key+'" data-r="'+ri+'" data-c="'+c.k+'" aria-label="'+esc(c.l)+' '+(ri+1)+'"';
+      if(c.sel){ var opts = c.sel==='ops' ? opOptions() : c.sel; h += '<td><select '+attr+'>'+opts.map(function(o){ return '<option'+(String(o)===String(val)?' selected':'')+' value="'+esc(o)+'">'+(o===''?'—':esc(o))+'</option>'; }).join('')+'</select></td>'; }
+      else if(c.ta) h += '<td><textarea '+attr+' rows="2">'+esc(val)+'</textarea></td>';
+      else h += '<td><input '+attr+' value="'+esc(val)+'"></td>';
+    });
+    if(!T.fixed) h += '<td class="del">'+(rows.length>T.min?'<button class="btn x" type="button" data-del="'+key+'" data-r="'+ri+'" aria-label="Видалити рядок">✕</button>':'')+'</td>';
+    h += '</tr>';
+  });
+  $(T.el).innerHTML = h+'</tbody>';
+  if(T.after) T.after();
+}
+document.addEventListener('input', function(e){
+  var t = e.target;
+  if(t.dataset && t.dataset.k && TBL[t.dataset.k]){ store[t.dataset.k][+t.dataset.r][t.dataset.c] = t.value; persist(); if(TBL[t.dataset.k].after) TBL[t.dataset.k].after(); }
+});
+document.addEventListener('change', function(e){
+  var t = e.target;
+  if(t.tagName==='SELECT' && t.dataset && t.dataset.k && TBL[t.dataset.k]){ store[t.dataset.k][+t.dataset.r][t.dataset.c] = t.value; persist(); if(TBL[t.dataset.k].after) TBL[t.dataset.k].after(); }
+});
+document.addEventListener('click', function(e){
+  var a = e.target.closest('[data-add]'); if(a){ var k=a.dataset.add, o={}; TBL[k].cols.forEach(function(c){ o[c.k]=''; }); store[k].push(o); persist(); renderTable(k); if(k==='proc1') renderTable('risks'); return; }
+  var d = e.target.closest('[data-del]'); if(d){ var k2=d.dataset.del; store[k2].splice(+d.dataset.r,1); persist(); renderTable(k2); if(k2==='proc1') renderTable('risks'); }
+});
+function refreshRiskOps(){
+  var n = store.proc1.length;
+  $$('#tblRisks select[data-c="op"]').forEach(function(s){
+    if(s.options.length === n+1) return;
+    var cur = s.value; s.innerHTML = opOptions().map(function(o){ return '<option value="'+o+'"'+(o===cur?' selected':'')+'>'+(o===''?'—':o)+'</option>'; }).join('');
+  });
+}
+function stageReq(){
+  var names = store.proc2.map(function(r){ return String(r.st||'').toLowerCase(); }).join(' | ');
+  var keys = [['Приймання',/прийм/],['Перевірка наявності',/наявн/],['Погодження',/погодж/],['Комплектування',/комплект/],['Передача перевізнику',/перевізн|передач/],['Завершення',/заверш/],['Скасування',/скасув/]];
+  $('#stageReq').innerHTML = keys.map(function(k){ return '<span class="req'+(k[1].test(names)?' on':'')+'">'+k[0]+'</span>'; }).join('');
+}
+function dictCheck(){
+  var names = store.dict.map(function(r){ return String(r.name||''); }).join(' | ');
+  var hit = DICT_REQ.map(function(r){ return r[1].test(names); });
+  $('#dictReq').innerHTML = DICT_REQ.map(function(r,i){ return '<span class="req'+(hit[i]?' on':'')+'">'+r[0]+'</span>'; }).join('');
+  var complete = store.dict.filter(function(r){ return ['name','type','req','ex','rule'].every(function(k){ return String(r[k]||'').trim(); }); }).length;
+  $('#dictCount').textContent = 'Повністю описано полів: '+complete+' (мінімум 10)';
+  var warn = [];
+  var phoneRe = /(\+?380|\b0)\s?\(?\d{2}\)?[\s-]?\d{3}[\s-]?\d{2}[\s-]?\d{2}\b/;
+  store.dict.forEach(function(r,i){
+    if(phoneRe.test(String(r.ex||'')) && !/x|х|0{3}|\*/i.test(String(r.ex))) warn.push('рядок '+(i+1)+': приклад схожий на справжній номер телефону — замініть на умовний (напр. +380 00 000 00 00)');
+    if(/ідентиф|номер|код/i.test(r.name||'') && /число/.test(r.type||'') ) warn.push('рядок '+(i+1)+': ідентифікатор має числовий тип. Його не додають і не усереднюють — краще «Ідентифікатор (текст)»');
+  });
+  var hits = hit.filter(Boolean).length;
+  $('#dictWarn').innerHTML = (hits===DICT_REQ.length ? '✅ Усі обов\'язкові поля присутні. ' : 'Обов\'язкових полів: '+hits+' / '+DICT_REQ.length+'. ') + (warn.length ? '<br>⚠ '+warn.map(esc).join('<br>⚠ ') : '');
+}
+
+/* ================= CANVAS DRAWING ================= */
+var FONT = '"Manrope","Segoe UI",Arial,sans-serif';
+var EXPORT_PAL = {bg:'#ffffff', panel:'#f4f4fb', ink:'#111026', soft:'#4b4a68', blue:'#0066c4', deep:'#004384', red:'#d60015', ok:'#0a9b98', line:'#c7c8e0', tint:'#e6eefa'};
+function screenPal(){ var cs = getComputedStyle(root); function g(n){ return cs.getPropertyValue(n).trim(); }
+  return {bg:g('--bg-soft'), panel:g('--bg-panel'), ink:g('--ink'), soft:g('--ink-soft'), blue:g('--blue'), deep:g('--blue-deep'), red:g('--red'), ok:g('--ok'), line:g('--line'), tint:g('--tint-blue')}; }
+function wrapText(ctx, text, maxW){
+  var words = String(text).split(/\s+/).filter(Boolean), lines = [], line = '';
+  words.forEach(function(w){
+    var test = line ? line+' '+w : w;
+    if(ctx.measureText(test).width > maxW && line){ lines.push(line); line = w; }
+    else line = test;
+    while(ctx.measureText(line).width > maxW && line.length > 1){ var cut = line.length-1; while(cut>1 && ctx.measureText(line.slice(0,cut)).width > maxW) cut--; lines.push(line.slice(0,cut)); line = line.slice(cut); }
+  });
+  if(line) lines.push(line);
+  return lines.length ? lines : [''];
+}
+function rr(ctx, x, y, w, h, r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.quadraticCurveTo(x+w,y,x+w,y+r); ctx.lineTo(x+w,y+h-r); ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h); ctx.lineTo(x+r,y+h); ctx.quadraticCurveTo(x,y+h,x,y+h-r); ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y); ctx.closePath(); }
+function arrow(ctx, x1, y1, x2, y2, col, dash){
+  ctx.save(); ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = 2; if(dash) ctx.setLineDash([6,5]);
+  ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke(); ctx.setLineDash([]);
+  var a = Math.atan2(y2-y1, x2-x1); ctx.beginPath(); ctx.moveTo(x2,y2); ctx.lineTo(x2-9*Math.cos(a-0.45), y2-9*Math.sin(a-0.45)); ctx.lineTo(x2-9*Math.cos(a+0.45), y2-9*Math.sin(a+0.45)); ctx.closePath(); ctx.fill(); ctx.restore();
+}
+/* items: [{title, lines:[[label,text]], badge, ghost}], branch: item or null */
+function drawFlow(cv, items, branch, P, W, title){
+  var ctx = cv.getContext('2d'), dpr = cv._export ? 2 : (window.devicePixelRatio||1);
+  var cols = W>=900 ? 3 : (W>=560 ? 2 : 1), pad = 18, gap = 44, top = title ? 40 : 18;
+  var bw = (W - pad*2 - gap*(cols-1))/cols, iw = bw - 26;
+  function measure(it){
+    ctx.font = '700 15px '+FONT; var tl = wrapText(ctx, it.title, iw - (it.badge?28:0));
+    ctx.font = '13px '+FONT; var sl = []; (it.lines||[]).forEach(function(l){ wrapText(ctx, l[0]+': '+l[1], iw).forEach(function(s,j){ sl.push([s, j===0 ? l[0] : null]); }); });
+    return {tl:tl, sl:sl, h: 16 + tl.length*20 + (sl.length? 6 + sl.length*18 : 0) + 14};
+  }
+  var ms = items.map(measure), rows = Math.ceil(items.length/cols), rowH = [];
+  for(var r=0;r<rows;r++){ var m=0; for(var c=0;c<cols;c++){ var i=r*cols+c; if(ms[i]) m=Math.max(m, ms[i].h); } rowH.push(Math.max(m,70)); }
+  var bm = branch ? measure(branch) : null;
+  var H = top + rowH.reduce(function(a,b){return a+b;},0) + gap*(rows-1) + (branch ? gap+20+bm.h : 0) + pad;
+  cv.width = Math.round(W*dpr); cv.height = Math.round(H*dpr); cv._w = W; cv._h = H;
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.fillStyle = P.bg; ctx.fillRect(0,0,W,H);
+  if(title){ ctx.fillStyle = P.deep; ctx.font = '700 15px '+FONT; ctx.textBaseline = 'alphabetic'; ctx.fillText(title, pad, 26); }
+  var pos = [], y = top;
+  for(r=0;r<rows;r++){ for(c=0;c<cols;c++){ i=r*cols+c; if(!items[i]) continue; var cc = (r%2===1) ? cols-1-c : c; pos[i] = {x: pad+cc*(bw+gap), y:y, h:ms[i].h}; } y += rowH[r]+gap; }
+  for(i=0;i<items.length-1;i++){
+    var a = pos[i], b = pos[i+1];
+    if(Math.abs(a.y-b.y)<1){ var ay = a.y+30; if(b.x>a.x) arrow(ctx, a.x+bw+3, ay, b.x-4, ay, P.soft); else arrow(ctx, a.x-3, ay, b.x+bw+4, ay, P.soft); }
+    else arrow(ctx, a.x+bw/2, a.y+a.h+3, b.x+bw/2, b.y-4, P.soft);
+  }
+  function box(it, p, m, danger){
+    rr(ctx, p.x, p.y, bw, m.h, 10); ctx.fillStyle = P.panel; ctx.fill(); ctx.lineWidth = it.badge||danger ? 2.5 : 2; ctx.strokeStyle = danger||it.badge ? P.red : (it.ghost ? P.line : P.blue); if(it.ghost) ctx.setLineDash([5,4]); ctx.stroke(); ctx.setLineDash([]);
+    var ty = p.y+16+14; ctx.textBaseline = 'alphabetic';
+    ctx.font = '700 15px '+FONT; ctx.fillStyle = it.ghost ? P.soft : P.ink; m.tl.forEach(function(l){ ctx.fillText(l, p.x+13, ty); ty += 20; });
+    ty += 4; ctx.font = '13px '+FONT;
+    m.sl.forEach(function(s){ if(s[1]){ var lab = s[1]+': '; ctx.fillStyle = P.deep; ctx.fillText(lab, p.x+13, ty); ctx.fillStyle = P.soft; ctx.fillText(s[0].slice(lab.length), p.x+13+ctx.measureText(lab).width, ty); } else { ctx.fillStyle = P.soft; ctx.fillText(s[0], p.x+13, ty); } ty += 18; });
+    if(it.badge){ ctx.beginPath(); ctx.arc(p.x+bw-16, p.y+16, 11, 0, Math.PI*2); ctx.fillStyle = P.red; ctx.fill(); ctx.fillStyle = '#fff'; ctx.font = '700 12px '+FONT; ctx.textAlign = 'center'; ctx.fillText(it.badge>1 ? '!'+it.badge : '!', p.x+bw-16, p.y+20); ctx.textAlign = 'left'; }
+  }
+  items.forEach(function(it,i){ box(it, pos[i], ms[i]); });
+  if(branch){
+    var by = y - gap + gap + 20, bx = pad + (cols>1 ? (W-2*pad-bw)/2 : 0), ly = by - 22;
+    ctx.save(); ctx.strokeStyle = P.red; ctx.setLineDash([6,5]); ctx.lineWidth = 1.6; ctx.beginPath(); ctx.moveTo(pad, ly); ctx.lineTo(W-pad, ly); ctx.stroke(); ctx.restore();
+    ctx.fillStyle = P.red; ctx.font = '12px '+FONT; ctx.fillText('Скасування можливе з етапів до передачі перевізнику', pad, ly-6);
+    arrow(ctx, bx+bw/2, ly, bx+bw/2, by-4, P.red, true);
+    box(branch, {x:bx, y:by}, bm, true);
+  }
+}
+function canvasWidth(cv){ var w = cv.parentNode.clientWidth - 20; return Math.max(300, Math.min(1140, w)); }
+function proc1Items(){
+  var badges = {}; store.risks.forEach(function(r){ if(r.op && (String(r.place||'').trim()||String(r.impact||'').trim())) badges[r.op] = (badges[r.op]||0)+1; });
+  return store.proc1.map(function(r,i){
+    var t = String(r.op||'').trim(), lines = [];
+    if(String(r.who||'').trim()) lines.push(['Виконавець', r.who.trim()]);
+    if(String(r.inp||'').trim()) lines.push(['Вхід', r.inp.trim()]);
+    if(String(r.out||'').trim()) lines.push(['Результат', r.out.trim()]);
+    return {title:(i+1)+'. '+(t||'Операція'), lines:lines, ghost:!t, badge:badges[String(i+1)]||0};
+  });
+}
+function proc2Items(){
+  var main = [], branch = null;
+  store.proc2.forEach(function(r){
+    var t = String(r.st||'').trim(), lines = [];
+    if(String(r.status||'').trim()) lines.push(['Статус', r.status.trim()]);
+    if(String(r.who||'').trim()) lines.push(['Виконавець', r.who.trim()]);
+    if(String(r.fix||'').trim()) lines.push(['Фіксується', r.fix.trim()]);
+    var it = {title:t||'Етап', lines:lines, ghost:!t};
+    if(/скасув/i.test(t) && !branch) branch = it; else main.push(it);
+  });
+  var idf = fv('t2_idfmt').trim();
+  main.forEach(function(it,i){ it.title = (i+1)+'. '+it.title; });
+  return {main:main, branch:branch, title:'Єдиний номер замовлення'+(idf?': '+idf:'')};
+}
+function drawProc1(){ var cv = $('#cvProc1'); if(!cv.offsetParent) return; var W = canvasWidth(cv); drawFlow(cv, proc1Items(), null, screenPal(), W, 'Поточний процес «ПолтаваМаркет»'); }
+function drawProc2(){ var cv = $('#cvProc2'); if(!cv.offsetParent) return; var W = canvasWidth(cv), d = proc2Items(); drawFlow(cv, d.main, d.branch, screenPal(), W, d.title); }
+
+var chartMetric = 'money';
+function chartValues(){ return VK.map(function(k){ var v = numVal('c1_'+(chartMetric)+'_'+k) ; if(chartMetric==='y12m') v = numVal('c12_y12m_'+k); return {label:V[k].c+' · '+V[k].n, short:V[k].c, v:v}; }); }
+function niceStep(x){ var p = Math.pow(10, Math.floor(Math.log10(x))), f = x/p; return (f<1.5?1:f<3?2:f<7?5:10)*p; }
+function drawChart(cv, P, W){
+  var ctx = cv.getContext('2d'), dpr = cv._export ? 2 : (window.devicePixelRatio||1), H = 320;
+  cv.width = Math.round(W*dpr); cv.height = Math.round(H*dpr); cv._w=W; cv._h=H; ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.fillStyle = P.bg; ctx.fillRect(0,0,W,H);
+  var vals = chartValues(), has = vals.some(function(v){ return v.v!=null; });
+  var title = chartMetric==='money' ? 'Щомісячний грошовий ефект, грн (сценарій 1)' : 'Грошовий результат за 12 місяців, грн (сценарій 1)';
+  ctx.fillStyle = P.deep; ctx.font = '700 15px '+FONT; ctx.fillText(title, 16, 26);
+  var pl = 76, pr = 20, pt = 50, pb = 52, cw = W-pl-pr, ch = H-pt-pb;
+  var nums = vals.map(function(v){ return v.v||0; }), mx = Math.max.apply(null, nums.concat([0])), mn = Math.min.apply(null, nums.concat([0]));
+  if(mx===mn) mx = mn+1000;
+  var step = niceStep((mx-mn)/5 || 1), lo = Math.floor(mn/step)*step, hi = Math.ceil(mx/step)*step; if(hi===lo) hi = lo+step;
+  function yv(v){ return pt + ch - (v-lo)/(hi-lo)*ch; }
+  ctx.font = '12px '+FONT; ctx.textAlign = 'right';
+  for(var t=lo; t<=hi+1e-9; t+=step){ var yy = yv(t); ctx.strokeStyle = P.line; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(pl, yy); ctx.lineTo(W-pr, yy); ctx.stroke(); ctx.fillStyle = P.soft; ctx.fillText(fmt(t), pl-8, yy+4); }
+  ctx.strokeStyle = P.soft; ctx.beginPath(); ctx.moveTo(pl, yv(0)); ctx.lineTo(W-pr, yv(0)); ctx.stroke();
+  var slot = cw/vals.length, bwid = Math.min(120, slot*0.5), cols = [P.blue, P.deep, P.ok];
+  ctx.textAlign = 'center';
+  vals.forEach(function(v,i){
+    var cx = pl + slot*i + slot/2;
+    if(v.v!=null){ var y0 = yv(0), y1 = yv(v.v); ctx.fillStyle = v.v<0 ? P.red : cols[i]; rr(ctx, cx-bwid/2, Math.min(y0,y1), bwid, Math.max(2,Math.abs(y1-y0)), 4); ctx.fill();
+      ctx.fillStyle = P.ink; ctx.font = '700 13px '+FONT; ctx.fillText(fmt(v.v, Math.abs(v.v)%1?2:0)+' грн', cx, (v.v>=0 ? y1-8 : y1+18)); }
+    else { ctx.fillStyle = P.soft; ctx.font = '12px '+FONT; ctx.fillText('немає даних', cx, yv(0)-10); }
+    ctx.fillStyle = P.ink; ctx.font = '700 14px '+FONT; ctx.fillText('Варіант '+v.short, cx, H-pb+24);
+    ctx.fillStyle = P.soft; ctx.font = '11px '+FONT; ctx.fillText(V[VK[i]].n.length>34 ? V[VK[i]].n.slice(0,33)+'…' : V[VK[i]].n, cx, H-pb+40);
+  });
+  ctx.textAlign = 'left';
+  if(!has){ ctx.fillStyle = P.soft; ctx.font = '13px '+FONT; ctx.fillText('Внесіть результати в тренажер вище — діаграма з\'явиться тут.', pl, pt+20); }
+}
+function drawChartScreen(){ var cv = $('#cvChart'); if(!cv.offsetParent) return; drawChart(cv, screenPal(), canvasWidth(cv)); }
+function redrawAll(){ drawProc1(); drawProc2(); drawChartScreen(); }
+var rzT; window.addEventListener('resize', function(){ clearTimeout(rzT); rzT = setTimeout(redrawAll, 120); });
+$$('#chartBtns button').forEach(function(b){ b.addEventListener('click', function(){ $$('#chartBtns button').forEach(function(x){ x.classList.remove('active'); x.classList.add('ghost'); }); b.classList.add('active'); b.classList.remove('ghost'); chartMetric = b.dataset.m; store.f.chartMetric = chartMetric; persist(); drawChartScreen(); }); });
+if(store.f.chartMetric==='y12m'){ chartMetric='y12m'; var cb=$$('#chartBtns button'); cb[0].classList.remove('active'); cb[0].classList.add('ghost'); cb[1].classList.add('active'); cb[1].classList.remove('ghost'); }
+
+/* ================= CALC TRAINER ================= */
+function cellId(tk, m, col){ return 'c'+tk+'_'+m+'_'+col; }
+function renderCalc(tk){
+  var T = TABLES[tk], cols = tk===12 ? VK : ['cur'].concat(VK);
+  var h = '<thead><tr><th>Показник</th><th class="unit">од.</th>'+cols.map(function(c){ return '<th class="num">'+(c==='cur'?'Поточний':'Варіант '+V[c].c)+'</th>'; }).join('')+'</tr></thead><tbody>';
+  T.rows.forEach(function(m){
+    h += '<tr><td>'+m[1]+'</td><td class="unit">'+m[2]+'</td>';
+    cols.forEach(function(c){
+      if(c==='cur' && !m[3]) h += '<td class="na">—</td>';
+      else { var id = cellId(tk, m[0], c); h += '<td><input id="'+id+'" data-save inputmode="decimal" aria-label="'+esc(m[1]+' · '+(c==='cur'?'поточний':'варіант '+V[c].c))+'"></td>'; }
+    });
+    h += '</tr>';
+  });
+  if(T.budget){ h += '<tr><td>Перевищує бюджет 18 000 грн</td><td class="unit">так/ні</td><td class="na">—</td>'+VK.map(function(k){ return '<td style="text-align:center"><label class="mono" style="font-size:12.5px"><input type="checkbox" id="c2_over_'+k+'" data-save style="width:auto;min-width:0"> так</label></td>'; }).join('')+'</tr>'; }
+  $('#'+T.id).innerHTML = h+'</tbody>';
+}
+function numVal(id){ var raw = fv(id).trim(); if(!raw) return null; var s = raw.replace(/\s| /g,'').replace(',', '.').replace(/грн|год|шт|міс/gi,''); if(/^н\/?в|не\s?визн/i.test(raw)) return 'nv'; var n = parseFloat(s); return isNaN(n) ? null : n; }
+function close(a, b){ return Math.abs(a-b) <= Math.max(Math.abs(b)*0.01, 0.06); }
+function runCheck(tk, silent){
+  var T = TABLES[tk], sc = tk===2 ? 2 : 1, ref = compute(sc), cols = tk===12 ? VK : ['cur'].concat(VK);
+  var res = {}, good = 0, total = 0, empty = 0;
+  T.rows.forEach(function(m){ cols.forEach(function(c){
+    if(c==='cur' && !m[3]) return;
+    var id = cellId(tk, m[0], c), el = $('#'+id), v = numVal(id), want = ref[c][m[0]]; total++;
+    var st;
+    if(v===null) { st='miss'; empty++; }
+    else if(want===null) st = (v==='nv') ? 'good' : 'bad';
+    else st = (v!=='nv' && close(v, want)) ? 'good' : 'bad';
+    if(st==='good') good++;
+    res[id] = st; if(el){ el.classList.remove('good','bad','miss'); el.classList.add(st); }
+  }); });
+  if(T.budget){ VK.forEach(function(k){ var id='c2_over_'+k, on=!!store.f[id], ok = on===ref[k].over; total++; if(ok) good++; res[id] = ok?'good':'bad'; var el=$('#'+id); if(el) el.parentNode.style.color = ok ? 'var(--ok)' : 'var(--red)'; }); }
+  store.checks[tk] = {res:res, good:good, total:total, at:new Date().toLocaleString('uk-UA')}; persist();
+  if(!silent) $(T.out).textContent = 'Правильно '+good+' з '+total + (empty ? ' · порожніх клітинок: '+empty : '') + (good===total ? ' · Чудово, усе збігається!' : ' · Червоні клітинки перевірте за формулами.');
+}
+[1,12,2].forEach(function(tk){ renderCalc(tk); });
+$$('[data-check]').forEach(function(b){ b.addEventListener('click', function(){ runCheck(+b.dataset.check); }); });
+
+/* ================= T7: CHOICE / KPI / ORDER ================= */
+var CH = [['s1','Початкова ситуація (800 замовлень)'],['s2','Змінені умови (1100 замовлень, 80 %)']];
+$('#choiceBlocks').innerHTML = CH.map(function(c){
+  return '<div class="card"><h4>'+c[1]+'</h4><div class="choice" data-ch="'+c[0]+'">'+VK.map(function(k){ return '<button type="button" data-v="'+k+'">'+V[k].c+'</button>'; }).join('')+'</div>'+
+  '<div class="fld"><label for="t7_'+c[0]+'_num">Число (який розрахунок це підтверджує)</label><textarea id="t7_'+c[0]+'_num" data-save rows="2"></textarea></div>'+
+  '<div class="fld"><label for="t7_'+c[0]+'_lim">Обмеження (бюджет, ризики)</label><textarea id="t7_'+c[0]+'_lim" data-save rows="2"></textarea></div>'+
+  '<div class="fld"><label for="t7_'+c[0]+'_org">Організаційний аргумент</label><textarea id="t7_'+c[0]+'_org" data-save rows="2"></textarea></div></div>';
+}).join('');
+function paintChoice(){ $$('[data-ch]').forEach(function(g){ $$('button', g).forEach(function(b){ b.classList.toggle('on', store.choice[g.dataset.ch]===b.dataset.v); }); }); $$('#peerRes button').forEach(function(b){ b.classList.toggle('on', store.choice.peer===b.dataset.v); }); }
+$$('[data-ch] button').forEach(function(b){ b.addEventListener('click', function(){ store.choice[b.parentNode.dataset.ch] = b.dataset.v; persist(); paintChoice(); }); });
+$$('#peerRes button').forEach(function(b){ b.addEventListener('click', function(){ store.choice.peer = b.dataset.v; persist(); paintChoice(); }); });
+
+function renderOrder(marks){
+  $('#orderBox').innerHTML = store.order.map(function(oi, pos){
+    var cls = marks ? (oi===pos ? ' good' : ' bad') : '';
+    return '<div class="order-item'+cls+'"><span class="n">'+(pos+1)+'</span><span class="t">'+esc(ORDER[oi])+'</span><button class="btn ghost small" type="button" data-mv="-1" data-p="'+pos+'" aria-label="Вгору"'+(pos===0?' disabled':'')+'>↑</button><button class="btn ghost small" type="button" data-mv="1" data-p="'+pos+'" aria-label="Вниз"'+(pos===store.order.length-1?' disabled':'')+'>↓</button></div>';
+  }).join('');
+  $$('#orderBox [data-mv]').forEach(function(b){ b.addEventListener('click', function(){ var p=+b.dataset.p, q=p+(+b.dataset.mv); var t=store.order[p]; store.order[p]=store.order[q]; store.order[q]=t; persist(); renderOrder(); $('#orderLog').textContent='Розставте кроки й натисніть «Перевірити порядок».'; }); });
+}
+$('#orderCheck').addEventListener('click', function(){
+  var r = store.order.filter(function(oi,pos){ return oi===pos; }).length; store.f.orderScore = r+' / '+ORDER.length; persist(); renderOrder(true);
+  $('#orderLog').textContent = r===ORDER.length ? '✅ Порядок логічний: спершу фіксація і резервний режим, наприкінці звіряння без дублікатів.' : 'На своїх місцях '+r+' з '+ORDER.length+'. Подумайте: що робиться до відновлення реєстру, а що після?';
+});
+$('#orderShuffle').addEventListener('click', function(){ store.order = shuffle(store.order); persist(); renderOrder(); $('#orderLog').textContent='Розставте кроки.'; });
+renderOrder();
+
+/* participants in T8 */
+function renderParts(){
+  $('#partBlocks').innerHTML = [1,2,3].map(function(i){ var nm = fv('rep_p'+i).trim();
+    return '<div class="card"><h4>Учасник '+i+(nm?' · '+esc(nm):'')+'</h4><div class="fld"><label for="t8_f'+i+'">Формула, яку пояснює</label><textarea id="t8_f'+i+'" data-save rows="3"></textarea></div><div class="fld"><label for="t8_p'+i+'">Зміна процесу, яку пояснює</label><textarea id="t8_p'+i+'" data-save rows="3"></textarea></div></div>'; }).join('');
+}
+renderParts();
+
+/* ================= QUIZ ================= */
+function renderQuiz(){
+  $('#quizBox').innerHTML = QZ.map(function(x,i){ return '<div class="quiz-q" data-i="'+i+'"><h4>'+(i+1)+'. '+esc(x.q)+'</h4>'+x.o.map(function(o,j){ return '<button class="quiz-opt" type="button" data-j="'+j+'">'+esc(o)+'</button>'; }).join('')+'<div class="quiz-fb" hidden></div></div>'; }).join('');
+  $$('.quiz-q').forEach(function(q){ var i=+q.dataset.i; $$('.quiz-opt', q).forEach(function(o){ o.addEventListener('click', function(){ if(store.quiz[i]!=null) return; store.quiz[i] = +o.dataset.j; persist(); paintQ(q,i); qScore(); }); }); if(store.quiz[i]!=null) paintQ(q,i); });
+  qScore();
+}
+function paintQ(q, i){ var x = QZ[i], ch = store.quiz[i]; $$('.quiz-opt', q).forEach(function(o,j){ o.disabled = true; if(j===x.ok) o.classList.add('correct'); else if(j===ch) o.classList.add('wrong'); }); var f = $('.quiz-fb', q); f.hidden = false; f.innerHTML = (ch===x.ok ? '✅ <b>Правильно.</b> ' : '❌ <b>Не зовсім.</b> ')+esc(x.e); }
+function qRes(){ var n=0, s=0; QZ.forEach(function(x,i){ if(store.quiz[i]!=null){ n++; if(store.quiz[i]===x.ok) s++; } }); return {n:n, s:s}; }
+function qScore(){ var r = qRes(); $('#quizScore').textContent = 'Результат: '+r.s+' / '+QZ.length+(r.n===QZ.length ? ' · тест завершено' : ''); }
+$('#quizReset').addEventListener('click', function(){ store.quiz = []; persist(); renderQuiz(); });
+
+/* ================= GENERIC SAVE ================= */
+function words(s){ var m = String(s).trim().match(/\S+/g); return m ? m.length : 0; }
+function wc(el){ var w = el.parentNode.querySelector('.wc'); if(!w) return; var n = words(el.value), r = (el.dataset.wc||'').split('-'); w.textContent = 'слів: '+n+(r.length===2 ? ' (потрібно '+r[0]+'–'+r[1]+')' : ''); w.classList.toggle('ok', r.length===2 && n>=+r[0] && n<=+r[1]); w.classList.toggle('bad', r.length===2 && n>0 && (n<+r[0] || n>+r[1])); }
+function bindSave(scope){
+  $$('[data-save]', scope).forEach(function(el){
+    if(el._bound) return; el._bound = true; var k = el.id;
+    if(store.f[k]!==undefined){ if(el.type==='checkbox') el.checked = !!store.f[k]; else el.value = store.f[k]; }
+    if(el.type==='checkbox' && el.closest('.check')) el.closest('.check').classList.toggle('done', el.checked);
+    if(el.hasAttribute('data-wc')) wc(el);
+    el.addEventListener(el.type==='checkbox' || el.tagName==='SELECT' ? 'change' : 'input', function(){
+      store.f[k] = el.type==='checkbox' ? el.checked : el.value; persist();
+      if(el.hasAttribute('data-wc')) wc(el);
+      if(el.type==='checkbox' && el.closest('.check')) el.closest('.check').classList.toggle('done', el.checked);
+      if(/^c(1|12)_/.test(k)) drawChartScreen();
+      if(k==='t2_idfmt') drawProc2();
+      if(/^rep_p/.test(k)){ renderParts(); bindSave($('#partBlocks')); }
+      if(/^c\d/.test(k)){ el.classList.remove('good','bad','miss'); }
+    });
+  });
+}
+bindSave(document);
+['proc1','risks','proc2','dict','kpi'].forEach(renderTable);
+paintChoice(); renderQuiz();
+['1','12','2'].forEach(function(tk){ if(store.checks[tk]) runCheck(+tk); });
+
+/* copy */
+$$('.copy').forEach(function(btn){ btn.addEventListener('click', function(){ var t = $('pre', btn.parentNode).textContent;
+  function ok(){ btn.textContent = 'Скопійовано ✓'; setTimeout(function(){ btn.textContent = 'Копіювати'; }, 1600); }
+  function fb(){ var r = document.createRange(); r.selectNodeContents($('pre', btn.parentNode)); var s = window.getSelection(); s.removeAllRanges(); s.addRange(r); try{ document.execCommand('copy'); ok(); }catch(e){} }
+  if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(ok, fb); else fb(); }); });
+
+/* ================= STATS ================= */
+function txtFilled(ids){ return ids.filter(function(id){ return fv(id).trim(); }).length; }
+function calcFilled(tk){ var T = TABLES[tk], cols = tk===12 ? VK : ['cur'].concat(VK), n=0, t=0; T.rows.forEach(function(m){ cols.forEach(function(c){ if(c==='cur'&&!m[3]) return; t++; if(fv(cellId(tk,m[0],c)).trim()) n++; }); }); return [n,t]; }
+function rowsFull(key, keys){ return store[key].filter(function(r){ return keys.every(function(k){ return String(r[k]||'').trim(); }); }).length; }
+function stats(){
+  var c1 = calcFilled(1), c12 = calcFilled(12), c2 = calcFilled(2), w = words(fv('t8_concl'));
+  var rows = [
+    ['01 · Операції (мін. 6)', Math.min(rowsFull('proc1',['op','who','inp','out']),6), 6],
+    ['01 · Місця помилок', rowsFull('risks',['place','impact']), 4],
+    ['02 · Етапи + зміна адреси', Math.min(rowsFull('proc2',['st','status','who']),7) + txtFilled(['t2_who','t2_how']), 9],
+    ['03 · Словник (мін. 10)', Math.min(rowsFull('dict',['name','type','req','ex','rule']),10), 10],
+    ['04 · Розрахунок, клітинки', c1[0], c1[1]],
+    ['05 · 12 міс + коментар', c12[0] + txtFilled(['t5_note']), c12[1]+1],
+    ['06 · Перерахунок, клітинки', c2[0], c2[1]],
+    ['07 · Рішення і KPI', (store.choice.s1?1:0)+(store.choice.s2?1:0)+txtFilled(['t7_s1_num','t7_s1_lim','t7_s1_org','t7_s2_num','t7_s2_lim','t7_s2_org','t7_offline'])+rowsFull('kpi',['name','src','resp','goal']), 12],
+    ['08 · Перевірка', (store.choice.peer?1:0)+txtFilled(['t8_peer','t8_var','t8_text','t8_f1','t8_p1','t8_f2','t8_p2','t8_f3','t8_p3']), 10],
+    ['08 · Висновок (150–200 слів)', Math.min(w,150), 150],
+    ['Тест', qRes().n, QZ.length]
+  ];
+  $('#stats').innerHTML = rows.map(function(r){ return '<div class="stat"><span>'+r[0]+'</span><div class="bar"><i style="width:'+Math.round(r[1]/r[2]*100)+'%"></i></div><span>'+(r[0].indexOf('Висновок')>-1 ? w+' сл.' : r[1]+' / '+r[2])+'</span></div>'; }).join('');
+}
+stats();
+
+/* ================= DOCX ================= */
+function x(s){ return String(s==null?'':s).replace(/[<>&"]/g, function(c){ return {'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]; }).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g,''); }
+function run(t, o){ o=o||{}; return '<w:r><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:cs="Calibri"/>'+(o.b?'<w:b/>':'')+(o.i?'<w:i/>':'')+(o.c?'<w:color w:val="'+o.c+'"/>':'')+'<w:sz w:val="'+(o.s||24)+'"/><w:lang w:val="uk-UA"/></w:rPr><w:t xml:space="preserve">'+x(t)+'</w:t></w:r>'; }
+function para(t, o){ o=o||{}; return '<w:p><w:pPr>'+(o.k?'<w:keepNext/>':'')+'<w:spacing w:before="'+(o.sb||0)+'" w:after="'+(o.sa==null?120:o.sa)+'"/>'+(o.al?'<w:jc w:val="'+o.al+'"/>':'')+'</w:pPr>'+(Array.isArray(t) ? t.map(function(p){ return run(p[0], p[1]); }).join('') : run(t, o))+'</w:p>'; }
+function paras(t, o){ t = String(t||'').trim(); o = o||{}; if(!t) return para(o.cell ? '—' : '— не заповнено —', {i:1, c:'888888', s:o.s||24, sa:o.sa}); return t.split(/\n+/).map(function(l){ return para(l, o); }).join(''); }
+function h1(t){ return para(t, {b:1, s:28, k:1, sb:280, sa:120, c:'004384'}); }
+function h2(t){ return para(t, {b:1, s:24, k:1, sb:160, sa:80}); }
+function tcell(w, content, fill){ return '<w:tc><w:tcPr><w:tcW w:w="'+w+'" w:type="dxa"/>'+(fill?'<w:shd w:val="clear" w:color="auto" w:fill="'+fill+'"/>':'')+'</w:tcPr>'+content+'</w:tc>'; }
+/* rows: array of arrays; cell = string or {t, c(color), fill, b, al} */
+function table(rows, ws, opt){
+  opt = opt||{};
+  var b = ['top','left','bottom','right','insideH','insideV'].map(function(n){ return '<w:'+n+' w:val="single" w:sz="4" w:space="0" w:color="9FA1C4"/>'; }).join('');
+  return '<w:tbl><w:tblPr><w:tblW w:w="'+ws.reduce(function(a,c){return a+c;},0)+'" w:type="dxa"/><w:tblBorders>'+b+'</w:tblBorders><w:tblLayout w:type="fixed"/><w:tblCellMar><w:left w:w="80" w:type="dxa"/><w:right w:w="80" w:type="dxa"/></w:tblCellMar></w:tblPr><w:tblGrid>'+ws.map(function(w){ return '<w:gridCol w:w="'+w+'"/>'; }).join('')+'</w:tblGrid>'+
+    rows.map(function(r, ri){ var head = ri===0; return '<w:tr>'+(head?'<w:trPr><w:tblHeader/></w:trPr>':'')+r.map(function(c, ci){
+      var o = (c && typeof c==='object') ? c : {t:c}; var s = opt.s||20;
+      var content = paras(o.t, {b: head||o.b||(opt.firstBold&&ci===0), s:s, c:o.c, al:o.al, sa:40, cell:1});
+      return tcell(ws[ci], content, head ? 'DCE3F5' : o.fill);
+    }).join('')+'</w:tr>'; }).join('')+'</w:tbl>'+para('', {sa:60});
+}
+var media = [];
+function b64ToBytes(b64){ var bin = atob(b64), a = new Uint8Array(bin.length); for(var i=0;i<bin.length;i++) a[i] = bin.charCodeAt(i); return a; }
+function image(cv, widthEmu){
+  var data = b64ToBytes(cv.toDataURL('image/png').split(',')[1]), n = media.length+1, rid = 'rIdImg'+n;
+  media.push({name:'image'+n+'.png', data:data, rid:rid});
+  var cx = widthEmu || 6120000, cy = Math.round(cx * cv._h / cv._w);
+  return '<w:p><w:pPr><w:jc w:val="center"/><w:spacing w:after="120"/></w:pPr><w:r><w:drawing><wp:inline distT="0" distB="0" distL="0" distR="0"><wp:extent cx="'+cx+'" cy="'+cy+'"/><wp:docPr id="'+n+'" name="Picture '+n+'"/><wp:cNvGraphicFramePr><a:graphicFrameLocks xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" noChangeAspect="1"/></wp:cNvGraphicFramePr><a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:nvPicPr><pic:cNvPr id="'+n+'" name="image'+n+'.png"/><pic:cNvPicPr/></pic:nvPicPr><pic:blipFill><a:blip r:embed="'+rid+'"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill><pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="'+cx+'" cy="'+cy+'"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr></pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing></w:r></w:p>';
+}
+function exportCanvas(fn){ var cv = document.createElement('canvas'); cv._export = true; fn(cv); return cv; }
+function mark(tk, id){ var c = store.checks[tk]; if(!c || !c.res[id]) return null; return c.res[id]; }
+function calcDocTable(tk){
+  var T = TABLES[tk], cols = tk===12 ? VK : ['cur'].concat(VK);
+  var head = ['Показник','Од.'].concat(cols.map(function(c){ return c==='cur' ? 'Поточний' : 'Варіант '+V[c].c; }));
+  var rows = [head];
+  T.rows.forEach(function(m){
+    var r = [m[1], m[2]];
+    cols.forEach(function(c){
+      if(c==='cur' && !m[3]){ r.push({t:'—', al:'center'}); return; }
+      var id = cellId(tk, m[0], c), raw = fv(id).trim(), mk = mark(tk, id);
+      if(!raw){ r.push({t:'—', al:'right', c:'888888'}); return; }
+      r.push({t: raw + (mk==='good' ? '  ✓' : mk==='bad' ? '  ✗' : ''), al:'right', c: mk==='good' ? '0A7F7C' : mk==='bad' ? 'C00014' : null});
+    });
+    rows.push(r);
+  });
+  if(T.budget) rows.push(['Перевищує бюджет','так/ні',{t:'—',al:'center'}].concat(VK.map(function(k){ var mk = mark(2,'c2_over_'+k); return {t:(store.f['c2_over_'+k]?'так':'ні')+(mk==='good'?'  ✓':mk==='bad'?'  ✗':''), al:'center', c: mk==='good'?'0A7F7C':mk==='bad'?'C00014':null}; })));
+  var ws = tk===12 ? [3838,800,1666,1666,1668] : [2838,700,1525,1525,1525,1525];
+  var out = table(rows, ws);
+  var c = store.checks[tk];
+  out += para(c ? 'Перевірка тренажером ('+c.at+'): правильно '+c.good+' з '+c.total+'. ✓ — збігається з еталоном, ✗ — розбіжність.' : 'Перевірку тренажером не виконано.', {i:1, s:20, c:'4B4A68'});
+  return out;
+}
+function buildDoc(){
+  media = [];
+  var d = new Date().toLocaleDateString('uk-UA'), parts = [1,2,3].map(function(i){ return fv('rep_p'+i).trim(); }).filter(Boolean);
+  var s = '';
+  s += para('ЗВІТ', {b:1, s:36, al:'center', sa:60});
+  s += para('з практичного заняття 1 «Проєкт цифрового опрацювання замовлень»', {b:1, s:28, al:'center', sa:60});
+  s += para('Тема 1. Інформаційні технології – основа розвитку цифрової економіки', {i:1, s:22, al:'center', sa:240});
+  s += para([['Академічна група: ',{b:1}],[fv('rep_group').trim()||'—',{}]]) + para([['Робоча група: ',{b:1}],[fv('rep_team').trim()||'—',{}]]);
+  s += para([['Учасники: ',{b:1}],[parts.join('; ')||'—',{}]]) + para([['Дата: ',{b:1}],[d,{}]], {sa:200});
+
+  s += h1('Завдання 1. Схема поточного процесу');
+  var dr = detResult(); s += para('Розминка «Детектор ризиків»: оцінено '+dr.n+' з '+DET.length+', правильно '+dr.r+'.', {i:1, s:20, c:'4B4A68'});
+  s += h2('Операції поточного процесу');
+  s += table([['№','Операція','Виконавець','Вхідні дані','Результат']].concat(store.proc1.map(function(r,i){ return [String(i+1), r.op, r.who, r.inp, r.out]; })), [500,2300,1600,2619,2619]);
+  s += h2('Схема поточного процесу');
+  s += image(exportCanvas(function(cv){ drawFlow(cv, proc1Items(), null, EXPORT_PAL, 1100, 'Поточний процес «ПолтаваМаркет»'); }));
+  s += h2('Місця виникнення помилок і затримок');
+  s += table([['№','Опер.','Місце помилки / затримки','Вплив на','Пояснення впливу']].concat(store.risks.map(function(r,i){ return [String(i+1), r.op||'—', r.place, r.area, r.impact]; })), [500,800,3000,1500,3838]);
+
+  s += h1('Завдання 2. Схема запропонованого процесу');
+  s += para([['Формат єдиного номера замовлення: ',{b:1}],[fv('t2_idfmt').trim()||'— не заповнено —',{}]]);
+  s += table([['№','Етап','Статус у реєстрі','Виконавець','Що фіксується']].concat(store.proc2.map(function(r,i){ return [String(i+1), r.st, r.status, r.who, r.fix]; })), [500,1900,1900,1700,3638]);
+  var p2 = proc2Items();
+  s += image(exportCanvas(function(cv){ drawFlow(cv, p2.main, p2.branch, EXPORT_PAL, 1100, p2.title); }));
+  s += h2('Хто може змінити адресу після погодження') + paras(fv('t2_who'));
+  s += h2('Як зміна потрапляє до диспетчера') + paras(fv('t2_how'));
+
+  s += h1('Завдання 3. Словник полів реєстру');
+  s += table([['№','Назва поля','Тип даних','Обов.','Приклад','Правило перевірки']].concat(store.dict.map(function(r,i){ return [String(i+1), r.name, r.type, r.req, r.ex, r.rule]; })), [450,1750,1650,750,1800,3238], {s:19});
+  var names = store.dict.map(function(r){ return String(r.name||''); }).join(' | ');
+  s += para('Обов\'язкові поля: '+DICT_REQ.map(function(r){ return r[0]+(r[1].test(names)?' ✓':' ✗'); }).join('; ')+'.', {i:1, s:20, c:'4B4A68'});
+
+  s += h1('Завдання 4. Розрахунок для початкової ситуації (800 замовлень)');
+  s += calcDocTable(1);
+  s += h1('Завдання 5. Результат за 12 місяців і діаграма');
+  s += calcDocTable(12);
+    s += image(exportCanvas(function(cv){ drawChart(cv, EXPORT_PAL, 1000); }));
+  s += h2('Що показує діаграма') + paras(fv('t5_note'));
+
+  s += h1('Завдання 6. Перерахунок за змінених умов');
+  s += para('1100 замовлень на місяць; новим рішенням опрацьовують 80 %, 20 % — ручний процес; до разових витрат додано 3600 грн навчання; бюджет 18 000 грн.', {i:1, s:20});
+  s += calcDocTable(2);
+  s += h2('Що змінилося') + paras(fv('t6_note'));
+
+  s += h1('Завдання 7. Вибір рішення і контроль впровадження');
+  CH.forEach(function(c){
+    var ch = store.choice[c[0]];
+    s += h2(c[1]+': '+(ch ? 'варіант '+V[ch].c+' — '+V[ch].n : 'рішення не обрано'));
+    s += para([['Число: ',{b:1}],[fv('t7_'+c[0]+'_num').trim()||'— не заповнено —',{}]]);
+    s += para([['Обмеження: ',{b:1}],[fv('t7_'+c[0]+'_lim').trim()||'— не заповнено —',{}]]);
+    s += para([['Організаційний аргумент: ',{b:1}],[fv('t7_'+c[0]+'_org').trim()||'— не заповнено —',{}]]);
+  });
+  s += h2('Показники контролю впровадження');
+  s += table([['№','Показник','Джерело даних','Відповідальний','Ціль']].concat(store.kpi.map(function(r,i){ return [String(i+1), r.name, r.src, r.resp, r.goal]; })), [450,3000,2200,1800,2188]);
+  s += h2('Порядок роботи при недоступності реєстру') + paras(fv('t7_offline'));
+  if(store.f.orderScore) s += para('Тренажер «Реєстр недоступний»: на своїх місцях '+store.f.orderScore+' кроків.', {i:1, s:20, c:'4B4A68'});
+
+  s += h1('Завдання 8. Взаємна перевірка');
+  s += para([['Група-партнер: ',{b:1}],[fv('t8_peer').trim()||'—',{}]]) + para([['Перевірений варіант: ',{b:1}],[fv('t8_var').trim()||'—',{}]]);
+  s += para((store.f.t8_c1?'☑':'☐')+' перевірено вручну   '+(store.f.t8_c2?'☑':'☐')+' одиниці узгоджені   '+(store.f.t8_c3?'☑':'☐')+' бюджет перевірено');
+  s += para([['Результат: ',{b:1}],[store.choice.peer==='fix'?'внесено поправку':store.choice.peer==='ok'?'результат підтверджено':'— не обрано —',{}]]);
+  s += paras(fv('t8_text'));
+  s += h2('Пояснення учасників');
+  s += table([['Учасник','Формула','Зміна процесу']].concat([1,2,3].map(function(i){ return [fv('rep_p'+i).trim()||'Учасник '+i, fv('t8_f'+i), fv('t8_p'+i)]; })), [2200,3719,3719]);
+
+  s += h1('Висновок');
+  s += paras(fv('t8_concl'), {al:'both'});
+  s += para('Обсяг: '+words(fv('t8_concl'))+' слів.', {i:1, s:20, c:'4B4A68'});
+  s += h2('Внесок учасників і результат взаємної перевірки') + paras(fv('t8_contrib'));
+
+  var q = qRes(); s += h1('Тест для самоперевірки') + para('Результат: '+q.s+' з '+QZ.length, {b:1});
+  QZ.forEach(function(qq, i){ var a = store.quiz[i]; s += para((i+1)+'. '+qq.q, {b:1, k:1, sb:60, sa:30, s:22});
+    s += a!=null ? para('Відповідь: '+qq.o[a]+' — '+(a===qq.ok?'правильно':'неправильно'), {s:22, c:a===qq.ok?'0A7F7C':'C00014'}) : para('— без відповіді —', {i:1, c:'888888', s:22}); });
+
+  return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"><w:body>'+s+'<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1134" w:right="1134" w:bottom="1134" w:left="1134" w:header="708" w:footer="708" w:gutter="0"/></w:sectPr></w:body></w:document>';
+}
+function crc32(b){ var t = crc32.t; if(!t){ t = crc32.t = new Int32Array(256); for(var n=0;n<256;n++){ var c=n; for(var k=0;k<8;k++) c = c&1 ? 0xEDB88320^(c>>>1) : c>>>1; t[n]=c; } } var crc=-1; for(var i=0;i<b.length;i++) crc = t[(crc^b[i])&255]^(crc>>>8); return (crc^-1)>>>0; }
+function u(n, val){ var a=[]; for(var i=0;i<n;i++){ a.push(val&255); val = val>>>8; } return a; }
+function zip(files){
+  var enc = new TextEncoder(), parts = [], cd = [], off = 0;
+  files.forEach(function(f){
+    var nm = enc.encode(f.n), d = typeof f.d==='string' ? enc.encode(f.d) : f.d, c = crc32(d);
+    var lh = new Uint8Array([].concat(u(4,0x04034b50),u(2,20),u(2,0x800),u(2,0),u(2,0),u(2,33),u(4,c),u(4,d.length),u(4,d.length),u(2,nm.length),u(2,0)));
+    parts.push(lh, nm, d);
+    cd.push(new Uint8Array([].concat(u(4,0x02014b50),u(2,20),u(2,20),u(2,0x800),u(2,0),u(2,0),u(2,33),u(4,c),u(4,d.length),u(4,d.length),u(2,nm.length),u(2,0),u(2,0),u(2,0),u(2,0),u(4,0),u(4,off))), nm);
+    off += lh.length + nm.length + d.length;
+  });
+  var cs = 0; cd.forEach(function(p){ cs += p.length; });
+  var end = new Uint8Array([].concat(u(4,0x06054b50),u(2,0),u(2,0),u(2,files.length),u(2,files.length),u(4,cs),u(4,off),u(2,0)));
+  return new Blob(parts.concat(cd, [end]), {type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+}
+function makeDocx(){
+  var X = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>', doc = buildDoc();
+  var rels = X+'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'+media.map(function(m){ return '<Relationship Id="'+m.rid+'" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/'+m.name+'"/>'; }).join('')+'</Relationships>';
+  var files = [
+    {n:'[Content_Types].xml', d:X+'<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Default Extension="png" ContentType="image/png"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>'},
+    {n:'_rels/.rels', d:X+'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>'},
+    {n:'word/document.xml', d:doc},
+    {n:'word/_rels/document.xml.rels', d:rels}
+  ];
+  media.forEach(function(m){ files.push({n:'word/media/'+m.name, d:m.data}); });
+  return zip(files);
+}
+window.__pz1MakeDocx = makeDocx;
+$('#dlBtn').addEventListener('click', function(){
+  var g = fv('rep_group').trim(), p1 = fv('rep_p1').trim();
+  if(!g || !p1){ $('#repMsg').textContent = !g && !p1 ? 'Вкажіть академічну групу та хоча б першого учасника, щоб завантажити документ.' : !g ? 'Вкажіть академічну групу.' : 'Вкажіть ПІБ хоча б першого учасника.'; (!g ? $('#rep_group') : $('#rep_p1')).focus(); return; }
+  try{
+    ['1','12','2'].forEach(function(tk){ if(store.checks[tk]) runCheck(+tk, true); });
+    var blob = makeDocx();
+    var nm = (fv('rep_team').trim() || p1.split(/\s+/)[0] || 'група').replace(/[\\\/:*?"<>|]+/g,'').replace(/\s+/g,'_');
+    var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'Звіт_ПЗ1_'+(g.replace(/[\\\/:*?"<>|\s]+/g,'_'))+'_'+nm+'.docx';
+    a.rel = 'noopener'; a.style.display = 'none'; document.body.appendChild(a); a.click();
+    setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(a.href); }, 4000);
+    $('#repMsg').textContent = 'Звіт сформовано. Перевірте папку «Завантаження».';
+  }catch(err){ $('#repMsg').textContent = 'Не вдалося сформувати звіт: '+err.message+'. Спробуйте інший браузер (Chrome, Edge, Firefox).'; }
+});
+var clearArm = 0;
+$('#clearBtn').addEventListener('click', function(){
+  var b = this;
+  if(Date.now() - clearArm > 4000){ clearArm = Date.now(); b.textContent = 'Натисніть ще раз для підтвердження'; setTimeout(function(){ b.textContent = 'Очистити всі відповіді'; }, 4000); return; }
+  try{ localStorage.removeItem(KEY); }catch(e){}
+  location.reload();
+});
+
+/* ================= FLIP CARDS ================= */
+function flipCard(f){ f.classList.toggle('flipped'); f.setAttribute('aria-pressed', f.classList.contains('flipped')); }
+document.addEventListener('click', function(e){ var f = e.target.closest('.fcard'); if(f && !f.closest('#varCards')) flipCard(f); });
+document.addEventListener('keydown', function(e){ var t = e.target; if((e.key==='Enter' || e.key===' ') && t.classList && t.classList.contains('fcard') && !t.closest('#varCards')){ e.preventDefault(); flipCard(t); } });
+
+/* ================= TASK CONTENTS + SCROLL-SPY ================= */
+var spy = null;
+if('IntersectionObserver' in window){
+  spy = new IntersectionObserver(function(es){ es.forEach(function(en){
+    var a = en.target._tocLink; if(!en.isIntersecting || !a) return;
+    var list = a.parentNode; $$('a', list).forEach(function(x){ x.classList.toggle('on', x===a); });
+    if(list.scrollWidth > list.clientWidth + 4) list.scrollTo({left:a.offsetLeft-12, behavior:'smooth'});
+  }); }, {rootMargin:'-30% 0px -60% 0px'});
+}
+$$('section.panel').forEach(function(panel){
+  var toc = $('.toc-list', panel); if(!toc) return;
+  $$('article.block', panel).forEach(function(el){
+    var a = document.createElement('a'); a.href = '#'+el.id; a.setAttribute('data-kind', el.getAttribute('data-kind'));
+    a.innerHTML = '<span class="toc-no">'+esc($('.block-no', el).textContent)+'</span><span>'+esc($('h3', el).textContent)+'</span>';
+    a.addEventListener('click', function(e){ e.preventDefault(); el.scrollIntoView({behavior:'smooth', block:'start'}); });
+    toc.appendChild(a); el._tocLink = a;
+    if(spy) spy.observe(el);
+  });
+});
+
+/* reading progress under the tabs */
+function updProgress(){ var max = document.documentElement.scrollHeight - innerHeight; $('#navProgress').style.width = (max>0 ? Math.min(100, scrollY/max*100) : 0)+'%'; }
+window.addEventListener('scroll', updProgress, {passive:true});
+window.addEventListener('resize', updProgress);
+document.addEventListener('click', function(){ setTimeout(updProgress, 60); });
+updProgress();
+
+/* ================= SCROLL REVEAL (replays every time) =================
+   An element resets once it is fully off screen (or its task is closed) and animates again when it comes back.
+   Content rendered later (detector, participants, progress bars) is picked up automatically;
+   the reorder trainer is left out so its rows don't fade on every ↑ ↓ click. */
+var RV_SEL = '.sec-main > *, article.block, .fcard, #detector > .cls-item, .sb, .stat, .check, .quiz-q, #choiceBlocks > .card, #partBlocks > .card',
+    RV_SOLO = '.sec-main > *, article.block';
+var rvIn = null, rvOut = null, rvQueued = false;
+function rvScan(){
+  rvQueued = false;
+  $$(RV_SEL).forEach(function(el){
+    if(el.classList.contains('rv')) return;
+    el.classList.add('rv');
+    if(!el.matches(RV_SOLO)) el.style.setProperty('--i', Math.min(Array.prototype.indexOf.call(el.parentNode.children, el), 8));
+    rvIn.observe(el); rvOut.observe(el);
+  });
+}
+if(!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) && 'IntersectionObserver' in window && 'MutationObserver' in window){
+  // show when noticeably inside the viewport, hide only when completely outside — no flicker at the edges
+  rvIn = new IntersectionObserver(function(es){ es.forEach(function(en){ if(en.isIntersecting) en.target.classList.add('in'); }); }, {threshold:0.06, rootMargin:'0px 0px -6% 0px'});
+  rvOut = new IntersectionObserver(function(es){ es.forEach(function(en){
+    if(en.isIntersecting) return;
+    en.target.classList.remove('in');
+    en.target.classList.toggle('from-top', en.boundingClientRect.top < 0);   // left upwards → comes back from above
+  }); }, {threshold:0});
+  rvScan();
+  new MutationObserver(function(){ if(!rvQueued){ rvQueued = true; requestAnimationFrame(rvScan); } }).observe($('.frame'), {childList:true, subtree:true});
+}
+
+/* restore tab */
+var startTab = null; try{ startTab = sessionStorage.getItem('pz1-tab'); }catch(e){}
+if(location.hash && document.getElementById(location.hash.slice(1))) startTab = location.hash.slice(1);
+if(startTab) openTab(startTab, false);
+setTimeout(redrawAll, 60);
+if(document.fonts && document.fonts.ready) document.fonts.ready.then(redrawAll);
+})();
+</script>
+</body>
+</html>
