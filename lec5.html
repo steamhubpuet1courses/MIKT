@@ -1,0 +1,1361 @@
+<!DOCTYPE html><html lang="uk"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"><style>body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+<title>Захист даних</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;600;700;800&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* Layout: HUD-панель → hero → липкі вкладки → одна активна панель-розділ.
+   Усередині розділу: шапка → зміст (праворуч / згори на мобільних) → тематичні групи → нумеровані блоки → висновок. */
+:root{
+  --bg:#f2f4fa; --bg-panel:#ffffff; --bg-soft:#f5f7fc; --grid:rgba(36,71,184,.05); --grid-dot:rgba(36,71,184,.13);
+  --ink:#10142b; --ink-soft:#5b6283; --on-ink:#ffffff;
+  --blue:#3d6cf0; --blue-deep:#2447b8; --blue-bright:#5b8cff;
+  --red:#e0405a; --olive:#d99a00; --olive-ink:#946800; --ok:#0d9b8a; --sim:#e8731c;
+  --core:#1b2559; --core-2:#2b3f8f;
+  --line:#e1e5f1; --line-strong:#cdd3e6; --nav-bg:rgba(255,255,255,.82);
+  --tint-blue:rgba(61,108,240,.08); --tint-red:rgba(224,64,90,.08); --tint-olive:rgba(217,154,0,.1); --tint-ok:rgba(13,155,138,.1); --tint-sim:rgba(232,115,28,.09);
+  --glow-1:rgba(61,108,240,.10); --glow-2:rgba(13,155,138,.07);
+  --shadow:0 1px 2px rgba(16,20,43,.04), 0 8px 26px rgba(16,20,43,.06);
+  --shadow-lg:0 2px 6px rgba(16,20,43,.05), 0 24px 60px rgba(16,20,43,.12);
+  --radius:18px;
+  --hero-bg:radial-gradient(700px 380px at 88% -5%, rgba(61,108,240,.2), transparent 62%), radial-gradient(520px 320px at 5% 115%, rgba(13,155,138,.16), transparent 62%), linear-gradient(135deg, #ffffff 0%, #eef2ff 55%, #e6f5f2 100%);
+  --hero-border:#e1e5f1; --hero-ink:#10142b; --hero-grid:rgba(36,71,184,.07); --hero-num:rgba(36,71,184,.15);
+  --hero-h1:linear-gradient(92deg,#10142b 25%, #2447b8 70%, #0d9b8a); --hero-sub:#4f5675;
+  --hero-tag-c:#0b7f72; --hero-tag-bg:rgba(13,155,138,.08); --hero-tag-b:rgba(13,155,138,.35);
+  --hero-chip-bg:rgba(255,255,255,.75); --hero-chip-b:#dfe3f0; --hero-chip-c:#10142b; --hero-chip-n:#3d6cf0;
+  --f-display:'Unbounded', 'Segoe UI', system-ui, sans-serif;
+  --f-body:'Manrope', 'Segoe UI', system-ui, sans-serif;
+  --f-mono:'JetBrains Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#070a14; --bg-panel:#0e1328; --bg-soft:#141a35; --grid:rgba(120,145,255,.04); --grid-dot:rgba(140,165,255,.14);
+    --ink:#e8ecff; --ink-soft:#9aa3c8; --on-ink:#0b0f1f;
+    --blue:#5b8cff; --blue-deep:#9db8ff; --blue-bright:#7aa2ff;
+    --red:#ff6b81; --olive:#ffb84d; --olive-ink:#ffc46b; --ok:#2fd9bb; --sim:#ffa04d;
+    --core:#24326e; --core-2:#3550b0;
+    --line:#212947; --line-strong:#313b64; --nav-bg:rgba(14,19,40,.82);
+    --tint-blue:rgba(91,140,255,.13); --tint-red:rgba(255,107,129,.12); --tint-olive:rgba(255,184,77,.12); --tint-ok:rgba(47,217,187,.11); --tint-sim:rgba(255,160,77,.12);
+    --glow-1:rgba(91,140,255,.14); --glow-2:rgba(47,217,187,.06);
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
+    --shadow-lg:0 2px 6px rgba(0,0,0,.3), 0 26px 64px rgba(0,0,0,.5); color-scheme:dark;
+    --hero-bg:radial-gradient(700px 380px at 88% -5%, rgba(91,140,255,.5), transparent 62%), radial-gradient(520px 320px at 5% 115%, rgba(47,217,187,.3), transparent 62%), linear-gradient(135deg, #0c1331 0%, #15204f 55%, #0f2a46 100%);
+    --hero-border:rgba(255,255,255,.06); --hero-ink:#fff; --hero-grid:rgba(255,255,255,.05); --hero-num:rgba(255,255,255,.13);
+    --hero-h1:linear-gradient(92deg,#ffffff 25%, #b7cbff 70%, #8ff2dd); --hero-sub:rgba(232,238,255,.78);
+    --hero-tag-c:#9ff0e0; --hero-tag-bg:rgba(47,217,187,.1); --hero-tag-b:rgba(47,217,187,.38);
+    --hero-chip-bg:rgba(255,255,255,.07); --hero-chip-b:rgba(255,255,255,.16); --hero-chip-c:#dfe6ff; --hero-chip-n:#8ff2dd;
+  }
+}
+:root[data-theme="dark"]{
+  --hero-bg:radial-gradient(700px 380px at 88% -5%, rgba(91,140,255,.5), transparent 62%), radial-gradient(520px 320px at 5% 115%, rgba(47,217,187,.3), transparent 62%), linear-gradient(135deg, #0c1331 0%, #15204f 55%, #0f2a46 100%);
+  --hero-border:rgba(255,255,255,.06); --hero-ink:#fff; --hero-grid:rgba(255,255,255,.05); --hero-num:rgba(255,255,255,.13);
+  --hero-h1:linear-gradient(92deg,#ffffff 25%, #b7cbff 70%, #8ff2dd); --hero-sub:rgba(232,238,255,.78);
+  --hero-tag-c:#9ff0e0; --hero-tag-bg:rgba(47,217,187,.1); --hero-tag-b:rgba(47,217,187,.38);
+  --hero-chip-bg:rgba(255,255,255,.07); --hero-chip-b:rgba(255,255,255,.16); --hero-chip-c:#dfe6ff; --hero-chip-n:#8ff2dd;
+  --bg:#070a14; --bg-panel:#0e1328; --bg-soft:#141a35; --grid:rgba(120,145,255,.04); --grid-dot:rgba(140,165,255,.14);
+  --ink:#e8ecff; --ink-soft:#9aa3c8; --on-ink:#0b0f1f;
+  --blue:#5b8cff; --blue-deep:#9db8ff; --blue-bright:#7aa2ff;
+  --red:#ff6b81; --olive:#ffb84d; --olive-ink:#ffc46b; --ok:#2fd9bb; --sim:#ffa04d;
+  --core:#24326e; --core-2:#3550b0;
+  --line:#212947; --line-strong:#313b64; --nav-bg:rgba(14,19,40,.82);
+  --tint-blue:rgba(91,140,255,.13); --tint-red:rgba(255,107,129,.12); --tint-olive:rgba(255,184,77,.12); --tint-ok:rgba(47,217,187,.11); --tint-sim:rgba(255,160,77,.12);
+  --glow-1:rgba(91,140,255,.14); --glow-2:rgba(47,217,187,.06);
+  --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
+  --shadow-lg:0 2px 6px rgba(0,0,0,.3), 0 26px 64px rgba(0,0,0,.5); color-scheme:dark;
+}
+
+/* ---------- база ---------- */
+*{box-sizing:border-box;}
+body{
+  background:
+    radial-gradient(1100px 600px at 90% -10%, var(--glow-1), transparent 60%),
+    radial-gradient(900px 520px at -10% 5%, var(--glow-2), transparent 60%),
+    linear-gradient(var(--grid) 1px, transparent 1px) 0 0/40px 40px,
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px) 0 0/40px 40px,
+    var(--bg);
+  background-attachment:fixed;
+  color:var(--ink); font-family:var(--f-body); font-size:16px; line-height:1.68; min-height:100vh;
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;}
+body::before{content:""; position:fixed; inset:0 0 auto; height:env(safe-area-inset-top,0px); z-index:60; background:var(--bg);}
+::selection{background:var(--blue); color:#fff;}
+h1,h2,h3,h4{margin:0 0 .5em; text-wrap:balance; line-height:1.25;}
+h3,h4{font-family:var(--f-body); font-weight:800; letter-spacing:-.005em;}
+.mono,code{font-family:var(--f-mono);}
+p{margin:0 0 .8em;}
+b,strong{font-weight:700;}
+.frame{max-width:1240px; margin:0 auto; padding-block:18px 80px; padding-left:max(16px, env(safe-area-inset-left,0px)); padding-right:max(16px, env(safe-area-inset-right,0px));}
+
+/* ---------- HUD ---------- */
+.hud-bar{display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between; padding:9px 10px 9px 18px; background:var(--nav-bg);
+  backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+  border:1px solid var(--line); border-radius:14px; margin-bottom:14px; box-shadow:var(--shadow);
+  font-family:var(--f-mono); font-size:11.5px; letter-spacing:.04em; color:var(--ink-soft);}
+.hud-bar .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ok);margin-right:8px;box-shadow:0 0 0 3px var(--tint-ok);}
+.theme-btn{font-family:var(--f-body); font-weight:700; font-size:12.5px; background:var(--bg-soft); color:var(--ink); border:1px solid var(--line); border-radius:10px; padding:7px 13px; cursor:pointer; transition:.18s;}
+.theme-btn:hover{border-color:var(--blue); color:var(--blue-deep); background:var(--tint-blue);}
+
+/* ---------- HERO (світлий у світлій темі, темний у темній) ---------- */
+header.hero{position:relative; isolation:isolate; overflow:hidden; border-radius:26px; color:var(--hero-ink);
+  padding:clamp(28px,5vw,56px) clamp(20px,4.5vw,54px) clamp(26px,4.5vw,48px); margin-bottom:16px;
+  background:var(--hero-bg); border:1px solid var(--hero-border); box-shadow:var(--shadow-lg);}
+header.hero::before{content:""; position:absolute; inset:0; z-index:-1;
+  background:linear-gradient(var(--hero-grid) 1px, transparent 1px) 0 0/34px 34px,
+             linear-gradient(90deg, var(--hero-grid) 1px, transparent 1px) 0 0/34px 34px;
+  -webkit-mask-image:linear-gradient(105deg, transparent 20%, #000 75%); mask-image:linear-gradient(105deg, transparent 20%, #000 75%);}
+.hero-num{position:absolute; right:-12px; bottom:-0.28em; z-index:-1; font-family:var(--f-display); font-weight:800; line-height:1;
+  font-size:clamp(150px,25vw,300px); letter-spacing:-.06em; color:transparent; -webkit-text-stroke:1.5px var(--hero-num); user-select:none; pointer-events:none;}
+.hero-tag{display:inline-block; font-family:var(--f-mono); font-size:11.5px; letter-spacing:.14em;
+  color:var(--hero-tag-c); background:var(--hero-tag-bg); border:1px solid var(--hero-tag-b); padding:5px 13px; border-radius:20px; margin-bottom:20px;}
+header.hero h1{font-family:var(--f-display); font-size:clamp(24px,3.9vw,44px); font-weight:700; line-height:1.16; letter-spacing:-.015em; max-width:900px;
+  background:var(--hero-h1); -webkit-background-clip:text; background-clip:text; color:transparent;}
+header.hero p.sub{color:var(--hero-sub); max-width:760px; font-size:17.5px; margin:14px 0 26px; line-height:1.6;}
+.hero-meta{display:flex; flex-wrap:wrap; gap:10px;}
+.chip{background:var(--bg-soft); border:1px solid var(--line); border-radius:10px; padding:6px 12px; font-size:13px; color:var(--ink);}
+header.hero .chip{display:inline-flex; align-items:baseline; gap:8px; background:var(--hero-chip-bg); border-color:var(--hero-chip-b); color:var(--hero-chip-c);
+  backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); padding:9px 15px; border-radius:13px; font-size:14px; font-weight:600;}
+header.hero .chip b{font-family:var(--f-display); font-size:17px; color:var(--hero-chip-n);}
+
+/* ---------- вкладки ---------- */
+nav.tabs{position:sticky; top:calc(env(safe-area-inset-top,0px) + 8px); z-index:50; display:flex; gap:4px; overflow-x:auto; background:var(--nav-bg);
+  backdrop-filter:blur(14px) saturate(1.4); -webkit-backdrop-filter:blur(14px) saturate(1.4);
+  border:1px solid var(--line); border-radius:16px; padding:6px; margin-bottom:20px; box-shadow:var(--shadow); scrollbar-width:none;}
+nav.tabs::-webkit-scrollbar{display:none;}
+nav.tabs button{flex:0 0 auto; font-family:var(--f-body); font-weight:700; font-size:13.5px; background:transparent; color:var(--ink-soft);
+  border:1px solid transparent; padding:9px 15px; border-radius:11px; cursor:pointer; transition:.18s; white-space:nowrap;}
+nav.tabs button:hover{background:var(--bg-soft); color:var(--ink);}
+nav.tabs button.active{background:linear-gradient(135deg, var(--core), var(--core-2)); color:#fff; box-shadow:0 6px 16px rgba(27,37,89,.28);}
+.nav-progress{position:absolute; left:16px; right:16px; bottom:0; height:2px; border-radius:2px; overflow:hidden; pointer-events:none;}
+.nav-progress i{display:block; height:100%; width:0; background:linear-gradient(90deg, var(--blue), var(--ok)); transition:width .12s linear;}
+button:focus-visible, .opt:focus-visible, summary:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, a:focus-visible{outline:2px solid var(--blue-bright); outline-offset:2px;}
+
+/* ---------- панель-розділ ---------- */
+section.panel{display:none; margin-bottom:22px;}
+section.panel.active{display:grid; grid-template-columns:minmax(0,1fr) 262px; gap:20px 24px; align-items:start; animation:fadeIn .4s ease;}
+section.panel.plain.active{display:block;}
+@keyframes fadeIn{from{opacity:.3; transform:translateY(8px);} to{opacity:1; transform:none;}}
+.sec-head{grid-column:1 / -1; position:relative; overflow:hidden; display:grid; grid-template-columns:auto minmax(0,1fr); gap:clamp(14px,3vw,30px); align-items:start;
+  background:var(--bg-panel); border:1px solid var(--line); border-radius:22px; padding:clamp(20px,3.4vw,34px); box-shadow:var(--shadow);}
+section.panel.plain .sec-head{margin-bottom:18px;}
+.sec-head::after{content:""; position:absolute; right:-90px; top:-110px; width:300px; height:300px; border-radius:50%; background:radial-gradient(circle, var(--tint-blue), transparent 70%); pointer-events:none;}
+.sec-idx{font-family:var(--f-display); font-weight:800; font-size:clamp(42px,6.5vw,74px); line-height:.92; letter-spacing:-.05em;
+  background:linear-gradient(140deg, var(--blue), var(--ok)); -webkit-background-clip:text; background-clip:text; color:transparent; min-width:1.2em;}
+.sec-kicker{font-family:var(--f-mono); font-size:11.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--blue);}
+.sec-head h2{font-family:var(--f-display); font-weight:700; font-size:clamp(19px,2.4vw,26px); line-height:1.28; letter-spacing:-.01em; margin:8px 0 12px;}
+.sec-head .lede{margin:0; max-width:80ch;}
+.sec-meta{display:flex; flex-wrap:wrap; gap:8px; margin-top:16px;}
+.sec-meta:empty{display:none;}
+.sec-meta span{font-size:12.5px; font-weight:600; padding:5px 11px; border-radius:999px; background:var(--bg-soft); border:1px solid var(--line); color:var(--ink-soft);}
+.sec-meta span b{font-family:var(--f-display); color:var(--ink); margin-right:3px;}
+.sec-main{min-width:0; grid-column:1; grid-row:2;}
+.sec-head, .sec-toc{min-width:0;}
+@media(max-width:640px){ .sec-head{grid-template-columns:minmax(0,1fr); gap:4px;} }
+
+/* ---------- зміст розділу + scroll-spy ---------- */
+.sec-toc{grid-column:2; grid-row:2; position:sticky; top:84px; max-height:calc(100vh - 104px); overflow:auto; scrollbar-width:thin;
+  background:var(--bg-panel); border:1px solid var(--line); border-radius:18px; padding:16px 12px 14px; box-shadow:var(--shadow);}
+.toc-title{font-family:var(--f-mono); font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--ink-soft); padding:0 8px 6px;}
+.toc-list{display:flex; flex-direction:column; gap:1px;}
+.toc-group{font-size:11.5px; font-weight:800; color:var(--ink); padding:12px 8px 4px; display:flex; gap:8px; align-items:center;}
+.toc-group i{font-style:normal; font-family:var(--f-display); font-size:10.5px; color:#fff; background:var(--core); width:20px; height:20px; border-radius:6px; display:grid; place-items:center; flex:none;}
+.toc-list a{--k:var(--blue); --kt:var(--tint-blue); display:flex; gap:8px; padding:6px 8px; border-radius:9px; font-size:13px; line-height:1.38; color:var(--ink-soft); text-decoration:none; transition:.15s;}
+.toc-list a[data-kind="sim"]{--k:var(--sim); --kt:var(--tint-sim);}
+.toc-list a[data-kind="data"]{--k:var(--ok); --kt:var(--tint-ok);}
+.toc-list a[data-kind="extra"]{--k:var(--ink-soft); --kt:var(--bg-soft);}
+.toc-list a[data-kind="end"]{--k:var(--ok); --kt:var(--tint-ok); margin-top:8px; border-top:1px dashed var(--line); padding-top:10px; border-radius:0 0 9px 9px;}
+.toc-list a .toc-no{font-family:var(--f-mono); font-size:11px; font-weight:700; color:var(--k); min-width:30px; padding-top:1px;}
+.toc-list a:hover{background:var(--bg-soft); color:var(--ink);}
+.toc-list a.on{background:var(--kt); color:var(--ink); font-weight:700; box-shadow:inset 3px 0 0 var(--k);}
+.toc-legend{display:flex; flex-wrap:wrap; gap:6px 12px; margin:12px 8px 0; padding-top:12px; border-top:1px solid var(--line); font-size:11px; color:var(--ink-soft);}
+.toc-legend span::before{content:""; display:inline-block; width:8px; height:8px; border-radius:2px; margin-right:6px; background:var(--k);}
+@media(max-width:1020px){
+  section.panel.active{grid-template-columns:minmax(0,1fr);}
+  .sec-toc{grid-column:1; grid-row:auto; position:sticky; top:72px; z-index:40; max-height:none; overflow:visible; padding:8px; border-radius:14px; background:var(--nav-bg);
+    backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);}
+  .sec-main{grid-row:auto;}
+  .toc-title, .toc-group, .toc-legend{display:none;}
+  .toc-list{flex-direction:row; overflow-x:auto; gap:4px; scrollbar-width:none;}
+  .toc-list::-webkit-scrollbar{display:none;}
+  .toc-list a{flex:0 0 auto; white-space:nowrap; max-width:240px; overflow:hidden; text-overflow:ellipsis; border:1px solid var(--line); background:var(--bg-panel);}
+  .toc-list a[data-kind="end"]{margin-top:0; border-top:1px solid var(--line); padding-top:6px; border-radius:9px;}
+}
+
+/* ---------- тематичні групи ---------- */
+.group-label{display:flex; align-items:center; gap:12px; margin:30px 2px 14px; font-weight:800; font-size:13px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-soft);}
+.sec-main > .group-label:first-child{margin-top:4px;}
+.group-label b{font-family:var(--f-display); font-size:12.5px; color:#fff; background:linear-gradient(135deg,var(--core),var(--core-2)); width:30px; height:30px; border-radius:9px; display:grid; place-items:center; letter-spacing:0; flex:none;}
+.group-label::after{content:""; flex:1; height:1px; background:linear-gradient(90deg, var(--line-strong), transparent);}
+
+/* ---------- блоки ---------- */
+article.block{--k:var(--blue); --kt:var(--tint-blue); position:relative; background:var(--bg-panel); border:1px solid var(--line); border-radius:var(--radius);
+  padding:22px clamp(16px,2.6vw,28px) 24px; box-shadow:var(--shadow); margin-bottom:16px; scroll-margin-top:90px; min-width:0;}
+@media(max-width:1020px){ article.block{scroll-margin-top:136px;} }
+article.block::before{content:""; position:absolute; left:-1px; top:24px; height:44px; width:4px; border-radius:0 4px 4px 0; background:var(--k);}
+article.block[data-kind="sim"]{--k:var(--sim); --kt:var(--tint-sim);}
+article.block[data-kind="data"]{--k:var(--ok); --kt:var(--tint-ok);}
+article.block[data-kind="extra"]{--k:var(--ink-soft); --kt:var(--bg-soft);}
+.block-head{display:flex; gap:14px; align-items:center; margin-bottom:14px;}
+.block-no{flex:none; min-width:48px; height:48px; padding:0 8px; border-radius:14px; display:grid; place-items:center;
+  font-family:var(--f-display); font-weight:700; font-size:14px; color:var(--k); background:var(--kt); border:1px solid color-mix(in srgb, var(--k) 28%, transparent);}
+.kind{display:block; font-family:var(--f-mono); font-size:10.5px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:var(--k);}
+.block[data-kind="theory"] .kind::before{content:"◆  Теорія";}
+.block[data-kind="sim"] .kind::before{content:"▶  Симулятор";}
+.block[data-kind="data"] .kind::before{content:"▦  Схема · таблиця";}
+.block[data-kind="extra"] .kind::before{content:"＋  Поглиблення";}
+.block-head h3{margin:3px 0 0; font-size:clamp(17px,1.9vw,19.5px); line-height:1.3;}
+.block > .lede:first-of-type{margin-top:-2px;}
+
+/* ---------- текст ---------- */
+.lede{color:var(--ink-soft); font-size:16px; max-width:78ch;}
+.prose{max-width:80ch;}
+.prose p{color:var(--ink);}
+.muted{color:var(--ink-soft);}
+.mini-title{display:block; font-family:var(--f-mono); font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-soft); margin:20px 0 10px;}
+.mini-title:first-child{margin-top:4px;}
+.tag-sim{display:inline-block; font-family:var(--f-mono); font-size:10.5px; font-weight:700; letter-spacing:.1em; color:var(--sim); background:var(--tint-sim); border:1px solid color-mix(in srgb, var(--sim) 40%, transparent); border-radius:6px; padding:1px 7px; margin:0 2px; vertical-align:middle;}
+.definition{position:relative; padding:20px 22px 20px 24px; border-radius:16px; background:linear-gradient(135deg, var(--tint-blue), transparent 80%); border:1px solid color-mix(in srgb, var(--blue) 25%, transparent);}
+.definition .term{display:block; font-family:var(--f-display); font-weight:700; font-size:18px; color:var(--blue-deep); margin-bottom:4px;}
+.definition p{margin:0; font-size:17px;}
+.points{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; margin:14px 0;}
+.point{padding:14px 16px; border-radius:14px; background:var(--bg-soft); border:1px solid var(--line); border-top:3px solid var(--blue);}
+.point.warn{border-top-color:var(--red);}
+.point.ok{border-top-color:var(--ok);}
+.point b{display:block; font-weight:800; margin-bottom:4px;}
+.point p{margin:0; color:var(--ink-soft); font-size:15px; line-height:1.6;}
+.checklist{list-style:none; padding:0; margin:0; display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:8px;}
+.checklist li{display:flex; gap:10px; align-items:flex-start; padding:10px 14px; border-radius:12px; background:var(--tint-ok); border:1px solid color-mix(in srgb,var(--ok) 25%,transparent); font-weight:600; font-size:15px; line-height:1.45;}
+.checklist li::before{content:"✓"; color:var(--ok); font-weight:800;}
+.io{display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); gap:12px; align-items:stretch; margin:14px 0;}
+.io-cell{padding:14px 16px; border-radius:14px; background:var(--bg-soft); border:1px solid var(--line); font-weight:700; line-height:1.45;}
+.io-cell .l{display:block; font-family:var(--f-mono); font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--blue); margin-bottom:5px; font-weight:700;}
+.io-arrow{display:grid; place-items:center; font-size:22px; color:var(--blue); font-weight:800;}
+@media(max-width:640px){ .io{grid-template-columns:minmax(0,1fr);} .io-arrow{transform:rotate(90deg);} }
+
+/* ---------- висновок ---------- */
+.takeaway{position:relative; overflow:hidden; display:grid; grid-template-columns:auto minmax(0,1fr); gap:18px; align-items:start; padding:24px clamp(18px,3vw,28px);
+  border-radius:20px; margin:26px 0 6px; color:#fff; scroll-margin-top:90px;
+  background:radial-gradient(420px 220px at 100% 0%, rgba(47,217,187,.35), transparent 65%), linear-gradient(135deg, #15204f, #1d3270);
+  box-shadow:var(--shadow-lg);}
+.tk-icon{width:46px; height:46px; border-radius:14px; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.2); display:grid; place-items:center; font-size:20px; font-weight:800; color:#8ff2dd;}
+.tk-label{font-family:var(--f-mono); font-size:11px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:#8ff2dd;}
+.takeaway p{margin:6px 0 0; color:rgba(240,244,255,.9); font-size:16.5px; line-height:1.65; max-width:84ch;}
+
+/* ---------- акордеони ---------- */
+details.acc{border:1px solid var(--line); border-radius:14px; margin-bottom:10px; overflow:hidden; background:var(--bg-panel); transition:border-color .2s, box-shadow .2s;}
+details.acc[open]{border-color:color-mix(in srgb, var(--blue) 35%, var(--line)); box-shadow:0 6px 20px rgba(36,71,184,.07);}
+details.acc summary{cursor:pointer; list-style:none; padding:14px 16px 14px 18px; display:flex; justify-content:space-between; gap:12px; align-items:center;
+  font-weight:700; font-size:15.5px; line-height:1.4; transition:background .15s;}
+details.acc summary::-webkit-details-marker{display:none;}
+details.acc summary:hover{background:var(--bg-soft); color:var(--blue-deep);}
+details.acc summary .arrow{flex:0 0 auto; width:28px; height:28px; border-radius:50%; display:grid; place-items:center; font-size:9px; color:var(--blue);
+  background:var(--tint-blue); transition:transform .25s;}
+details.acc[open] summary .arrow{transform:rotate(90deg);}
+details.acc .acc-body{padding:14px 20px 8px; max-width:86ch; border-top:1px dashed var(--line);}
+
+/* ---------- сітки й картки ---------- */
+.grid2{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px;}
+.grid3{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px;}
+.grid4{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px;}
+.grid5{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px;}
+@media(max-width:900px){.grid4{grid-template-columns:repeat(2,minmax(0,1fr));}}
+@media(max-width:800px){.grid2,.grid3{grid-template-columns:minmax(0,1fr);}}
+@media(max-width:480px){.grid4{grid-template-columns:minmax(0,1fr);}}
+.card{background:var(--bg-soft); border:1px solid var(--line); border-radius:14px; padding:16px 18px; min-width:0; line-height:1.55;}
+.card h4{color:var(--blue-deep); font-size:15.5px; margin-bottom:6px;}
+.card p:last-child{margin-bottom:0;}
+.card .k{font-family:var(--f-mono); font-size:11.5px; color:var(--ink-soft);}
+a.card{color:inherit; text-decoration:none; cursor:pointer; transition:.2s;}
+a.card:hover{border-color:var(--blue); transform:translateY(-3px); box-shadow:var(--shadow);}
+.levels .card{position:relative; padding-top:18px; overflow:hidden;}
+.lvl-n{position:absolute; right:12px; top:4px; font-family:var(--f-display); font-weight:800; font-size:48px; line-height:1; color:var(--blue); opacity:.13;}
+.levels .card:nth-child(2){border-color:color-mix(in srgb, var(--blue) 30%, var(--line));}
+.levels .card:nth-child(3){border-color:color-mix(in srgb, var(--ok) 40%, var(--line)); background:linear-gradient(160deg, var(--tint-ok), var(--bg-soft) 70%);}
+.levels .ex{margin-top:10px; padding-top:10px; border-top:1px dashed var(--line-strong); font-size:14.5px; color:var(--ink-soft);}
+.plan-card{display:flex; flex-direction:column; gap:4px; background:var(--bg-panel);}
+.plan-card .plan-n{font-family:var(--f-display); font-weight:800; font-size:30px; line-height:1; margin-bottom:8px;
+  background:linear-gradient(140deg, var(--blue), var(--ok)); -webkit-background-clip:text; background-clip:text; color:transparent;}
+.plan-card p{color:var(--ink-soft); font-size:14.5px; flex:1;}
+.plan-card .k{color:var(--blue-deep); font-weight:700;}
+.src-card{background:var(--bg-panel); text-align:left;}
+.src-card .l{font-family:var(--f-mono); font-size:11px; color:var(--ink-soft); margin-top:8px;}
+.src-card .big{font-family:var(--f-display); font-weight:800; font-size:34px; line-height:1.1; color:var(--blue-deep);}
+
+/* ---------- кнопки ---------- */
+.btn{font-family:var(--f-body); font-weight:700; font-size:13.5px; cursor:pointer; border:1px solid var(--core); background:var(--core); color:#fff; padding:9px 16px; border-radius:11px; transition:.18s; line-height:1.3;}
+.btn:hover{background:var(--blue); border-color:var(--blue); color:#fff; transform:translateY(-1px);}
+.btn.ghost{background:var(--bg-panel); color:var(--ink); border-color:var(--line-strong);}
+.btn.ghost:hover{border-color:var(--blue); color:var(--blue-deep); background:var(--tint-blue);}
+.btn.warn{background:var(--bg-panel); color:var(--red); border-color:color-mix(in srgb, var(--red) 45%, transparent);}
+.btn.warn:hover{background:var(--tint-red); color:var(--red);}
+.btn.small{padding:6px 12px; font-size:12.5px; border-radius:9px;}
+.btn.active{background:var(--blue); border-color:var(--blue); color:#fff; box-shadow:0 4px 12px color-mix(in srgb, var(--blue) 30%, transparent);}
+.btn:disabled{opacity:.5; cursor:default; transform:none;}
+.btn.active:disabled{opacity:1;}
+.btnrow{display:flex; gap:8px; flex-wrap:wrap; margin:12px 0; align-items:center;}
+
+/* ---------- сцени симуляторів ---------- */
+.mindmap-wrap{background:radial-gradient(var(--grid-dot) 1px, transparent 1.2px) 0 0/18px 18px, var(--bg-soft); border:1px solid var(--line); border-radius:16px; padding:14px; margin:14px 0; overflow-x:auto;}
+.mindmap-wrap svg{width:100%; min-width:560px; height:auto; display:block;}
+.sim-stage{background:var(--bg-soft); border:1px solid var(--line); border-radius:16px; padding:12px; overflow-x:auto;}
+.sim-stage svg{width:100%; height:auto; display:block;}
+.sim-log{position:relative; background:var(--bg-soft); border:1px solid var(--line); border-radius:12px; padding:11px 16px 11px 34px; font-size:14.5px; line-height:1.55; min-height:46px; margin-top:10px; color:var(--ink);}
+.sim-log::before{content:"›"; position:absolute; left:14px; top:8px; font-family:var(--f-mono); font-weight:700; font-size:18px; color:var(--sim);}
+.result-box{background:linear-gradient(135deg, var(--tint-blue), transparent 85%), var(--bg-panel); border:1px solid color-mix(in srgb, var(--blue) 35%, var(--line)); border-radius:14px; padding:16px 20px; margin-top:10px;}
+.result-box .big{font-size:24px; line-height:1.3; color:var(--blue-deep); font-family:var(--f-display); font-weight:700; font-variant-numeric:tabular-nums; margin:2px 0;}
+
+/* svg tokens */
+.sv-bg{fill:var(--bg-soft);} .sv-node{fill:var(--bg-panel); stroke:var(--line-strong); stroke-width:2;}
+.sv-core{fill:var(--core);} .sv-core-t{fill:#ffffff;} .sv-core-t2{fill:#9fd8ff;}
+.sv-t{fill:var(--ink); font-family:var(--f-body); font-size:13px;} .sv-ts{fill:var(--ink-soft); font-family:var(--f-mono); font-size:10.5px;}
+.sv-line{stroke:var(--line-strong); stroke-width:2; fill:none;} .sv-arrow{fill:var(--ink-soft);}
+.st-blue{stroke:var(--blue);} .st-red{stroke:var(--red);} .st-olive{stroke:var(--olive);} .st-ok{stroke:var(--ok);}
+.sv-node.on{fill:var(--tint-blue); stroke:var(--blue); stroke-width:3;}
+.sv-node.done{stroke:var(--ok);}
+.sv-res{fill:var(--blue-deep);} .sv-avail{fill:var(--tint-ok); stroke:var(--ok); stroke-width:2;}
+.sv-shelf{stroke:var(--red); stroke-width:2.5; stroke-dasharray:5 4;}
+.sv-wt{fill:#fff; font-family:var(--f-mono); font-size:13px; font-weight:700;}
+.sv-it{fill:var(--ink); font-family:var(--f-mono); font-size:13px; font-weight:700;}
+
+/* ---------- таблиці ---------- */
+.table-wrap{overflow-x:auto; margin:12px 0; border:1px solid var(--line); border-radius:14px; background:var(--bg-panel);}
+table{border-collapse:separate; border-spacing:0; width:100%; font-size:14.5px;}
+th,td{padding:10px 14px; text-align:left; vertical-align:top; border-bottom:1px solid var(--line);}
+tbody tr:last-child td{border-bottom:none;}
+th{background:var(--bg-soft); font-size:11.5px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-soft);}
+tbody tr:nth-child(even) td{background:color-mix(in srgb, var(--bg-soft) 60%, transparent);}
+td.num, th.num{text-align:right; font-variant-numeric:tabular-nums; font-family:var(--f-mono);}
+caption{caption-side:top; text-align:left; font-family:var(--f-mono); font-size:11.5px; font-weight:700; letter-spacing:.06em; color:var(--ink-soft); padding:12px 14px 10px; border-bottom:1px solid var(--line);}
+tr.hl td{background:var(--tint-blue) !important;}
+tr.hl td:first-child{box-shadow:inset 3px 0 0 var(--blue);}
+
+/* ---------- кроки ---------- */
+.steps{counter-reset:step; margin-top:12px;}
+.step{position:relative; padding:6px 10px 16px 34px; border-left:2px solid var(--line-strong); margin-left:14px;}
+.step:last-child{border-left-color:transparent;}
+.step::before{counter-increment:step; content:counter(step); position:absolute; left:-15px; top:4px; width:28px; height:28px; border-radius:50%;
+  background:linear-gradient(135deg, var(--blue), var(--ok)); color:#fff; display:flex; align-items:center; justify-content:center; font-family:var(--f-display); font-weight:700; font-size:12px; box-shadow:0 0 0 4px var(--bg-panel);}
+.step b{font-weight:800;}
+
+/* ---------- виноски ---------- */
+.callout{--c:var(--red); --ct:var(--tint-red); position:relative; border:1px solid color-mix(in srgb, var(--c) 26%, transparent); border-left:4px solid var(--c); background:var(--ct);
+  padding:13px 18px; border-radius:6px 14px 14px 6px; margin:14px 0; max-width:88ch; line-height:1.6;}
+.callout.blue{--c:var(--blue); --ct:var(--tint-blue);}
+.callout.ok{--c:var(--ok); --ct:var(--tint-ok);}
+.callout > b:first-child{display:block; color:var(--c); font-weight:800; margin-bottom:2px;}
+.callout.blue > b:first-child{color:var(--blue-deep);}
+
+/* ---------- поля ---------- */
+.field{display:flex; flex-direction:column; gap:5px; font-size:12px; font-weight:700; color:var(--ink-soft);}
+.field input, .field select{font-family:var(--f-mono); font-size:15px; padding:9px 11px; border:1px solid var(--line-strong); border-radius:10px; background:var(--bg-panel); color:var(--ink); width:100%; transition:border-color .15s, box-shadow .15s;}
+.field input:focus, .field select:focus, .field textarea:focus{outline:none; border-color:var(--blue); box-shadow:0 0 0 3px var(--tint-blue);}
+.calc{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin:12px 0; padding:16px; border-radius:14px; background:var(--bg-soft); border:1px solid var(--line);}
+.kv{display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:10px; margin-top:10px;}
+.kv > div{background:var(--bg-panel); border:1px solid var(--line); border-radius:14px; padding:12px 14px; min-width:0;}
+.kv .l{font-family:var(--f-mono); font-size:10.5px; font-weight:700; color:var(--ink-soft); letter-spacing:.08em;}
+.kv .v{font-family:var(--f-display); font-weight:700; font-size:20px; line-height:1.35; font-variant-numeric:tabular-nums;}
+.kv .v.red{color:var(--red);} .kv .v.ok{color:var(--ok);} .kv .v.blue{color:var(--blue-deep);}
+.kv .k{font-size:12px; color:var(--ink-soft);}
+
+/* класифікатор */
+.cls-item{display:flex; flex-wrap:wrap; gap:8px 12px; align-items:center; justify-content:space-between; padding:11px 14px; border:1px solid var(--line); border-radius:12px; background:var(--bg-panel); margin-bottom:8px; transition:.2s;}
+.cls-item .txt{flex:1 1 260px; min-width:0; font-weight:600;}
+.cls-item .opts{display:flex; gap:6px; flex-wrap:wrap;}
+.cls-item.right{border-color:var(--ok); background:var(--tint-ok);}
+.cls-item.wrong{border-color:var(--red); background:var(--tint-red);}
+.cls-item .fb{flex-basis:100%; font-size:14px; color:var(--ink-soft);}
+
+/* картки-перевертні */
+.flip{cursor:pointer; text-align:left; font:inherit; color:inherit; width:100%; background:var(--bg-panel); transition:.2s;}
+.flip:hover{border-color:var(--blue); transform:translateY(-2px);}
+.flip .back{display:none; color:var(--ink-soft); font-size:14px; margin-top:8px; padding-top:8px; border-top:1px dashed var(--line-strong);}
+.flip.open .back{display:block;}
+.flip.open{border-color:var(--blue); background:linear-gradient(160deg, var(--tint-blue), var(--bg-panel) 70%);}
+.flip .hint{font-family:var(--f-mono); font-size:11px; color:var(--blue); margin-top:6px;}
+.flip.open .hint{display:none;}
+.badge{display:inline-block; font-family:var(--f-mono); font-size:11px; font-weight:700; padding:2px 9px; border-radius:20px; border:1px solid currentColor;}
+.badge.ok{color:var(--ok);} .badge.red{color:var(--red);} .badge.olive{color:var(--olive-ink);} .badge.blue{color:var(--blue-deep);}
+
+.role-out{min-height:84px;}
+
+/* ---------- практика й тест ---------- */
+.quiz-q{border:1px solid var(--line); border-radius:var(--radius); padding:20px clamp(16px,2.6vw,24px); margin-bottom:14px; background:var(--bg-panel); box-shadow:var(--shadow);}
+.quiz-q h4{font-size:16.5px; margin-bottom:12px; display:flex; gap:10px; align-items:baseline;}
+.quiz-q textarea{font-family:var(--f-body) !important; border-radius:10px !important;}
+.opt{display:block; width:100%; text-align:left; margin-bottom:8px; padding:11px 14px; border-radius:11px; border:1px solid var(--line-strong); background:var(--bg-soft); color:var(--ink); cursor:pointer; font-family:var(--f-body); font-size:15px; font-weight:600; transition:.15s;}
+.opt:hover:not(:disabled){border-color:var(--blue); background:var(--tint-blue);}
+.opt:disabled{cursor:default;}
+.opt.correct{background:var(--tint-ok); border-color:var(--ok); color:var(--ink);}
+.opt.correct::after{content:"  ✓"; color:var(--ok); font-weight:800;}
+.opt.wrong{background:var(--tint-red); border-color:var(--red);}
+.quiz-fb{font-size:14.5px; margin-top:8px; color:var(--ink-soft); padding:10px 14px; border-radius:10px; background:var(--bg-soft);}
+#quizScoreBar{position:sticky; bottom:calc(env(safe-area-inset-bottom,0px) + 12px); background:linear-gradient(135deg, var(--core), var(--core-2)); color:#fff; padding:12px 14px 12px 20px; border-radius:16px; font-weight:700; display:flex; flex-wrap:wrap; gap:10px; justify-content:space-between; align-items:center; box-shadow:var(--shadow-lg);}
+#quizScore{font-family:var(--f-display);}
+#quizScoreBar .btn{background:#fff; color:var(--core); border-color:#fff;}
+.idx{font-family:var(--f-mono); font-size:12px; color:#fff; background:linear-gradient(135deg, var(--sim), var(--red)); padding:3px 9px; border-radius:7px; font-weight:700; flex:0 0 auto;}
+
+/* ---------- глосарій ---------- */
+.gloss{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin:0;}
+@media(max-width:800px){.gloss{grid-template-columns:minmax(0,1fr);}}
+.gloss div{padding:14px 16px; border:1px solid var(--line); border-radius:14px; background:var(--bg-panel); border-left:3px solid var(--blue);}
+.gloss dt{font-weight:800; color:var(--blue-deep); font-size:15.5px;}
+.gloss dd{margin:4px 0 0; color:var(--ink-soft); font-size:15px; line-height:1.55;}
+footer{text-align:center; color:var(--ink-soft); font-family:var(--f-mono); font-size:11.5px; padding:24px 0 0;}
+
+
+/* ---------- поява під час прокручування ---------- */
+.rv{opacity:0; transform:translateY(26px); transition:opacity .7s ease, transform .8s cubic-bezier(.16,1,.3,1); transition-delay:calc(var(--i,0) * 70ms);}
+.rv.from-top{transform:translateY(-26px);}
+.rv.in{opacity:1; transform:none;}
+
+/* ---------- ментальні карти: поява + відштовхування ---------- */
+.mindmap-wrap svg, .sim-stage svg{overflow:visible;}
+.mm-node .mm-in{transform-box:fill-box; transform-origin:center;}
+.mm-node rect{transition:stroke-width .2s, filter .25s;}
+.mm-node.mm-hot rect{stroke-width:3; filter:drop-shadow(0 8px 16px rgba(36,71,184,.28));}
+.mm-wait .mm-in, .mm-wait .mm-link{opacity:0;}
+.mm-anim .mm-in{animation:mmPop .75s cubic-bezier(.2,1.35,.4,1) both; animation-delay:calc(var(--i,0) * 95ms + 80ms);}
+@keyframes mmPop{from{opacity:0; transform:translateY(14px) scale(.8);} to{opacity:1; transform:none;}}
+
+/* ---------- графіки ---------- */
+.ch-wait rect[data-i], .ch-wait .sv-res, .ch-wait .sv-avail{opacity:0;}
+.ch-anim rect[data-i]{transform-box:fill-box; transform-origin:50% 100%; animation:barUp .8s cubic-bezier(.2,1,.3,1) both; animation-delay:calc(var(--i,0) * 55ms);}
+.ch-anim .sv-res, .ch-anim .sv-avail{transform-box:fill-box; transform-origin:0 50%; animation:barRight .9s cubic-bezier(.2,1,.3,1) both; animation-delay:calc(var(--i,0) * 180ms + 100ms);}
+@keyframes barUp{from{transform:scaleY(0);} to{transform:none;}}
+@keyframes barRight{from{transform:scaleX(0);} to{transform:none;}}
+
+/* ---------- картки-перевертні ---------- */
+.fcard{position:relative; perspective:1100px; cursor:pointer; outline:none; min-width:0; -webkit-tap-highlight-color:transparent;}
+.fcard-inner{display:grid; height:100%; transform-style:preserve-3d; transition:transform .8s cubic-bezier(.3,1.3,.45,1);}
+.fcard:hover .fcard-inner{transform:rotateY(-8deg) rotateX(3deg);}
+.fcard.flipped .fcard-inner{transform:rotateY(180deg);}
+.fcard.flipped:hover .fcard-inner{transform:rotateY(172deg) rotateX(3deg);}
+.fcard:focus-visible .fcard-face{outline:2px solid var(--blue-bright); outline-offset:2px;}
+.fcard-face{grid-area:1 / 1; position:relative; overflow:hidden; display:flex; flex-direction:column; min-height:136px; padding:16px 18px;
+  border-radius:16px; border:1px solid var(--line); -webkit-backface-visibility:hidden; backface-visibility:hidden;}
+.fcard-face.front{background:linear-gradient(155deg, var(--bg-panel) 30%, var(--bg-soft)); box-shadow:var(--shadow);}
+.fcard-face.front::after{content:""; position:absolute; right:-36px; top:-36px; width:120px; height:120px; border-radius:50%; background:radial-gradient(circle, var(--tint-blue), transparent 70%); pointer-events:none;}
+.fcard-face.front h4{margin:auto 0 0; padding-top:14px; font-size:16.5px; line-height:1.3; color:var(--ink);}
+.fnum{font-family:var(--f-display); font-weight:800; font-size:13px; color:var(--blue);}
+.fval{font-family:var(--f-mono); font-size:15px; color:var(--blue-deep); margin-top:4px;}
+.fhint{margin-top:10px; font-family:var(--f-mono); font-size:10.5px; letter-spacing:.06em; color:var(--ink-soft); transition:color .2s;}
+.fcard:hover .fhint{color:var(--blue);}
+.fcard-face.back{transform:rotateY(180deg); font-size:14.5px; line-height:1.55; color:var(--ink);
+  background:linear-gradient(155deg, var(--tint-blue), transparent 75%), var(--bg-panel); border-color:color-mix(in srgb, var(--blue) 40%, var(--line)); box-shadow:var(--shadow);}
+.fback-t{font-family:var(--f-mono); font-size:10.5px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--blue); margin-bottom:8px;}
+.fcard-face.back p{margin:6px 0 0;}
+.fcard-face.back .badge{align-self:flex-start;}
+.fcard-face.back .ex{margin-top:10px; padding-top:10px; border-top:1px dashed var(--line-strong); font-size:14px; color:var(--ink-soft);}
+.fcard.lvl .lvl-n{position:absolute; right:14px; top:6px; font-family:var(--f-display); font-weight:800; font-size:54px; line-height:1; color:var(--blue); opacity:.16;}
+.levels .fcard:nth-child(2) .fcard-face{border-color:color-mix(in srgb, var(--blue) 30%, var(--line));}
+.levels .fcard:nth-child(3) .fcard-face{border-color:color-mix(in srgb, var(--ok) 45%, var(--line));}
+.levels .fcard:nth-child(3) .front{background:linear-gradient(155deg, var(--tint-ok), var(--bg-panel) 70%);}
+
+@media (prefers-reduced-motion: reduce){ .rv{opacity:1; transform:none;} .fcard:hover .fcard-inner{transform:none;} .fcard.flipped .fcard-inner{transform:rotateY(180deg);} }
+
+@media (prefers-reduced-motion: reduce){ *{animation:none !important; transition:none !important;} html{scroll-behavior:auto;} }
+
+/* ---- додатково для лекцій 2–5 ---- */
+.fig-note{font-size:12.5px; color:var(--ink-soft); margin:10px 2px 0; font-family:var(--f-mono); line-height:1.5;}
+svg .b-blue{fill:var(--blue);} svg .b-ok{fill:var(--ok);} svg .b-red{fill:var(--red);} svg .b-olive{fill:var(--olive);}
+svg .b-soft{fill:var(--line-strong);} svg .b-core{fill:var(--core-2);} svg .b-dim{fill:var(--line-strong); opacity:.55;}
+svg .ax{stroke:var(--ink-soft); stroke-width:1.5;} svg .grid-l{stroke:var(--line); stroke-width:1;}
+svg .axt{fill:var(--ink-soft); font-family:var(--f-mono); font-size:11px;}
+svg .vlab{fill:var(--ink); font-family:var(--f-mono); font-size:12.5px; font-weight:700;}
+svg .tgt{stroke:var(--red); stroke-width:2; stroke-dasharray:6 5; fill:none;}
+svg .tgt-t{fill:var(--red); font-family:var(--f-mono); font-size:11px; font-weight:700;}
+svg .brk{stroke:var(--red); stroke-width:2; fill:none;}
+svg .wf-win{fill:var(--bg-panel); stroke:var(--line-strong); stroke-width:1.5;}
+svg .wf-bar{fill:var(--bg-soft); stroke:var(--line); stroke-width:1;}
+svg .wf-acc{fill:var(--tint-blue); stroke:var(--blue); stroke-width:1.5;}
+svg .wf-ok{fill:var(--tint-ok); stroke:var(--ok); stroke-width:1.5;}
+svg .wf-red{fill:var(--tint-red); stroke:var(--red); stroke-width:1.5;}
+svg .wf-cell{fill:none; stroke:var(--line); stroke-width:1;}
+svg .wf-t{fill:var(--ink); font-family:var(--f-body); font-size:12.5px;}
+svg .wf-tb{fill:var(--ink); font-family:var(--f-body); font-size:13px; font-weight:700;}
+svg .wf-ts{fill:var(--ink-soft); font-family:var(--f-mono); font-size:10.5px;}
+svg .wf-hl{fill:none; stroke:var(--sim); stroke-width:2.5; stroke-dasharray:7 5;}
+svg .wf-hlt{fill:var(--sim); font-family:var(--f-mono); font-size:11px; font-weight:700;}
+svg .wf-dot{stroke:var(--bg-panel); stroke-width:2;}
+.chk-list{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:8px; margin:12px 0;}
+.chk{display:flex; gap:10px; align-items:flex-start; padding:10px 14px; border:1px solid var(--line); border-radius:12px; background:var(--bg-panel); cursor:pointer; font-weight:600; font-size:14.5px; line-height:1.45; transition:border-color .2s, background .2s;}
+.chk input{margin-top:3px; accent-color:var(--blue); flex:none;}
+.chk.on{border-color:var(--blue); background:var(--tint-blue);}
+.msg-prev{font-family:var(--f-mono); font-size:13.5px; line-height:1.65; padding:14px 16px; border-radius:12px; background:var(--bg-soft); border:1px dashed var(--line-strong); white-space:pre-wrap; color:var(--ink); margin-top:10px;}
+.msg-prev mark{background:var(--tint-red); color:var(--red); padding:0 3px; border-radius:4px;}
+.msg-prev ins{background:var(--tint-ok); color:var(--ok); text-decoration:none; padding:0 3px; border-radius:4px;}
+.cm{display:grid; grid-template-columns:auto 1fr 1fr; gap:6px; font-size:14px; margin:12px 0;}
+.cm > div{padding:12px 14px; border-radius:12px; border:1px solid var(--line); background:var(--bg-panel); text-align:center; font-weight:700;}
+.cm .h{background:transparent; border:none; font-family:var(--f-mono); font-size:10.5px; letter-spacing:.08em; color:var(--ink-soft); text-transform:uppercase; display:flex; align-items:center; justify-content:center;}
+.cm .n{font-family:var(--f-display); font-size:26px; display:block; line-height:1.2;}
+.cm .tp{background:var(--tint-ok); border-color:color-mix(in srgb,var(--ok) 40%,transparent); color:var(--ok);}
+.cm .fn,.cm .fp{background:var(--tint-red); border-color:color-mix(in srgb,var(--red) 40%,transparent); color:var(--red);}
+.cm .tn{background:var(--tint-blue); border-color:color-mix(in srgb,var(--blue) 35%,transparent); color:var(--blue-deep);}
+.cm small{display:block; font-family:var(--f-mono); font-size:10.5px; font-weight:500; opacity:.85;}
+.meter{height:10px; border-radius:6px; background:var(--bg-soft); border:1px solid var(--line); overflow:hidden; margin-top:8px;}
+.meter i{display:block; height:100%; width:0; background:linear-gradient(90deg,var(--blue),var(--ok)); transition:width .45s cubic-bezier(.2,1,.3,1);}
+.meter.bad i{background:linear-gradient(90deg,var(--olive),var(--red));}
+.range-row{display:flex; gap:14px; align-items:center; flex-wrap:wrap; margin:12px 0; font-weight:700; font-size:14px;}
+.range-row input[type=range]{accent-color:var(--blue); flex:1 1 240px;}
+.range-row output{font-family:var(--f-mono); min-width:64px; color:var(--blue-deep);}
+.pill{display:inline-block; font-family:var(--f-mono); font-size:11px; font-weight:700; padding:3px 8px; border-radius:8px; background:var(--tint-blue); color:var(--blue-deep); vertical-align:middle;}
+.pill.red{background:var(--tint-red); color:var(--red);} .pill.ok{background:var(--tint-ok); color:var(--ok);} .pill.olive{background:var(--tint-olive); color:var(--olive-ink);}
+.seq{display:grid; gap:8px; margin:12px 0;}
+.seq button{text-align:left; justify-content:flex-start;}
+.seq-out{display:flex; flex-wrap:wrap; gap:6px; margin:10px 0; min-height:34px;}
+.seq-out span{font-size:13px; font-weight:700; padding:6px 10px; border-radius:9px; background:var(--tint-ok); border:1px solid color-mix(in srgb,var(--ok) 35%,transparent);}
+.seq-out span.bad{background:var(--tint-red); border-color:color-mix(in srgb,var(--red) 35%,transparent);}
+.legend{display:flex; flex-wrap:wrap; gap:14px; font-size:13px; color:var(--ink-soft); margin:8px 2px 0;}
+.legend i{display:inline-block; width:12px; height:12px; border-radius:3px; margin-right:6px; vertical-align:-1px;}
+.split2{display:grid; grid-template-columns:minmax(0,1.05fr) minmax(0,1fr); gap:16px; align-items:start;}
+@media (max-width:820px){ .split2{grid-template-columns:1fr;} }
+</style>
+
+</head><body>
+<div class="frame">
+  <div class="hud-bar">
+    <span><span class="dot"></span>SYSTEM: STEAM‑HUB / IT‑ECONOMY.LAB — ОНЛАЙН · ЛЕКЦІЯ: 05</span>
+    <button class="theme-btn" id="themeBtn" type="button">☾ Темна тема</button>
+  </div>
+
+  <header class="hero">
+    <span class="hero-num" aria-hidden="true">05</span>
+    <span class="hero-tag">// LECTURE_05 · DATA.SECURITY.CORE</span>
+    <h1>Інформаційні технології захисту даних</h1>
+    <p class="sub">Інтерактивний конспект лекції: інформаційні активи і властивості захищених даних, облікові записи й фішинг, найменші привілеї, резервне копіювання, RPO і RTO, розпізнавання інцидентів і порядок реагування.</p>
+    <div class="hero-meta">
+      <span class="chip"><b>4</b> розділи теорії</span>
+      <span class="chip"><b>11</b> симуляторів</span>
+      <span class="chip"><b>6</b> кейсів практики</span>
+      <span class="chip"><b>14</b> питань тесту</span>
+    </div>
+  </header>
+
+  <nav class="tabs" id="tabsNav" aria-label="Розділи лекції">
+    <button data-t="map" class="active">🗺 Огляд</button>
+    <button data-t="s1">01 · Активи і ризики</button>
+    <button data-t="s2">02 · Облікові записи</button>
+    <button data-t="s3">03 · Резерв і відновлення</button>
+    <button data-t="s4">04 · Інциденти</button>
+    <button data-t="practice">✅ Практика</button>
+    <button data-t="quiz">❓ Тест</button>
+    <button data-t="ref">📚 Глосарій</button>
+    <div class="nav-progress" aria-hidden="true"><i id="navProgress"></i></div>
+  </nav>
+
+  <!-- ================= MAP ================= -->
+  <section class="panel plain active" id="map">
+    <header class="sec-head">
+      <div class="sec-idx">00</div>
+      <div>
+        <span class="sec-kicker">Огляд лекції</span>
+        <h2>Загальна карта лекції</h2>
+        <p class="lede"><b>Мета:</b> сформувати розуміння інформаційних ризиків торговельного підприємства, навчитися застосовувати користувацькі засоби захисту, організовувати доступ і резервування та визначати порядок дій при інциденті або втраті даних.</p>
+      </div>
+    </header>
+    <div class="sec-main">
+      <article class="block" data-kind="data" id="map-1">
+        <header class="block-head"><span class="block-no">◎</span><div><span class="kind"></span><h3>Ментальна карта лекції</h3></div></header>
+        <div class="mindmap-wrap" style="margin-bottom:0"><svg class="mm" viewBox="0 0 1100 300" role="img" aria-label="Ментальна карта лекції"><defs><marker id="arM" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" class="sv-arrow"/></marker></defs><g class="sv-line" marker-end="url(#arM)"><path class="mm-link" data-a="core" data-b="n0" data-p="450 130 330 70"/><path class="mm-link" data-a="core" data-b="n1" data-p="450 170 330 230"/><path class="mm-link" data-a="core" data-b="n2" data-p="650 130 770 70"/><path class="mm-link" data-a="core" data-b="n3" data-p="650 170 770 230"/></g><g class="mm-node" data-id="core"><g class="mm-in"><rect x="430" y="108" width="240" height="84" rx="16" class="sv-core"/><text x="550" y="144" text-anchor="middle" class="sv-core-t" style="font-family:var(--f-display);font-size:15px;font-weight:700">ЛЕКЦІЯ 05</text><text x="550" y="168" text-anchor="middle" class="sv-core-t2" style="font-family:var(--f-mono);font-size:12px">ЗАХИСТ ДАНИХ</text></g></g><g class="mm-node" data-id="n0"><g class="mm-in"><rect x="40" y="20" width="290" height="100" rx="14" class="sv-node st-blue"/><text x="185.0" y="58" text-anchor="middle" class="sv-t" style="font-weight:700">01 · Активи і ризики</text><text x="185.0" y="80" text-anchor="middle" class="sv-ts">конфіденційність · цілісність</text><text x="185.0" y="99" text-anchor="middle" class="sv-ts">доступність, загроза → ризик</text></g></g><g class="mm-node" data-id="n1"><g class="mm-in"><rect x="40" y="180" width="290" height="100" rx="14" class="sv-node st-red"/><text x="185.0" y="218" text-anchor="middle" class="sv-t" style="font-weight:700">02 · Облікові записи</text><text x="185.0" y="240" text-anchor="middle" class="sv-ts">MFA, паролі, пристрої</text><text x="185.0" y="259" text-anchor="middle" class="sv-ts">фішинг, HTTPS / VPN</text></g></g><g class="mm-node" data-id="n2"><g class="mm-in"><rect x="770" y="20" width="290" height="100" rx="14" class="sv-node st-olive"/><text x="915.0" y="58" text-anchor="middle" class="sv-t" style="font-weight:700">03 · Резерв і відновлення</text><text x="915.0" y="80" text-anchor="middle" class="sv-ts">найменші привілеї, 3–2–1</text><text x="915.0" y="99" text-anchor="middle" class="sv-ts">RPO · RTO, відтворення подій</text></g></g><g class="mm-node" data-id="n3"><g class="mm-in"><rect x="770" y="180" width="290" height="100" rx="14" class="sv-node st-ok"/><text x="915.0" y="218" text-anchor="middle" class="sv-t" style="font-weight:700">04 · Інциденти</text><text x="915.0" y="240" text-anchor="middle" class="sv-ts">факт ≠ діагноз</text><text x="915.0" y="259" text-anchor="middle" class="sv-ts">реагування, розбір, зміни</text></g></g></svg></div>
+      </article>
+
+      <article class="block" data-kind="theory" id="map-2">
+        <header class="block-head"><span class="block-no">≡</span><div><span class="kind"></span><h3>План лекції</h3></div></header>
+        <div class="grid4"><a class="card plan-card" data-go="s1"><span class="plan-n">01</span><h4>Активи і ризики</h4><p>Інформаційні активи, загрози та властивості захищених даних.</p><span class="k">8 блоків · 3 симулятори →</span></a><a class="card plan-card" data-go="s2"><span class="plan-n">02</span><h4>Облікові записи</h4><p>Захист облікових записів, пристроїв і мережевої взаємодії.</p><span class="k">7 блоків · 2 симулятори →</span></a><a class="card plan-card" data-go="s3"><span class="plan-n">03</span><h4>Резерв і відновлення</h4><p>Організація доступу, резервного копіювання та відновлення.</p><span class="k">11 блоків · 3 симулятори →</span></a><a class="card plan-card" data-go="s4"><span class="plan-n">04</span><h4>Інциденти</h4><p>Розпізнавання інцидентів і порядок реагування.</p><span class="k">10 блоків · 3 симулятори →</span></a></div>
+      </article>
+
+      <div class="callout blue"><b>Як користуватись.</b> Кожен розділ складається з коротких теоретичних блоків (розгортаються кліком), карток-понять (перевертаються натисканням) та позначених <span class="tag-sim">SIM</span> інтерактивних моделей, у яких можна змінювати числа і бачити наслідки. Наприкінці є кейси для практики, тест і глосарій.</div>
+    </div>
+  </section>
+
+  <!-- ================= S1 ================= -->
+  <section class="panel" id="s1">
+    <header class="sec-head">
+      <div class="sec-idx">01</div>
+      <div>
+        <span class="sec-kicker">Розділ 1 / 4</span>
+        <h2>Інформаційні активи, загрози та властивості захищених даних</h2>
+        <p class="lede">Захист даних у торговельному підприємстві пов’язаний із можливістю виконувати операції та зберігати довіру покупців і партнерів. Втрата реєстру замовлень зупиняє комплектування, зміна реквізитів може спрямувати оплату сторонній особі, а розголошення контактів клієнтів створює інший вид наслідків, тому починають із визначення інформаційних активів і дій, які залежать від них. Це дозволяє обрати заходи відповідно до потреб процесу та встановити, що саме потрібно захищати від розголошення, зміни або недоступності.</p>
+        <div class="sec-meta"></div>
+      </div>
+    </header>
+    <aside class="sec-toc" aria-label="Зміст розділу"><div class="toc-title">Зміст розділу</div><nav class="toc-list"></nav></aside>
+    <div class="sec-main">
+
+      <div class="group-label" data-g="A" data-title="Інформаційні активи і властивості даних"><b>A</b>Інформаційні активи і властивості даних</div>
+
+      <article class="block" data-kind="theory" id="s1-1">
+        <header class="block-head"><span class="block-no">1.1</span><div><span class="kind"></span><h3>Що захищаємо і від чого</h3></div></header>
+        <details class="acc" open><summary><span>Інформаційні активи магазину і складу</span><span class="arrow">▶</span></summary><div class="acc-body"><p><b>Інформаційний актив</b> – це дані або ресурс, які мають цінність для роботи підприємства. До активів магазину й логістичного підрозділу належать реєстри замовлень, товарні довідники, документи постачання, маршрути, облікові записи та пристрої. Наслідки втрати різняться: недоступність реєстру затримує виконання, розкриття клієнтських відомостей порушує конфіденційність, а зміна банківських реквізитів може спрямувати оплату неналежному отримувачеві. Захист починається з визначення того, які ресурси потрібні та що може статися при їх порушенні.</p></div></details><details class="acc"><summary><span>Конфіденційність, цілісність, доступність; загроза, вразливість, ризик</span><span class="arrow">▶</span></summary><div class="acc-body"><p><b>Конфіденційність</b> означає доступ до інформації лише для тих, кому він належить за визначеними правилами. <b>Цілісність</b> означає збереження правильності та повноти даних і захист від неправомірної зміни; <b>доступність</b> означає можливість користуватися ресурсом тоді, коли він потрібний. Ці властивості доповнюють одна одну; закритий файл, до якого не може отримати доступ жоден відповідальний працівник, може забезпечувати обмеження розкриття, але не підтримує робочої доступності.</p><p><b>Загроза</b> є можливою подією або дією, яка може завдати шкоди. <b>Вразливість</b> – слабке місце, що дозволяє загрозі реалізуватися. <b>Ризик</b> характеризує поєднання ймовірності й наслідків. Наприклад, підроблений лист є способом реалізації загрози, відсутність перевірки реквізитів – вразливістю, а втрата коштів – можливим наслідком. Розрізнення цих понять допомагає обрати конкретний захід: змінити процедуру, обмежити доступ або застосувати технічний засіб.</p></div></details><div class="grid4"><div class="card"><h4>Конфіденційність</h4>Доступ лише для тих, кому він належить за правилами.</div><div class="card"><h4>Цілісність</h4>Правильність і повнота даних, захист від неправомірної зміни.</div><div class="card"><h4>Доступність</h4>Можливість користуватися ресурсом тоді, коли він потрібний.</div><div class="card"><h4>Автентичність</h4>Повідомлення або користувач справді походить від заявленого джерела.</div></div>
+      </article>
+
+      <article class="block" data-kind="sim" id="s1-2">
+        <header class="block-head"><span class="block-no">1.2</span><div><span class="kind"></span><h3>Яку властивість порушено?</h3></div></header>
+        <div id="clsCia"></div><div class="sim-log" id="clsCiaScore">Визначте головну властивість для кожної ситуації.</div>
+      </article>
+
+      <article class="block" data-kind="data" id="s1-3">
+        <header class="block-head"><span class="block-no">1.3</span><div><span class="kind"></span><h3>Таблиця 5.1 · Інформаційні ризики в роботі торговельного підприємства</h3></div></header>
+        <div class="table-wrap"><table><thead><tr><th>Ситуація</th><th>Основна властивість</th><th>Можливий наслідок</th><th>Приклад заходу</th></tr></thead><tbody><tr><td>Клієнтський файл відкритий за посиланням</td><td>Конфіденційність</td><td>Розкриття зайвих відомостей</td><td>Обмежений доступ і мінімізація полів</td></tr><tr><td>Змінено ціну без погодження</td><td>Цілісність</td><td>Неправильний розрахунок</td><td>Ролі та підтвердження змін</td></tr><tr><td>Втрачено робочий ноутбук</td><td>Кілька властивостей</td><td>Втрата доступу й розкриття</td><td>Шифрування і резервна копія</td></tr><tr><td>Пошкоджено реєстр замовлень</td><td>Доступність і цілісність</td><td>Зупинка виконання</td><td>Перевірене відновлення</td></tr><tr><td>Отримано підроблений рахунок</td><td>Цілісність і автентичність</td><td>Помилкова оплата</td><td>Незалежна перевірка реквізитів</td></tr></tbody></table></div>
+      </article>
+
+      <div class="group-label" data-g="B" data-title="Загроза, вразливість, ризик і заходи"><b>B</b>Загроза, вразливість, ризик і заходи</div>
+
+      <article class="block" data-kind="theory" id="s1-4">
+        <header class="block-head"><span class="block-no">1.4</span><div><span class="kind"></span><h3>Захід має бути у потрібному місці</h3></div></header>
+        <details class="acc" open><summary><span>Загроза стає небезпечною через вразливість</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Загрозу потрібно пов’язувати з конкретною вразливістю; підроблений рахунок стає небезпечним, якщо працівник може змінити реквізити без перевірки та виконати платіж. Викрадений пароль має різні наслідки залежно від прав облікового запису. Збій накопичувача призводить до великої втрати за відсутності придатного резерву; такий аналіз допомагає вибрати захід у потрібному місці. Додатковий антивірус не виправить процедуру погодження реквізитів, а складний пароль не поверне файл після випадкового видалення. Безпека складається з кількох взаємопов’язаних рішень, кожне з яких повинно мати ясне призначення. Універсальна покупка «захисту від усього» не замінює розуміння процесу.</p></div></details><details class="acc"><summary><span>Ймовірність, наслідки і залишковий ризик</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Ризик оцінюють з урахуванням імовірності та наслідків, причому якісну оцінку ризику потрібно використовувати для визначення пріоритетів, не сприймаючи її як точний прогноз кількості інцидентів. Якщо ймовірність позначена як низька, це не означає, що подія неможлива. Якщо наслідок високий, потрібен план реагування навіть за рідкісного сценарію.</p><p>Для малого магазину втрата основного реєстру на день може бути істотнішою, ніж коротке переривання другорядного сайта; оцінка залежить від діяльності. Доцільно розглядати вплив на обслуговування, гроші, конфіденційність та можливість відновлення; після застосування заходів залишається <b>залишковий ризик</b>. Його потрібно усвідомлювати та контролювати, а не оголошувати повну відсутність небезпеки.</p></div></details><details class="acc"><summary><span>Заходи не є взаємозамінними</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Один інцидент може порушувати кілька властивостей одночасно; викрадений ноутбук створює ризик розкриття даних і втрати робочого доступу. Пошкодження реєстру впливає на цілісність, а якщо його неможливо використовувати – також на доступність. Резервна копія підтримує відновлення, але не усуває наслідків попереднього розкриття. <b>Шифрування</b> може захистити вміст утраченого пристрою за належного налаштування, проте не забезпечує продовження роботи без копії, тому заходи не є взаємозамінними. Потрібно визначати, яку властивість кожний із них підтримує і які ситуації залишаються поза його можливостями, що допомагає будувати послідовний захист замість набору непов’язаних інструментів.</p></div></details><details class="acc"><summary><span>Автентичність і простежуваність</span><span class="arrow">▶</span></summary><div class="acc-body"><p><b>Автентичність</b> допомагає встановити, чи справді повідомлення або користувач походить від заявленого джерела. Навіть правильна сума рахунку не робить його належним, якщо документ надіслав сторонній учасник. <b>Простежуваність</b> допомагає встановити, хто й коли виконав дію, але журнал теж потребує захисту. Якщо всі працюють під одним обліковим записом, встановити конкретного автора важче; важливі операції доцільно пов’язувати з індивідуальними ролями та підтвердженнями. У торгівлі це особливо суттєво для зміни цін, реквізитів та погоджених умов. Захист підтримує не лише секретність, а й довіру до походження та правильності робочої інформації.</p></div></details><div class="io"><div class="io-cell"><span class="l">Загроза</span>Підроблений лист із новими реквізитами</div><div class="io-arrow">→</div><div class="io-cell"><span class="l">Вразливість → наслідок</span>Немає незалежної перевірки реквізитів → оплата сторонній особі</div></div>
+      </article>
+
+      <article class="block" data-kind="sim" id="s1-5">
+        <header class="block-head"><span class="block-no">1.5</span><div><span class="kind"></span><h3>Загроза, вразливість чи наслідок?</h3></div></header>
+        <div id="clsTvr"></div><div class="sim-log" id="clsTvrScore">Розкладіть елементи сценаріїв.</div>
+      </article>
+
+      <article class="block" data-kind="sim" id="s1-6">
+        <header class="block-head"><span class="block-no">1.6</span><div><span class="kind"></span><h3>Який захід допоможе саме тут?</h3></div></header>
+        <div id="clsMeas"></div><div class="sim-log" id="clsMeasScore">Оберіть захід, що відповідає проблемі.</div>
+      </article>
+
+      <article class="block" data-kind="theory" id="s1-7">
+        <header class="block-head"><span class="block-no">1.7</span><div><span class="kind"></span><h3>Класифікація, мінімізація, видалення</h3></div></header>
+        <details class="acc" open><summary><span>Класифікація даних і помилки працівників</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Доцільно класифікувати дані за потребою у доступі: відкриті матеріали, внутрішня робоча інформація та дані з обмеженим колом користувачів. Такий поділ допомагає встановити внутрішні правила доступу й зберігання, які узгоджують із вимогами до відповідних видів даних. Для кожного набору визначають мету збирання, необхідні поля, відповідального і строк зберігання за правилами підприємства. Надмірне накопичення даних збільшує обсяг потенційної шкоди без відповідного поліпшення процесу.</p><p>Помилки працівника, збій пристрою та відсутність живлення також можуть спричинити втрату даних; захист не обмежується протидією зловмиснику. Потрібні зрозумілі правила введення, перевірка зміни важливих значень, контроль стану обладнання й резервний порядок роботи. Вибір заходів має враховувати реальний процес: склад, який повинен комплектувати замовлення під час тимчасової недоступності системи, потребує заздалегідь визначеного способу фіксації операцій.</p></div></details><details class="acc"><summary><span>Мінімізація починається при збиранні</span><span class="arrow">▶</span></summary><div class="acc-body"><p><b>Мінімізація</b> починається при збиранні; для доставки потрібні певні контактні відомості, але це не означає потреби передавати перевізникові всю історію покупок. Після завершення операції дані зберігають відповідно до визначених правил, а зайві копії не повинні безконтрольно залишатися на особистих пристроях. Строки та правові підстави залежать від конкретної інформації та вимог організації; їх визначають уповноважені особи. Для користувача важливий принцип: кожний набір має мету, відповідального та погоджений порядок використання. Безконтрольне накопичення збільшує можливу шкоду і ускладнює пошук чинних даних. Порядок зберігання є частиною захисту.</p></div></details><details class="acc"><summary><span>Видалення і копії</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Безпечне видалення залежить від носія, сервісу та правил резервування; переміщення файла до кошика не завжди означає остаточне припинення доступу до всіх його копій. Дані можуть залишатися в історії, резерві або в одержувача експортованого файла. Користувач не повинен самостійно знищувати матеріали, які потрібні для обліку чи розслідування. Порядок визначається організацією, водночас важливо не створювати зайвих копій без потреби. Чим краще контрольовані місця зберігання, тим простіше виконувати встановлені правила. Технологічне видалення і організаційне завершення використання даних пов’язані, але не завжди відбуваються одночасно.</p></div></details>
+      </article>
+
+      <div class="group-label" data-g="C" data-title="Сценарій: реєстр недоступний о 14:00"><b>C</b>Сценарій: реєстр недоступний о 14:00</div>
+
+      <article class="block" data-kind="theory" id="s1-8">
+        <header class="block-head"><span class="block-no">1.8</span><div><span class="kind"></span><h3>Відновити файл ≠ відновити процес</h3></div></header>
+        <details class="acc" open><summary><span>Копія на 12:00, ціль RPO 1 год і RTO 2 год</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Розглянемо ситуацію, коли магазин і склад користуються спільним реєстром замовлень, від якого залежать резервування товару та комплектування відвантажень. О чотирнадцятій годині робочий файл стає недоступним, а остання перевірена копія відображає стан на дванадцяту. Підприємство встановило цільову межу втрати даних одну годину та цільовий час відновлення роботи дві години.</p><p>Між дванадцятою і чотирнадцятою працівники приймали заявки, погоджували резерви та фіксували відвантаження, тому повернення копії без відтворення цих подій створить неправильну картину зобов’язань. Сценарій показує, що відновлення файла та відновлення процесу мають різний зміст. Потрібно повернути не лише доступ, а й достатньо точний стан операцій, щоб не повторити вже виконане та не пропустити прийняте.</p></div></details><details class="acc"><summary><span>Які події можуть зникнути</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Наслідки залежать від того, які дані втрачено; якщо в копії немає нового замовлення, менеджер може не продовжити його виконання. Якщо немає запису відвантаження, склад може повторно підготувати товар; якщо зникло скасування резерву, доступний запас буде заниженим. Різні типи подій створюють різні ризики, тому їх потрібно відтворювати за надійними джерелами. Усний спогад працівника може допомогти пошуку, але не завжди є достатнім підтвердженням. Потрібні документи, журнали, повідомлення або інші визначені записи. Збереження ідентифікаторів дозволяє пов’язати їх із конкретними операціями. Без цього команда витратить час на встановлення, чи два схожі повідомлення описують одну подію або різні.</p></div></details><details class="acc"><summary><span>Спостереження, а не діагноз</span><span class="arrow">▶</span></summary><div class="acc-body"><p>У цьому сценарії не потрібно одразу стверджувати, що причиною є атака. Недоступність може бути пов’язана зі збоєм, помилковим видаленням або іншою подією. Користувач повідомляє факт і час, а відповідальні особи визначають причину та порядок реагування. Якщо є ознаки компрометації, технічні дії виконують за відповідною процедурою; якщо пошкоджена лише структура файла, можливий інший спосіб відновлення. Первинне повідомлення повинно бути точним і не змішувати спостереження з діагнозом, що допомагає правильно обрати наступний крок. Довільні спроби «очистити» систему до перевірки можуть знищити потрібні відомості або збільшити масштаб втрати.</p></div></details><div class="points"><div class="point ['warn']"><b>Нове замовлення</b><p>менеджер може не продовжити виконання</p></div><div class="point ['warn']"><b>Запис відвантаження</b><p>склад повторно підготує товар</p></div><div class="point ['warn']"><b>Скасування резерву</b><p>доступний запас буде заниженим</p></div></div>
+      </article>
+
+      <div class="takeaway" id="s1-end"><div class="tk-icon">✓</div><div><span class="tk-label">Підсумок розділу</span><p>Класифікація активів показує, що один універсальний засіб не вирішує всі питання захисту. Резервна копія допомагає повернути втрачений реєстр, але не заважає зайвому одержувачеві прочитати його; обмеження доступу зменшує ризик розголошення, але саме по собі не відновлює файл після збою. Відповідно, захист організовують на кількох рівнях, починаючи з облікового запису працівника, його пристрою та способу взаємодії із сервісами.</p></div></div>
+
+    </div>
+  </section>
+
+  <!-- ================= S2 ================= -->
+  <section class="panel" id="s2">
+    <header class="sec-head">
+      <div class="sec-idx">02</div>
+      <div>
+        <span class="sec-kicker">Розділ 2 / 4</span>
+        <h2>Захист облікових записів пристроїв і мережевої взаємодії</h2>
+        <p class="lede">Обліковий запис є точкою входу до робочих ресурсів, тому його захист має охоплювати звичайне використання й відновлення доступу. Складний пароль не усуває ризику, якщо працівник вводить його на підробленій сторінці, а багатофакторна <b>автентифікація</b> втрачає частину користі, коли користувач підтверджує незапитаний вхід. Потрібні поєднання технічних засобів, перевірки власних дій і зрозумілої процедури звернення до відповідального, щоб підозріла ситуація не змушувала діяти навмання.</p>
+        <div class="sec-meta"></div>
+      </div>
+    </header>
+    <aside class="sec-toc" aria-label="Зміст розділу"><div class="toc-title">Зміст розділу</div><nav class="toc-list"></nav></aside>
+    <div class="sec-main">
+
+      <div class="group-label" data-g="A" data-title="Захист пристрою"><b>A</b>Захист пристрою</div>
+
+      <article class="block" data-kind="data" id="s2-1">
+        <header class="block-head"><span class="block-no">2.1</span><div><span class="kind"></span><h3>Скріншот 5.1 · Основні розділи Windows Security</h3></div></header>
+        <p>На комп’ютері з Windows застосунок Windows Security об’єднує відомості про захист пристрою. На скріншоті 5.1 видно розділи Virus &amp; threat protection, Account protection, Firewall &amp; network protection та Protection history. Для працівника, який користується реєстром замовлень, ці розділи допомагають перевірити повідомлення про загрози, стан захисту облікового запису та мережі, а також переглянути зафіксовані дії захисту.</p><div class="sim-stage"><svg class="flow" viewBox="0 0 900 384" role="img" aria-label="Схема головної сторінки Windows Security"><g class="mm-in"><rect class="wf-win" x="10" y="10" width="880" height="340" rx="12"/><rect class="wf-bar" x="10" y="10" width="880" height="40" rx="12"/><text class="wf-tb" x="30" y="36">Windows Security</text><rect class="wf-bar" x="10" y="50" width="70" height="300"/><rect class="wf-cell" x="30" y="70" width="28" height="26" rx="6"/><rect class="wf-cell" x="30" y="110" width="28" height="26" rx="6"/><rect class="wf-cell" x="30" y="150" width="28" height="26" rx="6"/><rect class="wf-cell" x="30" y="190" width="28" height="26" rx="6"/><rect class="wf-cell" x="30" y="230" width="28" height="26" rx="6"/><rect class="wf-cell" x="30" y="270" width="28" height="26" rx="6"/><rect class="wf-cell" x="30" y="310" width="28" height="26" rx="6"/></g><g class="mm-in"><text class="wf-tb" x="110" y="86" style="font-size:16px">Security at a glance</text><text class="wf-ts" x="110" y="106">стан засобів захисту пристрою</text></g><g class="mm-in"><rect class="wf-acc" x="110" y="126" width="240" height="90" rx="10"/><circle cx="136" cy="156" r="12" style="fill:var(--ok)"/><text x="136" y="161" text-anchor="middle" class="sv-wt" style="font-size:12px">✓</text><text class="wf-tb" x="158" y="161" style="font-size:12px">Virus & threat protection</text><text class="wf-ts" x="158" y="184">No action needed</text></g><g class="mm-in"><rect class="wf-acc" x="368" y="126" width="240" height="90" rx="10"/><circle cx="394" cy="156" r="12" style="fill:var(--ok)"/><text x="394" y="161" text-anchor="middle" class="sv-wt" style="font-size:12px">✓</text><text class="wf-tb" x="416" y="161" style="font-size:12px">Account protection</text><text class="wf-ts" x="416" y="184">No action needed</text></g><g class="mm-in"><rect class="wf-acc" x="626" y="126" width="240" height="90" rx="10"/><circle cx="652" cy="156" r="12" style="fill:var(--ok)"/><text x="652" y="161" text-anchor="middle" class="sv-wt" style="font-size:12px">✓</text><text class="wf-tb" x="674" y="161" style="font-size:12px">Firewall & network protection</text><text class="wf-ts" x="674" y="184">No action needed</text></g><g class="mm-in"><rect class="wf-cell" x="110" y="232" width="240" height="90" rx="10"/><circle cx="136" cy="262" r="12" style="fill:var(--ok)"/><text x="136" y="267" text-anchor="middle" class="sv-wt" style="font-size:12px">✓</text><text class="wf-tb" x="158" y="267" style="font-size:12px">App & browser control</text><text class="wf-ts" x="158" y="290">No action needed</text></g><g class="mm-in"><rect class="wf-cell" x="368" y="232" width="240" height="90" rx="10"/><circle cx="394" cy="262" r="12" style="fill:var(--ok)"/><text x="394" y="267" text-anchor="middle" class="sv-wt" style="font-size:12px">✓</text><text class="wf-tb" x="416" y="267" style="font-size:12px">Device security</text><text class="wf-ts" x="416" y="290">No action needed</text></g><g class="mm-in"><rect class="wf-acc" x="626" y="232" width="240" height="90" rx="10"/><circle cx="652" cy="262" r="12" style="fill:var(--ok)"/><text x="652" y="267" text-anchor="middle" class="sv-wt" style="font-size:12px">✓</text><text class="wf-tb" x="674" y="267" style="font-size:12px">Protection history</text><text class="wf-ts" x="674" y="290">переглянути зафіксовані дії</text></g><g class="mm-in"><text class="wf-hlt" x="450" y="374" text-anchor="middle">виділено розділи, описані в лекції · зелений статус ≠ перевірений резерв реєстру</text></g></svg></div><p class="fig-note">Схематичне відтворення інтерфейсу за матеріалами: Джерело: Microsoft Support. Вигляд залежить від версії Windows.</p><p>Повідомлення застосунку використовують разом із процедурою підприємства: при виявленні проблеми працівник фіксує ознаки й звертається до відповідального, замість самостійного вимкнення захисту заради відкриття файла. Зелений статус на головній сторінці описує стан відповідних засобів, але не підтверджує наявності резервної копії робочого реєстру або правильності наданих користувачам прав. Ці складові перевіряють окремо, щоб захист пристрою підтримував цілісний порядок роботи з даними.</p>
+      </article>
+
+      <article class="block" data-kind="theory" id="s2-2">
+        <header class="block-head"><span class="block-no">2.2</span><div><span class="kind"></span><h3>Робочий пристрій і оновлення</h3></div></header>
+        <details class="acc" open><summary><span>Оновлення, шифрування, фізичний контроль</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Робочий пристрій потребує оновлень, належного налаштування та фізичного контролю; блокування екрана зменшує ризик дій стороннього, коли працівник відходить. <b>Шифрування</b> накопичувача підтримує захист даних у разі втрати за відповідних умов, але відкритий сеанс залишається окремим ризиком. На пристрої повинні бути лише погоджені програми та потрібні права. Невідомий носій або застосунок може створити загрозу незалежно від надійності пароля. Для магазину важливо також враховувати спільні робочі місця, де змінюються працівники. Передача зміни не повинна означати передачу відкритого особистого сеансу з усіма доступними файлами.</p></div></details><details class="acc"><summary><span>Оновлення без зупинки критичних операцій</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Оновлення усувають відомі слабкі місця, але мають бути організовані так, щоб не порушити критичну операцію. Підприємство визначає порядок перевірки та встановлення, а користувач не відкладає їх без погодженої причини. Якщо важлива програма перестала працювати, проблему передають підтримці, а не самостійно відключають усі засоби захисту. Для критичних робочих місць потрібні резервний сценарій і контроль сумісності. Захисне програмне забезпечення допомагає виявляти певні загрози, проте не гарантує відсутності всіх помилок; організаційна процедура та уважність працівника залишаються потрібними. Захист працює як поєднання технічних і поведінкових заходів.</p></div></details>
+      </article>
+
+      <div class="group-label" data-g="B" data-title="Облікові записи і вхід"><b>B</b>Облікові записи і вхід</div>
+
+      <article class="block" data-kind="theory" id="s2-3">
+        <header class="block-head"><span class="block-no">2.3</span><div><span class="kind"></span><h3>Індивідуальний доступ і MFA</h3></div></header>
+        <details class="acc" open><summary><span>Обліковий запис, паролі, менеджер паролів, MFA</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Обліковий запис пов’язує користувача з його правами та діями; спільний пароль кількох працівників ускладнює встановлення відповідальності та припинення доступу окремого учасника. Для робочих систем доцільні індивідуальні облікові записи й окремі права для адміністративних задач. Пароль має бути достатньо довгим, унікальним для сервісу та зберігатися належним способом. Менеджер паролів допомагає створювати й зберігати різні паролі; сам його доступ також потрібно захищати.</p><p>Багатофакторна автентифікація, або <b>MFA</b>, використовує більше одного незалежного чинника підтвердження особи. Наприклад, пароль доповнюється підтвердженням через спеціальний засіб. Два різні паролі не обов’язково є двома незалежними чинниками. MFA зменшує ризик використання викраденого пароля, але не виправдовує підтвердження невідомих запитів на вхід. Засоби зі стійкістю до фішингу, якщо доступні, мають переваги перед методами, які можна виманити через підроблену сторінку.</p></div></details><details class="acc"><summary><span>Ідентифікація, автентифікація, авторизація</span><span class="arrow">▶</span></summary><div class="acc-body"><p><b>Ідентифікація</b> встановлює, ким користувач представляється, автентифікація перевіряє це твердження, а <b>авторизація</b> визначає дозволені дії. Логін повідомляє назву облікового запису, засіб входу підтверджує належність, права дозволяють читати або змінювати ресурс; ці етапи не слід змішувати. Успішний вхід не означає, що працівникові потрібні всі дані системи. Якщо право редагування надмірне, захищений обліковий запис усе одно може випадково пошкодити реєстр; безпека входу та обмеження повноважень доповнюють одна одну. Для робочих задач доцільно використовувати визначений індивідуальний доступ, а адміністративні можливості надавати лише там, де вони справді потрібні.</p></div></details><div class="grid3"><div class="card"><h4>Ідентифікація</h4>Ким користувач представляється: логін.</div><div class="card"><h4>Автентифікація</h4>Перевірка твердження: засіб входу.</div><div class="card"><h4>Авторизація</h4>Які дії дозволені: права на ресурс.</div></div><details class="acc"><summary><span>Унікальність пароля і спільні секрети</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Унікальність пароля зменшує наслідки витоку з одного сервісу; якщо однаковий пароль використано для пошти та робочого реєстру, компрометація одного ресурсу може відкрити інший. Довжина та непередбачуваність також важливі, але зберігання повинно бути належно організоване. Менеджер паролів допомагає працювати з різними секретами, проте його головний доступ і резервне відновлення потребують захисту; вибір конкретного засобу виконується за правилами підприємства. Пароль не передають колезі для тимчасової допомоги, якщо можна надати окремий доступ. Спільний секрет ускладнює припинення повноважень та встановлення відповідальності. Зручний порядок має підтримувати безпечну роботу без неофіційного обміну паролями.</p></div></details><details class="acc"><summary><span>Методи MFA мають різні властивості</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Багатофакторна автентифікація використовує різні види підтвердження, але її методи мають різні властивості. Одноразовий код можна виманити через підроблену сторінку, а невідомий запит підтвердження – використати для тиску на користувача, тому повідомлення про вхід потрібно пов’язувати з власною дією. Якщо запиту не було, його не підтверджують і повідомляють за встановленою процедурою. Стійкі до фішингу методи мають переваги там, де вони підтримуються та належно впроваджені, водночас потрібно передбачити втрату основного засобу. Резервні коди або інша погоджена процедура відновлення зберігаються окремо та захищено, щоб аварійна ситуація не змушувала обходити правила.</p></div></details><details class="acc"><summary><span>Відновлення доступу — потенційно слабке місце</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Процедура відновлення доступу може бути слабшим місцем, ніж звичайний вхід. Якщо достатньо довільного звернення до підтримки, стороння особа може спробувати видати себе за працівника; організація повинна встановити належне підтвердження та відповідальні ролі. Працівник заздалегідь знає, як діяти при втраті телефона або засобу входу. Самостійне створення нового неофіційного облікового запису не завжди відновлює робочий процес і може створити розрізнені дані. Після повернення доступу потрібно перевірити активні сесії та налаштування відповідно до процедури. Мета – відновити контроль над чинним ресурсом, зберігши простежуваність та належні права.</p></div></details>
+      </article>
+
+      <article class="block" data-kind="sim" id="s2-4">
+        <header class="block-head"><span class="block-no">2.4</span><div><span class="kind"></span><h3>Запит MFA: підтвердити чи відхилити?</h3></div></header>
+        <div id="clsMfa"></div><div class="sim-log" id="clsMfaScore">Що робити з кожним запитом підтвердження входу?</div>
+      </article>
+
+      <div class="group-label" data-g="C" data-title="Фішинг і соціальна інженерія"><b>C</b>Фішинг і соціальна інженерія</div>
+
+      <article class="block" data-kind="theory" id="s2-5">
+        <header class="block-head"><span class="block-no">2.5</span><div><span class="kind"></span><h3>Правдоподібне повідомлення не доводить автентичності</h3></div></header>
+        <details class="acc" open><summary><span>Ознаки фішингу і захисні засоби</span><span class="arrow">▶</span></summary><div class="acc-body"><p><b>Фішинг</b> є спробою спонукати людину передати дані або виконати небезпечну дію під виглядом звичного повідомлення; зловмисник може імітувати керівника, постачальника чи службу доставки. Ознаки включають незвичну адресу, терміновість, прохання обійти процедуру, несподіване вкладення або вимогу передати код підтвердження. Граматичні помилки не є обов’язковими: підроблене повідомлення може бути написане якісно; перевірку проводять через незалежний від підозрілого листа відомий канал.</p><p>Оновлення операційної системи, браузера й застосунків усуває відомі слабкі місця. Захисне програмне забезпечення та мережевий екран доповнюють інші заходи, але не гарантують відсутності ризику. Робочий пристрій блокують під час відходу, захищають від доступу сторонніх і використовують відповідно до вимог підприємства. Підключення невідомого носія або встановлення програми з сумнівного джерела може порушити захист навіть за наявності складного пароля.</p></div></details><details class="acc"><summary><span>Довіра, поспіх, страх, бажання допомогти</span><span class="arrow">▶</span></summary><div class="acc-body"><p><b>Соціальна інженерія</b> використовує довіру, поспіх, страх або бажання допомогти; у торгівлі правдоподібними приводами є рахунок, повернення, доставка або термінове прохання керівника. Повідомлення може містити реальні назви та номери, отримані з відкритих джерел чи попереднього витоку, тому наявність знайомих деталей не доводить автентичності. Важливо оцінювати саму дію, якої вимагають: передати код, змінити реквізити, відкрити несподіваний файл або обійти погодження; незалежна перевірка через відомий канал допомагає зупинити спробу. Потрібно користуватися контактами з чинного довідника, а не номером, який надано лише в підозрілому повідомленні.</p></div></details><details class="acc"><summary><span>Скомпрометований обліковий запис реального партнера</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Підроблене повідомлення не обов’язково містить помилки мови або незвичний вигляд. Воно може бути професійно оформлене та надійти від скомпрометованого облікового запису реального партнера, тому правило «довіряти знайомому відправнику» недостатнє; значущі зміни підтверджують за процедурою незалежно від зовнішньої правдоподібності. Для реквізитів це може бути окреме погодження, для доступу – перевірка заявника, для вкладення – належне опрацювання в погодженому середовищі; не потрібно самостійно досліджувати підозрілий файл на робочому пристрої. Користувач фіксує спостереження та передає його відповідальній ролі, що дозволяє зберегти і безпеку, і потрібні відомості.</p></div></details>
+      </article>
+
+      <article class="block" data-kind="sim" id="s2-6">
+        <header class="block-head"><span class="block-no">2.6</span><div><span class="kind"></span><h3>Знайдіть ознаки підробленого листа</h3></div></header>
+        <p class="lede">Натискайте фрагменти листа, які мають насторожити. Ознак — п’ять; деякі фрагменти нейтральні.</p><div class="msg-prev" id="phMail" style="white-space:normal;font-family:var(--f-body);font-size:15px"></div><div class="sim-log" id="phOut">Знайдено 0 / 5.</div><div class="btnrow"><button class="btn warn small" id="phReset" type="button">⟲ Почати знову</button></div>
+      </article>
+
+      <article class="block" data-kind="extra" id="s2-7">
+        <header class="block-head"><span class="block-no">2.7</span><div><span class="kind"></span><h3>HTTPS і VPN: межі інструментів</h3></div></header>
+        <details class="acc" open><summary><span>Захищений канал до визначеного вузла</span><span class="arrow">▶</span></summary><div class="acc-body"><p><b>HTTPS</b> захищає передавання даних між браузером і відповідним вебвузлом, але не підтверджує доброчесність власника сайта. Підроблена сторінка також може використовувати HTTPS. <b>VPN</b> створює захищений канал до визначеної точки, проте не робить безпечним усі подальші дії користувача. Під час роботи в мережі необхідно перевіряти адресу потрібного ресурсу, використовувати погоджені канали й уникати передавання робочих даних через неперевірені середовища.</p></div></details><details class="acc"><summary><span>Значок захисту — не загальна гарантія</span><span class="arrow">▶</span></summary><div class="acc-body"><p>HTTPS захищає канал до визначеного вебресурсу, але не підтверджує чесність усіх його тверджень; підроблений сайт теж може використовувати захищене з’єднання. Перевірка адреси та належності ресурсу залишається необхідною. VPN створює канал до відповідної точки і застосовується за визначеним сценарієм, але не робить безпечним відкриття будь-якого вкладення. Для користувача важливо розуміти межі інструментів, щоб не сприймати значок захисту як загальну гарантію. Робочі дані передають через погоджені середовища, а підключення з особистих або сторонніх пристроїв має відповідати правилам організації; безпечність мережевої взаємодії залежить від усього ланцюга.</p></div></details><div class="callout "><b>HTTPS ≠ чесний власник сайта.</b> Підроблена сторінка теж може використовувати захищене з’єднання; перевіряють адресу та належність ресурсу.</div>
+      </article>
+
+      <div class="takeaway" id="s2-end"><div class="tk-icon">✓</div><div><span class="tk-label">Підсумок розділу</span><p>Захищений обліковий запис і справний пристрій створюють умови для роботи, але не визначають, які саме дані працівник може читати або змінювати. Після входу система повинна надати повноваження відповідно до ролі, а підприємство – передбачити спосіб повернення даних після випадкового видалення, помилкової зміни або технічного збою, тому захист входу доповнюють організацією доступу, резервного копіювання та перевіреного відновлення.</p></div></div>
+
+    </div>
+  </section>
+
+  <!-- ================= S3 ================= -->
+  <section class="panel" id="s3">
+    <header class="sec-head">
+      <div class="sec-idx">03</div>
+      <div>
+        <span class="sec-kicker">Розділ 3 / 4</span>
+        <h2>Організація доступу, резервного копіювання та відновлення</h2>
+        <p class="lede">Резервна копія має відповідати потрібному моменту та бути придатною для відновлення операцій. Якщо реєстр став недоступним о 14:00, а остання підтверджена копія збережена о 12:00, підприємству потрібно відтворити зміни за дві години. Відкриття файла о 15:20 ще не означає, що магазин і склад можуть безпомилково продовжити роботу: перед цим звіряють нові замовлення, скасування, зміни кількості та відвантаження. Такий зв’язок між копією й господарськими подіями визначає зміст відновлення.</p>
+        <div class="sec-meta"></div>
+      </div>
+    </header>
+    <aside class="sec-toc" aria-label="Зміст розділу"><div class="toc-title">Зміст розділу</div><nav class="toc-list"></nav></aside>
+    <div class="sec-main">
+
+      <div class="group-label" data-g="A" data-title="Доступ і шифрування"><b>A</b>Доступ і шифрування</div>
+
+      <article class="block" data-kind="theory" id="s3-1">
+        <header class="block-head"><span class="block-no">3.1</span><div><span class="kind"></span><h3>Найменші привілеї і розділення обов’язків</h3></div></header>
+        <details class="acc" open><summary><span>Права за потребою, шифрування і ключі</span><span class="arrow">▶</span></summary><div class="acc-body"><p><b>Принцип найменших привілеїв</b> означає надання лише тих прав, які потрібні для робочої задачі. Комірник має бачити дані для комплектування, перевізник – необхідні відомості про свою доставку, а аналітик може працювати з набором без зайвих персональних даних. Для важливих змін корисне розділення обов’язків: одна особа готує, інша перевіряє. При зміні ролі або завершенні роботи доступ переглядають, щоб попередні права не залишалися без підстав.</p><p><b>Шифрування</b> перетворює дані так, щоб прочитати їх можна було за наявності відповідного ключа; воно може застосовуватися до передавання, окремого файла або накопичувача. Захист від редагування аркуша не тотожний шифруванню; важливі також зберігання ключів і можливість відновлення доступу: втрата ключа може зробити недоступними навіть неушкоджені дані, тому процедура роботи з ключами має бути погоджена до застосування шифрування.</p></div></details><details class="acc"><summary><span>Доступ проєктують на основі процесу</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Принцип найменших привілеїв означає відповідність прав реальній потребі; працівник складу повинен мати достатні дані для комплектування, але не обов’язково право змінювати закупівельні умови. Перевізникові потрібні визначені доставки, а не весь клієнтський реєстр; для аналітика можна підготувати набір без зайвих контактних полів. Правильне обмеження робить роботу зрозумілішою та зменшує наслідки помилки. Надто вузькі права теж можуть шкодити, якщо працівник не здатний виконати свою функцію. Тому доступ проєктують на основі процесу, перевіряють на типових сценаріях і переглядають після зміни ролі або завершення співпраці.</p></div></details><details class="acc"><summary><span>Підготовка і погодження важливих змін</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Для важливих змін корисне розділення підготовки та погодження; одна роль пропонує нову ціну або реквізити, інша перевіряє підставу й підтверджує, що зменшує ризик випадкової або навмисної неправильної зміни. Процедура повинна бути зрозумілою та виконуваною у робочому темпі; якщо вона надмірно складна, люди можуть почати обходити її через неофіційні повідомлення. Потрібно визначити значущі поля та пропорційний контроль. Журнал змін допомагає встановити подію, але не замінює перевірку до виконання. Виявлення після помилкової оплати має іншу цінність, ніж запобігання їй через належне погодження.</p></div></details>
+      </article>
+
+      <article class="block" data-kind="theory" id="s3-2">
+        <header class="block-head"><span class="block-no">3.2</span><div><span class="kind"></span><h3>Шифрування і захист аркуша — різні властивості</h3></div></header>
+        <details class="acc" open><summary><span>Рівні шифрування і керування ключами</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Шифрування захищає зміст за визначених умов доступу до ключа; дані можуть бути зашифровані під час передавання, на пристрої або в окремому файлі. Ці рівні відповідають на різні загрози; шифрування накопичувача не приховує документ від користувача, який уже має відкритий сеанс і права читання. Шифрування каналу не виправляє надмірний доступ у самому сервісі, тому технічний засіб пов’язують із конкретною моделлю загрози. Не менш важливе керування ключами: їх потрібно захищати та мати погоджений спосіб відновлення. Втрата єдиного ключа може зробити недоступними дані, які фізично залишилися цілими.</p></div></details><details class="acc"><summary><span>Захист від редагування ≠ конфіденційність</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Захист аркуша від редагування призначений насамперед для контролю змін у межах можливостей редактора; його не слід називати шифруванням або повним захистом конфіденційності. Якщо користувач бачить клієнтські відомості, заборона редагування не усуває їхнього розкриття. Для належного обмеження потрібні права на ресурс і правильний склад даних. Схожа відмінність існує між прихованою колонкою та реально обмеженим доступом. Приховування може полегшити читання, але не завжди створює безпечну межу. Фахівець повинен оцінювати властивість засобу, а не його назву в меню; інакше оформлення помилково сприйматиметься як захист.</p></div></details><div class="grid4"><div class="card"><h4>Шифрування накопичувача</h4>Захищає вміст утраченого пристрою, але не відкритий сеанс.</div><div class="card"><h4>Шифрування каналу</h4>Захищає передавання, але не виправляє надмірний доступ у сервісі.</div><div class="card"><h4>Захист аркуша</h4>Контролює зміни; не приховує дані від того, хто їх бачить.</div><div class="card"><h4>Ключ</h4>Втрата єдиного ключа робить недоступними навіть цілі дані.</div></div>
+      </article>
+
+      <div class="group-label" data-g="B" data-title="Резервне копіювання"><b>B</b>Резервне копіювання</div>
+
+      <article class="block" data-kind="theory" id="s3-3">
+        <header class="block-head"><span class="block-no">3.3</span><div><span class="kind"></span><h3>Копія, яку можна відновити</h3></div></header>
+        <details class="acc" open><summary><span>Правило 3–2–1 і незмінна копія</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Резервна копія є окремим збереженим станом даних, призначеним для відновлення. Популярне <b>правило 3–2–1</b> передбачає три копії даних загалом, два різні типи або середовища зберігання та одну копію поза основним місцем. Ця схема є орієнтиром, який потребує адаптації до умов підприємства. Одна з копій має бути захищена від зміни через той самий скомпрометований доступ, наприклад відключена або технічно захищена від перезапису; резерв без перевірки відновлення не дає впевненості у придатності.</p></div></details><details class="acc"><summary><span>Склад, частота, місце, відповідальний</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Резервування потребує визначення складу даних, частоти, місця, строку зберігання та відповідального. Копія повинна бути придатною для відновлення і захищеною від тієї самої події, що може знищити основне джерело. Якщо резервний диск постійно доступний із скомпрометованого облікового запису, зловмисник або помилка можуть пошкодити обидва. Відокремлення, незмінність за відповідних налаштувань або інший незалежний контроль допомагають зменшити спільний ризик. Правило 3–2–1 є зрозумілим орієнтиром, але реальна схема повинна враховувати середовище підприємства; кількість копій не замінює перевірку їхньої незалежності та працездатності.</p></div></details><details class="acc"><summary><span>Синхронізація ≠ резерв</span><span class="arrow">▶</span></summary><div class="acc-body"><p><b>Синхронізація</b> підтримує узгодження поточного стану, а резерв зберігає можливість повернення. Якщо файл помилково видалений і видалення поширилося на всі пристрої, синхронізація виконала свою функцію, але не забезпечила відновлення. Історія версій може допомогти, проте її можливості та строки залежать від сервісу. Організація повинна знати, які стани реально можна повернути і хто має право це виконувати; резервну стратегію перевіряють на типових сценаріях втрати. Важливо не лише повернути файл, а й відновити процес: правильні дані, доступ учасників, чинну версію та порядок продовження операцій; повідомлення про успішне копіювання не доводить усього цього.</p></div></details>
+      </article>
+
+      <article class="block" data-kind="data" id="s3-4">
+        <header class="block-head"><span class="block-no">3.4</span><div><span class="kind"></span><h3>Рисунок 5.1 · Поєднання користувацького захисту та відновлення даних</h3></div></header>
+        <div class="mindmap-wrap"><svg class="mm" viewBox="0 0 1014 118" role="img" aria-label="Рисунок 5.1"><defs><marker id="arB" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" class="sv-arrow"/></marker></defs><g class="sv-line" marker-end="url(#arB)"><path class="mm-link" data-a="n0" data-b="n1" data-p="180 59 212 59"/><path class="mm-link" data-a="n1" data-b="n2" data-p="386 59 418 59"/><path class="mm-link" data-a="n2" data-b="n3" data-p="592 59 624 59"/><path class="mm-link" data-a="n3" data-b="n4" data-p="798 59 830 59"/></g><g class="mm-node" data-id="n0"><g class="mm-in"><rect x="10" y="20" width="170" height="78" rx="12" class="sv-core"/><text x="95.0" y="55" text-anchor="middle" class="sv-core-t" style="font-size:13.5px;font-family:var(--f-display)">Належний доступ</text><text x="95.0" y="75" text-anchor="middle" class="sv-core-t2" style="font-family:var(--f-mono);font-size:10.5px">ролі, MFA</text></g></g><g class="mm-node" data-id="n1"><g class="mm-in"><rect x="216" y="20" width="170" height="78" rx="12" class="sv-node st-blue"/><text x="301.0" y="55" text-anchor="middle" class="sv-t" style="font-weight:700">Незалежні копії</text><text x="301.0" y="77" text-anchor="middle" class="sv-ts">3–2–1</text></g></g><g class="mm-node" data-id="n2"><g class="mm-in"><rect x="422" y="20" width="170" height="78" rx="12" class="sv-node st-red"/><text x="507.0" y="55" text-anchor="middle" class="sv-t" style="font-weight:700">Тест відновлення</text><text x="507.0" y="77" text-anchor="middle" class="sv-ts">окреме середовище</text></g></g><g class="mm-node" data-id="n3"><g class="mm-in"><rect x="628" y="20" width="170" height="78" rx="12" class="sv-node st-olive"/><text x="713.0" y="55" text-anchor="middle" class="sv-t" style="font-weight:700">Звіряння</text><text x="713.0" y="77" text-anchor="middle" class="sv-ts">записи, підсумки</text></g></g><g class="mm-node" data-id="n4"><g class="mm-in"><rect x="834" y="20" width="170" height="78" rx="12" class="sv-node st-ok"/><text x="919.0" y="55" text-anchor="middle" class="sv-t" style="font-weight:700">Робота</text><text x="919.0" y="77" text-anchor="middle" class="sv-ts">чинний реєстр</text></g></g></svg></div><p>На рисунку 5.1 показано, як належний доступ, збереження копій і звіряння відновлених записів дозволяють повернути роботу зі спільним реєстром замовлень. Підтвердженням працездатності резервування є успішне відновлення і перевірка даних, а не лише повідомлення про створення копії; заходи повинні працювати разом і мати відповідальних виконавців. Для планування відновлення використовують <b>RPO</b> і <b>RTO</b>.</p><p>RPO – цільова межа втрати даних у часі, тобто наскільки далеко назад підприємство може допустимо повернутися після збою. RTO – цільовий час відновлення роботи після переривання. Якщо остання придатна копія створена о 12:00, а збій стався о 14:00, під ризиком перебувають зміни за дві години. За RPO одна година такий резерв не забезпечує встановленої цілі, якщо немає іншого способу відновити події; частота копіювання має відповідати допустимій втраті.</p>
+      </article>
+
+      <article class="block" data-kind="sim" id="s3-5">
+        <header class="block-head"><span class="block-no">3.5</span><div><span class="kind"></span><h3>Перевірка резервної схеми за правилом 3–2–1</h3></div></header>
+        <p class="lede">Позначте, що реально є у підприємства для реєстру замовлень.</p><div class="chk-list" id="bkBox"><label class="chk"><input type="checkbox" checked>Основний реєстр у хмарному сервісі</label><label class="chk"><input type="checkbox">Щоденна копія на зовнішньому диску в офісі</label><label class="chk"><input type="checkbox">Копія в іншому середовищі поза офісом</label><label class="chk"><input type="checkbox">Одна копія відключена або захищена від перезапису</label><label class="chk"><input type="checkbox">Відновлення перевірено цього місяця</label><label class="chk"><input type="checkbox" checked>Синхронізована папка на ноутбуці менеджера</label></div><div class="result-box" id="bkOut"></div>
+      </article>
+
+      <div class="group-label" data-g="C" data-title="RPO, RTO і відтворення подій"><b>C</b>RPO, RTO і відтворення подій</div>
+
+      <article class="block" data-kind="theory" id="s3-6">
+        <header class="block-head"><span class="block-no">3.6</span><div><span class="kind"></span><h3>Цілі відновлення і тест</h3></div></header>
+        <details class="acc" open><summary><span>Перевірка відновлення на окремому середовищі</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Відновлення перевіряють на окремому середовищі або копії, щоб не пошкодити чинну роботу. Контролюють відкриття файла, кількість записів, важливі поля, формули та підсумки. Якщо між резервом і збоєм були операції, їх відтворюють за надійним журналом із перевіркою повторів. Після відновлення погоджують, який файл є чинним, і не допускають паралельного використання суперечливих версій. Синхронізація може перенести помилкове видалення на інші пристрої, тому потрібний незалежний збережений стан.</p></div></details><details class="acc"><summary><span>Що означають RPO і RTO</span><span class="arrow">▶</span></summary><div class="acc-body"><p>RPO характеризує допустиму втрату даних у часовому вимірі, а RTO – цільову тривалість відновлення роботи; вони не є фактичними результатами до перевірки. Підприємство може встановити RPO одну годину, але копіювати раз на день; тоді схема не відповідає цілі. Відновлення файла за десять хвилин також не означає, що процес повністю повернувся, якщо ще потрібно відтворити операції та перевірити доступ. Для визначення цілей аналізують наслідки перерви. Реєстр поточних замовлень потребує іншого режиму, ніж архів завершених презентацій. Цілі повинні бути реалістичними, забезпеченими ресурсами та перевіреними на практиці.</p></div></details><details class="acc"><summary><span>Тест відновлення</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Тест відновлення виконують у погодженому окремому середовищі, щоб не пошкодити чинні дані. Перевіряють відкриття, структуру, кількість записів, критичні поля, формули та контрольні суми; після цього перевіряють можливість продовжити робочу операцію. Якщо копія застаріла, потрібен спосіб відтворити проміжні події з надійного журналу. Для кожної події контролюють, чи вона вже присутня, щоб не створити дубль; підсумковий стан погоджують відповідальні ролі. Тест показує не лише працездатність технічного засобу, а й слабкі місця інструкції. Регулярна перевірка дозволяє виявити їх до реальної аварії.</p></div></details><details class="acc"><summary><span>Копія 12:00, відкриття 15:20</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Копія на дванадцяту годину відстає від моменту збою на дві години. За цільового RPO одну годину вона сама по собі не забезпечує встановленої межі. Це не означає автоматичної остаточної втрати всіх подій, якщо є надійний журнал, але резервна схема потребує оцінки; припустімо, ресурс відкрито о п’ятнадцятій двадцять. Технічне повернення тривало одну годину двадцять хвилин, що вкладається у двогодинну ціль. Проте робочий процес не вважають завершено відновленим, доки не підтверджені дані та доступ. Якщо звіряння закінчиться після шістнадцятої, фактичний час повернення повноцінної роботи може перевищити ціль; визначення моменту відновлення повинно бути встановлено заздалегідь.</p></div></details>
+      </article>
+
+      <article class="block" data-kind="sim" id="s3-7">
+        <header class="block-head"><span class="block-no">3.7</span><div><span class="kind"></span><h3>Рисунок 5.2 · Часові межі резерву та технічного повернення ресурсу (інтерактивно)</h3></div></header>
+        <div class="calc"><label class="field">Остання перевірена копія<input type="time" id="tB" value="12:00"></label><label class="field">Виявлення недоступності<input type="time" id="tF" value="14:00"></label><label class="field">Технічне відкриття<input type="time" id="tO" value="15:20"></label><label class="field">Звіряння завершено<input type="time" id="tR" value="16:10"></label><label class="field">Цільовий RPO, год<input type="number" id="hP" value="1" min="0" step="0.5"></label><label class="field">Цільовий RTO, год<input type="number" id="hT" value="2" min="0" step="0.5"></label></div><div class="sim-stage"><svg id="tlSvg" viewBox="0 0 900 200" role="img" aria-label="Рисунок 5.2"></svg></div><div class="result-box" id="tlOut"></div>
+      </article>
+
+      <article class="block" data-kind="data" id="s3-8">
+        <header class="block-head"><span class="block-no">3.8</span><div><span class="kind"></span><h3>Таблиця 5.2 · Цілі та фактичні часові межі сценарію</h3></div></header>
+        <div class="table-wrap"><table><thead><tr><th>Параметр</th><th>Значення</th><th>Інтерпретація</th></tr></thead><tbody><tr><td>Остання перевірена копія</td><td>12:00</td><td>Початок проміжку можливого відтворення</td></tr><tr><td>Виявлення недоступності</td><td>14:00</td><td>Початок перерви в сценарії</td></tr><tr><td>Цільовий RPO</td><td>1 година</td><td>Допустима часова межа втрати</td></tr><tr><td>Проміжок від копії до збою</td><td>2 години</td><td>Копія сама не забезпечує ціль</td></tr><tr><td>Технічне відкриття ресурсу</td><td>15:20</td><td>Ще потрібна перевірка робочого стану</td></tr><tr><td>Цільовий RTO</td><td>2 години</td><td>Порівнюється з погодженим моментом повернення роботи</td></tr></tbody></table></div>
+      </article>
+
+      <article class="block" data-kind="theory" id="s3-9">
+        <header class="block-head"><span class="block-no">3.9</span><div><span class="kind"></span><h3>Контроль відновленої копії і подій</h3></div></header>
+        <details class="acc" open><summary><span>Що перевіряють у відновленій копії</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Відновлена копія повинна пройти контроль до використання; у ній перевіряють кількість замовлень, критичні поля та основні підсумки на момент дванадцятої, що дозволяє відрізнити придатну копію від неповного файла, який лише відкривається. Далі встановлюють перелік подій за проміжок до збою; для кожної події визначають ідентифікатор, тип, час та джерело підтвердження. При внесенні перевіряють, чи подія вже присутня. Повторне виконання запису відвантаження або резерву може спотворити запас навіть за правильного документа. Порядок відтворення повинен відповідати залежностям: спочатку потрібна основа операції, потім її зміни та завершення. Механічне вставлення списку без цієї логіки створює нові помилки.</p></div></details><details class="acc"><summary><span>7 нових, 3 змінені, 2 скасовані, 5 відвантажені</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Припустімо, між дванадцятою і чотирнадцятою створено сім нових замовлень, три попередні змінені, два скасовані та п’ять відвантажені. Ці числа не можна просто додати як сімнадцять нових замовлень. Вони описують різні події, і деякі можуть стосуватися тих самих об’єктів; потрібна таблиця подій із посиланням на номер замовлення. Якщо нове замовлення створене й потім скасоване, кінцевий стан має відображати обидва переходи або належний результат за правилами системи; аналогічно відвантаження не створює нове замовлення. Розуміння подій запобігає помилкам відновлення й показує зв’язок між захистом даних та їхньою структурою, розглянутою раніше.</p></div></details>
+      </article>
+
+      <article class="block" data-kind="sim" id="s3-10">
+        <header class="block-head"><span class="block-no">3.10</span><div><span class="kind"></span><h3>Сімнадцять подій — це не сімнадцять замовлень</h3></div></header>
+        <div id="evTbl"></div><div class="btnrow" id="evBtns"><span style="font-size:14px;font-weight:700">Скільки нових замовлень потрібно створити під час відтворення?</span><button class="btn ghost small" data-a="17">17</button><button class="btn ghost small" data-a="7">7</button><button class="btn ghost small" data-a="6">6</button></div><div class="sim-log" id="evOut">Оберіть відповідь.</div>
+      </article>
+
+      <article class="block" data-kind="theory" id="s3-11">
+        <header class="block-head"><span class="block-no">3.11</span><div><span class="kind"></span><h3>Звіряння і тимчасовий журнал</h3></div></header>
+        <details class="acc" open><summary><span>Стан зобов’язань, а не лише кількість записів</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Після відтворення звіряють не лише кількість записів, а й стан зобов’язань. Магазин підтверджує чинні заявки, склад – резерви й відвантаження, диспетчер – виконані передачі; якщо підсумки не узгоджуються, потрібен пошук конкретної події. Збіг загальної суми не доводить, що всі замовлення правильні: пропущена операція може компенсуватися дублем іншої, тому контроль включає ідентифікатори та вибіркове звіряння критичних записів; для важливих полів доцільне незалежне підтвердження. Мета полягає у поверненні спільної достовірної картини, на основі якої підрозділи можуть діяти. Відновлення не завершується лише появою звичного інтерфейсу.</p></div></details><details class="acc"><summary><span>Тимчасовий журнал під час відновлення</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Поки триває відновлення, нові операції фіксують у погодженому тимчасовому журналі. Його номери повинні відрізнятися або іншим способом бути унікальними, щоб не зіткнутися з чинною нумерацією; до запису додають час, автора та позначку резервного режиму. Якщо працівник не може перевірити склад, заявка залишається прийнятою для уточнення; після відновлення її перевіряють і переводять до чинного процесу. Важливо визначити, хто переносить журнал і хто підтверджує завершення. Без цього один запис можуть внести двічі або взагалі пропустити. Резервна процедура повинна бути достатньо простою для виконання під час стресу та достатньо точною для подальшого узгодження.</p></div></details><details class="acc"><summary><span>Журнал теж потребує захисту</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Тимчасовий журнал теж потребує захисту; у ньому можуть бути адреси та контакти, тому його не розміщують у випадковому відкритому середовищі. Якщо використовується паперовий носій, контролюють доступ і подальше зберігання; якщо локальний файл, визначають пристрій та спосіб передачі. Аварійний режим не скасовує цінності даних. Після перенесення не залишають безконтрольні копії в усіх учасників, водночас джерело не знищують до завершення звіряння й установленого порядку зберігання. Так резервна робота залишається частиною керованого процесу. Вона підтримує безперервність, не створюючи нової невизначеності щодо походження та конфіденційності записів.</p></div></details>
+      </article>
+
+      <div class="takeaway" id="s3-end"><div class="tk-icon">✓</div><div><span class="tk-label">Підсумок розділу</span><p>У розглянутій ситуації резервна схема не забезпечує цільову межу втрати даних в одну годину, оскільки копія відстає від моменту збою на дві години. Водночас технічне повернення ресурсу за годину двадцять не підтверджує повного виконання цілі відновлення, доки не завершені перевірка даних і погодження робочого стану. Тому показники резервування й відновлення оцінюють разом із реальною здатністю підприємства продовжити приймання, комплектування та доставку замовлень.</p></div></div>
+
+    </div>
+  </section>
+
+  <!-- ================= S4 ================= -->
+  <section class="panel" id="s4">
+    <header class="sec-head">
+      <div class="sec-idx">04</div>
+      <div>
+        <span class="sec-kicker">Розділ 4 / 4</span>
+        <h2>Розпізнавання інцидентів і порядок реагування</h2>
+        <p class="lede">Реагування на інцидент повинно зберігати контроль над діями підприємства; працівник, який помітив недоступність реєстру або підозріле повідомлення про зміну реквізитів, фіксує спостереження й звертається через погоджений канал, а відповідальні визначають спосіб обмеження наслідків. При цьому необхідно відрізняти підтверджені факти від припущень: повідомлення про збій не доводить атаки, але й знайоме ім’я відправника не підтверджує справжності платіжної інструкції. Послідовність дій дозволяє уникнути нових помилок під час усунення початкової проблеми.</p>
+        <div class="sec-meta"></div>
+      </div>
+    </header>
+    <aside class="sec-toc" aria-label="Зміст розділу"><div class="toc-title">Зміст розділу</div><nav class="toc-list"></nav></aside>
+    <div class="sec-main">
+
+      <div class="group-label" data-g="A" data-title="Розпізнавання і первинне повідомлення"><b>A</b>Розпізнавання і первинне повідомлення</div>
+
+      <article class="block" data-kind="theory" id="s4-1">
+        <header class="block-head"><span class="block-no">4.1</span><div><span class="kind"></span><h3>Що є інцидентом і що повідомити</h3></div></header>
+        <details class="acc" open><summary><span>Ознаки інциденту</span><span class="arrow">▶</span></summary><div class="acc-body"><p><b>Інцидентом</b> є подія, яка порушила або може порушити визначений порядок безпеки. Ознаками можуть бути невідомий вхід, несподівана зміна реквізитів, масове перейменування файлів, втрата доступу або повідомлення про шифрування; користувач повинен зафіксувати спостереження та повідомити визначену відповідальну особу. Не слід приховувати помилку або самостійно виконувати довільні «виправлення», які можуть ускладнити встановлення причин.</p><p>Якщо підозрюється зараження робочого пристрою, виконують погоджену процедуру обмеження його взаємодії з мережею і звертаються до технічної підтримки; конкретні дії залежать від політики підприємства й типу інциденту. За підозри на викрадення облікового запису уповноважені особи перевіряють активні сесії, відновлюють захист і переглядають доступ із довіреного пристрою. Видалення матеріалів або перевстановлення системи без погодження може знищити потрібні відомості про подію.</p></div></details><details class="acc"><summary><span>Факт відокремлюють від припущення</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Користувач не повинен самостійно встановлювати всі технічні причини, щоб повідомити про підозрілу подію. Достатньо зафіксувати спостереження: невідомий вхід, несподіване перейменування, зміну реквізитів або недоступність ресурсу. Факт відокремлюють від припущення. «Файл не відкривається після десятої години» є спостереженням, а «усі дані викрадені» потребує підтвердження. Точне первинне повідомлення допомагає відповідальним особам швидко визначити напрям перевірки; приховування помилки збільшує час невизначеності та можливі наслідки. Організаційна культура повинна підтримувати своєчасне повідомлення, щоб люди не витрачали критичний час на спроби непомітно виправити ситуацію.</p></div></details><details class="acc"><summary><span>Картка інциденту</span><span class="arrow">▶</span></summary><div class="acc-body"><p>У картці інциденту фіксують час виявлення, ресурс, спостережувані ознаки, відомі попередні дії та контакти відповідальних. Такий запис допомагає відтворити послідовність подій без припущень про ще не встановлену причину. Підозріле повідомлення зберігають за погодженою процедурою та передають лише тим ролям, які беруть участь у реагуванні, щоб обговорення не поширило шкідливе вкладення або зайві відомості. Уповноважені працівники визначають технічні й організаційні кроки, а користувач виконує погоджені дії та доповнює картку підтвердженими фактами про результат.</p></div></details><ul class="checklist"><li>час виявлення</li><li>ресурс</li><li>спостережувані ознаки</li><li>відомі попередні дії</li><li>контакти відповідальних</li></ul>
+      </article>
+
+      <article class="block" data-kind="sim" id="s4-2">
+        <header class="block-head"><span class="block-no">4.2</span><div><span class="kind"></span><h3>Спостереження чи припущення?</h3></div></header>
+        <div id="clsObs5"></div><div class="sim-log" id="clsObs5Score">Що можна записати в картку як факт?</div>
+      </article>
+
+      <div class="group-label" data-g="B" data-title="Порядок реагування"><b>B</b>Порядок реагування</div>
+
+      <article class="block" data-kind="theory" id="s4-3">
+        <header class="block-head"><span class="block-no">4.3</span><div><span class="kind"></span><h3>Обмежити наслідки, не знищивши відомостей</h3></div></header>
+        <details class="acc" open><summary><span>Підозра на компрометацію</span><span class="arrow">▶</span></summary><div class="acc-body"><p>За підозри на компрометацію виконують погоджену процедуру обмеження взаємодії та звертаються до підтримки. Довільне видалення файлів або перевстановлення може знищити відомості, потрібні для встановлення причин, водночас продовження звичайної роботи на підозрілому пристрої може збільшити шкоду, тому порядок має бути підготовлений заздалегідь і відповідати конкретному середовищу. Користувач повинен знати, кого повідомити та які первинні дії дозволені. Для облікового запису уповноважені особи перевіряють сесії, доступ і налаштування з довіреного середовища. Зміна одного пароля не завжди завершує реагування, якщо залишилися активні сесії або інші способи доступу.</p></div></details><details class="acc"><summary><span>Файл зник через невідомі дії</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Якщо файл зник через невідомі дії в обліковому записі, уповноважені особи перевіряють сеанси та права з довіреного пристрою. Повернення файла не усуне ризику, якщо сторонній доступ залишається чинним. Потрібно відновити контроль і перевірити, чи не змінені налаштування, дозволи або інші ресурси. Для користувача головне – не виконувати критичні дії у середовищі, яке вважається підозрілим, без погодженої процедури. Самостійне пересилання резервної копії на випадкову особисту пошту може створити додаткове розкриття; організація повинна мати визначений аварійний канал і відповідальні контакти. Реагування підтримує ті самі принципи доступу, що й звичайна робота, хоча умови стають терміновими.</p></div></details><details class="acc"><summary><span>Коротке погоджене повідомлення учасникам</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Учасникам потрібне коротке погоджене повідомлення про стан; воно вказує, який ресурс недоступний, який режим використовується та де фіксують нові операції. Не потрібно поширювати непідтверджені подробиці причини серед усіх працівників; якщо команди почнуть створювати незалежні «нові головні реєстри», відновлення ускладниться. Одна відповідальна роль координує інформаційний стан, а технічні спеціалісти працюють зі своєю частиною. Для покупців повідомлення має бути точним щодо доступних фактів та обмежень. Обіцянки, які потребують перевірки залишку, не підтверджують лише для збереження звичного темпу обслуговування. Контрольована комунікація зменшує наслідки перерви так само, як технічне відновлення.</p></div></details>
+      </article>
+
+      <article class="block" data-kind="theory" id="s4-4">
+        <header class="block-head"><span class="block-no">4.4</span><div><span class="kind"></span><h3>Підозрілі реквізити</h3></div></header>
+        <details class="acc" open><summary><span>Зупинити, звірити, зберегти</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Під час отримання повідомлення про зміну платіжних реквізитів спочатку зупиняють непідтверджену операцію й звіряють інформацію за відомим каналом контакту. Не варто використовувати телефон або посилання лише із підозрілого повідомлення. Для реєстру замовлень резервна процедура може передбачати тимчасовий журнал прийнятих і виконаних операцій. У ньому потрібно зберегти ідентифікатори, щоб після відновлення уникнути повторної доставки або подвійного списання.</p><p><b>Картка інциденту</b> містить час виявлення, спостережені ознаки, активи, виконані дії, відповідального і поточний стан. Факти відокремлюють від припущень: «не відкривається файл» є спостереженням, а «система заражена» потребує підтвердження; після відновлення перевіряють правильність даних, доступ і працездатність процесу. Причини й заходи попередження фіксують для зміни процедури, навчання працівників або технічного захисту.</p></div></details><details class="acc"><summary><span>Якщо платіж уже виконано</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Підозра на зміну реквізитів потребує зупинення непідтвердженої операції та незалежного звірення. Якщо платіж уже виконаний, діють за визначеним порядком повідомлення відповідальних осіб і відповідних служб. Користувач не повинен самостійно домовлятися з невідомим відправником про «повернення» через додатковий платіж; важливо зберігати повідомлення та відомості про дії. Реагування має часову складову: швидке повідомлення може зменшити наслідки; основний принцип реагування полягає у відновленні контролю через перевірені канали та уповноважені ролі. Поспіх зловмисника не повинен замінювати процедуру підприємства.</p></div></details><details class="acc"><summary><span>Лист нібито від постачальника</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Інший випадок показує роль цілісності та автентичності; працівник отримує лист нібито від постачальника з новими реквізитами й проханням терміново оплатити рахунок. Документ може містити правильну назву товару та суму, тому зовнішній вигляд не є достатньою підставою. Значуща зміна проходить незалежне підтвердження за чинним контактом та встановлене погодження. Якщо дзвонити лише на номер із листа, перевірка може залишитися всередині підробленого каналу; наявність <b>HTTPS</b> у посиланні теж не підтверджує особу постачальника. У цьому сценарії резервна копія не запобігає помилковій оплаті. Потрібна саме процедура контролю зміни та належне розділення повноважень.</p></div></details><details class="acc"><summary><span>Коли підозру підтверджено</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Коли підозру підтверджено, повідомлення зберігають і передають відповідальній ролі, а непідтверджену операцію не виконують. Якщо дані вже змінені у довіднику, перевіряють залежні документи та повертають належний стан за процедурою. Важливо встановити, чи помилкові реквізити вже використані в інших рахунках. Одна зміна може поширитися через автоматичне заповнення, тому межі перевірки ширші за початковий лист; після усунення переглядають правило погодження. Цей приклад демонструє, що захист даних тісно пов’язаний зі спільною роботою та основними довідниками. Відповідальна цифрова культура включає точне введення, підтвердження значущих змін і готовність зупинити процес, коли походження інформації не встановлене.</p></div></details>
+      </article>
+
+      <article class="block" data-kind="sim" id="s4-5">
+        <header class="block-head"><span class="block-no">4.5</span><div><span class="kind"></span><h3>Нові реквізити від «постачальника»: порядок дій</h3></div></header>
+        <p class="lede">Натискайте кроки в правильному порядку.</p><div class="seq" id="rqBox"></div><div class="seq-out" id="rqOut"></div><div class="btnrow"><button class="btn warn small" id="rqReset" type="button">⟲ Почати знову</button></div><div class="sim-log" id="rqLog"></div>
+      </article>
+
+      <div class="group-label" data-g="C" data-title="Резервний режим і повернення"><b>C</b>Резервний режим і повернення</div>
+
+      <article class="block" data-kind="theory" id="s4-6">
+        <header class="block-head"><span class="block-no">4.6</span><div><span class="kind"></span><h3>Контрольоване продовження роботи</h3></div></header>
+        <details class="acc" open><summary><span>Резервний порядок роботи</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Резервний порядок роботи дозволяє виконувати допустимі операції без основної системи. Тимчасовий журнал повинен містити унікальні ідентифікатори, час, автора та стан. Прийнята заявка не автоматично означає підтверджене замовлення, якщо актуальний залишок недоступний; працівник повідомляє покупцеві лише те, що справді встановлено. Після відновлення журнал узгоджують із чинним реєстром; повторне внесення без перевірки може створити другу доставку або подвійний облік. Безперервність означає контрольоване продовження, а не будь-який спосіб працювати без системи. Межі резервного режиму повинні бути зрозумілі учасникам і відповідати ризикам конкретних операцій.</p></div></details><details class="acc"><summary><span>Відновлення завершується підтвердженням</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Відновлення завершується підтвердженням робочого стану; потрібно перевірити дані, доступ, залежні звіти та можливість виконання наступних операцій. Якщо частина змін відтворена з журналу, їх звіряють із документами та фактичними подіями; команда повинна знати, який файл або ресурс є чинним. Паралельне використання резервної та відновленої таблиць без узгодження знову створює суперечність. Після переходу до основного режиму резервний журнал зберігають для перевірки за правилами організації. Технічна <b>доступність</b> є лише однією умовою завершення. Потрібна спільна підтверджена картина виконаних і невиконаних зобов’язань.</p></div></details><details class="acc"><summary><span>Повернення до основного режиму</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Повернення до основного режиму оголошують після погодженої перевірки; учасники отримують інформацію про чинний ресурс, момент переходу та порядок завершення тимчасових записів. Потрібно зупинити паралельне редагування старих аварійних копій, щоб вони не продовжували створювати суперечливі стани. Якщо певні операції ще потребують уточнення, їх явно позначають і визначають відповідальних; завершення не повинно приховувати невирішені винятки. Для керівника важливо знати, які наслідки усунені, які залишаються та коли буде наступна перевірка. Технічне повідомлення «сервіс доступний» корисне, але не описує всього робочого результату. Організаційне підтвердження доповнює його.</p></div></details>
+      </article>
+
+      <article class="block" data-kind="extra" id="s4-7">
+        <header class="block-head"><span class="block-no">4.7</span><div><span class="kind"></span><h3>Правила, партнери, робоче місце</h3></div></header>
+        <details class="acc"><summary><span>Правила зрозумілі в конкретній ситуації</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Правила захисту повинні бути зрозумілі працівникові у конкретній ситуації; загальна вимога «не передавати конфіденційне» недостатня, якщо не визначено, які поля та канали дозволені для доставки. Для щоденної роботи потрібні приклади дозволеного обміну, порядок отримання додаткового доступу та контакт для уточнення, що зменшує ймовірність випадкового обходу. Користувач не повинен самостійно тлумачити всі технічні й правові питання, але має знати свої межі. Організація забезпечує належні засоби та процедури, а працівник виконує їх і повідомляє про проблеми. Поєднання відповідальності дозволяє уникнути ситуації, коли весь захист покладають лише на уважність людини без можливості діяти правильно.</p></div></details><details class="acc"><summary><span>Доступ зовнішнього партнера має завершення</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Для зовнішнього партнера потрібно визначити не лише початок доступу, а й його завершення. Перевізник може працювати з певними доставками протягом тижня, після чого потреба змінюється; постійний доступ до всього реєстру не повинен залишатися автоматично. Власник ресурсу переглядає учасників і склад даних відповідно до процесу. Якщо партнер отримує витяг, важливо встановити погоджений спосіб використання та зберігання. Технічне відкликання посилання не завжди прибирає вже завантажену копію, тому мінімізація передаваних полів має практичну цінність ще до відкриття доступу. Вона зменшує наслідки там, де повний контроль над усіма копіями обмежений.</p></div></details><details class="acc"><summary><span>Фізична безпека робочого місця</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Безпека фізичного робочого місця доповнює цифровий доступ; роздрукований маршрут або залишений відкритим екран можуть розкрити відомості без технічної атаки. Працівник контролює матеріали, що використовуються у зміні, та повертає їх до визначеного місця. Для спільного пристрою потрібен належний вихід або передача сеансу за правилами. Не варто залишати обліковий запис відкритим лише тому, що наступний працівник виконує схожу функцію; індивідуальна простежуваність допомагає розрізняти дії та припиняти доступ. Так фізична й цифрова організація робочого місця підтримують одна одну. Захист охоплює весь шлях даних, а не лише їх зберігання на сервері.</p></div></details>
+      </article>
+
+      <div class="group-label" data-g="D" data-title="Розбір і готовність"><b>D</b>Розбір і готовність</div>
+
+      <article class="block" data-kind="theory" id="s4-8">
+        <header class="block-head"><span class="block-no">4.8</span><div><span class="kind"></span><h3>Розбір має змінювати умови</h3></div></header>
+        <details class="acc" open><summary><span>Періодична перевірка правил</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Періодична перевірка правил повинна враховувати зміни діяльності; новий сервіс, нова роль або новий партнер можуть створити інший шлях передавання даних. Старі інструкції потребують уточнення, якщо більше не відповідають процесу; водночас перевірку доцільно спрямовувати на суттєві ресурси та події, щоб вона залишалася виконуваною. Перелік активів, огляд доступу та тест відновлення дають конкретні результати. Якщо виявлено проблему, визначають відповідального та строк виправлення. Формальний запис про перевірку без усунення відхилень не підвищує надійності. Захист розвивається через повторюваний цикл оцінки, дії та підтвердження, який пов’язаний із реальною роботою підприємства.</p></div></details><details class="acc"><summary><span>Чому резерв відставав на дві години</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Після сценарію перевіряють, чому резерв відставав на дві години за цілі одну; можливі невідповідна частота, пропущене копіювання або відсутність перевірки працездатності. Для кожної причини потрібен конкретний захід; якщо частота недостатня, змінюють схему або спосіб журналювання. Якщо копія створюється, але ніхто не перевіряє результат, додають контроль і відповідального. Якщо відновлення затрималося через незрозумілу інструкцію, уточнюють порядок та проводять перевірку. Висновок не повинен обмежуватися загальним закликом берегти дані. Він має змінювати ті умови, через які подія спричинила істотні наслідки або ускладнила повернення роботи.</p></div></details><details class="acc"><summary><span>Перевірка готовності і замісник</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Перевірка готовності може включати пробне відновлення окремого файла та розбір дій відповідальних; мета полягає у виявленні прогалин без порушення чинної роботи. Перевіряють контакти, права, доступ до копії, ключі та можливість звіряння; якщо головний відповідальний відсутній, процедура повинна мати погодженого замісника. Інакше технічно придатний резерв залишиться недоступним саме тоді, коли потрібний. Інструкцію формулюють через конкретні ролі та результати, а не лише загальні технічні назви. Вона повинна залишатися зрозумілою новому працівникові. Підготовка до інциденту зменшує залежність від імпровізації та допомагає зберігати точність під час термінової ситуації.</p></div></details><details class="acc"><summary><span>Зміни замість «бути уважнішими»</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Розбір інциденту має завершитися змінами, які усувають виявлені слабкі місця процесу. Якщо повідомлення про збій затрималося через невідомі контакти підтримки, уточнюють канал і відповідальних; якщо в резерві не було потрібного файла, переглядають склад копіювання та перевірку відновлення. Можливість змінити платіжні реквізити без незалежного підтвердження потребує перегляду повноважень і погодження. Для кожної зміни визначають виконавця та спосіб перевірки, оскільки загальна вимога «бути уважнішими» не усуває недоліків доступу або організації даних. Підготовка працівників доповнює ці заходи, допомагаючи застосовувати оновлений порядок у повсякденній роботі.</p></div></details>
+      </article>
+
+      <article class="block" data-kind="sim" id="s4-9">
+        <header class="block-head"><span class="block-no">4.9</span><div><span class="kind"></span><h3>Конкретний захід чи загальний заклик?</h3></div></header>
+        <div id="clsFix"></div><div class="sim-log" id="clsFixScore">Оцініть пропозиції з розбору інциденту.</div>
+      </article>
+
+      <article class="block" data-kind="extra" id="s4-10">
+        <header class="block-head"><span class="block-no">4.10</span><div><span class="kind"></span><h3>Межі засобів і безперервність торгівлі</h3></div></header>
+        <details class="acc"><summary><span>Межі кожного засобу</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Підсумкове розуміння теми включає здатність пояснити межі кожного засобу. <b>MFA</b> зменшує ризик входу з викраденим паролем, але не підтверджує кожний отриманий рахунок. <b>Шифрування</b> захищає зміст за відповідних умов, але потребує керування ключами; резерв підтримує повернення даних, але не скасовує наслідків розкриття. Права доступу обмежують дії, але потребують перегляду після зміни ролі. Повідомлення про інцидент допомагає реагуванню, якщо містить точні факти та надходить вчасно. Поєднання цих принципів дозволяє працівникам торговельного підприємства працювати відповідально, підтримувати безперервність логістики й обслуговування та зберігати довіру до цифрової інформації.</p></div></details><details class="acc"><summary><span>Захист — постійна частина діяльності</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Захист даних є постійною частиною професійної діяльності; асортимент, партнерські зв’язки, пристрої та сервіси змінюються, тому правила потребують перегляду. Працівник торговельного підприємства повинен уміти визначати цінність даних, розуміти межі засобів, використовувати належний доступ і повідомляти про підозрілі події. Для логістики це підтримує правильність зобов’язань та безперервність доставки, для ритейлу – обслуговування і довіру покупців; поєднання конфіденційності, цілісності та доступності допомагає оцінювати рішення цілісно. Надійність виникає через узгоджені дії людей, технологій і процедур, а не через один встановлений застосунок.</p></div></details><details class="acc"><summary><span>Безпека через конкретні операції</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Захист даних потрібний для того, щоб підприємство могло виконувати свої зобов’язання та зберігати довіру; реєстр замовлень допомагає продавати, комплектувати й доставляти. Якщо його значення змінені або недоступні, порушується весь ланцюг, тому безпеку доцільно пояснювати через конкретні операції. Для приймання товару важливі правильні коди й кількості, для оплати – підтверджені реквізити, для доставки – актуальна адреса та належний доступ до неї. Технічний засіб оцінюють за тим, яку загрозу він зменшує і як впливає на роботу. Заборона всього обміну інформацією не підтримує торгівлю, а безконтрольний обмін створює ризики; потрібні обґрунтовані межі.</p></div></details><details class="acc"><summary><span>Інвентаризація активів</span><span class="arrow">▶</span></summary><div class="acc-body"><p><b>Інформаційний актив</b> може бути цифровим або пов’язаним із фізичним носієм. До активів належать файли, довідники, облікові записи, ключі доступу, пристрої та резервні копії. Знання працівника про порядок відновлення також має значення для безперервності. Якщо лише одна людина знає, де зберігається чинний реєстр, її відсутність може перервати роботу без будь-якої атаки. Інвентаризація допомагає встановити, які ресурси справді потрібні, хто відповідає за них і від яких залежить процес. Без такого переліку організація може захищати другорядні матеріали та не помічати критичний обліковий запис, через який керують усіма робочими файлами.</p></div></details><div class="points"><div class="point ['']"><b>MFA</b><p>зменшує ризик входу з викраденим паролем, але не підтверджує рахунок</p></div><div class="point ['']"><b>Шифрування</b><p>захищає зміст, потребує керування ключами</p></div><div class="point ['ok']"><b>Резерв</b><p>повертає дані, не скасовує наслідків розкриття</p></div><div class="point ['ok']"><b>Права доступу</b><p>обмежують дії, потребують перегляду</p></div></div>
+      </article>
+
+      <div class="takeaway" id="s4-end"><div class="tk-icon">✓</div><div><span class="tk-label">Висновок лекції</span><p>Завершення інциденту підтверджують станом даних і процесу, а не лише зникненням технічного повідомлення про помилку. Магазин, склад і диспетчер повинні мати погоджені замовлення, правильні резерви та зрозумілий перелік подальших дій. Після цього результати розбору переводять у конкретні зміни: уточнення прав, частоти копіювання, перевірки реквізитів або порядку повідомлення. Так захист даних підтримує безперервність торгівлі й логістики та зберігає достовірність інформації, на яку спираються всі розглянуті технології.</p></div></div>
+
+    </div>
+  </section>
+
+  <!-- ================= PRACTICE ================= -->
+  <section class="panel plain" id="practice">
+    <header class="sec-head">
+      <div class="sec-idx">✓</div>
+      <div>
+        <span class="sec-kicker">Практика</span>
+        <h2>Практика: ситуаційні кейси</h2>
+        <p class="lede">Прочитайте ситуацію, запишіть власну відповідь, а потім відкрийте розбір. Кожен кейс спирається на конкретний фрагмент лекції.</p>
+      </div>
+    </header>
+    <div class="sec-main"><div id="caseList"></div></div>
+  </section>
+
+  <!-- ================= QUIZ ================= -->
+  <section class="panel plain" id="quiz">
+    <header class="sec-head">
+      <div class="sec-idx">?</div>
+      <div>
+        <span class="sec-kicker">Самоперевірка</span>
+        <h2>Тест для самоперевірки</h2>
+        <p class="lede">Оберіть відповідь: правильна підсвітиться, а під питанням з'явиться пояснення.</p>
+      </div>
+    </header>
+    <div class="sec-main">
+      <div id="quizContainer"></div>
+      <div id="quizScoreBar"><span>Результат: <span id="quizScore">0 / 0</span></span><button class="btn small" id="quizReset" type="button">⟲ Пройти знову</button></div>
+    </div>
+  </section>
+
+  <!-- ================= REF ================= -->
+  <section class="panel plain" id="ref">
+    <header class="sec-head">
+      <div class="sec-idx">Aa</div>
+      <div>
+        <span class="sec-kicker">Довідка</span>
+        <h2>Глосарій лекції</h2>
+      </div>
+    </header>
+    <div class="sec-main"><dl class="gloss" id="glossList"></dl></div>
+  </section>
+
+  <footer>STEAM-HUB · ПУЕТ — інтерактивний конспект · Лекція 5 «Інформаційні технології захисту даних»</footer>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const fmt = (n, d=0) => Number(n).toLocaleString('uk-UA', {minimumFractionDigits:d, maximumFractionDigits:d});
+
+/* ---------- theme ---------- */
+const root = document.documentElement;
+function curTheme(){ const t = root.getAttribute('data-theme'); if(t) return t; return matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; }
+function paintThemeBtn(){ $('#themeBtn').textContent = curTheme()==='dark' ? '☀ Світла тема' : '☾ Темна тема'; }
+try{ const s = localStorage.getItem('lec05-theme'); if(s) root.setAttribute('data-theme', s); }catch(e){}
+$('#themeBtn').addEventListener('click', ()=>{
+  const next = curTheme()==='dark' ? 'light' : 'dark';
+  root.setAttribute('data-theme', next);
+  try{ localStorage.setItem('lec05-theme', next); }catch(e){}
+  paintThemeBtn();
+});
+paintThemeBtn();
+
+/* ---------- tabs ---------- */
+function openTab(id, scroll=true){
+  if(!document.getElementById(id)) return;
+  $$('#tabsNav button').forEach(b=>b.classList.toggle('active', b.dataset.t===id));
+  $$('section.panel').forEach(p=>p.classList.toggle('active', p.id===id));
+  // keep the active tab visible in the horizontally scrolling tab bar, start the section contents from the beginning
+  const tabs = $('#tabsNav'), act = tabs.querySelector('button.active');
+  if(act) tabs.scrollTo({left: Math.max(0, act.offsetLeft - 12), behavior:'auto'});
+  const toc = document.getElementById(id).querySelector('.toc-list'); if(toc){ toc.scrollLeft = 0; toc.parentElement.scrollTop = 0; }
+  if(scroll){
+    // jump to the start of the new section (its header right under the sticky tabs), wherever the reader was
+    const panel = document.getElementById(id), nav = $('#tabsNav');
+    const y = panel.getBoundingClientRect().top + window.scrollY - nav.offsetHeight - 22;
+    window.scrollTo({top: Math.max(0, y), behavior:'auto'});
+  }
+}
+$$('#tabsNav button').forEach(b=>b.addEventListener('click', ()=>openTab(b.dataset.t)));
+$$('[data-go]').forEach(c=>c.addEventListener('click', ()=>openTab(c.dataset.go)));
+if(location.hash) openTab(location.hash.slice(1), false);
+
+/* toggle group helper */
+function group(sel, fn){
+  const btns = $$(sel);
+  btns.forEach(b=>b.addEventListener('click', ()=>{
+    btns.forEach(x=>{ x.classList.remove('active'); x.classList.add('ghost'); });
+    b.classList.add('active'); b.classList.remove('ghost'); fn(b);
+  }));
+}
+
+/* ---------- mind maps: nodes are pushed away from the cursor, threads follow ---------- */
+const MM = (()=>{
+  const MAX = 15, K = 0.13, DAMP = 0.74, PAD = 6;
+  const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const active = new Set(); let running = false;
+  function parse(svg){
+    const nodes = [...svg.querySelectorAll('.mm-node')].map(g=>{
+      const r = g.querySelector('rect');
+      const b = {x:+r.getAttribute('x'), y:+r.getAttribute('y'), w:+r.getAttribute('width'), h:+r.getAttribute('height')};
+      return {g, b, cx:b.x+b.w/2, cy:b.y+b.h/2, x:0, y:0, vx:0, vy:0, tx:0, ty:0};
+    });
+    const byId = {}; nodes.forEach(n=>byId[n.g.dataset.id] = n);
+    const links = [...svg.querySelectorAll('.mm-link')].map(p=>({p, a:byId[p.dataset.a], b:byId[p.dataset.b], c:p.dataset.p.trim().split(/[\s,]+/).map(Number)}));
+    svg._mm = {nodes, links};
+    render(svg);
+  }
+  function render(svg){
+    const {nodes, links} = svg._mm;
+    nodes.forEach(n=>n.g.setAttribute('transform', `translate(${n.x.toFixed(2)} ${n.y.toFixed(2)})`));
+    links.forEach(l=>{
+      const ax = l.a ? l.a.x : 0, ay = l.a ? l.a.y : 0, bx = l.b ? l.b.x : 0, by = l.b ? l.b.y : 0, [x1,y1,x2,y2] = l.c;
+      // control point lags behind the ends, so the thread bends like a string
+      const qx = (x1+x2)/2 + (ax+bx)*0.15, qy = (y1+y2)/2 + (ay+by)*0.15;
+      l.p.setAttribute('d', `M${(x1+ax).toFixed(2)},${(y1+ay).toFixed(2)} Q${qx.toFixed(2)},${qy.toFixed(2)} ${(x2+bx).toFixed(2)},${(y2+by).toFixed(2)}`);
+    });
+  }
+  function toSvg(svg, e){ const m = svg.getScreenCTM(); return m ? new DOMPoint(e.clientX, e.clientY).matrixTransform(m.inverse()) : null; }
+  function onMove(e){
+    const svg = e.currentTarget, pt = toSvg(svg, e); if(!svg._mm || !pt) return;
+    svg._mm.nodes.forEach(n=>{
+      const inside = pt.x > n.b.x-PAD && pt.x < n.b.x+n.b.w+PAD && pt.y > n.b.y-PAD && pt.y < n.b.y+n.b.h+PAD;
+      if(inside){
+        // vector from the cursor to the node centre: cursor on the left → node goes right, etc.
+        const nx = (n.cx-pt.x)/(n.b.w/2), ny = (n.cy-pt.y)/(n.b.h/2), len = Math.hypot(nx, ny) || 1, f = Math.min(1, len) * MAX / len;
+        n.tx = nx*f; n.ty = ny*f;
+      } else { n.tx = 0; n.ty = 0; }
+      n.g.classList.toggle('mm-hot', inside);
+    });
+    kick(svg);
+  }
+  function onLeave(e){ const svg = e.currentTarget; if(!svg._mm) return; svg._mm.nodes.forEach(n=>{ n.tx = 0; n.ty = 0; n.g.classList.remove('mm-hot'); }); kick(svg); }
+  function kick(svg){ active.add(svg); if(!running){ running = true; requestAnimationFrame(step); } }
+  function step(){
+    active.forEach(svg=>{
+      let moving = false;
+      svg._mm.nodes.forEach(n=>{
+        n.vx = (n.vx + (n.tx-n.x)*K) * DAMP; n.vy = (n.vy + (n.ty-n.y)*K) * DAMP; n.x += n.vx; n.y += n.vy;
+        if(Math.abs(n.tx-n.x) + Math.abs(n.ty-n.y) + Math.abs(n.vx) + Math.abs(n.vy) > 0.04) moving = true; else { n.x = n.tx; n.y = n.ty; n.vx = n.vy = 0; }
+      });
+      render(svg);
+      if(!moving) active.delete(svg);
+    });
+    if(active.size) requestAnimationFrame(step); else running = false;
+  }
+  function attach(svg){
+    if(!svg) return; parse(svg);
+    if(still || svg._mmBound) return; svg._mmBound = true;
+    svg.addEventListener('pointermove', onMove); svg.addEventListener('pointerleave', onLeave);
+  }
+  return {attach};
+})();
+$$('svg.mm').forEach(MM.attach);
+
+/* ---------- chart helpers (lectures 2–5) ---------- */
+const pct = (a, b, d=2) => b ? fmt(a/b*100, d) : '—';
+function vbars(el, o){
+  const W = o.w||640, H = o.h||300, pl = o.pl||56, pr = 16, pt = 28, pb = o.pb||44, min = o.min||0, max = o.max;
+  const iw = W-pl-pr, ih = H-pt-pb, gs = o.groups, gw = iw/gs.length;
+  const y = v => pt + ih - (Math.max(min, Math.min(max, v)) - min) / (max - min) * ih;
+  let s = '', k = 0;
+  (o.ticks||[]).forEach(t=>{ s += `<line class="grid-l" x1="${pl}" x2="${W-pr}" y1="${y(t)}" y2="${y(t)}"/><text class="axt" x="${pl-8}" y="${y(t)+4}" text-anchor="end">${o.tf ? o.tf(t) : fmt(t)}</text>`; });
+  gs.forEach((g, gi)=>{
+    const nb = g.bars.length, bw = Math.min(o.bw||58, (gw*0.72 - (nb-1)*6)/nb), x0 = pl + gi*gw + (gw - bw*nb - (nb-1)*6)/2;
+    g.bars.forEach((b, bi)=>{
+      const x = x0 + bi*(bw+6), yy = y(b.v), hh = Math.max(0, pt+ih-yy);
+      s += `<rect data-i="${k++}" class="${b.cls||'b-blue'}" x="${x.toFixed(1)}" y="${yy.toFixed(1)}" width="${bw.toFixed(1)}" height="${hh.toFixed(1)}" rx="5"/>`;
+      if(b.lab !== undefined) s += `<text class="vlab" x="${(x+bw/2).toFixed(1)}" y="${(yy-8).toFixed(1)}" text-anchor="middle">${b.lab}</text>`;
+    });
+    s += `<text class="axt" x="${pl+gi*gw+gw/2}" y="${H-pb+21}" text-anchor="middle" style="font-size:12.5px;fill:var(--ink)">${g.l}</text>`;
+  });
+  s += `<line class="ax" x1="${pl}" x2="${W-pr}" y1="${pt+ih}" y2="${pt+ih}"/><line class="ax" x1="${pl}" x2="${pl}" y1="${pt-6}" y2="${pt+ih}"/>`;
+  if(min > 0) s += `<path class="brk" d="M${pl-9},${pt+ih-14} l9,-5 l9,5 M${pl-9},${pt+ih-6} l9,-5 l9,5"/>`;
+  if(o.target !== undefined){ const ty = y(o.target); s += `<line class="tgt" x1="${pl}" x2="${W-pr}" y1="${ty}" y2="${ty}"/><text class="tgt-t" x="${W-pr}" y="${ty-7}" text-anchor="end">${o.targetLab||''}</text>`; }
+  el.setAttribute('viewBox', `0 0 ${W} ${H}`); el.innerHTML = s;
+}
+function hbars(el, o){
+  const W = o.w||640, rh = o.rh||46, pl = o.pl||130, pr = o.pr||150, pt = 14, H = pt + o.rows.length*rh + 26, iw = W-pl-pr, max = o.max;
+  const x = v => pl + Math.max(0, Math.min(max, v))/max*iw;
+  let s = '';
+  o.rows.forEach((r, i)=>{
+    const yy = pt + i*rh + 8, bh = rh - 18;
+    s += `<text class="wf-tb" x="${pl-12}" y="${yy+bh/2+5}" text-anchor="end"${r.dim ? ' opacity=".45"' : ''}>${r.l}</text>`;
+    s += `<rect class="wf-bar" x="${pl}" y="${yy}" width="${iw}" height="${bh}" rx="6"/>`;
+    s += `<rect data-i="${i}" class="${r.dim ? 'b-dim' : (r.cls||'b-blue')}" x="${pl}" y="${yy}" width="${(x(r.v)-pl).toFixed(1)}" height="${bh}" rx="6"/>`;
+    s += `<text class="vlab" x="${W-pr+12}" y="${yy+bh/2+5}"${r.dim ? ' opacity=".45"' : ''}>${r.lab}</text>`;
+  });
+  if(o.target !== undefined){ const tx = x(o.target); s += `<line class="tgt" x1="${tx}" x2="${tx}" y1="${pt}" y2="${H-22}"/><text class="tgt-t" x="${tx}" y="${H-6}" text-anchor="middle">${o.targetLab||''}</text>`; }
+  el.setAttribute('viewBox', `0 0 ${W} ${H}`); el.innerHTML = s;
+}
+function classifier(boxSel, scoreSel, cats, items){
+  const box = $(boxSel); let done = 0, right = 0;
+  items.sort(()=>Math.random()-.5).forEach(it=>{
+    const d = document.createElement('div'); d.className = 'cls-item';
+    d.innerHTML = `<div class="txt">${it.t}</div><div class="opts">${cats.map((c,ci)=>`<button class="btn ghost small" type="button" data-c="${ci}">${c}</button>`).join('')}</div><div class="fb" hidden></div>`;
+    d.querySelectorAll('button').forEach(b=>b.addEventListener('click', ()=>{
+      if(d.dataset.done) return; d.dataset.done = 1; done++;
+      const ok = +b.dataset.c === it.c; if(ok) right++;
+      d.classList.add(ok ? 'right' : 'wrong');
+      d.querySelectorAll('button').forEach(x=>{ x.disabled = true; if(+x.dataset.c===it.c) x.classList.add('active'); });
+      const fb = d.querySelector('.fb'); fb.hidden = false; fb.textContent = (ok ? '✅ ' : '❌ Правильно: «'+cats[it.c]+'». ') + it.e;
+      $(scoreSel).textContent = `Виконано ${done} / ${items.length} · правильно ${right}` + (done===items.length ? (right===items.length ? ' · Чудово, усе правильно!' : ' · Перегляньте пояснення до помилок.') : '');
+    }));
+    box.appendChild(d);
+  });
+}
+function seqSim(box, out, log, reset, items, done){
+  let pos = 0;
+  function build(){
+    pos = 0; $(out).innerHTML = ''; $(log).textContent = 'Оберіть перший крок.';
+    $(box).innerHTML = items.map((t,i)=>({t,i})).sort(()=>Math.random()-.5).map(o=>`<button class="btn ghost small" type="button" data-i="${o.i}">${o.t}</button>`).join('');
+    $(box).querySelectorAll('button').forEach(b=>b.addEventListener('click', ()=>{
+      const i = +b.dataset.i;
+      if(i === pos){ b.disabled = true; $(out).insertAdjacentHTML('beforeend', `<span>${pos+1}. ${items[i].split(/[:—]/)[0].trim()}</span>`); pos++; $(log).innerHTML = pos === items.length ? '✅ ' + done : 'Правильно. Далі?'; }
+      else $(log).innerHTML = '❌ Не зараз: спочатку потрібен інший крок.';
+    }));
+  }
+  $(reset).addEventListener('click', build); build();
+}
+function seg(sel, fn){ group(sel, fn); const first = $$(sel).find(b=>b.classList.contains('active')) || $$(sel)[0]; if(first) fn(first); }
+function checks(boxSel, fn){
+  const box = $(boxSel); const upd = ()=>{ box.querySelectorAll('.chk').forEach(l=>l.classList.toggle('on', l.querySelector('input').checked)); fn([...box.querySelectorAll('input')].map(i=>i.checked)); };
+  box.addEventListener('change', upd); upd();
+}
+function inputs(ids, fn){ ids.forEach(i=>$('#'+i).addEventListener('input', fn)); fn(); }
+const val = id => +$('#'+id).value || 0;
+const kvHtml = rows => `<div class="kv" style="margin:0">${rows.map(r=>`<div><div class="l">${r[0]}</div><div class="v ${r[2]||'blue'}">${r[1]}</div></div>`).join('')}</div>`;
+
+/* ================= СИМУЛЯТОРИ ЛЕКЦІЇ ================= */
+
+/* S1 */
+classifier('#clsCia', '#clsCiaScore', ['Конфіденційність','Цілісність','Доступність'], [
+  {t:'Клієнтський файл відкритий для всіх, хто має посилання', c:0, e:'Ризик розкриття зайвих відомостей.'},
+  {t:'Ціну товару змінено без погодження', c:1, e:'Неправомірна зміна даних — неправильний розрахунок.'},
+  {t:'Реєстр замовлень не відкривається, склад не може комплектувати', c:2, e:'Ресурс недоступний тоді, коли потрібен.'},
+  {t:'Документ зашифровано, але ключ мав лише звільнений працівник', c:2, e:'Обмеження розкриття є, робочої доступності — немає.'},
+  {t:'Перевізник отримав повну історію покупок клієнтів', c:0, e:'Передано більше, ніж потрібно для доставки.'},
+  {t:'Помилковий імпорт подвоїв кількість у позиціях', c:1, e:'Порушено правильність і повноту даних.'}
+]);
+classifier('#clsTvr', '#clsTvrScore', ['Загроза','Вразливість','Наслідок'], [
+  {t:'Підроблений лист від «постачальника»', c:0, e:'Можлива дія, що може завдати шкоди.'},
+  {t:'Реквізити можна змінити без незалежної перевірки', c:1, e:'Слабке місце процедури.'},
+  {t:'Оплата надійшла неналежному отримувачеві', c:2, e:'Шкода від реалізації загрози.'},
+  {t:'Усі працюють під одним спільним паролем', c:1, e:'Ускладнює відповідальність і припинення доступу.'},
+  {t:'Збій накопичувача', c:0, e:'Подія, яка може знищити дані.'},
+  {t:'Склад день не може відвантажувати замовлення', c:2, e:'Наслідок недоступності реєстру.'}
+]);
+classifier('#clsMeas', '#clsMeasScore', ['Резервна копія','Обмеження доступу','Перевірка реквізитів','Шифрування пристрою'], [
+  {t:'Працівник випадково видалив реєстр', c:0, e:'Складний пароль не поверне файл — потрібна придатна копія.'},
+  {t:'Перевізник бачить закупівельні ціни', c:1, e:'Резервна копія не заважає зайвому одержувачеві читати дані.'},
+  {t:'Лист із «новими» банківськими реквізитами', c:2, e:'Додатковий антивірус не виправить процедуру погодження.'},
+  {t:'Утрачено ноутбук із клієнтським файлом', c:3, e:'Шифрування захищає вміст за належного налаштування; продовження роботи забезпечує копія.'}
+]);
+
+/* S2: MFA */
+classifier('#clsMfa', '#clsMfaScore', ['Підтвердити','Відхилити і повідомити'], [
+  {t:'Запит з’явився одразу після того, як ви ввели пароль у реєстр', c:0, e:'Запит пов’язаний із вашою власною дією.'},
+  {t:'О 23:40 приходять три запити поспіль, хоча ви не входили', c:1, e:'Невідомий запит — тиск на користувача. Не підтверджують, повідомляють за процедурою.'},
+  {t:'«Колега з підтримки» телефонує й просить продиктувати код', c:1, e:'Код не передають; перевірка — через відомий канал.'},
+  {t:'Запит після входу з нового робочого ноутбука, виданого сьогодні', c:0, e:'Власна очікувана дія на погодженому пристрої.'},
+  {t:'Посилання з листа відкрило сторінку входу, після неї — запит', c:1, e:'Одноразовий код можна виманити через підроблену сторінку.'}
+]);
+/* S2: фішинг */
+const PH = [
+  ['Від: «Бухгалтерія ТОВ „Постач-Плюс“» &lt;buh@postach-p1us.com&gt;', 1, 'Незвична адреса: «p1us» замість «plus».'],
+  ['Тема: ТЕРМІНОВО: нові реквізити для оплати рахунку № 4471', 1, 'Терміновість і зміна реквізитів — дві класичні ознаки.'],
+  ['Доброго дня! Дякуємо за співпрацю.', 0, ''],
+  ['Рахунок № 4471 за пляшки 750 мл на 18 640 грн.', 0, 'Правильні товар і сума не доводять автентичності — але й не є ознакою підробки.'],
+  ['Сплатіть до 16:00 за новими реквізитами, інакше поставку буде зупинено.', 1, 'Тиск і погроза, щоб обійти процедуру.'],
+  ['Не телефонуйте в офіс — менеджер у відпустці, відповідайте лише на цей лист.', 1, 'Прохання обійти перевірку через відомий канал.'],
+  ['Рахунок і довідка — в архіві Rakhunok_4471.zip', 1, 'Несподіване вкладення-архів.'],
+  ['З повагою, Олена Ковальчук, головний бухгалтер', 0, 'Знайоме ім’я не доводить, що лист надіслала саме вона.']
+];
+function buildPh(){
+  let found = 0;
+  $('#phMail').innerHTML = PH.map((p,i)=>`<span data-i="${i}" style="display:block;cursor:pointer;padding:4px 6px;margin:2px 0;border-radius:6px">${p[0]}</span>`).join('');
+  $('#phOut').textContent = 'Знайдено 0 / 5.';
+  $$('#phMail span').forEach(s=>s.addEventListener('click', ()=>{
+    if(s.dataset.done) return; s.dataset.done = 1; const p = PH[+s.dataset.i];
+    if(p[1]){ found++; s.style.background = 'var(--tint-red)'; s.style.color = 'var(--red)'; } else { s.style.background = 'var(--tint-blue)'; }
+    $('#phOut').innerHTML = `Знайдено ${found} / 5. ${p[1] ? '🚩 ' : 'ℹ️ Не ознака: '}${p[2] || 'звичайна ввічлива фраза.'}` + (found===5 ? ' <b>✅ Усі ознаки знайдено. Дія: не платити, звірити зміну за контактом із чинного довідника.</b>' : '');
+  }));
+}
+$('#phReset').addEventListener('click', buildPh); buildPh();
+
+/* S3: 3-2-1 */
+checks('#bkBox', on=>{
+  const copies = (on[0]?1:0) + (on[1]?1:0) + (on[2]?1:0), media = new Set([on[0]&&'cloud', on[1]&&'disk', on[2]&&'other'].filter(Boolean)).size, off = on[2], imm = on[3] && (on[1]||on[2]), test = on[4];
+  const rows = [['ТРИ КОПІЇ', copies + ' / 3', copies>=3?'ok':'red'],['ДВА СЕРЕДОВИЩА', media + ' / 2', media>=2?'ok':'red'],['ОДНА ПОЗА ОФІСОМ', off?'так':'ні', off?'ok':'red'],['ЗАХИЩЕНА ВІД ПЕРЕЗАПИСУ', imm?'так':'ні', imm?'ok':'red'],['ВІДНОВЛЕННЯ ПЕРЕВІРЕНО', test?'так':'ні', test?'ok':'red']];
+  const good = copies>=3 && media>=2 && off && imm && test;
+  $('#bkOut').innerHTML = kvHtml(rows) + `<p style="margin:12px 0 0">${on[5] ? 'Синхронізована папка <b>не рахується</b>: помилкове видалення пошириться на всі пристрої. ' : ''}${good ? '✅ Схема відповідає орієнтиру 3–2–1 і перевірена відновленням.' : !test ? 'Резерв без перевірки відновлення не дає впевненості у придатності. ' : ''}${!imm ? 'Якщо всі копії доступні зі скомпрометованого облікового запису, одна подія може пошкодити їх усі.' : ''}</p>`;
+});
+/* S3: таймлайн RPO/RTO */
+const tm = id => { const [h,m] = ($('#'+id).value || '0:0').split(':').map(Number); return h*60 + m; };
+const hm = m => String(Math.floor(m/60)).padStart(2,'0') + ':' + String(Math.round(m%60)).padStart(2,'0');
+inputs(['tB','tF','tO','tR','hP','hT'], ()=>{
+  const B = tm('tB'), F = tm('tF'), O = tm('tO'), R = tm('tR'), P = val('hP')*60, T = val('hT')*60;
+  const t0 = Math.floor((Math.min(B, F-P) - 30)/60)*60, t1 = Math.ceil((Math.max(R, F+T, O) + 30)/60)*60, X = m => 40 + (m - t0)/(t1 - t0)*820;
+  let s = '';
+  for(let t=t0; t<=t1; t+=60) s += `<line x1="${X(t)}" x2="${X(t)}" y1="30" y2="176" class="grid-l"/><text class="axt" x="${X(t)}" y="194" text-anchor="middle">${hm(t)}</text>`;
+  const band = (a, b, y, cls, lab) => `<rect x="${X(a)}" y="${y}" width="${Math.max(2, X(b)-X(a))}" height="24" rx="6" class="${cls}"/><text class="wf-ts" x="${X(a)+6}" y="${y+16}" style="fill:var(--ink);font-weight:700">${lab}</text>`;
+  s += band(F-P, F, 34, 'wf-ok', 'ціль RPO') + band(B, F, 64, 'wf-red', `під ризиком ${fmt((F-B)/60,2)} год`);
+  s += band(F, F+T, 102, 'wf-acc', 'ціль RTO') + band(F, O, 132, 'wf-acc', 'технічне відкриття') + band(O, R, 132, 'wf-ok', 'звіряння');
+  [[B,'копія','var(--ink-soft)'],[F,'збій','var(--red)'],[O,'відкрито','var(--ink-soft)'],[R,'робота','var(--ok)']].forEach(([m,l,c])=>{ s += `<line x1="${X(m)}" x2="${X(m)}" y1="24" y2="176" style="stroke:${c};stroke-width:2"/><text class="wf-tb" x="${X(m)}" y="18" text-anchor="middle" style="font-size:11px;fill:${c}">${l} ${hm(m)}</text>`; });
+  $('#tlSvg').innerHTML = s;
+  const rpoOk = F - B <= P, rtoTech = O - F <= T, rtoWork = R - F <= T;
+  $('#tlOut').innerHTML = kvHtml([['ВТРАТА ДАНИХ ДО ЗБОЮ', fmt((F-B)/60,2) + ' год', rpoOk?'ok':'red'],['RPO', rpoOk ? 'виконано' : 'не виконано', rpoOk?'ok':'red'],['ТЕХНІЧНЕ ВІДКРИТТЯ', fmt((O-F)/60,2) + ' год', rtoTech?'ok':'red'],['ПОВЕРНЕННЯ РОБОТИ', fmt((R-F)/60,2) + ' год · ' + (rtoWork ? 'у межах RTO' : 'понад RTO'), rtoWork?'ok':'red']])
+    + `<p style="margin:12px 0 0">${rpoOk ? 'Копія забезпечує цільову межу втрати даних.' : 'Копія сама по собі не забезпечує RPO — потрібен надійний журнал подій між копією і збоєм.'} ${rtoTech && !rtoWork ? '<b>Технічне відкриття вкладається в ціль, але робота повертається пізніше</b>: момент відновлення визначають заздалегідь — після перевірки даних і доступу.' : ''}</p>`;
+});
+/* S3: події */
+const EV = [['Н-1','нове замовлення'],['Н-2','нове замовлення'],['Н-3','нове замовлення'],['Н-4','нове замовлення'],['Н-5','нове замовлення'],['Н-6','нове замовлення'],['Н-7','нове замовлення'],
+  ['198','зміна кількості'],['201','зміна адреси'],['Н-2','зміна кількості'],['Н-5','скасування'],['190','скасування'],['195','відвантаження'],['198','відвантаження'],['199','відвантаження'],['Н-1','відвантаження'],['201','відвантаження']];
+$('#evTbl').innerHTML = `<div class="table-wrap"><table><thead><tr><th>#</th><th>Замовлення</th><th>Подія 12:00–14:00</th></tr></thead><tbody>${EV.map((e,i)=>`<tr><td class="mono">${i+1}</td><td class="mono">${e[0]}</td><td>${e[1]}</td></tr>`).join('')}</tbody></table></div>`;
+$$('#evBtns button').forEach(b=>b.addEventListener('click', ()=>{
+  $$('#evBtns button').forEach(x=>{x.classList.add('ghost'); x.classList.remove('active');}); b.classList.remove('ghost'); b.classList.add('active');
+  const a = +b.dataset.a;
+  $('#evOut').innerHTML = a===7 ? '✅ Сім нових замовлень (Н-1…Н-7). Решта подій змінюють, скасовують або відвантажують існуючі об’єкти. Н-5 створюють і потім скасовують — кінцевий стан має відображати обидва переходи. Порядок: спочатку основа операції, потім зміни, далі завершення.'
+    : a===17 ? '❌ 17 — це кількість подій. Відвантаження не створює нове замовлення, а зміна стосується вже існуючого.'
+    : '❌ Скасоване Н-5 теж треба створити: інакше скасування не буде до чого застосувати, а простежуваність зникне.';
+}));
+
+/* S4 */
+classifier('#clsObs5', '#clsObs5Score', ['Спостереження','Припущення'], [
+  {t:'«Файл реєстру не відкривається з 10:05»', c:0, e:'Факт із часом.'},
+  {t:'«Нас атакували хакери»', c:1, e:'Потребує підтвердження відповідальними особами.'},
+  {t:'«Кілька файлів у папці отримали розширення .lock»', c:0, e:'Спостережувана ознака.'},
+  {t:'«Усі клієнтські дані викрадені»', c:1, e:'Масштаб ще не встановлено.'},
+  {t:'«О 09:52 надійшов запит MFA, якого я не ініціював»', c:0, e:'Конкретна подія з часом.'},
+  {t:'«Це точно збій у постачальника сервісу»', c:1, e:'Діагноз, а не спостереження.'}
+]);
+seqSim('#rqBox', '#rqOut', '#rqLog', '#rqReset', [
+  'Зупинити непідтверджену операцію — не платити',
+  'Звірити зміну за чинним контактом із довідника — не за номером із листа',
+  'Зберегти лист і передати відповідальній ролі',
+  'Перевірити, чи помилкові реквізити вже потрапили в довідник або інші рахунки',
+  'Переглянути правило погодження зміни реквізитів'
+], 'Порядок дотримано: спочатку обмежити наслідки, потім відновити контроль через перевірені канали, і лише тоді змінювати процедуру.');
+classifier('#clsFix', '#clsFixScore', ['Конкретний захід','Загальний заклик'], [
+  {t:'Бути уважнішими з даними', c:1, e:'Загальна вимога не усуває недоліків доступу або організації.'},
+  {t:'Копіювати реєстр щогодини і щомісяця перевіряти відновлення — відповідальна О. Іваненко', c:0, e:'Є дія, частота, відповідальний і перевірка.'},
+  {t:'Додати замісника відповідального за резерв і контакти підтримки в інструкцію', c:0, e:'Усуває залежність від однієї людини.'},
+  {t:'Ставитися до безпеки серйозніше', c:1, e:'Немає виконавця і способу перевірки.'},
+  {t:'Зміна реквізитів — лише після незалежного підтвердження другою роллю', c:0, e:'Змінює умови, через які подія мала наслідки.'}
+]);
+
+
+/* ---------- practice cases ---------- */
+const cases = [{"t": "Сім замовлень між копією і збоєм", "q": "Остання перевірена копія реєстру — 12:00, збій — 14:00. Адміністратор відновив файл о 15:20 і оголосив, що «все працює». Чого бракує?", "a": "Відновлено файл, а не процес. Потрібно відтворити події 12:00–14:00 (нові замовлення, зміни, скасування, відвантаження) за надійними джерелами, перевірити повтори, звірити стан зобов’язань магазину, складу й диспетчера і погодити, який ресурс чинний. За RTO 2 год повернення роботи після звіряння може перевищити ціль."}, {"t": "Терміновий лист із реквізитами", "q": "Бухгалтер отримав професійно оформлений лист від постійного постачальника: правильна назва товару, сума, підпис. Просять оплатити за новими реквізитами до 16:00. Як діяти?", "a": "Зупинити непідтверджену операцію і звірити зміну за чинним контактом із довідника, а не за телефоном із листа. Знайомий вигляд не доводить автентичності: обліковий запис партнера може бути скомпрометований. Лист зберігають і передають відповідальній ролі."}, {"t": "Нічний запит MFA", "q": "Менеджерові вночі приходять запити підтвердження входу, хоча він не входив. Щоб «не заважали», він натискає «Підтвердити». Наслідки?", "a": "Він фактично впустив того, хто вже має пароль. MFA не виправдовує підтвердження незапитаних входів. Запит відхиляють, повідомляють за процедурою; уповноважені особи змінюють захист, перевіряють активні сесії й налаштування з довіреного пристрою."}, {"t": "Синхронізація як резерв", "q": "Магазин вважає, що резерв не потрібен: реєстр синхронізується на трьох ноутбуках. Працівник випадково видаляє аркуш. Що станеться?", "a": "Синхронізація виконає свою функцію і поширить видалення на всі пристрої. Потрібен незалежний збережений стан — копія, захищена від тієї самої події, і перевірка відновлення. Історія версій може допомогти, але її можливості й строки залежать від сервісу."}, {"t": "Захищений аркуш із клієнтами", "q": "Перевізнику надали файл із захищеним від редагування аркушем клієнтських даних. Менеджер вважає, що конфіденційність забезпечено.", "a": "Захист аркуша контролює зміни, але не приховує видимих даних — це не шифрування. Для належного обмеження потрібні права на ресурс і мінімальний склад полів, необхідних для доставок. Відкликання посилання не прибирає вже завантажену копію."}, {"t": "«Це хакери!»", "q": "Працівник помітив, що реєстр не відкривається, і написав у загальний чат: «Нас атакували, усе викрадено, видаляйте файли». Що не так?", "a": "Спостереження змішано з діагнозом, а заклик до видалення може знищити відомості для встановлення причин. Правильно — зафіксувати факт і час («файл не відкривається з 10:05») і повідомити через погоджений канал; відповідальні визначають причину й порядок реагування."}];
+$('#caseList').innerHTML = cases.map((c,i)=>`<div class="quiz-q"><h4><span class="idx" style="margin-right:8px">К${i+1}</span>${c.t}</h4><p>${c.q}</p>
+  <label class="field" for="case${i}">Ваша відповідь<textarea id="case${i}" rows="3" style="font-family:var(--f-body);font-size:15px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg-panel);color:var(--ink);width:100%"></textarea></label>
+  <div class="btnrow"><button class="btn ghost small" type="button" data-case="${i}">Показати розбір</button></div>
+  <div class="callout ok" id="caseA${i}" hidden><b>Розбір.</b> ${c.a}</div></div>`).join('');
+$$('[data-case]').forEach(b=>b.addEventListener('click', ()=>{ const el = $('#caseA'+b.dataset.case); el.hidden = !el.hidden; b.textContent = el.hidden ? 'Показати розбір' : 'Сховати розбір'; }));
+
+/* ---------- quiz ---------- */
+const quiz = [{"q": "Що таке інформаційний актив?", "o": ["Лише гроші на рахунку", "Дані або ресурс, що мають цінність для роботи підприємства", "Лише комп’ютери", "Програма антивірус"], "c": 1, "e": "Реєстри, довідники, облікові записи, пристрої, резервні копії, ключі."}, {"q": "Змінено ціну без погодження. Яку властивість порушено?", "o": ["Конфіденційність", "Цілісність", "Доступність", "Жодну"], "c": 1, "e": "Цілісність — правильність і захист від неправомірної зміни."}, {"q": "Відсутність перевірки реквізитів — це…", "o": ["Загроза", "Вразливість", "Наслідок", "Інцидент"], "c": 1, "e": "Слабке місце, що дозволяє загрозі реалізуватися."}, {"q": "Що з переліченого є двома незалежними чинниками автентифікації?", "o": ["Два різні паролі", "Пароль і підтвердження через спеціальний засіб", "Логін і пароль", "Пароль і секретне питання"], "c": 1, "e": "Два паролі не обов’язково є незалежними чинниками."}, {"q": "Сайт має HTTPS. Це означає…", "o": ["Власник сайта чесний", "Захищено канал між браузером і вузлом", "Вкладення безпечні", "Сайт офіційний"], "c": 1, "e": "Підроблена сторінка теж може використовувати HTTPS."}, {"q": "Авторизація визначає…", "o": ["Ким представляється користувач", "Чи правдиве це твердження", "Які дії користувачу дозволені", "Пароль користувача"], "c": 2, "e": "Ідентифікація → автентифікація → авторизація."}, {"q": "Принцип найменших привілеїв означає…", "o": ["Мінімум працівників", "Лише права, потрібні для робочої задачі", "Заборону доступу всім", "Однакові права для всіх"], "c": 1, "e": "Надто вузькі права теж шкодять, якщо працівник не може виконати функцію."}, {"q": "Правило 3–2–1 передбачає…", "o": ["3 паролі, 2 ключі, 1 адміністратор", "3 копії, 2 середовища, 1 копія поза основним місцем", "3 дні, 2 тижні, 1 місяць", "3 сервери, 2 мережі, 1 диск"], "c": 1, "e": "Орієнтир, що потребує адаптації і перевірки відновлення."}, {"q": "Чим синхронізація відрізняється від резервного копіювання?", "o": ["Нічим", "Синхронізація поширює зміни, включно з помилковим видаленням", "Синхронізація завжди безпечніша", "Резерв працює лише в хмарі"], "c": 1, "e": "Потрібен незалежний збережений стан."}, {"q": "RPO — це…", "o": ["Цільовий час відновлення роботи", "Цільова межа втрати даних у часі", "Кількість копій", "Час створення копії"], "c": 1, "e": "Наскільки далеко назад допустимо повернутися після збою."}, {"q": "Копія о 12:00, збій о 14:00, RPO = 1 год. Чи забезпечує копія ціль?", "o": ["Так", "Ні: під ризиком 2 години змін", "Так, якщо відкрити файл швидко", "Залежить від RTO"], "c": 1, "e": "Без надійного журналу подій схема не відповідає цілі."}, {"q": "Захист аркуша від редагування…", "o": ["Є шифруванням", "Обмежує зміни, але не приховує видимі дані", "Видаляє дані", "Замінює права доступу"], "c": 1, "e": "Оцінюють властивість засобу, а не його назву в меню."}, {"q": "Що записати в картку інциденту як спостереження?", "o": ["«Нас зламали»", "«Файл не відкривається з 10:05»", "«Винен постачальник»", "«Усе викрадено»"], "c": 1, "e": "Факт відокремлюють від припущення."}, {"q": "Підозрілий лист із новими реквізитами. Перший крок?", "o": ["Оплатити, щоб не зірвати поставку", "Зупинити непідтверджену операцію", "Зателефонувати за номером із листа", "Переслати всім колегам"], "c": 1, "e": "Далі — незалежне звірення за чинним контактом."}];
+let score = 0, answered = new Set();
+function buildQuiz(){
+  score = 0; answered = new Set();
+  $('#quizContainer').innerHTML = quiz.map((it,qi)=>`<div class="quiz-q"><h4>${qi+1}. ${it.q}</h4>${it.o.map((o,oi)=>`<button class="opt" type="button" data-q="${qi}" data-o="${oi}">${o}</button>`).join('')}<div class="quiz-fb" id="fb-${qi}" hidden></div></div>`).join('');
+  $('#quizScore').textContent = `0 / ${quiz.length}`;
+}
+$('#quizContainer').addEventListener('click', e=>{
+  const t = e.target.closest('.opt'); if(!t) return;
+  const qi = +t.dataset.q, oi = +t.dataset.o; if(answered.has(qi)) return; answered.add(qi);
+  $$(`.opt[data-q="${qi}"]`).forEach(o=>{ o.disabled = true; if(+o.dataset.o===quiz[qi].c) o.classList.add('correct'); else if(+o.dataset.o===oi) o.classList.add('wrong'); });
+  const ok = oi===quiz[qi].c; if(ok) score++;
+  const fb = $('#fb-'+qi); fb.hidden = false; fb.innerHTML = (ok ? '✅ <b>Правильно.</b> ' : '❌ <b>Не зовсім.</b> ') + quiz[qi].e;
+  $('#quizScore').textContent = `${score} / ${quiz.length}` + (answered.size===quiz.length ? ` · ${Math.round(score/quiz.length*100)}%` : '');
+});
+$('#quizReset').addEventListener('click', buildQuiz);
+buildQuiz();
+
+/* ---------- glossary ---------- */
+const gloss = [["Інформаційний актив", "Дані або ресурс, що мають цінність для роботи підприємства."], ["Конфіденційність", "Доступ до інформації лише для тих, кому він належить за правилами."], ["Цілісність", "Правильність і повнота даних, захист від неправомірної зміни."], ["Доступність", "Можливість користуватися ресурсом тоді, коли він потрібний."], ["Автентичність", "Підтвердження, що повідомлення або користувач походить від заявленого джерела."], ["Загроза / вразливість / ризик", "Можлива шкідлива подія / слабке місце / поєднання ймовірності й наслідків."], ["Залишковий ризик", "Ризик, що залишається після застосування заходів."], ["Мінімізація даних", "Збирання і передавання лише потрібних для мети полів."], ["Ідентифікація / автентифікація / авторизація", "Ким представляється / перевірка / дозволені дії."], ["MFA", "Багатофакторна автентифікація: більше одного незалежного чинника підтвердження."], ["Менеджер паролів", "Засіб створення і зберігання різних паролів; його доступ теж захищають."], ["Фішинг", "Спроба спонукати людину передати дані або виконати небезпечну дію під виглядом звичного повідомлення."], ["Соціальна інженерія", "Маніпуляція довірою, поспіхом, страхом або бажанням допомогти."], ["HTTPS / VPN", "Захищений канал до вебвузла / до визначеної точки мережі."], ["Принцип найменших привілеїв", "Надання лише тих прав, які потрібні для робочої задачі."], ["Розділення обов’язків", "Одна роль готує важливу зміну, інша перевіряє й погоджує."], ["Шифрування", "Перетворення даних, які можна прочитати лише з відповідним ключем."], ["Резервна копія", "Окремий збережений стан даних, призначений для відновлення."], ["Правило 3–2–1", "Три копії, два середовища, одна поза основним місцем."], ["RPO", "Цільова межа втрати даних у часі."], ["RTO", "Цільовий час відновлення роботи після переривання."], ["Тест відновлення", "Перевірка копії в окремому середовищі: структура, записи, підсумки, продовження операцій."], ["Тимчасовий журнал", "Запис операцій під час недоступності системи з унікальними номерами для подальшого звіряння."], ["Інцидент", "Подія, що порушила або може порушити визначений порядок безпеки."], ["Картка інциденту", "Час, ресурс, ознаки, виконані дії, відповідальний і поточний стан."]];
+$('#glossList').innerHTML = gloss.map(g=>`<div><dt>${g[0]}</dt><dd>${g[1]}</dd></div>`).join('');
+
+/* ---------- section contents, meta, scroll-spy, reading progress ---------- */
+const plural = (n, f) => f[(n%10===1 && n%100!==11) ? 0 : (n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20)) ? 1 : 2];
+const spyLinks = new Map();
+$$('section.panel').forEach(p=>{
+  const blocks = [...p.querySelectorAll('article.block')];
+  const groups = p.querySelectorAll('.group-label').length;
+  const meta = p.querySelector('.sec-meta');
+  if(meta && blocks.length){
+    const sims = blocks.filter(b=>b.dataset.kind==='sim').length;
+    meta.innerHTML = `<span><b>${blocks.length}</b> ${plural(blocks.length,['блок','блоки','блоків'])}</span>`
+      + (groups ? `<span><b>${groups}</b> ${plural(groups,['тематична група','тематичні групи','тематичних груп'])}</span>` : '')
+      + (sims ? `<span><b>${sims}</b> ${plural(sims,['симулятор','симулятори','симуляторів'])}</span>` : '');
+  }
+  const toc = p.querySelector('.toc-list'); if(!toc) return;
+  const link = (el, no, title, kind)=>{
+    const a = document.createElement('a'); a.href = '#'+el.id; a.dataset.kind = kind;
+    a.innerHTML = `<span class="toc-no">${no}</span><span>${title}</span>`;
+    a.addEventListener('click', e=>{ e.preventDefault(); el.scrollIntoView({behavior:'smooth', block:'start'}); });
+    toc.appendChild(a); spyLinks.set(el, a);
+  };
+  p.querySelectorAll('.group-label, article.block').forEach(el=>{
+    if(el.classList.contains('group-label')){
+      const g = document.createElement('div'); g.className = 'toc-group';
+      g.innerHTML = `<i>${el.dataset.g}</i>${el.dataset.title}`; toc.appendChild(g); return;
+    }
+    link(el, el.querySelector('.block-no').textContent, el.querySelector('h3').textContent, el.dataset.kind);
+  });
+  const tk = p.querySelector('.takeaway');
+  if(tk) link(tk, '✓', tk.querySelector('.tk-label').textContent, 'end');
+  const legend = document.createElement('div'); legend.className = 'toc-legend';
+  legend.innerHTML = '<span style="--k:var(--blue)">теорія</span><span style="--k:var(--sim)">симулятор</span><span style="--k:var(--ok)">схема</span><span style="--k:var(--ink-soft)">поглиблення</span>';
+  toc.parentElement.appendChild(legend);
+});
+const spy = new IntersectionObserver(entries=>{
+  entries.forEach(en=>{
+    if(!en.isIntersecting) return;
+    const a = spyLinks.get(en.target); if(!a) return;
+    const list = a.parentElement;
+    list.querySelectorAll('a').forEach(x=>x.classList.toggle('on', x===a));
+    if(list.scrollWidth > list.clientWidth + 4) list.scrollTo({left: a.offsetLeft - 12, behavior:'smooth'});
+    else if(list.parentElement.scrollHeight > list.parentElement.clientHeight + 4){
+      const box = list.parentElement, top = a.offsetTop - box.clientHeight/2;
+      box.scrollTo({top, behavior:'smooth'});
+    }
+  });
+}, {rootMargin:'-30% 0px -60% 0px'});
+spyLinks.forEach((a, el)=>spy.observe(el));
+
+const navProg = $('#navProgress');
+function updProgress(){ const max = document.documentElement.scrollHeight - innerHeight; navProg.style.width = (max > 0 ? Math.min(100, scrollY/max*100) : 0) + '%'; }
+addEventListener('scroll', updProgress, {passive:true});
+addEventListener('resize', updProgress);
+$$('#tabsNav button, [data-go]').forEach(b=>b.addEventListener('click', ()=>setTimeout(updProgress, 60)));
+updProgress();
+
+/* ---------- static explanation cards → 3D flip cards (topic in front, explanation behind) ---------- */
+$$('.sec-main .card').forEach(card=>{
+  if(card.matches('a.card, .src-card') || card.closest('.kv')) return;
+  const h = card.querySelector(':scope > h4'); if(!h) return;
+  const lvl = card.querySelector(':scope > .lvl-n');
+  const idx = [...card.parentElement.children].indexOf(card) + 1;
+  const title = h.innerHTML, plain = h.textContent;
+  h.remove(); if(lvl) lvl.remove();
+  const f = document.createElement('div');
+  f.className = 'fcard' + (lvl ? ' lvl' : '');
+  f.tabIndex = 0; f.setAttribute('role', 'button'); f.setAttribute('aria-pressed', 'false');
+  f.innerHTML = `<div class="fcard-inner"><div class="fcard-face front">${lvl ? `<span class="lvl-n">${lvl.textContent}</span><span class="fnum">Рівень ${lvl.textContent}</span>` : `<span class="fnum">${String(idx).padStart(2,'0')}</span>`}<h4>${title}</h4><span class="fhint">↻ натисніть, щоб перевернути</span></div>`
+    + `<div class="fcard-face back"><span class="fback-t">${plain}</span><div>${card.innerHTML.trim()}</div></div></div>`;
+  card.replaceWith(f);
+});
+function flipCard(f){ f.classList.toggle('flipped'); f.setAttribute('aria-pressed', f.classList.contains('flipped')); }
+document.addEventListener('click', e=>{ const f = e.target.closest('.fcard'); if(f) flipCard(f); });
+document.addEventListener('keydown', e=>{ if((e.key==='Enter' || e.key===' ') && e.target.classList && e.target.classList.contains('fcard')){ e.preventDefault(); flipCard(e.target); } });
+
+/* ---------- scroll reveal: blocks, cards, lists, diagrams, charts ---------- */
+function clearLater(el){ (el._rvT || []).forEach(clearTimeout); el._rvT = []; }
+function later(el, fn, ms){ (el._rvT = el._rvT || []).push(setTimeout(fn, ms)); }
+function resetLinks(svg){ svg.querySelectorAll('.mm-link').forEach(p=>{ p.style.strokeDasharray = ''; p.style.strokeDashoffset = ''; p.style.transition = ''; p.style.markerEnd = ''; }); }
+function mmReveal(svg){
+  clearLater(svg);
+  svg.classList.remove('mm-wait', 'mm-anim'); svg.getBoundingClientRect(); svg.classList.add('mm-anim');
+  svg.querySelectorAll('.mm-in').forEach((g,i)=>g.style.setProperty('--i', i));
+  svg.querySelectorAll('.mm-link').forEach((p,i)=>{
+    const L = p.getTotalLength();
+    p.style.transition = 'none'; p.style.markerEnd = 'none';   // arrowhead appears when the line is drawn
+    p.style.strokeDasharray = L; p.style.strokeDashoffset = L; p.getBoundingClientRect();
+    p.style.transition = `stroke-dashoffset .9s cubic-bezier(.6,0,.2,1) ${0.3 + i*0.12}s`; p.style.strokeDashoffset = '0';
+    later(svg, ()=>{ p.style.markerEnd = ''; }, (1.15 + i*0.12) * 1000);
+  });
+  later(svg, ()=>{ svg.classList.remove('mm-anim'); resetLinks(svg); }, 2800);
+}
+function mmReset(svg){ clearLater(svg); svg.classList.remove('mm-anim'); svg.classList.add('mm-wait'); resetLinks(svg); }
+function chartReveal(svg){
+  clearLater(svg);
+  svg.classList.remove('ch-wait', 'ch-anim'); svg.getBoundingClientRect(); svg.classList.add('ch-anim');
+  svg.querySelectorAll('rect[data-i], .sv-res, .sv-avail').forEach((r,i)=>r.style.setProperty('--i', i));
+  later(svg, ()=>svg.classList.remove('ch-anim'), 2000);
+}
+function chartReset(svg){ clearLater(svg); svg.classList.remove('ch-anim'); svg.classList.add('ch-wait'); }
+
+/* Animations replay every time: an element resets once it is fully off screen
+   (or its section is closed) and plays again when it comes back into view. */
+if(!matchMedia('(prefers-reduced-motion: reduce)').matches && 'IntersectionObserver' in window){
+  const set = new Set($$('.sec-main > *'));
+  const staggered = $$('.fcard, .points > .point, .checklist > li, .io > *, .steps > .step, .gloss > div, .cls-item, .plan-card, .quiz-q');
+  staggered.forEach(el=>set.add(el));
+  set.forEach(el=>{
+    el.classList.add('rv');
+    if(staggered.includes(el)){ const sib = [...el.parentElement.children]; el.style.setProperty('--i', Math.min(sib.indexOf(el), 8)); }
+  });
+  // show when noticeably inside the viewport, hide only when completely outside — no flicker at the edges
+  const rvIn = new IntersectionObserver(es=>es.forEach(en=>{ if(en.isIntersecting) en.target.classList.add('in'); }), {threshold:0.06, rootMargin:'0px 0px -6% 0px'});
+  const rvOut = new IntersectionObserver(es=>es.forEach(en=>{
+    if(en.isIntersecting) return;
+    en.target.classList.remove('in');
+    en.target.classList.toggle('from-top', en.boundingClientRect.top < 0);   // left upwards → comes back from above
+  }), {threshold:0});
+  set.forEach(el=>{ rvIn.observe(el); rvOut.observe(el); });
+
+  const maps = $$('svg.mm, svg.flow'), charts = $$('svg.chart');
+  maps.forEach(x=>x.classList.add('mm-wait')); charts.forEach(x=>x.classList.add('ch-wait', 'ch-svg'));
+  const svgIn = new IntersectionObserver(es=>es.forEach(en=>{
+    const x = en.target; if(!en.isIntersecting || x._shown) return; x._shown = true;
+    x.classList.contains('ch-svg') ? chartReveal(x) : mmReveal(x);
+  }), {threshold:0.3});
+  const svgOut = new IntersectionObserver(es=>es.forEach(en=>{
+    const x = en.target; if(en.isIntersecting || !x._shown) return; x._shown = false;
+    x.classList.contains('ch-svg') ? chartReset(x) : mmReset(x);
+  }), {threshold:0});
+  [...maps, ...charts].forEach(x=>{ svgIn.observe(x); svgOut.observe(x); });
+}
+</script>
+</body></html>

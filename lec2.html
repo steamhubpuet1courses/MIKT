@@ -1,0 +1,1405 @@
+<!DOCTYPE html><html lang="uk"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"><style>body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+<title>Спільна робота з даними</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;600;700;800&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* Layout: HUD-панель → hero → липкі вкладки → одна активна панель-розділ.
+   Усередині розділу: шапка → зміст (праворуч / згори на мобільних) → тематичні групи → нумеровані блоки → висновок. */
+:root{
+  --bg:#f2f4fa; --bg-panel:#ffffff; --bg-soft:#f5f7fc; --grid:rgba(36,71,184,.05); --grid-dot:rgba(36,71,184,.13);
+  --ink:#10142b; --ink-soft:#5b6283; --on-ink:#ffffff;
+  --blue:#3d6cf0; --blue-deep:#2447b8; --blue-bright:#5b8cff;
+  --red:#e0405a; --olive:#d99a00; --olive-ink:#946800; --ok:#0d9b8a; --sim:#e8731c;
+  --core:#1b2559; --core-2:#2b3f8f;
+  --line:#e1e5f1; --line-strong:#cdd3e6; --nav-bg:rgba(255,255,255,.82);
+  --tint-blue:rgba(61,108,240,.08); --tint-red:rgba(224,64,90,.08); --tint-olive:rgba(217,154,0,.1); --tint-ok:rgba(13,155,138,.1); --tint-sim:rgba(232,115,28,.09);
+  --glow-1:rgba(61,108,240,.10); --glow-2:rgba(13,155,138,.07);
+  --shadow:0 1px 2px rgba(16,20,43,.04), 0 8px 26px rgba(16,20,43,.06);
+  --shadow-lg:0 2px 6px rgba(16,20,43,.05), 0 24px 60px rgba(16,20,43,.12);
+  --radius:18px;
+  --hero-bg:radial-gradient(700px 380px at 88% -5%, rgba(61,108,240,.2), transparent 62%), radial-gradient(520px 320px at 5% 115%, rgba(13,155,138,.16), transparent 62%), linear-gradient(135deg, #ffffff 0%, #eef2ff 55%, #e6f5f2 100%);
+  --hero-border:#e1e5f1; --hero-ink:#10142b; --hero-grid:rgba(36,71,184,.07); --hero-num:rgba(36,71,184,.15);
+  --hero-h1:linear-gradient(92deg,#10142b 25%, #2447b8 70%, #0d9b8a); --hero-sub:#4f5675;
+  --hero-tag-c:#0b7f72; --hero-tag-bg:rgba(13,155,138,.08); --hero-tag-b:rgba(13,155,138,.35);
+  --hero-chip-bg:rgba(255,255,255,.75); --hero-chip-b:#dfe3f0; --hero-chip-c:#10142b; --hero-chip-n:#3d6cf0;
+  --f-display:'Unbounded', 'Segoe UI', system-ui, sans-serif;
+  --f-body:'Manrope', 'Segoe UI', system-ui, sans-serif;
+  --f-mono:'JetBrains Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#070a14; --bg-panel:#0e1328; --bg-soft:#141a35; --grid:rgba(120,145,255,.04); --grid-dot:rgba(140,165,255,.14);
+    --ink:#e8ecff; --ink-soft:#9aa3c8; --on-ink:#0b0f1f;
+    --blue:#5b8cff; --blue-deep:#9db8ff; --blue-bright:#7aa2ff;
+    --red:#ff6b81; --olive:#ffb84d; --olive-ink:#ffc46b; --ok:#2fd9bb; --sim:#ffa04d;
+    --core:#24326e; --core-2:#3550b0;
+    --line:#212947; --line-strong:#313b64; --nav-bg:rgba(14,19,40,.82);
+    --tint-blue:rgba(91,140,255,.13); --tint-red:rgba(255,107,129,.12); --tint-olive:rgba(255,184,77,.12); --tint-ok:rgba(47,217,187,.11); --tint-sim:rgba(255,160,77,.12);
+    --glow-1:rgba(91,140,255,.14); --glow-2:rgba(47,217,187,.06);
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
+    --shadow-lg:0 2px 6px rgba(0,0,0,.3), 0 26px 64px rgba(0,0,0,.5); color-scheme:dark;
+    --hero-bg:radial-gradient(700px 380px at 88% -5%, rgba(91,140,255,.5), transparent 62%), radial-gradient(520px 320px at 5% 115%, rgba(47,217,187,.3), transparent 62%), linear-gradient(135deg, #0c1331 0%, #15204f 55%, #0f2a46 100%);
+    --hero-border:rgba(255,255,255,.06); --hero-ink:#fff; --hero-grid:rgba(255,255,255,.05); --hero-num:rgba(255,255,255,.13);
+    --hero-h1:linear-gradient(92deg,#ffffff 25%, #b7cbff 70%, #8ff2dd); --hero-sub:rgba(232,238,255,.78);
+    --hero-tag-c:#9ff0e0; --hero-tag-bg:rgba(47,217,187,.1); --hero-tag-b:rgba(47,217,187,.38);
+    --hero-chip-bg:rgba(255,255,255,.07); --hero-chip-b:rgba(255,255,255,.16); --hero-chip-c:#dfe6ff; --hero-chip-n:#8ff2dd;
+  }
+}
+:root[data-theme="dark"]{
+  --hero-bg:radial-gradient(700px 380px at 88% -5%, rgba(91,140,255,.5), transparent 62%), radial-gradient(520px 320px at 5% 115%, rgba(47,217,187,.3), transparent 62%), linear-gradient(135deg, #0c1331 0%, #15204f 55%, #0f2a46 100%);
+  --hero-border:rgba(255,255,255,.06); --hero-ink:#fff; --hero-grid:rgba(255,255,255,.05); --hero-num:rgba(255,255,255,.13);
+  --hero-h1:linear-gradient(92deg,#ffffff 25%, #b7cbff 70%, #8ff2dd); --hero-sub:rgba(232,238,255,.78);
+  --hero-tag-c:#9ff0e0; --hero-tag-bg:rgba(47,217,187,.1); --hero-tag-b:rgba(47,217,187,.38);
+  --hero-chip-bg:rgba(255,255,255,.07); --hero-chip-b:rgba(255,255,255,.16); --hero-chip-c:#dfe6ff; --hero-chip-n:#8ff2dd;
+  --bg:#070a14; --bg-panel:#0e1328; --bg-soft:#141a35; --grid:rgba(120,145,255,.04); --grid-dot:rgba(140,165,255,.14);
+  --ink:#e8ecff; --ink-soft:#9aa3c8; --on-ink:#0b0f1f;
+  --blue:#5b8cff; --blue-deep:#9db8ff; --blue-bright:#7aa2ff;
+  --red:#ff6b81; --olive:#ffb84d; --olive-ink:#ffc46b; --ok:#2fd9bb; --sim:#ffa04d;
+  --core:#24326e; --core-2:#3550b0;
+  --line:#212947; --line-strong:#313b64; --nav-bg:rgba(14,19,40,.82);
+  --tint-blue:rgba(91,140,255,.13); --tint-red:rgba(255,107,129,.12); --tint-olive:rgba(255,184,77,.12); --tint-ok:rgba(47,217,187,.11); --tint-sim:rgba(255,160,77,.12);
+  --glow-1:rgba(91,140,255,.14); --glow-2:rgba(47,217,187,.06);
+  --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
+  --shadow-lg:0 2px 6px rgba(0,0,0,.3), 0 26px 64px rgba(0,0,0,.5); color-scheme:dark;
+}
+
+/* ---------- база ---------- */
+*{box-sizing:border-box;}
+body{
+  background:
+    radial-gradient(1100px 600px at 90% -10%, var(--glow-1), transparent 60%),
+    radial-gradient(900px 520px at -10% 5%, var(--glow-2), transparent 60%),
+    linear-gradient(var(--grid) 1px, transparent 1px) 0 0/40px 40px,
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px) 0 0/40px 40px,
+    var(--bg);
+  background-attachment:fixed;
+  color:var(--ink); font-family:var(--f-body); font-size:16px; line-height:1.68; min-height:100vh;
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;}
+body::before{content:""; position:fixed; inset:0 0 auto; height:env(safe-area-inset-top,0px); z-index:60; background:var(--bg);}
+::selection{background:var(--blue); color:#fff;}
+h1,h2,h3,h4{margin:0 0 .5em; text-wrap:balance; line-height:1.25;}
+h3,h4{font-family:var(--f-body); font-weight:800; letter-spacing:-.005em;}
+.mono,code{font-family:var(--f-mono);}
+p{margin:0 0 .8em;}
+b,strong{font-weight:700;}
+.frame{max-width:1240px; margin:0 auto; padding-block:18px 80px; padding-left:max(16px, env(safe-area-inset-left,0px)); padding-right:max(16px, env(safe-area-inset-right,0px));}
+
+/* ---------- HUD ---------- */
+.hud-bar{display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between; padding:9px 10px 9px 18px; background:var(--nav-bg);
+  backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+  border:1px solid var(--line); border-radius:14px; margin-bottom:14px; box-shadow:var(--shadow);
+  font-family:var(--f-mono); font-size:11.5px; letter-spacing:.04em; color:var(--ink-soft);}
+.hud-bar .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ok);margin-right:8px;box-shadow:0 0 0 3px var(--tint-ok);}
+.theme-btn{font-family:var(--f-body); font-weight:700; font-size:12.5px; background:var(--bg-soft); color:var(--ink); border:1px solid var(--line); border-radius:10px; padding:7px 13px; cursor:pointer; transition:.18s;}
+.theme-btn:hover{border-color:var(--blue); color:var(--blue-deep); background:var(--tint-blue);}
+
+/* ---------- HERO (світлий у світлій темі, темний у темній) ---------- */
+header.hero{position:relative; isolation:isolate; overflow:hidden; border-radius:26px; color:var(--hero-ink);
+  padding:clamp(28px,5vw,56px) clamp(20px,4.5vw,54px) clamp(26px,4.5vw,48px); margin-bottom:16px;
+  background:var(--hero-bg); border:1px solid var(--hero-border); box-shadow:var(--shadow-lg);}
+header.hero::before{content:""; position:absolute; inset:0; z-index:-1;
+  background:linear-gradient(var(--hero-grid) 1px, transparent 1px) 0 0/34px 34px,
+             linear-gradient(90deg, var(--hero-grid) 1px, transparent 1px) 0 0/34px 34px;
+  -webkit-mask-image:linear-gradient(105deg, transparent 20%, #000 75%); mask-image:linear-gradient(105deg, transparent 20%, #000 75%);}
+.hero-num{position:absolute; right:-12px; bottom:-0.28em; z-index:-1; font-family:var(--f-display); font-weight:800; line-height:1;
+  font-size:clamp(150px,25vw,300px); letter-spacing:-.06em; color:transparent; -webkit-text-stroke:1.5px var(--hero-num); user-select:none; pointer-events:none;}
+.hero-tag{display:inline-block; font-family:var(--f-mono); font-size:11.5px; letter-spacing:.14em;
+  color:var(--hero-tag-c); background:var(--hero-tag-bg); border:1px solid var(--hero-tag-b); padding:5px 13px; border-radius:20px; margin-bottom:20px;}
+header.hero h1{font-family:var(--f-display); font-size:clamp(24px,3.9vw,44px); font-weight:700; line-height:1.16; letter-spacing:-.015em; max-width:900px;
+  background:var(--hero-h1); -webkit-background-clip:text; background-clip:text; color:transparent;}
+header.hero p.sub{color:var(--hero-sub); max-width:760px; font-size:17.5px; margin:14px 0 26px; line-height:1.6;}
+.hero-meta{display:flex; flex-wrap:wrap; gap:10px;}
+.chip{background:var(--bg-soft); border:1px solid var(--line); border-radius:10px; padding:6px 12px; font-size:13px; color:var(--ink);}
+header.hero .chip{display:inline-flex; align-items:baseline; gap:8px; background:var(--hero-chip-bg); border-color:var(--hero-chip-b); color:var(--hero-chip-c);
+  backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); padding:9px 15px; border-radius:13px; font-size:14px; font-weight:600;}
+header.hero .chip b{font-family:var(--f-display); font-size:17px; color:var(--hero-chip-n);}
+
+/* ---------- вкладки ---------- */
+nav.tabs{position:sticky; top:calc(env(safe-area-inset-top,0px) + 8px); z-index:50; display:flex; gap:4px; overflow-x:auto; background:var(--nav-bg);
+  backdrop-filter:blur(14px) saturate(1.4); -webkit-backdrop-filter:blur(14px) saturate(1.4);
+  border:1px solid var(--line); border-radius:16px; padding:6px; margin-bottom:20px; box-shadow:var(--shadow); scrollbar-width:none;}
+nav.tabs::-webkit-scrollbar{display:none;}
+nav.tabs button{flex:0 0 auto; font-family:var(--f-body); font-weight:700; font-size:13.5px; background:transparent; color:var(--ink-soft);
+  border:1px solid transparent; padding:9px 15px; border-radius:11px; cursor:pointer; transition:.18s; white-space:nowrap;}
+nav.tabs button:hover{background:var(--bg-soft); color:var(--ink);}
+nav.tabs button.active{background:linear-gradient(135deg, var(--core), var(--core-2)); color:#fff; box-shadow:0 6px 16px rgba(27,37,89,.28);}
+.nav-progress{position:absolute; left:16px; right:16px; bottom:0; height:2px; border-radius:2px; overflow:hidden; pointer-events:none;}
+.nav-progress i{display:block; height:100%; width:0; background:linear-gradient(90deg, var(--blue), var(--ok)); transition:width .12s linear;}
+button:focus-visible, .opt:focus-visible, summary:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, a:focus-visible{outline:2px solid var(--blue-bright); outline-offset:2px;}
+
+/* ---------- панель-розділ ---------- */
+section.panel{display:none; margin-bottom:22px;}
+section.panel.active{display:grid; grid-template-columns:minmax(0,1fr) 262px; gap:20px 24px; align-items:start; animation:fadeIn .4s ease;}
+section.panel.plain.active{display:block;}
+@keyframes fadeIn{from{opacity:.3; transform:translateY(8px);} to{opacity:1; transform:none;}}
+.sec-head{grid-column:1 / -1; position:relative; overflow:hidden; display:grid; grid-template-columns:auto minmax(0,1fr); gap:clamp(14px,3vw,30px); align-items:start;
+  background:var(--bg-panel); border:1px solid var(--line); border-radius:22px; padding:clamp(20px,3.4vw,34px); box-shadow:var(--shadow);}
+section.panel.plain .sec-head{margin-bottom:18px;}
+.sec-head::after{content:""; position:absolute; right:-90px; top:-110px; width:300px; height:300px; border-radius:50%; background:radial-gradient(circle, var(--tint-blue), transparent 70%); pointer-events:none;}
+.sec-idx{font-family:var(--f-display); font-weight:800; font-size:clamp(42px,6.5vw,74px); line-height:.92; letter-spacing:-.05em;
+  background:linear-gradient(140deg, var(--blue), var(--ok)); -webkit-background-clip:text; background-clip:text; color:transparent; min-width:1.2em;}
+.sec-kicker{font-family:var(--f-mono); font-size:11.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--blue);}
+.sec-head h2{font-family:var(--f-display); font-weight:700; font-size:clamp(19px,2.4vw,26px); line-height:1.28; letter-spacing:-.01em; margin:8px 0 12px;}
+.sec-head .lede{margin:0; max-width:80ch;}
+.sec-meta{display:flex; flex-wrap:wrap; gap:8px; margin-top:16px;}
+.sec-meta:empty{display:none;}
+.sec-meta span{font-size:12.5px; font-weight:600; padding:5px 11px; border-radius:999px; background:var(--bg-soft); border:1px solid var(--line); color:var(--ink-soft);}
+.sec-meta span b{font-family:var(--f-display); color:var(--ink); margin-right:3px;}
+.sec-main{min-width:0; grid-column:1; grid-row:2;}
+.sec-head, .sec-toc{min-width:0;}
+@media(max-width:640px){ .sec-head{grid-template-columns:minmax(0,1fr); gap:4px;} }
+
+/* ---------- зміст розділу + scroll-spy ---------- */
+.sec-toc{grid-column:2; grid-row:2; position:sticky; top:84px; max-height:calc(100vh - 104px); overflow:auto; scrollbar-width:thin;
+  background:var(--bg-panel); border:1px solid var(--line); border-radius:18px; padding:16px 12px 14px; box-shadow:var(--shadow);}
+.toc-title{font-family:var(--f-mono); font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--ink-soft); padding:0 8px 6px;}
+.toc-list{display:flex; flex-direction:column; gap:1px;}
+.toc-group{font-size:11.5px; font-weight:800; color:var(--ink); padding:12px 8px 4px; display:flex; gap:8px; align-items:center;}
+.toc-group i{font-style:normal; font-family:var(--f-display); font-size:10.5px; color:#fff; background:var(--core); width:20px; height:20px; border-radius:6px; display:grid; place-items:center; flex:none;}
+.toc-list a{--k:var(--blue); --kt:var(--tint-blue); display:flex; gap:8px; padding:6px 8px; border-radius:9px; font-size:13px; line-height:1.38; color:var(--ink-soft); text-decoration:none; transition:.15s;}
+.toc-list a[data-kind="sim"]{--k:var(--sim); --kt:var(--tint-sim);}
+.toc-list a[data-kind="data"]{--k:var(--ok); --kt:var(--tint-ok);}
+.toc-list a[data-kind="extra"]{--k:var(--ink-soft); --kt:var(--bg-soft);}
+.toc-list a[data-kind="end"]{--k:var(--ok); --kt:var(--tint-ok); margin-top:8px; border-top:1px dashed var(--line); padding-top:10px; border-radius:0 0 9px 9px;}
+.toc-list a .toc-no{font-family:var(--f-mono); font-size:11px; font-weight:700; color:var(--k); min-width:30px; padding-top:1px;}
+.toc-list a:hover{background:var(--bg-soft); color:var(--ink);}
+.toc-list a.on{background:var(--kt); color:var(--ink); font-weight:700; box-shadow:inset 3px 0 0 var(--k);}
+.toc-legend{display:flex; flex-wrap:wrap; gap:6px 12px; margin:12px 8px 0; padding-top:12px; border-top:1px solid var(--line); font-size:11px; color:var(--ink-soft);}
+.toc-legend span::before{content:""; display:inline-block; width:8px; height:8px; border-radius:2px; margin-right:6px; background:var(--k);}
+@media(max-width:1020px){
+  section.panel.active{grid-template-columns:minmax(0,1fr);}
+  .sec-toc{grid-column:1; grid-row:auto; position:sticky; top:72px; z-index:40; max-height:none; overflow:visible; padding:8px; border-radius:14px; background:var(--nav-bg);
+    backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);}
+  .sec-main{grid-row:auto;}
+  .toc-title, .toc-group, .toc-legend{display:none;}
+  .toc-list{flex-direction:row; overflow-x:auto; gap:4px; scrollbar-width:none;}
+  .toc-list::-webkit-scrollbar{display:none;}
+  .toc-list a{flex:0 0 auto; white-space:nowrap; max-width:240px; overflow:hidden; text-overflow:ellipsis; border:1px solid var(--line); background:var(--bg-panel);}
+  .toc-list a[data-kind="end"]{margin-top:0; border-top:1px solid var(--line); padding-top:6px; border-radius:9px;}
+}
+
+/* ---------- тематичні групи ---------- */
+.group-label{display:flex; align-items:center; gap:12px; margin:30px 2px 14px; font-weight:800; font-size:13px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-soft);}
+.sec-main > .group-label:first-child{margin-top:4px;}
+.group-label b{font-family:var(--f-display); font-size:12.5px; color:#fff; background:linear-gradient(135deg,var(--core),var(--core-2)); width:30px; height:30px; border-radius:9px; display:grid; place-items:center; letter-spacing:0; flex:none;}
+.group-label::after{content:""; flex:1; height:1px; background:linear-gradient(90deg, var(--line-strong), transparent);}
+
+/* ---------- блоки ---------- */
+article.block{--k:var(--blue); --kt:var(--tint-blue); position:relative; background:var(--bg-panel); border:1px solid var(--line); border-radius:var(--radius);
+  padding:22px clamp(16px,2.6vw,28px) 24px; box-shadow:var(--shadow); margin-bottom:16px; scroll-margin-top:90px; min-width:0;}
+@media(max-width:1020px){ article.block{scroll-margin-top:136px;} }
+article.block::before{content:""; position:absolute; left:-1px; top:24px; height:44px; width:4px; border-radius:0 4px 4px 0; background:var(--k);}
+article.block[data-kind="sim"]{--k:var(--sim); --kt:var(--tint-sim);}
+article.block[data-kind="data"]{--k:var(--ok); --kt:var(--tint-ok);}
+article.block[data-kind="extra"]{--k:var(--ink-soft); --kt:var(--bg-soft);}
+.block-head{display:flex; gap:14px; align-items:center; margin-bottom:14px;}
+.block-no{flex:none; min-width:48px; height:48px; padding:0 8px; border-radius:14px; display:grid; place-items:center;
+  font-family:var(--f-display); font-weight:700; font-size:14px; color:var(--k); background:var(--kt); border:1px solid color-mix(in srgb, var(--k) 28%, transparent);}
+.kind{display:block; font-family:var(--f-mono); font-size:10.5px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:var(--k);}
+.block[data-kind="theory"] .kind::before{content:"◆  Теорія";}
+.block[data-kind="sim"] .kind::before{content:"▶  Симулятор";}
+.block[data-kind="data"] .kind::before{content:"▦  Схема · таблиця";}
+.block[data-kind="extra"] .kind::before{content:"＋  Поглиблення";}
+.block-head h3{margin:3px 0 0; font-size:clamp(17px,1.9vw,19.5px); line-height:1.3;}
+.block > .lede:first-of-type{margin-top:-2px;}
+
+/* ---------- текст ---------- */
+.lede{color:var(--ink-soft); font-size:16px; max-width:78ch;}
+.prose{max-width:80ch;}
+.prose p{color:var(--ink);}
+.muted{color:var(--ink-soft);}
+.mini-title{display:block; font-family:var(--f-mono); font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-soft); margin:20px 0 10px;}
+.mini-title:first-child{margin-top:4px;}
+.tag-sim{display:inline-block; font-family:var(--f-mono); font-size:10.5px; font-weight:700; letter-spacing:.1em; color:var(--sim); background:var(--tint-sim); border:1px solid color-mix(in srgb, var(--sim) 40%, transparent); border-radius:6px; padding:1px 7px; margin:0 2px; vertical-align:middle;}
+.definition{position:relative; padding:20px 22px 20px 24px; border-radius:16px; background:linear-gradient(135deg, var(--tint-blue), transparent 80%); border:1px solid color-mix(in srgb, var(--blue) 25%, transparent);}
+.definition .term{display:block; font-family:var(--f-display); font-weight:700; font-size:18px; color:var(--blue-deep); margin-bottom:4px;}
+.definition p{margin:0; font-size:17px;}
+.points{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; margin:14px 0;}
+.point{padding:14px 16px; border-radius:14px; background:var(--bg-soft); border:1px solid var(--line); border-top:3px solid var(--blue);}
+.point.warn{border-top-color:var(--red);}
+.point.ok{border-top-color:var(--ok);}
+.point b{display:block; font-weight:800; margin-bottom:4px;}
+.point p{margin:0; color:var(--ink-soft); font-size:15px; line-height:1.6;}
+.checklist{list-style:none; padding:0; margin:0; display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:8px;}
+.checklist li{display:flex; gap:10px; align-items:flex-start; padding:10px 14px; border-radius:12px; background:var(--tint-ok); border:1px solid color-mix(in srgb,var(--ok) 25%,transparent); font-weight:600; font-size:15px; line-height:1.45;}
+.checklist li::before{content:"✓"; color:var(--ok); font-weight:800;}
+.io{display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); gap:12px; align-items:stretch; margin:14px 0;}
+.io-cell{padding:14px 16px; border-radius:14px; background:var(--bg-soft); border:1px solid var(--line); font-weight:700; line-height:1.45;}
+.io-cell .l{display:block; font-family:var(--f-mono); font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--blue); margin-bottom:5px; font-weight:700;}
+.io-arrow{display:grid; place-items:center; font-size:22px; color:var(--blue); font-weight:800;}
+@media(max-width:640px){ .io{grid-template-columns:minmax(0,1fr);} .io-arrow{transform:rotate(90deg);} }
+
+/* ---------- висновок ---------- */
+.takeaway{position:relative; overflow:hidden; display:grid; grid-template-columns:auto minmax(0,1fr); gap:18px; align-items:start; padding:24px clamp(18px,3vw,28px);
+  border-radius:20px; margin:26px 0 6px; color:#fff; scroll-margin-top:90px;
+  background:radial-gradient(420px 220px at 100% 0%, rgba(47,217,187,.35), transparent 65%), linear-gradient(135deg, #15204f, #1d3270);
+  box-shadow:var(--shadow-lg);}
+.tk-icon{width:46px; height:46px; border-radius:14px; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.2); display:grid; place-items:center; font-size:20px; font-weight:800; color:#8ff2dd;}
+.tk-label{font-family:var(--f-mono); font-size:11px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:#8ff2dd;}
+.takeaway p{margin:6px 0 0; color:rgba(240,244,255,.9); font-size:16.5px; line-height:1.65; max-width:84ch;}
+
+/* ---------- акордеони ---------- */
+details.acc{border:1px solid var(--line); border-radius:14px; margin-bottom:10px; overflow:hidden; background:var(--bg-panel); transition:border-color .2s, box-shadow .2s;}
+details.acc[open]{border-color:color-mix(in srgb, var(--blue) 35%, var(--line)); box-shadow:0 6px 20px rgba(36,71,184,.07);}
+details.acc summary{cursor:pointer; list-style:none; padding:14px 16px 14px 18px; display:flex; justify-content:space-between; gap:12px; align-items:center;
+  font-weight:700; font-size:15.5px; line-height:1.4; transition:background .15s;}
+details.acc summary::-webkit-details-marker{display:none;}
+details.acc summary:hover{background:var(--bg-soft); color:var(--blue-deep);}
+details.acc summary .arrow{flex:0 0 auto; width:28px; height:28px; border-radius:50%; display:grid; place-items:center; font-size:9px; color:var(--blue);
+  background:var(--tint-blue); transition:transform .25s;}
+details.acc[open] summary .arrow{transform:rotate(90deg);}
+details.acc .acc-body{padding:14px 20px 8px; max-width:86ch; border-top:1px dashed var(--line);}
+
+/* ---------- сітки й картки ---------- */
+.grid2{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px;}
+.grid3{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px;}
+.grid4{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px;}
+.grid5{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px;}
+@media(max-width:900px){.grid4{grid-template-columns:repeat(2,minmax(0,1fr));}}
+@media(max-width:800px){.grid2,.grid3{grid-template-columns:minmax(0,1fr);}}
+@media(max-width:480px){.grid4{grid-template-columns:minmax(0,1fr);}}
+.card{background:var(--bg-soft); border:1px solid var(--line); border-radius:14px; padding:16px 18px; min-width:0; line-height:1.55;}
+.card h4{color:var(--blue-deep); font-size:15.5px; margin-bottom:6px;}
+.card p:last-child{margin-bottom:0;}
+.card .k{font-family:var(--f-mono); font-size:11.5px; color:var(--ink-soft);}
+a.card{color:inherit; text-decoration:none; cursor:pointer; transition:.2s;}
+a.card:hover{border-color:var(--blue); transform:translateY(-3px); box-shadow:var(--shadow);}
+.levels .card{position:relative; padding-top:18px; overflow:hidden;}
+.lvl-n{position:absolute; right:12px; top:4px; font-family:var(--f-display); font-weight:800; font-size:48px; line-height:1; color:var(--blue); opacity:.13;}
+.levels .card:nth-child(2){border-color:color-mix(in srgb, var(--blue) 30%, var(--line));}
+.levels .card:nth-child(3){border-color:color-mix(in srgb, var(--ok) 40%, var(--line)); background:linear-gradient(160deg, var(--tint-ok), var(--bg-soft) 70%);}
+.levels .ex{margin-top:10px; padding-top:10px; border-top:1px dashed var(--line-strong); font-size:14.5px; color:var(--ink-soft);}
+.plan-card{display:flex; flex-direction:column; gap:4px; background:var(--bg-panel);}
+.plan-card .plan-n{font-family:var(--f-display); font-weight:800; font-size:30px; line-height:1; margin-bottom:8px;
+  background:linear-gradient(140deg, var(--blue), var(--ok)); -webkit-background-clip:text; background-clip:text; color:transparent;}
+.plan-card p{color:var(--ink-soft); font-size:14.5px; flex:1;}
+.plan-card .k{color:var(--blue-deep); font-weight:700;}
+.src-card{background:var(--bg-panel); text-align:left;}
+.src-card .l{font-family:var(--f-mono); font-size:11px; color:var(--ink-soft); margin-top:8px;}
+.src-card .big{font-family:var(--f-display); font-weight:800; font-size:34px; line-height:1.1; color:var(--blue-deep);}
+
+/* ---------- кнопки ---------- */
+.btn{font-family:var(--f-body); font-weight:700; font-size:13.5px; cursor:pointer; border:1px solid var(--core); background:var(--core); color:#fff; padding:9px 16px; border-radius:11px; transition:.18s; line-height:1.3;}
+.btn:hover{background:var(--blue); border-color:var(--blue); color:#fff; transform:translateY(-1px);}
+.btn.ghost{background:var(--bg-panel); color:var(--ink); border-color:var(--line-strong);}
+.btn.ghost:hover{border-color:var(--blue); color:var(--blue-deep); background:var(--tint-blue);}
+.btn.warn{background:var(--bg-panel); color:var(--red); border-color:color-mix(in srgb, var(--red) 45%, transparent);}
+.btn.warn:hover{background:var(--tint-red); color:var(--red);}
+.btn.small{padding:6px 12px; font-size:12.5px; border-radius:9px;}
+.btn.active{background:var(--blue); border-color:var(--blue); color:#fff; box-shadow:0 4px 12px color-mix(in srgb, var(--blue) 30%, transparent);}
+.btn:disabled{opacity:.5; cursor:default; transform:none;}
+.btn.active:disabled{opacity:1;}
+.btnrow{display:flex; gap:8px; flex-wrap:wrap; margin:12px 0; align-items:center;}
+
+/* ---------- сцени симуляторів ---------- */
+.mindmap-wrap{background:radial-gradient(var(--grid-dot) 1px, transparent 1.2px) 0 0/18px 18px, var(--bg-soft); border:1px solid var(--line); border-radius:16px; padding:14px; margin:14px 0; overflow-x:auto;}
+.mindmap-wrap svg{width:100%; min-width:560px; height:auto; display:block;}
+.sim-stage{background:var(--bg-soft); border:1px solid var(--line); border-radius:16px; padding:12px; overflow-x:auto;}
+.sim-stage svg{width:100%; height:auto; display:block;}
+.sim-log{position:relative; background:var(--bg-soft); border:1px solid var(--line); border-radius:12px; padding:11px 16px 11px 34px; font-size:14.5px; line-height:1.55; min-height:46px; margin-top:10px; color:var(--ink);}
+.sim-log::before{content:"›"; position:absolute; left:14px; top:8px; font-family:var(--f-mono); font-weight:700; font-size:18px; color:var(--sim);}
+.result-box{background:linear-gradient(135deg, var(--tint-blue), transparent 85%), var(--bg-panel); border:1px solid color-mix(in srgb, var(--blue) 35%, var(--line)); border-radius:14px; padding:16px 20px; margin-top:10px;}
+.result-box .big{font-size:24px; line-height:1.3; color:var(--blue-deep); font-family:var(--f-display); font-weight:700; font-variant-numeric:tabular-nums; margin:2px 0;}
+
+/* svg tokens */
+.sv-bg{fill:var(--bg-soft);} .sv-node{fill:var(--bg-panel); stroke:var(--line-strong); stroke-width:2;}
+.sv-core{fill:var(--core);} .sv-core-t{fill:#ffffff;} .sv-core-t2{fill:#9fd8ff;}
+.sv-t{fill:var(--ink); font-family:var(--f-body); font-size:13px;} .sv-ts{fill:var(--ink-soft); font-family:var(--f-mono); font-size:10.5px;}
+.sv-line{stroke:var(--line-strong); stroke-width:2; fill:none;} .sv-arrow{fill:var(--ink-soft);}
+.st-blue{stroke:var(--blue);} .st-red{stroke:var(--red);} .st-olive{stroke:var(--olive);} .st-ok{stroke:var(--ok);}
+.sv-node.on{fill:var(--tint-blue); stroke:var(--blue); stroke-width:3;}
+.sv-node.done{stroke:var(--ok);}
+.sv-res{fill:var(--blue-deep);} .sv-avail{fill:var(--tint-ok); stroke:var(--ok); stroke-width:2;}
+.sv-shelf{stroke:var(--red); stroke-width:2.5; stroke-dasharray:5 4;}
+.sv-wt{fill:#fff; font-family:var(--f-mono); font-size:13px; font-weight:700;}
+.sv-it{fill:var(--ink); font-family:var(--f-mono); font-size:13px; font-weight:700;}
+
+/* ---------- таблиці ---------- */
+.table-wrap{overflow-x:auto; margin:12px 0; border:1px solid var(--line); border-radius:14px; background:var(--bg-panel);}
+table{border-collapse:separate; border-spacing:0; width:100%; font-size:14.5px;}
+th,td{padding:10px 14px; text-align:left; vertical-align:top; border-bottom:1px solid var(--line);}
+tbody tr:last-child td{border-bottom:none;}
+th{background:var(--bg-soft); font-size:11.5px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-soft);}
+tbody tr:nth-child(even) td{background:color-mix(in srgb, var(--bg-soft) 60%, transparent);}
+td.num, th.num{text-align:right; font-variant-numeric:tabular-nums; font-family:var(--f-mono);}
+caption{caption-side:top; text-align:left; font-family:var(--f-mono); font-size:11.5px; font-weight:700; letter-spacing:.06em; color:var(--ink-soft); padding:12px 14px 10px; border-bottom:1px solid var(--line);}
+tr.hl td{background:var(--tint-blue) !important;}
+tr.hl td:first-child{box-shadow:inset 3px 0 0 var(--blue);}
+
+/* ---------- кроки ---------- */
+.steps{counter-reset:step; margin-top:12px;}
+.step{position:relative; padding:6px 10px 16px 34px; border-left:2px solid var(--line-strong); margin-left:14px;}
+.step:last-child{border-left-color:transparent;}
+.step::before{counter-increment:step; content:counter(step); position:absolute; left:-15px; top:4px; width:28px; height:28px; border-radius:50%;
+  background:linear-gradient(135deg, var(--blue), var(--ok)); color:#fff; display:flex; align-items:center; justify-content:center; font-family:var(--f-display); font-weight:700; font-size:12px; box-shadow:0 0 0 4px var(--bg-panel);}
+.step b{font-weight:800;}
+
+/* ---------- виноски ---------- */
+.callout{--c:var(--red); --ct:var(--tint-red); position:relative; border:1px solid color-mix(in srgb, var(--c) 26%, transparent); border-left:4px solid var(--c); background:var(--ct);
+  padding:13px 18px; border-radius:6px 14px 14px 6px; margin:14px 0; max-width:88ch; line-height:1.6;}
+.callout.blue{--c:var(--blue); --ct:var(--tint-blue);}
+.callout.ok{--c:var(--ok); --ct:var(--tint-ok);}
+.callout > b:first-child{display:block; color:var(--c); font-weight:800; margin-bottom:2px;}
+.callout.blue > b:first-child{color:var(--blue-deep);}
+
+/* ---------- поля ---------- */
+.field{display:flex; flex-direction:column; gap:5px; font-size:12px; font-weight:700; color:var(--ink-soft);}
+.field input, .field select{font-family:var(--f-mono); font-size:15px; padding:9px 11px; border:1px solid var(--line-strong); border-radius:10px; background:var(--bg-panel); color:var(--ink); width:100%; transition:border-color .15s, box-shadow .15s;}
+.field input:focus, .field select:focus, .field textarea:focus{outline:none; border-color:var(--blue); box-shadow:0 0 0 3px var(--tint-blue);}
+.calc{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin:12px 0; padding:16px; border-radius:14px; background:var(--bg-soft); border:1px solid var(--line);}
+.kv{display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:10px; margin-top:10px;}
+.kv > div{background:var(--bg-panel); border:1px solid var(--line); border-radius:14px; padding:12px 14px; min-width:0;}
+.kv .l{font-family:var(--f-mono); font-size:10.5px; font-weight:700; color:var(--ink-soft); letter-spacing:.08em;}
+.kv .v{font-family:var(--f-display); font-weight:700; font-size:20px; line-height:1.35; font-variant-numeric:tabular-nums;}
+.kv .v.red{color:var(--red);} .kv .v.ok{color:var(--ok);} .kv .v.blue{color:var(--blue-deep);}
+.kv .k{font-size:12px; color:var(--ink-soft);}
+
+/* класифікатор */
+.cls-item{display:flex; flex-wrap:wrap; gap:8px 12px; align-items:center; justify-content:space-between; padding:11px 14px; border:1px solid var(--line); border-radius:12px; background:var(--bg-panel); margin-bottom:8px; transition:.2s;}
+.cls-item .txt{flex:1 1 260px; min-width:0; font-weight:600;}
+.cls-item .opts{display:flex; gap:6px; flex-wrap:wrap;}
+.cls-item.right{border-color:var(--ok); background:var(--tint-ok);}
+.cls-item.wrong{border-color:var(--red); background:var(--tint-red);}
+.cls-item .fb{flex-basis:100%; font-size:14px; color:var(--ink-soft);}
+
+/* картки-перевертні */
+.flip{cursor:pointer; text-align:left; font:inherit; color:inherit; width:100%; background:var(--bg-panel); transition:.2s;}
+.flip:hover{border-color:var(--blue); transform:translateY(-2px);}
+.flip .back{display:none; color:var(--ink-soft); font-size:14px; margin-top:8px; padding-top:8px; border-top:1px dashed var(--line-strong);}
+.flip.open .back{display:block;}
+.flip.open{border-color:var(--blue); background:linear-gradient(160deg, var(--tint-blue), var(--bg-panel) 70%);}
+.flip .hint{font-family:var(--f-mono); font-size:11px; color:var(--blue); margin-top:6px;}
+.flip.open .hint{display:none;}
+.badge{display:inline-block; font-family:var(--f-mono); font-size:11px; font-weight:700; padding:2px 9px; border-radius:20px; border:1px solid currentColor;}
+.badge.ok{color:var(--ok);} .badge.red{color:var(--red);} .badge.olive{color:var(--olive-ink);} .badge.blue{color:var(--blue-deep);}
+
+.role-out{min-height:84px;}
+
+/* ---------- практика й тест ---------- */
+.quiz-q{border:1px solid var(--line); border-radius:var(--radius); padding:20px clamp(16px,2.6vw,24px); margin-bottom:14px; background:var(--bg-panel); box-shadow:var(--shadow);}
+.quiz-q h4{font-size:16.5px; margin-bottom:12px; display:flex; gap:10px; align-items:baseline;}
+.quiz-q textarea{font-family:var(--f-body) !important; border-radius:10px !important;}
+.opt{display:block; width:100%; text-align:left; margin-bottom:8px; padding:11px 14px; border-radius:11px; border:1px solid var(--line-strong); background:var(--bg-soft); color:var(--ink); cursor:pointer; font-family:var(--f-body); font-size:15px; font-weight:600; transition:.15s;}
+.opt:hover:not(:disabled){border-color:var(--blue); background:var(--tint-blue);}
+.opt:disabled{cursor:default;}
+.opt.correct{background:var(--tint-ok); border-color:var(--ok); color:var(--ink);}
+.opt.correct::after{content:"  ✓"; color:var(--ok); font-weight:800;}
+.opt.wrong{background:var(--tint-red); border-color:var(--red);}
+.quiz-fb{font-size:14.5px; margin-top:8px; color:var(--ink-soft); padding:10px 14px; border-radius:10px; background:var(--bg-soft);}
+#quizScoreBar{position:sticky; bottom:calc(env(safe-area-inset-bottom,0px) + 12px); background:linear-gradient(135deg, var(--core), var(--core-2)); color:#fff; padding:12px 14px 12px 20px; border-radius:16px; font-weight:700; display:flex; flex-wrap:wrap; gap:10px; justify-content:space-between; align-items:center; box-shadow:var(--shadow-lg);}
+#quizScore{font-family:var(--f-display);}
+#quizScoreBar .btn{background:#fff; color:var(--core); border-color:#fff;}
+.idx{font-family:var(--f-mono); font-size:12px; color:#fff; background:linear-gradient(135deg, var(--sim), var(--red)); padding:3px 9px; border-radius:7px; font-weight:700; flex:0 0 auto;}
+
+/* ---------- глосарій ---------- */
+.gloss{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin:0;}
+@media(max-width:800px){.gloss{grid-template-columns:minmax(0,1fr);}}
+.gloss div{padding:14px 16px; border:1px solid var(--line); border-radius:14px; background:var(--bg-panel); border-left:3px solid var(--blue);}
+.gloss dt{font-weight:800; color:var(--blue-deep); font-size:15.5px;}
+.gloss dd{margin:4px 0 0; color:var(--ink-soft); font-size:15px; line-height:1.55;}
+footer{text-align:center; color:var(--ink-soft); font-family:var(--f-mono); font-size:11.5px; padding:24px 0 0;}
+
+
+/* ---------- поява під час прокручування ---------- */
+.rv{opacity:0; transform:translateY(26px); transition:opacity .7s ease, transform .8s cubic-bezier(.16,1,.3,1); transition-delay:calc(var(--i,0) * 70ms);}
+.rv.from-top{transform:translateY(-26px);}
+.rv.in{opacity:1; transform:none;}
+
+/* ---------- ментальні карти: поява + відштовхування ---------- */
+.mindmap-wrap svg, .sim-stage svg{overflow:visible;}
+.mm-node .mm-in{transform-box:fill-box; transform-origin:center;}
+.mm-node rect{transition:stroke-width .2s, filter .25s;}
+.mm-node.mm-hot rect{stroke-width:3; filter:drop-shadow(0 8px 16px rgba(36,71,184,.28));}
+.mm-wait .mm-in, .mm-wait .mm-link{opacity:0;}
+.mm-anim .mm-in{animation:mmPop .75s cubic-bezier(.2,1.35,.4,1) both; animation-delay:calc(var(--i,0) * 95ms + 80ms);}
+@keyframes mmPop{from{opacity:0; transform:translateY(14px) scale(.8);} to{opacity:1; transform:none;}}
+
+/* ---------- графіки ---------- */
+.ch-wait rect[data-i], .ch-wait .sv-res, .ch-wait .sv-avail{opacity:0;}
+.ch-anim rect[data-i]{transform-box:fill-box; transform-origin:50% 100%; animation:barUp .8s cubic-bezier(.2,1,.3,1) both; animation-delay:calc(var(--i,0) * 55ms);}
+.ch-anim .sv-res, .ch-anim .sv-avail{transform-box:fill-box; transform-origin:0 50%; animation:barRight .9s cubic-bezier(.2,1,.3,1) both; animation-delay:calc(var(--i,0) * 180ms + 100ms);}
+@keyframes barUp{from{transform:scaleY(0);} to{transform:none;}}
+@keyframes barRight{from{transform:scaleX(0);} to{transform:none;}}
+
+/* ---------- картки-перевертні ---------- */
+.fcard{position:relative; perspective:1100px; cursor:pointer; outline:none; min-width:0; -webkit-tap-highlight-color:transparent;}
+.fcard-inner{display:grid; height:100%; transform-style:preserve-3d; transition:transform .8s cubic-bezier(.3,1.3,.45,1);}
+.fcard:hover .fcard-inner{transform:rotateY(-8deg) rotateX(3deg);}
+.fcard.flipped .fcard-inner{transform:rotateY(180deg);}
+.fcard.flipped:hover .fcard-inner{transform:rotateY(172deg) rotateX(3deg);}
+.fcard:focus-visible .fcard-face{outline:2px solid var(--blue-bright); outline-offset:2px;}
+.fcard-face{grid-area:1 / 1; position:relative; overflow:hidden; display:flex; flex-direction:column; min-height:136px; padding:16px 18px;
+  border-radius:16px; border:1px solid var(--line); -webkit-backface-visibility:hidden; backface-visibility:hidden;}
+.fcard-face.front{background:linear-gradient(155deg, var(--bg-panel) 30%, var(--bg-soft)); box-shadow:var(--shadow);}
+.fcard-face.front::after{content:""; position:absolute; right:-36px; top:-36px; width:120px; height:120px; border-radius:50%; background:radial-gradient(circle, var(--tint-blue), transparent 70%); pointer-events:none;}
+.fcard-face.front h4{margin:auto 0 0; padding-top:14px; font-size:16.5px; line-height:1.3; color:var(--ink);}
+.fnum{font-family:var(--f-display); font-weight:800; font-size:13px; color:var(--blue);}
+.fval{font-family:var(--f-mono); font-size:15px; color:var(--blue-deep); margin-top:4px;}
+.fhint{margin-top:10px; font-family:var(--f-mono); font-size:10.5px; letter-spacing:.06em; color:var(--ink-soft); transition:color .2s;}
+.fcard:hover .fhint{color:var(--blue);}
+.fcard-face.back{transform:rotateY(180deg); font-size:14.5px; line-height:1.55; color:var(--ink);
+  background:linear-gradient(155deg, var(--tint-blue), transparent 75%), var(--bg-panel); border-color:color-mix(in srgb, var(--blue) 40%, var(--line)); box-shadow:var(--shadow);}
+.fback-t{font-family:var(--f-mono); font-size:10.5px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--blue); margin-bottom:8px;}
+.fcard-face.back p{margin:6px 0 0;}
+.fcard-face.back .badge{align-self:flex-start;}
+.fcard-face.back .ex{margin-top:10px; padding-top:10px; border-top:1px dashed var(--line-strong); font-size:14px; color:var(--ink-soft);}
+.fcard.lvl .lvl-n{position:absolute; right:14px; top:6px; font-family:var(--f-display); font-weight:800; font-size:54px; line-height:1; color:var(--blue); opacity:.16;}
+.levels .fcard:nth-child(2) .fcard-face{border-color:color-mix(in srgb, var(--blue) 30%, var(--line));}
+.levels .fcard:nth-child(3) .fcard-face{border-color:color-mix(in srgb, var(--ok) 45%, var(--line));}
+.levels .fcard:nth-child(3) .front{background:linear-gradient(155deg, var(--tint-ok), var(--bg-panel) 70%);}
+
+@media (prefers-reduced-motion: reduce){ .rv{opacity:1; transform:none;} .fcard:hover .fcard-inner{transform:none;} .fcard.flipped .fcard-inner{transform:rotateY(180deg);} }
+
+@media (prefers-reduced-motion: reduce){ *{animation:none !important; transition:none !important;} html{scroll-behavior:auto;} }
+
+/* ---- додатково для лекцій 2–5 ---- */
+.fig-note{font-size:12.5px; color:var(--ink-soft); margin:10px 2px 0; font-family:var(--f-mono); line-height:1.5;}
+svg .b-blue{fill:var(--blue);} svg .b-ok{fill:var(--ok);} svg .b-red{fill:var(--red);} svg .b-olive{fill:var(--olive);}
+svg .b-soft{fill:var(--line-strong);} svg .b-core{fill:var(--core-2);} svg .b-dim{fill:var(--line-strong); opacity:.55;}
+svg .ax{stroke:var(--ink-soft); stroke-width:1.5;} svg .grid-l{stroke:var(--line); stroke-width:1;}
+svg .axt{fill:var(--ink-soft); font-family:var(--f-mono); font-size:11px;}
+svg .vlab{fill:var(--ink); font-family:var(--f-mono); font-size:12.5px; font-weight:700;}
+svg .tgt{stroke:var(--red); stroke-width:2; stroke-dasharray:6 5; fill:none;}
+svg .tgt-t{fill:var(--red); font-family:var(--f-mono); font-size:11px; font-weight:700;}
+svg .brk{stroke:var(--red); stroke-width:2; fill:none;}
+svg .wf-win{fill:var(--bg-panel); stroke:var(--line-strong); stroke-width:1.5;}
+svg .wf-bar{fill:var(--bg-soft); stroke:var(--line); stroke-width:1;}
+svg .wf-acc{fill:var(--tint-blue); stroke:var(--blue); stroke-width:1.5;}
+svg .wf-ok{fill:var(--tint-ok); stroke:var(--ok); stroke-width:1.5;}
+svg .wf-red{fill:var(--tint-red); stroke:var(--red); stroke-width:1.5;}
+svg .wf-cell{fill:none; stroke:var(--line); stroke-width:1;}
+svg .wf-t{fill:var(--ink); font-family:var(--f-body); font-size:12.5px;}
+svg .wf-tb{fill:var(--ink); font-family:var(--f-body); font-size:13px; font-weight:700;}
+svg .wf-ts{fill:var(--ink-soft); font-family:var(--f-mono); font-size:10.5px;}
+svg .wf-hl{fill:none; stroke:var(--sim); stroke-width:2.5; stroke-dasharray:7 5;}
+svg .wf-hlt{fill:var(--sim); font-family:var(--f-mono); font-size:11px; font-weight:700;}
+svg .wf-dot{stroke:var(--bg-panel); stroke-width:2;}
+.chk-list{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:8px; margin:12px 0;}
+.chk{display:flex; gap:10px; align-items:flex-start; padding:10px 14px; border:1px solid var(--line); border-radius:12px; background:var(--bg-panel); cursor:pointer; font-weight:600; font-size:14.5px; line-height:1.45; transition:border-color .2s, background .2s;}
+.chk input{margin-top:3px; accent-color:var(--blue); flex:none;}
+.chk.on{border-color:var(--blue); background:var(--tint-blue);}
+.msg-prev{font-family:var(--f-mono); font-size:13.5px; line-height:1.65; padding:14px 16px; border-radius:12px; background:var(--bg-soft); border:1px dashed var(--line-strong); white-space:pre-wrap; color:var(--ink); margin-top:10px;}
+.msg-prev mark{background:var(--tint-red); color:var(--red); padding:0 3px; border-radius:4px;}
+.msg-prev ins{background:var(--tint-ok); color:var(--ok); text-decoration:none; padding:0 3px; border-radius:4px;}
+.cm{display:grid; grid-template-columns:auto 1fr 1fr; gap:6px; font-size:14px; margin:12px 0;}
+.cm > div{padding:12px 14px; border-radius:12px; border:1px solid var(--line); background:var(--bg-panel); text-align:center; font-weight:700;}
+.cm .h{background:transparent; border:none; font-family:var(--f-mono); font-size:10.5px; letter-spacing:.08em; color:var(--ink-soft); text-transform:uppercase; display:flex; align-items:center; justify-content:center;}
+.cm .n{font-family:var(--f-display); font-size:26px; display:block; line-height:1.2;}
+.cm .tp{background:var(--tint-ok); border-color:color-mix(in srgb,var(--ok) 40%,transparent); color:var(--ok);}
+.cm .fn,.cm .fp{background:var(--tint-red); border-color:color-mix(in srgb,var(--red) 40%,transparent); color:var(--red);}
+.cm .tn{background:var(--tint-blue); border-color:color-mix(in srgb,var(--blue) 35%,transparent); color:var(--blue-deep);}
+.cm small{display:block; font-family:var(--f-mono); font-size:10.5px; font-weight:500; opacity:.85;}
+.meter{height:10px; border-radius:6px; background:var(--bg-soft); border:1px solid var(--line); overflow:hidden; margin-top:8px;}
+.meter i{display:block; height:100%; width:0; background:linear-gradient(90deg,var(--blue),var(--ok)); transition:width .45s cubic-bezier(.2,1,.3,1);}
+.meter.bad i{background:linear-gradient(90deg,var(--olive),var(--red));}
+.range-row{display:flex; gap:14px; align-items:center; flex-wrap:wrap; margin:12px 0; font-weight:700; font-size:14px;}
+.range-row input[type=range]{accent-color:var(--blue); flex:1 1 240px;}
+.range-row output{font-family:var(--f-mono); min-width:64px; color:var(--blue-deep);}
+.pill{display:inline-block; font-family:var(--f-mono); font-size:11px; font-weight:700; padding:3px 8px; border-radius:8px; background:var(--tint-blue); color:var(--blue-deep); vertical-align:middle;}
+.pill.red{background:var(--tint-red); color:var(--red);} .pill.ok{background:var(--tint-ok); color:var(--ok);} .pill.olive{background:var(--tint-olive); color:var(--olive-ink);}
+.seq{display:grid; gap:8px; margin:12px 0;}
+.seq button{text-align:left; justify-content:flex-start;}
+.seq-out{display:flex; flex-wrap:wrap; gap:6px; margin:10px 0; min-height:34px;}
+.seq-out span{font-size:13px; font-weight:700; padding:6px 10px; border-radius:9px; background:var(--tint-ok); border:1px solid color-mix(in srgb,var(--ok) 35%,transparent);}
+.seq-out span.bad{background:var(--tint-red); border-color:color-mix(in srgb,var(--red) 35%,transparent);}
+.legend{display:flex; flex-wrap:wrap; gap:14px; font-size:13px; color:var(--ink-soft); margin:8px 2px 0;}
+.legend i{display:inline-block; width:12px; height:12px; border-radius:3px; margin-right:6px; vertical-align:-1px;}
+.split2{display:grid; grid-template-columns:minmax(0,1.05fr) minmax(0,1fr); gap:16px; align-items:start;}
+@media (max-width:820px){ .split2{grid-template-columns:1fr;} }
+</style>
+
+</head><body>
+<div class="frame">
+  <div class="hud-bar">
+    <span><span class="dot"></span>SYSTEM: STEAM‑HUB / IT‑ECONOMY.LAB — ОНЛАЙН · ЛЕКЦІЯ: 02</span>
+    <button class="theme-btn" id="themeBtn" type="button">☾ Темна тема</button>
+  </div>
+
+  <header class="hero">
+    <span class="hero-num" aria-hidden="true">02</span>
+    <span class="hero-tag">// LECTURE_02 · COLLAB.DATA.CORE</span>
+    <h1>Інформаційні технології спільної роботи з даними</h1>
+    <p class="sub">Інтерактивний конспект лекції: хмарне робоче середовище, структура спільного реєстру, права доступу й історія версій, цифрові комунікації та координація торговельних операцій на прикладі заявки № 204.</p>
+    <div class="hero-meta">
+      <span class="chip"><b>4</b> розділи теорії</span>
+      <span class="chip"><b>13</b> симуляторів</span>
+      <span class="chip"><b>6</b> кейсів практики</span>
+      <span class="chip"><b>13</b> питань тесту</span>
+    </div>
+  </header>
+
+  <nav class="tabs" id="tabsNav" aria-label="Розділи лекції">
+    <button data-t="map" class="active">🗺 Огляд</button>
+    <button data-t="s1">01 · Хмарне середовище</button>
+    <button data-t="s2">02 · Структура даних</button>
+    <button data-t="s3">03 · Доступ і версії</button>
+    <button data-t="s4">04 · Комунікації</button>
+    <button data-t="practice">✅ Практика</button>
+    <button data-t="quiz">❓ Тест</button>
+    <button data-t="ref">📚 Глосарій</button>
+    <div class="nav-progress" aria-hidden="true"><i id="navProgress"></i></div>
+  </nav>
+
+  <!-- ================= MAP ================= -->
+  <section class="panel plain active" id="map">
+    <header class="sec-head">
+      <div class="sec-idx">00</div>
+      <div>
+        <span class="sec-kicker">Огляд лекції</span>
+        <h2>Загальна карта лекції</h2>
+        <p class="lede"><b>Мета:</b> сформувати знання про хмарні сервіси та організацію спільного інформаційного середовища, навчитися структурувати робочі дані, розподіляти права доступу, погоджувати зміни і контролювати виконання командних завдань у торгівлі.</p>
+      </div>
+    </header>
+    <div class="sec-main">
+      <article class="block" data-kind="data" id="map-1">
+        <header class="block-head"><span class="block-no">◎</span><div><span class="kind"></span><h3>Ментальна карта лекції</h3></div></header>
+        <div class="mindmap-wrap" style="margin-bottom:0"><svg class="mm" viewBox="0 0 1100 300" role="img" aria-label="Ментальна карта лекції"><defs><marker id="arM" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" class="sv-arrow"/></marker></defs><g class="sv-line" marker-end="url(#arM)"><path class="mm-link" data-a="core" data-b="n0" data-p="450 130 330 70"/><path class="mm-link" data-a="core" data-b="n1" data-p="450 170 330 230"/><path class="mm-link" data-a="core" data-b="n2" data-p="650 130 770 70"/><path class="mm-link" data-a="core" data-b="n3" data-p="650 170 770 230"/></g><g class="mm-node" data-id="core"><g class="mm-in"><rect x="430" y="108" width="240" height="84" rx="16" class="sv-core"/><text x="550" y="144" text-anchor="middle" class="sv-core-t" style="font-family:var(--f-display);font-size:15px;font-weight:700">ЛЕКЦІЯ 02</text><text x="550" y="168" text-anchor="middle" class="sv-core-t2" style="font-family:var(--f-mono);font-size:12px">СПІЛЬНА РОБОТА З ДАНИМИ</text></g></g><g class="mm-node" data-id="n0"><g class="mm-in"><rect x="40" y="20" width="290" height="100" rx="14" class="sv-node st-blue"/><text x="185.0" y="58" text-anchor="middle" class="sv-t" style="font-weight:700">01 · Хмарне середовище</text><text x="185.0" y="80" text-anchor="middle" class="sv-ts">SaaS · PaaS · IaaS</text><text x="185.0" y="99" text-anchor="middle" class="sv-ts">папки, ролі, офлайн-режим</text></g></g><g class="mm-node" data-id="n1"><g class="mm-in"><rect x="40" y="180" width="290" height="100" rx="14" class="sv-node st-red"/><text x="185.0" y="218" text-anchor="middle" class="sv-t" style="font-weight:700">02 · Структура даних</text><text x="185.0" y="240" text-anchor="middle" class="sv-ts">деталізація, ключі, словник</text><text x="185.0" y="259" text-anchor="middle" class="sv-ts">статуси · 24 / 18 / 16</text></g></g><g class="mm-node" data-id="n2"><g class="mm-in"><rect x="770" y="20" width="290" height="100" rx="14" class="sv-node st-olive"/><text x="915.0" y="58" text-anchor="middle" class="sv-t" style="font-weight:700">03 · Доступ і версії</text><text x="915.0" y="80" text-anchor="middle" class="sv-ts">перегляд / коментар / редагування</text><text x="915.0" y="99" text-anchor="middle" class="sv-ts">історія версій, погодження</text></g></g><g class="mm-node" data-id="n3"><g class="mm-in"><rect x="770" y="180" width="290" height="100" rx="14" class="sv-node st-ok"/><text x="915.0" y="218" text-anchor="middle" class="sv-t" style="font-weight:700">04 · Комунікації</text><text x="915.0" y="240" text-anchor="middle" class="sv-ts">повідомлення, картки, форми</text><text x="915.0" y="259" text-anchor="middle" class="sv-ts">резервний журнал, показники</text></g></g></svg></div>
+      </article>
+
+      <article class="block" data-kind="theory" id="map-2">
+        <header class="block-head"><span class="block-no">≡</span><div><span class="kind"></span><h3>План лекції</h3></div></header>
+        <div class="grid4"><a class="card plan-card" data-go="s1"><span class="plan-n">01</span><h4>Хмарне середовище</h4><p>Хмарні технології та організація спільного робочого середовища.</p><span class="k">9 блоків · 2 симулятори →</span></a><a class="card plan-card" data-go="s2"><span class="plan-n">02</span><h4>Структура даних</h4><p>Структурування даних у спільних документах і таблицях.</p><span class="k">15 блоків · 4 симулятори →</span></a><a class="card plan-card" data-go="s3"><span class="plan-n">03</span><h4>Доступ і версії</h4><p>Права доступу, історія версій і погодження змін.</p><span class="k">8 блоків · 3 симулятори →</span></a><a class="card plan-card" data-go="s4"><span class="plan-n">04</span><h4>Комунікації</h4><p>Цифрові комунікації та координація торговельних операцій.</p><span class="k">10 блоків · 4 симулятори →</span></a></div>
+      </article>
+
+      <div class="callout blue"><b>Як користуватись.</b> Кожен розділ складається з коротких теоретичних блоків (розгортаються кліком), карток-понять (перевертаються натисканням) та позначених <span class="tag-sim">SIM</span> інтерактивних моделей, у яких можна змінювати числа і бачити наслідки. Наприкінці є кейси для практики, тест і глосарій.</div>
+    </div>
+  </section>
+
+  <!-- ================= S1 ================= -->
+  <section class="panel" id="s1">
+    <header class="sec-head">
+      <div class="sec-idx">01</div>
+      <div>
+        <span class="sec-kicker">Розділ 1 / 4</span>
+        <h2>Хмарні технології та організація спільного робочого середовища</h2>
+        <p class="lede">Потреба у спільній роботі виникає, коли одне замовлення або заявка проходить через кілька підрозділів. Магазин повідомляє, що потрібно поповнити запас, центральний склад уточнює доступність, а диспетчер погоджує доставку. Якщо кожний учасник зберігає власну копію файла, зміни можуть не дійти до інших працівників. Спільне робоче середовище дозволяє працювати з одним узгодженим ресурсом, проте його користь залежить від правил зберігання, відповідальності за поля та способу передавання роботи.</p>
+        <div class="sec-meta"></div>
+      </div>
+    </header>
+    <aside class="sec-toc" aria-label="Зміст розділу"><div class="toc-title">Зміст розділу</div><nav class="toc-list"></nav></aside>
+    <div class="sec-main">
+
+      <div class="group-label" data-g="A" data-title="Хмарне середовище і моделі послуг"><b>A</b>Хмарне середовище і моделі послуг</div>
+
+      <article class="block" data-kind="theory" id="s1-1">
+        <header class="block-head"><span class="block-no">1.1</span><div><span class="kind"></span><h3>Спільний ресурс замість пересилання копій</h3></div></header>
+        <details class="acc" open><summary><span>Що дають хмарні технології</span><span class="arrow">▶</span></summary><div class="acc-body"><p><b>Хмарні технології</b> забезпечують використання віддалених обчислювальних ресурсів через мережу; поширений спосіб спільної роботи – документ у мережевому сховищі, який кілька працівників відкривають за одним посиланням і використовують як узгоджене джерело відомостей. Замість пересилання різних копій команда працює з узгодженим джерелом; працівник магазину фіксує заявку, склад перевіряє можливість виконання, а диспетчер додає відомості про доставку. Кожен бачить актуальний стан за умови належного доступу й своєчасного внесення змін.</p></div></details><details class="acc"><summary><span>Моделі SaaS, PaaS та IaaS</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Модель <b>SaaS</b> означає «програмне забезпечення як послуга»: користувач працює з готовим застосунком. У моделі <b>PaaS</b> надається середовище для розроблення та розгортання програм, а <b>IaaS</b> означає використання обчислювальної інфраструктури як послуги. Для повсякденних завдань фахівця з торгівлі найчастіше достатньо розуміти SaaS і правила відповідального використання сервісу. Деталі обслуговування серверів можуть належати до компетенції спеціалістів підприємства, але користувач відповідає за зміст даних, доступ і дотримання робочих процедур.</p><div class="grid3"><div class="card"><h4>SaaS</h4>Готовий застосунок як послуга: користувач працює з програмою, а не з серверами. Найчастіше потрібна фахівцю з торгівлі.</div><div class="card"><h4>PaaS</h4>Середовище для розроблення та розгортання програм.</div><div class="card"><h4>IaaS</h4>Обчислювальна інфраструктура як послуга: сервери, сховища, мережа.</div></div></div></details><details class="acc"><summary><span>Google Таблиці, Microsoft 365 і локальний файл</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Google Документи й Google Таблиці, а також відповідно налаштовані засоби Microsoft 365, є прикладами середовищ спільної роботи. Локальний файл Word або Excel не стає спільним лише тому, що його надіслали кільком людям. Для одночасного редагування потрібне сумісне середовище збереження, відповідний режим роботи та доступ учасників. Можливості залежать від продукту, типу облікового запису й налаштувань організації. Для узгодженої роботи в будь-якому сервісі потрібні спільні правила створення записів, внесення змін і підтвердження результату.</p></div></details>
+      </article>
+
+      <article class="block" data-kind="sim" id="s1-2">
+        <header class="block-head"><span class="block-no">1.2</span><div><span class="kind"></span><h3>Листи, копії чи єдиний реєстр?</h3></div></header>
+        <p class="lede">Три магазини і центральний склад обмінюються заявками на поповнення. Перемикайте спосіб організації й дивіться, що відбувається зі змінами.</p><div class="btnrow" id="regBtns"><button class="btn small active" data-m="0">Окремі листи й копії</button><button class="btn ghost small" data-m="1">Єдиний реєстр без правил</button><button class="btn ghost small" data-m="2">Реєстр з ID і порядком зміни</button></div><div class="result-box" id="regOut"></div>
+      </article>
+
+      <div class="group-label" data-g="B" data-title="Організація робочого середовища"><b>B</b>Організація робочого середовища</div>
+
+      <article class="block" data-kind="theory" id="s1-3">
+        <header class="block-head"><span class="block-no">1.3</span><div><span class="kind"></span><h3>Папки, назви і власник ресурсу</h3></div></header>
+        <details class="acc" open><summary><span>Структура папок і правило назв</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Спільне середовище починається з структури папок, назв і відповідальності; робочі матеріали можна поділити на довідники, поточні операції та погоджені результати. Назва «Реєстр замовлень» має однозначно вказувати на чинний файл, а архівні копії повинні містити період і позначку завершення. Якщо користувачі створюють файли «остаточний», «остаточний новий» і «ще один остаточний», команда втрачає розуміння, який запис є основним. Порядок найменування та зберігання є частиною технології, а не другорядною формальністю.</p></div></details><details class="acc"><summary><span>Поточне, затверджене, архівне</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Структура папок повинна відповідати тому, як працівник шукає матеріал; поточний реєстр, затверджені довідники та завершені періоди виконують різні функції, тому їх корисно відокремлювати. У межах кожної групи потрібне правило назв; дата у назві допомагає визначити період, але не пояснює, чи файл затверджений. Назва документа має містити суттєву ознаку його призначення, а статус погодження краще закріплювати також у самому документі. Архівний файл повинен залишатися зрозумілим людині, яка не брала участі у створенні. Система, що тримається лише на пам’яті автора, втрачає придатність під час відпустки, зміни посади або заміни персоналу.</p></div></details><details class="acc"><summary><span>Власник, замісник, адміністратор</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Власник спільного ресурсу не завжди є автором усіх його записів. <b>Власність</b> означає здатність керувати певними налаштуваннями, тоді як відповідальність за зміст може бути розподілена між підрозділами; це потрібно документувати. Якщо ключовий реєстр належить особистому обліковому запису працівника, його звільнення створює ризик переривання доступу. Організаційне середовище має передбачати належність робочих матеріалів підприємству та процедуру передачі відповідальності. Конкретний спосіб залежить від сервісу, але принцип однаковий: робочий процес не повинен зникати разом із доступом однієї людини. Визначені власник, замісник і адміністратор допомагають підтримувати безперервність без поширення спільного пароля.</p></div></details><div class="grid3"><div class="card"><h4>Довідники</h4>Затверджені коди товарів, магазинів, одиниць виміру. Мають власника змісту.</div><div class="card"><h4>Поточні операції</h4>Чинний «Реєстр замовлень» — один, з однозначною назвою.</div><div class="card"><h4>Погоджені результати</h4>Архів із періодом і позначкою завершення; зрозумілий людині, яка не створювала файл.</div></div>
+      </article>
+
+      <article class="block" data-kind="theory" id="s1-4">
+        <header class="block-head"><span class="block-no">1.4</span><div><span class="kind"></span><h3>Процес раніше за редактор: ролі учасників</h3></div></header>
+        <details class="acc" open><summary><span>Видимість запису ≠ узгоджений процес</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Офісні сервіси поєднують зберігання, редагування та коментування документів, тому їх часто використовують для координації роботи підрозділів. Для торговельного підприємства до цього пояснення потрібно додати організаційну складову. Файл може відкриватися одночасно у десяти працівників, але це ще не означає, що вони виконують узгоджений процес.</p><p>Потрібні спільна мета, визначені об’єкти обліку, правила передачі роботи та зрозумілі повноваження. Якщо менеджер прийняв заявку, склад повинен знати, чи вона вже погоджена, а диспетчер – чи можна планувати відвантаження; технологія забезпечує видимість запису, проте зміст статусів установлюють люди. Тому проєктування робочого середовища починається з домовленості про процес, а вибір редактора здійснюється після цього.</p></div></details><details class="acc"><summary><span>Три магазини і центральний склад</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Розглянемо мережу з трьох магазинів і центрального складу; кожний магазин надсилає потребу в поповненні асортименту. Якщо заявки надходять окремими листами, працівник складу змушений переносити їх у власну таблицю, уточнювати назви товарів і з’ясовувати, чи не надіслано нову редакцію. Єдиний реєстр скорочує ці переходи, але лише за умови, що заявки мають ідентифікатори та встановлений порядок зміни. Виправлення кількості після погодження повинно створювати помітну подію для складу. Інакше спільність файла навіть збільшує ризик: відредаговане значення може непомітно замінити те, за яким уже почали комплектування. Узгоджене середовище робить зміну керованою, а не просто технічно можливою.</p></div></details><details class="acc"><summary><span>Ролі, а не лише документ</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Учасник працює не лише з документом, а й із певною роллю. Менеджер магазину відповідає за обґрунтованість заявки, комірник – за підтвердження фактичної наявності, диспетчер – за можливість доставки. Одна людина може виконувати кілька ролей у невеликій організації, однак їхні функції варто розрізняти, що дозволяє встановити, яка перевірка вже виконана і яка ще потрібна. Наприклад, внесення бажаної дати менеджером не дорівнює погодженню транспортного графіка. Якщо ці поля назвати однаково, користувачі почнуть тлумачити побажання як зобов’язання. Відокремлення ролей у структурі документа допомагає уникнути такого змішування без складного програмування.</p></div></details><div class="grid3"><div class="card"><h4>Менеджер магазину</h4>Відповідає за обґрунтованість заявки. Бажана дата — це побажання, а не графік.</div><div class="card"><h4>Комірник</h4>Підтверджує фактичну наявність і погоджує обсяг.</div><div class="card"><h4>Диспетчер</h4>Відповідає за можливість доставки й транспортний графік.</div></div>
+      </article>
+
+      <article class="block" data-kind="theory" id="s1-5">
+        <header class="block-head"><span class="block-no">1.5</span><div><span class="kind"></span><h3>Мережа, офлайн-режим і доступність процесу</h3></div></header>
+        <details class="acc" open><summary><span>Перерва зв’язку і конфліктні зміни</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Хмарний доступ залежить від мережі та працездатності сервісу; тому команда має знати, як працювати при тимчасовому перериванні зв’язку і як узгоджувати записи після відновлення. <b>Офлайн-режим</b>, якщо він підтримується й налаштований, не усуває ризику конфліктних змін. Для критичних операцій слід визначити тимчасовий журнал, відповідального за перенесення даних і перевірку дублювання. <b>Синхронізація</b> допомагає підтримувати узгоджені копії, але її не слід автоматично вважати незалежним резервним копіюванням.</p></div></details><details class="acc"><summary><span>Сервіс працює — процес ні</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Доступність хмарного ресурсу і доступність робочого процесу також не тотожні. Сервіс може функціонувати, але конкретний працівник не матиме зв’язку, втратить засіб входу або відкриє файл із пристрою, що не відповідає вимогам підприємства. Для магазину важливо заздалегідь визначити, які операції можуть тимчасово виконуватися автономно. Приймання заявки іноді можна зафіксувати в погодженому локальному журналі, тоді як остаточне підтвердження залишку потребує доступу до актуального джерела. У резервному режимі слід чітко відрізняти прийняте звернення від погодженого замовлення. Така різниця допомагає продовжувати обслуговування, не створюючи непідтверджених обіцянок покупцеві.</p></div></details><div class="callout "><b>Синхронізація ≠ резервна копія.</b> Синхронізація підтримує узгоджені копії, тому помилкове видалення теж поширюється на всі пристрої. Незалежна копія зберігає можливість повернути попередній стан.</div>
+      </article>
+
+      <article class="block" data-kind="extra" id="s1-6">
+        <header class="block-head"><span class="block-no">1.6</span><div><span class="kind"></span><h3>Відповідальність, вибір середовища і передача роботи</h3></div></header>
+        <details class="acc"><summary><span>Хмарна модель не скасовує відповідальності користувача</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Хмарна модель змінює місце виконання окремих технічних робіт, але не скасовує відповідальності користувача. Постачальник сервісу може підтримувати інфраструктуру та програму, тоді як організація визначає склад своїх даних і правила доступу. Працівник обирає, який файл відкрити, кому передати посилання та які відомості внести; межі відповідальності залежать від конкретної послуги й договору.</p><p>Надійність постачальника сервісу доповнюють перевіркою налаштувань конкретного робочого ресурсу: хто має доступ, які дії дозволені й як відновлюються дані. Дані можуть бути доступними зайвим учасникам через рішення власника документа, навіть якщо технічна інфраструктура працює належно; організаційне рішення та технічний механізм потрібно оцінювати разом.</p></div></details><details class="acc"><summary><span>Вибір середовища за сценаріями</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Вибір середовища доцільно оцінювати за сценаріями, а не за кількістю функцій у рекламному описі. Підприємству потрібно створювати таблиці, керувати доступом, простежувати важливі зміни, експортувати погоджені результати та передавати роботу іншому працівникові. Значення мають також сумісність форматів, мовні налаштування та можливість працювати з потрібних пристроїв.</p><p>Якщо склад користується невеликими екранами, дуже широка таблиця може бути незручною незалежно від потужності редактора. Якщо зовнішній партнер працює в іншому середовищі, потрібно перевірити, чи збережуться формули та структура під час обміну. Перевірка типового робочого сценарію дає більше корисної інформації, ніж поверхове порівняння назв продуктів.</p></div></details><details class="acc"><summary><span>Передача роботи новому учасникові</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Передача роботи включає коротке пояснення правил, а не лише посилання. Новому учасникові потрібні визначення колонок, список статусів, місце довідників і порядок повідомлення про проблему. Наприклад, поле «Дата виконання» може означати заплановану або фактичну дату; без уточнення людина почне вносити дані на власний розсуд. Інструкцію варто розміщувати біля основного ресурсу та оновлювати при зміні структури; вона повинна пояснювати не кожну кнопку, а значення операцій. Завдяки цьому працівник переносить знання між редакторами: навіть у новому інтерфейсі він розуміє, яку подію потрібно зафіксувати і які наслідки матиме зміна.</p></div></details><ul class="checklist"><li>визначення колонок</li><li>список статусів</li><li>місце довідників</li><li>порядок повідомлення про проблему</li><li>інструкція біля ресурсу</li></ul>
+      </article>
+
+      <div class="group-label" data-g="C" data-title="Розгорнутий приклад: заявка на поповнення"><b>C</b>Розгорнутий приклад: заявка на поповнення</div>
+
+      <article class="block" data-kind="data" id="s1-7">
+        <header class="block-head"><span class="block-no">1.7</span><div><span class="kind"></span><h3>Шлях заявки через ролі</h3></div></header>
+        <div class="mindmap-wrap"><svg class="mm" viewBox="0 0 1014 118" role="img" aria-label="Шлях заявки"><defs><marker id="arQ" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" class="sv-arrow"/></marker></defs><g class="sv-line" marker-end="url(#arQ)"><path class="mm-link" data-a="n0" data-b="n1" data-p="180 59 212 59"/><path class="mm-link" data-a="n1" data-b="n2" data-p="386 59 418 59"/><path class="mm-link" data-a="n2" data-b="n3" data-p="592 59 624 59"/><path class="mm-link" data-a="n3" data-b="n4" data-p="798 59 830 59"/></g><g class="mm-node" data-id="n0"><g class="mm-in"><rect x="10" y="20" width="170" height="78" rx="12" class="sv-core"/><text x="95.0" y="55" text-anchor="middle" class="sv-core-t" style="font-size:13.5px;font-family:var(--f-display)">Потреба</text><text x="95.0" y="75" text-anchor="middle" class="sv-core-t2" style="font-family:var(--f-mono);font-size:10.5px">магазин · 24 од.</text></g></g><g class="mm-node" data-id="n1"><g class="mm-in"><rect x="216" y="20" width="170" height="78" rx="12" class="sv-node st-blue"/><text x="301.0" y="55" text-anchor="middle" class="sv-t" style="font-weight:700">Перевірка</text><text x="301.0" y="77" text-anchor="middle" class="sv-ts">склад · запас</text></g></g><g class="mm-node" data-id="n2"><g class="mm-in"><rect x="422" y="20" width="170" height="78" rx="12" class="sv-node st-red"/><text x="507.0" y="55" text-anchor="middle" class="sv-t" style="font-weight:700">Погодження</text><text x="507.0" y="77" text-anchor="middle" class="sv-ts">склад · 18 од.</text></g></g><g class="mm-node" data-id="n3"><g class="mm-in"><rect x="628" y="20" width="170" height="78" rx="12" class="sv-node st-olive"/><text x="713.0" y="55" text-anchor="middle" class="sv-t" style="font-weight:700">Планування</text><text x="713.0" y="77" text-anchor="middle" class="sv-ts">диспетчер</text></g></g><g class="mm-node" data-id="n4"><g class="mm-in"><rect x="834" y="20" width="170" height="78" rx="12" class="sv-node st-ok"/><text x="919.0" y="55" text-anchor="middle" class="sv-t" style="font-weight:700">Виконання</text><text x="919.0" y="77" text-anchor="middle" class="sv-ts">приймання</text></g></g></svg></div><p class="fig-note">Кожна роль додає власне підтвердження і не замінює зміст попереднього етапу.</p>
+      </article>
+
+      <article class="block" data-kind="theory" id="s1-8">
+        <header class="block-head"><span class="block-no">1.8</span><div><span class="kind"></span><h3>Потреба, погодження і зміна після погодження</h3></div></header>
+        <details class="acc" open><summary><span>Заявка на 24 одиниці: що означає кожне число</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Розгорнутий приклад дозволяє побачити зв’язок між структурою даних і взаємодією людей. Магазин створює заявку на двадцять чотири одиниці товару для поповнення викладення. Він указує власний код, код товару, одиницю вимірювання та бажаний день отримання. На цьому етапі запис означає потребу, а не підтверджене постачання; склад перевіряє доступний запас і погоджує вісімнадцять одиниць.</p><p>Менеджер магазину бачить, що шість одиниць залишаються непогодженими, і може уточнити, чи прийнятна часткова поставка; диспетчер отримує заявку для планування лише після цього погодження. Якщо всі ролі працюють в одному середовищі, їм не потрібно повторно переписувати початкові дані. Проте кожна роль повинна додавати власне підтвердження, а не замінювати зміст попереднього етапу. Саме збереження відмінностей між потребою, погодженням і виконанням робить спільний запис професійно корисним.</p></div></details><details class="acc"><summary><span>Магазин хоче 30 після погодження</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Припустімо, після погодження магазин хоче збільшити потребу до тридцяти одиниць. Якщо працівник просто замінить число двадцять чотири на тридцять, склад може не помітити зміни, а диспетчер уже плануватиме вісімнадцять. Правильний процес зберігає погоджену кількість і позначає нову потребу як зміну для перевірки; додаткові дванадцять одиниць не стають погодженими автоматично.</p><p>Відповідальний повинен з’ясувати доступність і можливість доставки; при цьому початковий план може залишитися чинним, якщо команда так домовилася. Така логіка не дозволяє технічній правці непомітно перетворитися на нове зобов’язання. У спільному середовищі важлива не лише остання цифра, а й статус її підтвердження. Для користувача це означає необхідність читати відповідні поля разом і розуміти, яка кількість зараз є підставою для комплектування.</p></div></details>
+      </article>
+
+      <article class="block" data-kind="sim" id="s1-9">
+        <header class="block-head"><span class="block-no">1.9</span><div><span class="kind"></span><h3>Заявка № 204: перезаписати чи зафіксувати зміну?</h3></div></header>
+        <p class="lede">Пройдіть кроки заявки. На останньому кроці порівняйте два способи внести нову потребу 30 одиниць.</p><div class="btnrow" id="reqBtns"><button class="btn small active" data-i="0">1 · Потреба 24</button><button class="btn ghost small" data-i="1">2 · Склад погодив 18</button><button class="btn ghost small" data-i="2">3 · Диспетчер планує</button><button class="btn ghost small" data-i="3">4а · Перезаписати 24 → 30</button><button class="btn ghost small" data-i="4">4б · Зміна для перевірки</button></div><div class="result-box" id="reqOut"></div>
+      </article>
+
+      <div class="takeaway" id="s1-end"><div class="tk-icon">✓</div><div><span class="tk-label">Підсумок розділу</span><p>Таким чином, хмарне сховище вирішує питання доступності спільного документа, але зміст цього документа визначає підприємство. Для заявки на поповнення потрібно погодити, які відомості вносить магазин, що підтверджує склад і на які дані спирається диспетчер. Після організації середовища головним завданням стає структура реєстру: вона повинна зберігати початкову потребу, погоджений обсяг і результат виконання, щоб жоден етап не втрачався під час редагування.</p></div></div>
+
+    </div>
+  </section>
+
+  <!-- ================= S2 ================= -->
+  <section class="panel" id="s2">
+    <header class="sec-head">
+      <div class="sec-idx">02</div>
+      <div>
+        <span class="sec-kicker">Розділ 2 / 4</span>
+        <h2>Структурування даних у спільних документах і таблицях</h2>
+        <p class="lede">Спільна таблиця має відтворювати логіку господарської операції, а не лише розміщувати записи у зручному для читання порядку. У заявці № 204 магазин може запросити 24 одиниці товару, склад – погодити 18, а за фактом приймання буде підтверджено 16. Якщо ці значення послідовно записувати в одну клітинку, підприємство втратить інформацію про первинний попит і недовиконання. Окремі поля та пов’язані записи дозволяють зберегти всі три значення і використати їх для різних рішень.</p>
+        <div class="sec-meta"></div>
+      </div>
+    </header>
+    <aside class="sec-toc" aria-label="Зміст розділу"><div class="toc-title">Зміст розділу</div><nav class="toc-list"></nav></aside>
+    <div class="sec-main">
+
+      <div class="group-label" data-g="A" data-title="Рівень деталізації і ключі"><b>A</b>Рівень деталізації і ключі</div>
+
+      <article class="block" data-kind="theory" id="s2-1">
+        <header class="block-head"><span class="block-no">2.1</span><div><span class="kind"></span><h3>Що означає один рядок</h3></div></header>
+        <details class="acc" open><summary><span>Рівень деталізації даних</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Спільна таблиця повинна мати визначений зміст кожного рядка; наприклад, рядок може відповідати одному замовленню, одній товарній позиції замовлення або одному рейсу. Це називають <b>рівнем деталізації</b> даних; якщо в одній таблиці змішати рядки окремих товарів і підсумки цілих замовлень, загальна сума буде некоректною. Перед створенням реєстру потрібно відповісти, що саме є об’єктом обліку і як його можна однозначно ідентифікувати.</p><p>Для простого реєстру достатньо полів «Номер замовлення», «Дата», «Код товару», «Кількість», «Ціна», «Статус» і «Відповідальний». Якщо замовлення містить кілька товарів, номер замовлення може повторюватися, але поєднання номера і номера позиції має бути унікальним. У реєстрі, де кожне замовлення містить лише одну товарну позицію, його номер може бути унікальним. Професійний реєстр необхідно проєктувати відповідно до реальної структури операцій.</p></div></details><details class="acc"><summary><span>Складений ключ: замовлення + позиція</span><span class="arrow">▶</span></summary><div class="acc-body"><p><b>Складений ключ</b> допомагає розрізняти рядки там, де одного номера недостатньо; замовлення 310 може містити позиції 1, 2 і 3. Тоді поєднання номера замовлення та номера позиції однозначно визначає запис. Повтор номера 310 є нормальним, а повтор поєднання 310 і 2 потребує пояснення. Якщо рядок описує часткове відвантаження, знадобиться ще номер події відвантаження; правило унікальності завжди залежить від одиниці спостереження. Без її визначення автоматична команда видалення дублікатів може знищити законні записи. Дані спочатку тлумачать, установлюють модель операції, а вже потім застосовують технічне очищення.</p></div></details><div class="definition"><span class="term">Рівень деталізації</span><p>Визначений зміст кожного рядка: одне замовлення, одна товарна позиція замовлення або один рейс. Від нього залежить, які підсумки коректні.</p></div>
+      </article>
+
+      <article class="block" data-kind="sim" id="s2-2">
+        <header class="block-head"><span class="block-no">2.2</span><div><span class="kind"></span><h3>Видалення дублікатів: за яким ключем?</h3></div></header>
+        <p class="lede">Імпорт задвоїв позицію 2 замовлення 310. Оберіть правило очищення і подивіться, які рядки залишаться.</p><div class="btnrow" id="keyBtns"><button class="btn small active" data-k="0">Без очищення</button><button class="btn ghost small" data-k="1">Унікальний № замовлення</button><button class="btn ghost small" data-k="2">Унікальні № замовлення + № позиції</button></div><div id="keyTbl"></div><div class="sim-log" id="keyOut"></div>
+      </article>
+
+      <article class="block" data-kind="theory" id="s2-3">
+        <header class="block-head"><span class="block-no">2.3</span><div><span class="kind"></span><h3>Значення окремо від оформлення</h3></div></header>
+        <details class="acc" open><summary><span>Число, дата, код, статус</span><span class="arrow">▶</span></summary><div class="acc-body"><p>У даних слід відокремлювати значення від оформлення; число 1200 повинно зберігатися як число, а напис «1200 грн» може перетворити його на текст і завадити розрахунку. Дата має бути датою, а не довільним підписом; код із початковим нулем доцільно зберігати як текст, щоб нуль не зник. Колір може допомогти привернути увагу, проте статус потрібно записувати окремим значенням: «Нове», «Погоджене», «Комплектується», «Відвантажене», «Закрите» або «Скасоване».</p></div></details><details class="acc"><summary><span>Сутність і її назва, товар і упаковка</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Структурування потребує відокремлення сутності від її назви; один товар може бути записаний як «пляшка синя», «Пляшка 750 мл» або «Пляшка сталева синя». Такі назви не гарантують однозначності; стабільний код пов’язує записи з довідником, а найменування допомагає людині читати таблицю. Для магазину важливо також відрізняти товарну одиницю від упаковки. Кількість «5» без одиниці вимірювання може означати п’ять штук або п’ять коробок по дванадцять штук. У другому випадку фізична кількість становить шістдесят одиниць. Узгоджений довідник має визначати одиницю та правило перерахунку, інакше формально однакові числові поля створюють різні зобов’язання.</p></div></details><div class="grid4"><div class="card"><h4>Число</h4>1200 — число. «1200 грн» стає текстом і випадає з розрахунку.</div><div class="card"><h4>Дата</h4>Тип «дата», а не довільний підпис — інакше сортування за часом ламається.</div><div class="card"><h4>Код із нулем</h4>«0457» зберігають як текст, щоб початковий нуль не зник.</div><div class="card"><h4>Статус</h4>Окреме значення зі списку, а не колір клітинки.</div></div>
+      </article>
+
+      <article class="block" data-kind="data" id="s2-4">
+        <header class="block-head"><span class="block-no">2.4</span><div><span class="kind"></span><h3>Таблиця 2.1 · Правила організації спільного реєстру</h3></div></header>
+        <div class="table-wrap"><table><thead><tr><th>Елемент</th><th>Узгоджене правило</th><th>Результат перевірки</th></tr></thead><tbody><tr><td>Ідентифікатор</td><td>Унікальний номер за визначеним рівнем деталізації</td><td>Немає невиправданих повторів</td></tr><tr><td>Дата</td><td>Єдиний формат і тип даних</td><td>Правильне сортування за часом</td></tr><tr><td>Кількість</td><td>Додатне число для чинної позиції</td><td>Від’ємні значення потребують перевірки</td></tr><tr><td>Статус</td><td>Значення з погодженого списку</td><td>Немає різних написань одного стану</td></tr><tr><td>Формула</td><td>Розрахунок окремо від ручного введення</td><td>Зміна вхідних даних оновлює суму</td></tr><tr><td>Відповідальний</td><td>Визначена роль або учасник</td><td>Зрозуміло хто виконує наступну дію</td></tr></tbody></table></div>
+      </article>
+
+      <article class="block" data-kind="theory" id="s2-5">
+        <header class="block-head"><span class="block-no">2.5</span><div><span class="kind"></span><h3>Перевірка введення, формули і фільтри</h3></div></header>
+        <details class="acc" open><summary><span>Перевірка даних і умовне форматування</span><span class="arrow">▶</span></summary><div class="acc-body"><p><b>Перевірка даних</b> дозволяє обмежувати введення правилами, наприклад списком статусів або допустимим діапазоном кількості. Формули обчислюють суму рядка і підсумки, а <b>умовне форматування</b> позначає прострочені чи неповні записи. Потрібно пам’ятати, що ці механізми не замінюють змістовної перевірки: дата може мати правильний формат, але бути помилковою, а допустимий статус може не відповідати фактичному стану замовлення; під час сортування необхідно охоплювати весь набір пов’язаних стовпців.</p><p>Якщо переставити лише прізвища або лише номери замовлень, дані різних записів можуть змішатися; фільтрування тимчасово змінює видимий набір, але не видаляє рядки. В особистих представленнях фільтра можна аналізувати власну вибірку, не змінюючи перегляд інших учасників, якщо середовище це підтримує. При обчисленні підсумку потрібно також перевіряти, чи формула охоплює весь реєстр або лише видимі записи.</p></div></details><details class="acc"><summary><span>Формат і змістові зв’язки</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Перевірка введення повинна працювати на рівні формату та змістових зв’язків. Формат контролює, чи є кількість числом, дата – датою, а статус – значенням із довідника. Змістовий контроль перевіряє, чи дата відвантаження не передує створенню заявки, чи кількість виконаного не перевищує погоджену без пояснення і чи закритий запис має підтвердження; деякі правила можна реалізувати формулами, інші потребують оцінки людини. Важливо не створювати хибне відчуття повної правильності через зелене забарвлення клітинки. Технічна відповідність формату є необхідною, але недостатньою умовою придатності запису для прийняття рішення.</p></div></details><details class="acc"><summary><span>Розрахункові колонки окремо від ручних</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Розрахункові колонки варто відокремлювати від ручного введення; якщо сума позиції визначається як кількість, помножена на ціну, її не потрібно повторно вводити вручну, що зменшує можливість розбіжності між вхідними даними та підсумком. Однак формула теж може бути неправильною: вона здатна посилатися на сусідній рядок, використовувати ціну без погодженої знижки або пропускати частину записів. Контроль формул включає перевірку прикладу вручну, перевірку меж діапазону та перегляд після вставлення нових рядків. Захищення клітинок запобігає випадковій зміні, але не доводить правильності самого методу; метод має бути зрозумілий відповідальному за показник.</p></div></details><details class="acc"><summary><span>Відносні та абсолютні посилання</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Відносні та абсолютні посилання у формулах виконують різні функції; посилання, що змінюється при копіюванні, допомагає обчислювати значення для кожного наступного рядка. Незмінне посилання потрібне, коли всі рядки використовують одну погоджену ставку або параметр. Помилка в закріпленні посилання може не проявитися у першому рядку, але спотворити наступні. Тому перевіряти потрібно не лише початкову клітинку, а й кілька скопійованих формул та кінцевий рядок; у професійній роботі важливо також зберігати дату чинності параметра. Зміна поточної ставки не повинна без пояснення змінювати історичні результати завершеного періоду.</p></div></details><details class="acc"><summary><span>Фільтр змінює видимість, а не зміст</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Фільтр задає умову видимості, а не змінює зміст прихованих записів. Менеджер може переглядати лише власні заявки, але загальна формула все одно рахуватиме всю таблицю, якщо вона побудована для повного набору. Для звіту потрібно прямо визначити, чи показник описує всі операції, обрану торговельну точку або лише видимі рядки; інакше користувач прочитає загальну суму як результат своєї вибірки. Особисті представлення, якщо підтримуються, допомагають не змінювати перегляд колег, але не усувають необхідності визначати охоплення формул. Кожний підсумок має бути пов’язаний із зрозумілою умовою відбору та періодом.</p></div></details>
+      </article>
+
+      <div class="group-label" data-g="B" data-title="Словник даних, пропуски і рівні таблиць"><b>B</b>Словник даних, пропуски і рівні таблиць</div>
+
+      <article class="block" data-kind="theory" id="s2-6">
+        <header class="block-head"><span class="block-no">2.6</span><div><span class="kind"></span><h3>Словник даних і порожні значення</h3></div></header>
+        <details class="acc" open><summary><span>Що описує словник даних</span><span class="arrow">▶</span></summary><div class="acc-body"><p><b>Словник даних</b> описує назву поля, його зміст, тип, допустимі значення, обов’язковість і відповідальну роль. Такий опис може бути коротким, але повинен усувати головні неоднозначності. Наприклад, для поля «Кількість погоджена» вказують одиниці товару, невід’ємне ціле число та право внесення після перевірки складу. Для поля «Кількість запитана» відповідальним є магазин; два окремі поля дозволяють зберегти історію потреби: заявка на двадцять одиниць може бути погоджена лише на дванадцять. Якщо просто замінити двадцять на дванадцять, інформація про незадоволену потребу зникне. Правильна структура підтримує подальший аналіз асортименту, а не лише поточне комплектування.</p></div></details><details class="acc"><summary><span>Порожньо, нуль і «невідомо»</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Порожнє значення, нуль і невідоме значення мають різний зміст; якщо кількість повернень дорівнює нулю, це означає, що повернень за визначеним обліком не було. Порожня клітинка може означати, що показник ще не внесено; позначка «невідомо» повідомляє про відсутність підтвердження. Якщо замінити всі порожні клітинки нулями, середній показник зменшиться і створить ілюзію кращого результату, тому для незавершених операцій доцільно мати явний стан перевірки. Обчислення повинні використовувати визначену групу завершених або підтверджених записів, а звіт – показувати, скільки випадків залишилося поза розрахунком через неповні дані.</p></div></details><div class="grid3"><div class="card"><h4>Нуль</h4>Подія підтверджено не відбулася: повернень за обліком не було.</div><div class="card"><h4>Порожньо</h4>Показник ще не внесено — це не нуль.</div><div class="card"><h4>«Невідомо»</h4>Немає підтвердження; запис потребує перевірки.</div></div>
+      </article>
+
+      <article class="block" data-kind="sim" id="s2-7">
+        <header class="block-head"><span class="block-no">2.7</span><div><span class="kind"></span><h3>Порожні клітинки як нулі: що станеться із середнім?</h3></div></header>
+        <p class="lede">Кількість повернень по шести магазинах за тиждень. Дві торговельні точки ще не внесли дані.</p><div class="btnrow" id="nullBtns"><button class="btn small active" data-m="0">Лише підтверджені записи</button><button class="btn ghost small" data-m="1">Замінити порожні нулями</button></div><div class="sim-stage"><svg class="chart" id="nullChart" role="img" aria-label="Повернення за магазинами"></svg></div><div class="result-box" id="nullOut"></div>
+      </article>
+
+      <article class="block" data-kind="theory" id="s2-8">
+        <header class="block-head"><span class="block-no">2.8</span><div><span class="kind"></span><h3>Заголовок замовлення і рядки позицій</h3></div></header>
+        <details class="acc" open><summary><span>Зв’язки між об’єктами в документі</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Структура спільного документа відтворює ті зв’язки між об’єктами, які потрібні для виконання операції. Якщо одне замовлення містить три товарні позиції, його заголовок описує покупця, адресу та спосіб доставки, а рядки позицій – товари, кількість і ціну. Ці рівні потрібно розрізняти, оскільки три рядки товарів не означають три окремі замовлення. У невеликій таблиці адресу іноді повторюють у кожному рядку, але тоді її зміна потребує узгодженого виправлення всіх пов’язаних записів; у системі з окремими таблицями замовлень і позицій цей зв’язок зберігають через ідентифікатор. Розуміння такої структури дозволяє правильно обчислювати кількість замовлень, їхню вартість і склад відвантаження.</p></div></details><details class="acc"><summary><span>Три позиції — одне замовлення</span><span class="arrow">▶</span></summary><div class="acc-body"><p>На прикладі замовлення з трьома позиціями можна пояснити різницю між сумою рядків і кількістю замовлень. Якщо значення позицій становлять 240, 360 і 500 гривень, загальна сума замовлення дорівнює 1100 гривень; у реєстрі є три рядки, але лише одне замовлення. Додавання ще одного рядка цього замовлення збільшить кількість позицій, а не кількість покупців. Для підрахунку замовлень потрібно визначити унікальні номери на відповідному рівні. Якщо до рядків товарів приєднати два записи доставки, підсумкова сума може подвоїтися через неправильне поєднання таблиць. Розуміння рівнів даних дозволяє помітити помилку до використання красивого звіту.</p></div></details>
+      </article>
+
+      <article class="block" data-kind="sim" id="s2-9">
+        <header class="block-head"><span class="block-no">2.9</span><div><span class="kind"></span><h3>Сума рядків і подвоєння при з’єднанні таблиць</h3></div></header>
+        <p class="lede">Замовлення 310 містить три позиції. Подивіться, як змінюються підсумки, якщо до позицій помилково приєднати два записи доставки.</p><div class="btnrow" id="joinBtns"><button class="btn small active" data-m="0">Рядки позицій</button><button class="btn ghost small" data-m="1">Після з’єднання з 2 записами доставки</button></div><div id="joinTbl"></div><div class="result-box" id="joinOut"></div>
+      </article>
+
+      <article class="block" data-kind="theory" id="s2-10">
+        <header class="block-head"><span class="block-no">2.10</span><div><span class="kind"></span><h3>Контрольні підсумки</h3></div></header>
+        <details class="acc" open><summary><span>Що звіряти до і після імпорту чи сортування</span><span class="arrow">▶</span></summary><div class="acc-body"><p><b>Контрольні підсумки</b> допомагають виявляти наслідки змін структури; перед імпортом або сортуванням доцільно знати кількість записів, суму кількостей та суму вартості. Після операції їх звіряють, якщо сама операція не передбачала зміни цих показників. Збіг підсумків не доводить повної правильності: дві помилки можуть компенсувати одна одну; проте розбіжність одразу вказує, що потрібна додаткова перевірка. До числових підсумків корисно додати кількість унікальних замовлень і кількість порожніх обов’язкових полів. Так контроль охоплює не лише гроші, а й структуру реєстру. Невеликий набір незалежних перевірок часто корисніший за одну складну формулу.</p></div></details><ul class="checklist"><li>кількість записів</li><li>сума кількостей</li><li>сума вартості</li><li>кількість унікальних замовлень</li><li>порожні обов’язкові поля</li></ul>
+      </article>
+
+      <article class="block" data-kind="data" id="s2-11">
+        <header class="block-head"><span class="block-no">2.11</span><div><span class="kind"></span><h3>Таблиця 2.2 · Розрізнення показників у реєстрі позицій</h3></div></header>
+        <div class="table-wrap"><table><thead><tr><th>Показник</th><th>Що підраховується</th><th>Типова помилка</th></tr></thead><tbody><tr><td>Кількість рядків</td><td>Товарні позиції або події за моделлю реєстру</td><td>Називати рядки кількістю замовлень</td></tr><tr><td>Кількість замовлень</td><td>Унікальні номери замовлень</td><td>Підсумовувати повторювані номери</td></tr><tr><td>Вартість товарів</td><td>Суми підтверджених позицій</td><td>Повторно включати підсумковий рядок</td></tr><tr><td>Незадоволена потреба</td><td>Запитана кількість мінус погоджена</td><td>Втрачати запитану кількість після заміни</td></tr></tbody></table></div>
+      </article>
+
+      <div class="group-label" data-g="C" data-title="Статуси і три рівні кількості"><b>C</b>Статуси і три рівні кількості</div>
+
+      <article class="block" data-kind="theory" id="s2-12">
+        <header class="block-head"><span class="block-no">2.12</span><div><span class="kind"></span><h3>Статуси як перевірювані події</h3></div></header>
+        <details class="acc" open><summary><span>Що підтверджує кожен статус</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Статуси повинні відповідати подіям, які можна перевірити. «Отримано» означає наявність заявки, «Перевірено» – завершення визначеного контролю, «Погоджено» – прийняття обсягу та умов, «Комплектується» – початок складської роботи. «Відвантажено» підтверджує передачу з визначеного місця, але не завжди означає доставку до магазину. «Завершено» потребує установленого підтвердження результату.</p><p>Між цими станами можуть бути винятки: очікування уточнення, часткове виконання або скасування; їх краще визначати явно, ніж використовувати випадкові примітки. Напис «майже готово» не дозволяє іншому працівникові встановити наступну дію; добрий список статусів невеликий, але охоплює головні переходи. Він не повинен змішувати причину проблеми та стан виконання: затримка через нестачу товару може потребувати окремого поля причини поряд із поточним станом.</p></div></details><div class="mindmap-wrap"><svg class="mm" viewBox="0 0 1070 118" role="img" aria-label="Статуси заявки"><defs><marker id="arS" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" class="sv-arrow"/></marker></defs><g class="sv-line" marker-end="url(#arS)"><path class="mm-link" data-a="n0" data-b="n1" data-p="160 59 186 59"/><path class="mm-link" data-a="n1" data-b="n2" data-p="340 59 366 59"/><path class="mm-link" data-a="n2" data-b="n3" data-p="520 59 546 59"/><path class="mm-link" data-a="n3" data-b="n4" data-p="700 59 726 59"/><path class="mm-link" data-a="n4" data-b="n5" data-p="880 59 906 59"/></g><g class="mm-node" data-id="n0"><g class="mm-in"><rect x="10" y="20" width="150" height="78" rx="12" class="sv-core"/><text x="85.0" y="55" text-anchor="middle" class="sv-core-t" style="font-size:13.5px;font-family:var(--f-display)">Отримано</text><text x="85.0" y="75" text-anchor="middle" class="sv-core-t2" style="font-family:var(--f-mono);font-size:10.5px">заявка є</text></g></g><g class="mm-node" data-id="n1"><g class="mm-in"><rect x="190" y="20" width="150" height="78" rx="12" class="sv-node st-blue"/><text x="265.0" y="55" text-anchor="middle" class="sv-t" style="font-weight:700">Перевірено</text><text x="265.0" y="77" text-anchor="middle" class="sv-ts">контроль</text></g></g><g class="mm-node" data-id="n2"><g class="mm-in"><rect x="370" y="20" width="150" height="78" rx="12" class="sv-node st-red"/><text x="445.0" y="55" text-anchor="middle" class="sv-t" style="font-weight:700">Погоджено</text><text x="445.0" y="77" text-anchor="middle" class="sv-ts">обсяг, умови</text></g></g><g class="mm-node" data-id="n3"><g class="mm-in"><rect x="550" y="20" width="150" height="78" rx="12" class="sv-node st-olive"/><text x="625.0" y="55" text-anchor="middle" class="sv-t" style="font-weight:700">Комплектується</text><text x="625.0" y="77" text-anchor="middle" class="sv-ts">склад</text></g></g><g class="mm-node" data-id="n4"><g class="mm-in"><rect x="730" y="20" width="150" height="78" rx="12" class="sv-node st-ok"/><text x="805.0" y="55" text-anchor="middle" class="sv-t" style="font-weight:700">Відвантажено</text><text x="805.0" y="77" text-anchor="middle" class="sv-ts">передано</text></g></g><g class="mm-node" data-id="n5"><g class="mm-in"><rect x="910" y="20" width="150" height="78" rx="12" class="sv-node st-blue"/><text x="985.0" y="55" text-anchor="middle" class="sv-t" style="font-weight:700">Завершено</text><text x="985.0" y="77" text-anchor="middle" class="sv-ts">підтверджено</text></g></g></svg></div><div class="callout blue"><b>Причина ≠ стан.</b> Затримку через нестачу товару фіксують в окремому полі причини поряд із поточним станом, а не написом «майже готово».</div>
+      </article>
+
+      <article class="block" data-kind="theory" id="s2-13">
+        <header class="block-head"><span class="block-no">2.13</span><div><span class="kind"></span><h3>Два відсотки для однієї заявки</h3></div></header>
+        <details class="acc" open><summary><span>88,89 % чи 66,67 %?</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Коли склад фактично відвантажив шістнадцять із вісімнадцяти погоджених одиниць, реєстр повинен зберегти обидва значення; різниця становить дві одиниці невиконаного погодженого обсягу. Якщо замінити погоджену кількість фактичною, показник виконання стане штучно стовідсотковим. Для цієї заявки частка виконання погодженого обсягу дорівнює 16 / 18 × 100, тобто приблизно 88,89 відсотка.</p><p>Відносно початкової потреби двадцять чотири одиниці забезпеченість становить 16 / 24 × 100, тобто приблизно 66,67 відсотка; ці показники відповідають на різні питання. Перший характеризує виконання погодженого зобов’язання, другий – задоволення заявленої потреби. Структура спільного реєстру повинна дозволяти обчислити обидва, якщо вони потрібні підприємству. Саме тому економічний зміст полів визначають до побудови підсумків.</p></div></details>
+      </article>
+
+      <article class="block" data-kind="sim" id="s2-14">
+        <header class="block-head"><span class="block-no">2.14</span><div><span class="kind"></span><h3>Рисунок 2.1 · Потреба погодження та фактичне отримання (інтерактивно)</h3></div></header>
+        <p class="lede">Змінюйте кількості: діаграма і показники перераховуються. Кожен відсоток відповідає на своє питання.</p><div class="calc"><label class="field">Запитано магазином<input type="number" id="qReq" value="24" min="0"></label><label class="field">Погоджено складом<input type="number" id="qApp" value="18" min="0"></label><label class="field">Фактично отримано<input type="number" id="qRec" value="16" min="0"></label></div><div class="split2"><div class="sim-stage"><svg class="chart" id="qChart" role="img" aria-label="Рисунок 2.1"></svg></div><div class="result-box" id="qOut"></div></div>
+      </article>
+
+      <article class="block" data-kind="data" id="s2-15">
+        <header class="block-head"><span class="block-no">2.15</span><div><span class="kind"></span><h3>Таблиця 2.3 · Три рівні кількості в одній заявці</h3></div></header>
+        <div class="table-wrap"><table><thead><tr><th>Рівень</th><th>Значення в прикладі</th><th>Що підтверджує</th></tr></thead><tbody><tr><td>Запитана кількість</td><td class="num">24 одиниці</td><td>Початкова потреба магазину</td></tr><tr><td>Погоджена кількість</td><td class="num">18 одиниць</td><td>Прийняте складом зобов’язання</td></tr><tr><td>Фактично отримана кількість</td><td class="num">16 одиниць</td><td>Підтверджений результат операції</td></tr></tbody></table></div><div class="prose" style="margin-top:14px"><p>За такої структури кількість 16 є результатом приймання, кількість 18 – погодженим зобов’язанням, а кількість 24 – початковою потребою магазину. Розрахунок частки виконання має використовувати знаменник, який відповідає поставленому питанню, тоді як статус заявки повинен показувати поточний етап роботи. Щоб ці відомості залишалися достовірними, право їх змінювати надають відповідним ролям, а виправлення після погодження пов’язують із причиною та підтвердженням.</p></div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ================= S3 ================= -->
+  <section class="panel" id="s3">
+    <header class="sec-head">
+      <div class="sec-idx">03</div>
+      <div>
+        <span class="sec-kicker">Розділ 3 / 4</span>
+        <h2>Права доступу, історія версій і погодження змін</h2>
+        <p class="lede">Надання доступу до спільного документа є частиною розподілу обов’язків; працівникові магазину потрібна можливість заявити потребу й підтвердити приймання, але погоджувати відвантаження має склад. Керівник може перевіряти результат без редагування кожного рядка, а зовнішньому перевізникові достатньо відомостей про конкретну доставку. Такий поділ зменшує ризик випадкових змін і допомагає встановити, хто може виправити помилку, коли її виявлено після виконання операції.</p>
+        <div class="sec-meta"></div>
+      </div>
+    </header>
+    <aside class="sec-toc" aria-label="Зміст розділу"><div class="toc-title">Зміст розділу</div><nav class="toc-list"></nav></aside>
+    <div class="sec-main">
+
+      <div class="group-label" data-g="A" data-title="Спільне редагування і рівні доступу"><b>A</b>Спільне редагування і рівні доступу</div>
+
+      <article class="block" data-kind="data" id="s3-1">
+        <header class="block-head"><span class="block-no">3.1</span><div><span class="kind"></span><h3>Скріншот 2.1 · Індикатори одночасної роботи в Microsoft Excel</h3></div></header>
+        <p>У Microsoft Excel спільне редагування організовують через книгу, збережену в OneDrive або SharePoint Online. Після надання доступу учасники відкривають той самий ресурс, а позначки інших редакторів допомагають бачити, хто працює з книгою одночасно. На скріншоті 2.1 показано індикатори присутності у верхній частині вікна: вони повідомляють про участь інших користувачів, проте не визначають, чи завершене погодження заявки. Для реєстру № 204 рішення щодо кількості та строку потрібно зберігати в окремих полях або коментарі, пов’язаному із записом.</p><div class="sim-stage"><svg class="flow" viewBox="0 0 900 330" role="img" aria-label="Схема інтерфейсу спільного редагування">
+<g class="mm-in"><rect class="wf-win" x="10" y="10" width="880" height="310" rx="12"/><rect class="wf-bar" x="10" y="10" width="880" height="44" rx="12"/>
+<text class="wf-tb" x="30" y="38">Реєстр замовлень.xlsx</text><text class="wf-ts" x="200" y="38">· збережено в OneDrive / SharePoint</text></g>
+<g class="mm-in"><circle class="wf-dot" cx="640" cy="32" r="13" style="fill:var(--blue)"/><circle class="wf-dot" cx="666" cy="32" r="13" style="fill:var(--ok)"/><circle class="wf-dot" cx="692" cy="32" r="13" style="fill:var(--olive)"/>
+<text x="640" y="36" text-anchor="middle" class="sv-wt" style="font-size:10px">М</text><text x="666" y="36" text-anchor="middle" class="sv-wt" style="font-size:10px">К</text><text x="692" y="36" text-anchor="middle" class="sv-wt" style="font-size:10px">Д</text>
+<rect class="wf-acc" x="724" y="19" width="82" height="26" rx="8"/><text class="wf-tb" x="765" y="37" text-anchor="middle" style="font-size:12px">Share</text></g>
+<g class="mm-in"><rect class="wf-hl" x="620" y="12" width="94" height="40" rx="10"/><text class="wf-hlt" x="667" y="72" text-anchor="middle">індикатори присутності</text></g>
+<g class="mm-in"><rect class="wf-cell" x="30" y="90" width="140" height="36"/><rect class="wf-cell" x="170" y="90" width="140" height="36"/><rect class="wf-cell" x="310" y="90" width="140" height="36"/><rect class="wf-cell" x="450" y="90" width="140" height="36"/><rect class="wf-cell" x="590" y="90" width="140" height="36"/><rect class="wf-cell" x="730" y="90" width="140" height="36"/><rect class="wf-cell" x="30" y="126" width="140" height="36"/><rect class="wf-cell" x="170" y="126" width="140" height="36"/><rect class="wf-cell" x="310" y="126" width="140" height="36"/><rect class="wf-cell" x="450" y="126" width="140" height="36"/><rect class="wf-cell" x="590" y="126" width="140" height="36"/><rect class="wf-cell" x="730" y="126" width="140" height="36"/><rect class="wf-cell" x="30" y="162" width="140" height="36"/><rect class="wf-cell" x="170" y="162" width="140" height="36"/><rect class="wf-cell" x="310" y="162" width="140" height="36"/><rect class="wf-cell" x="450" y="162" width="140" height="36"/><rect class="wf-cell" x="590" y="162" width="140" height="36"/><rect class="wf-cell" x="730" y="162" width="140" height="36"/><rect class="wf-cell" x="30" y="198" width="140" height="36"/><rect class="wf-cell" x="170" y="198" width="140" height="36"/><rect class="wf-cell" x="310" y="198" width="140" height="36"/><rect class="wf-cell" x="450" y="198" width="140" height="36"/><rect class="wf-cell" x="590" y="198" width="140" height="36"/><rect class="wf-cell" x="730" y="198" width="140" height="36"/><rect class="wf-cell" x="30" y="234" width="140" height="36"/><rect class="wf-cell" x="170" y="234" width="140" height="36"/><rect class="wf-cell" x="310" y="234" width="140" height="36"/><rect class="wf-cell" x="450" y="234" width="140" height="36"/><rect class="wf-cell" x="590" y="234" width="140" height="36"/><rect class="wf-cell" x="730" y="234" width="140" height="36"/>
+<text class="wf-ts" x="40" y="113">№ заявки</text><text class="wf-ts" x="180" y="113">Код товару</text><text class="wf-ts" x="320" y="113">Запитано</text><text class="wf-ts" x="460" y="113">Погоджено</text><text class="wf-ts" x="600" y="113">Статус</text><text class="wf-ts" x="740" y="113">Відповідальний</text>
+<text class="wf-t" x="40" y="149">204</text><text class="wf-t" x="180" y="149">SKU-0457</text><text class="wf-t" x="320" y="149">24</text><text class="wf-t" x="460" y="149">18</text><text class="wf-t" x="600" y="149">Погоджено</text><text class="wf-t" x="740" y="149">Склад</text>
+<text class="wf-t" x="40" y="185">205</text><text class="wf-t" x="180" y="185">SKU-1120</text><text class="wf-t" x="320" y="185">12</text><text class="wf-t" x="460" y="185"></text><text class="wf-t" x="600" y="185">Нове</text><text class="wf-t" x="740" y="185">Магазин</text></g>
+<g class="mm-in"><rect x="450" y="126" width="140" height="36" fill="none" style="stroke:var(--ok);stroke-width:2.5"/><rect x="590" y="162" width="140" height="36" fill="none" style="stroke:var(--olive);stroke-width:2.5"/>
+<text class="wf-ts" x="456" y="180" style="fill:var(--ok)">К · редагує</text><text class="wf-ts" x="592" y="216" style="fill:var(--olive-ink)">Д · переглядає</text></g>
+<g class="mm-in"><text class="wf-ts" x="30" y="300">Присутність показує, хто працює з книгою, але не означає, що погодження заявки завершене.</text></g>
+</svg></div><p class="fig-note">Схематичне відтворення інтерфейсу за матеріалами: Джерело: Microsoft Support. Назви панелей залежать від версії застосунку.</p><p>Для надання доступу власник використовує команду Share, обирає дозволи й потрібних одержувачів, після чого перевіряє, чи справді їм необхідне редагування. Збереження книги у спільному сховищі та погоджені права створюють умови для роботи з одним ресурсом, тоді як зміст статусів, відповідальність за поля й правила завершення визначає команда. Вигляд панелі може відрізнятися між версіями, але індикатор присутності й остаточне погодження виконують різні функції.</p>
+      </article>
+
+      <article class="block" data-kind="theory" id="s3-2">
+        <header class="block-head"><span class="block-no">3.2</span><div><span class="kind"></span><h3>Рівень доступу відповідає завданню</h3></div></header>
+        <details class="acc" open><summary><span>Переглядач, коментатор, редактор</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Рівень доступу повинен відповідати робочому завданню; читачеві потрібен перегляд, учасникові погодження – можливість коментувати, виконавцеві – право редагувати відповідні дані. У Google Документах і Таблицях ці ролі подані як переглядач, коментатор і редактор. Надання всім повних прав збільшує ймовірність випадкових змін і ускладнює визначення відповідальності. Власник або адміністратор середовища має контролювати доступ і переглядати його після завершення роботи учасника.</p><p>Посилання на файл саме по собі не визначає безпечність доступу. Важливо, чи може відкрити його будь-хто з посиланням, чи лише конкретні користувачі. Для робочих даних доцільно обирати обмежений доступ відповідно до правил підприємства. Зовнішньому перевізнику не потрібні закупівельні ціни або всі клієнтські звернення, якщо його задача полягає у виконанні визначених доставок. Розподіл доступу часто потребує окремого файла або представлення з мінімальним набором необхідних даних.</p></div></details><details class="acc"><summary><span>Функції людини і потрібні їй дані</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Права доцільно визначати за функціями, які людина виконує, і за даними, що їй потрібні; це дві пов’язані, але різні задачі. Перевізникові може бути достатньо перегляду адрес доставки, проте навіть перегляд усього реєстру відкриє йому зайві закупівельні ціни. Обмеження редагування не приховує видимі дані, тому іноді потрібен окремий погоджений витяг; у ньому залишають лише необхідні поля та актуальні операції. Такий підхід зменшує обсяг відомостей, які поширюються поза підрозділом, і полегшує читання для одержувача. Розподіл доступу має підтримувати реальну роботу, а не змушувати працівників шукати неофіційні способи обходу.</p></div></details><details class="acc"><summary><span>Життєвий цикл прав</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Права мають життєвий цикл; їх надають при початку визначеної роботи, змінюють при переході до іншої ролі та припиняють після завершення потреби. Доступ, що був обґрунтованим під час проєкту, може стати зайвим через місяць. Особливої уваги потребують зовнішні партнери, тимчасові працівники та спільні папки з успадкованими дозволами. Перевірка доступу повинна охоплювати не лише окремий файл, а й середовище його зберігання. Якщо документ перемістити до папки з ширшим колом учасників, наслідки залежать від правил конкретного сервісу. Тому після організаційних змін потрібно перевіряти фактичний доступ, а не покладатися на попередню домовленість.</p></div></details><div class="grid4"><div class="card"><h4>Переглядач</h4>Бачить результат, не змінює рядків: керівник, аудитор.</div><div class="card"><h4>Коментатор</h4>Залишає питання і пропозиції до конкретного фрагмента.</div><div class="card"><h4>Редактор</h4>Змінює дані у своїх полях: магазин, склад, диспетчер.</div><div class="card"><h4>Окремий витяг</h4>Мінімальний набір полів для зовнішнього партнера.</div></div>
+      </article>
+
+      <article class="block" data-kind="sim" id="s3-3">
+        <header class="block-head"><span class="block-no">3.3</span><div><span class="kind"></span><h3>Який доступ потрібен учасникові?</h3></div></header>
+        <div id="clsAccess"></div><div class="sim-log" id="clsAccessScore">Оберіть рівень доступу для кожного учасника.</div>
+      </article>
+
+      <div class="group-label" data-g="B" data-title="Версії, захист і поділ відповідальності"><b>B</b>Версії, захист і поділ відповідальності</div>
+
+      <article class="block" data-kind="theory" id="s3-4">
+        <header class="block-head"><span class="block-no">3.4</span><div><span class="kind"></span><h3>Історія версій, захист діапазону, погодження змін</h3></div></header>
+        <details class="acc" open><summary><span>Історія версій і змістовний коментар</span><span class="arrow">▶</span></summary><div class="acc-body"><p><b>Історія версій</b> допомагає встановити, які зміни було внесено, та повернути попередній стан, якщо сервіс підтримує цю функцію; перед значним перегрупуванням реєстру корисно назвати контрольну версію. Відновлення попередньої версії цілого файла може прибрати пізніші правильні правки інших учасників. Тому спочатку потрібно встановити масштаб помилки, погодити спосіб виправлення і за можливості перенести лише потрібні значення.</p><p>Історія редагування не завжди є повним журналом перегляду або завантаження файла; коментар фіксує питання або пропозицію до конкретного фрагмента даних. Змістовний коментар повинен містити суть проблеми, необхідну дію і пояснення. Напис «неправильно» не дає виконавцеві достатньої інформації; корисніше зазначити, що у замовленні 204 пропущено код товару, і попросити звірити його з довідником. Після виправлення відповідальний пояснює зміну, а учасник перевірки закриває питання. Так команда створює простежуваний процес погодження.</p></div></details><details class="acc"><summary><span>Захист діапазону ≠ шифрування</span><span class="arrow">▶</span></summary><div class="acc-body"><p><b>Захист діапазону</b> може обмежувати редагування формул або службових стовпців, але він не тотожний шифруванню й не забезпечує повної конфіденційності. Користувач, який має доступ до даних, може бачити їх у межах наданих можливостей. Для запобігання розкриттю інформації потрібні належні права на сам файл і продуманий склад даних. Захищені формули насамперед зменшують ризик випадкового пошкодження розрахунків під час командної роботи.</p></div></details><details class="acc"><summary><span>Підготовлено — перевірено</span><span class="arrow">▶</span></summary><div class="acc-body"><p><b>Поділ відповідальності</b> допомагає контролювати важливі операції; працівник може підготувати нові реквізити постачальника, але погодження зміни виконує інша уповноважена роль. У простій таблиці це можна відобразити через поля «Підготовлено», «Перевірено» та дати подій. Самі поля не створюють сильного технічного контролю, якщо будь-хто може змінити їх довільно. Проте вони роблять логіку процесу видимою та дозволяють оцінити, чи потрібне спеціалізоване середовище з кращим розмежуванням. Для операцій з істотними наслідками вибір інструмента повинен відповідати вимогам до підтвердження та журналювання; зручність редагування не є достатнім критерієм.</p></div></details><details class="acc"><summary><span>Пропорційний контроль змін</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Зміна робочих даних повинна мати зрозумілу причину; у довіднику виправляють помилкове написання, у заявці змінюють потребу, у погодженому замовленні можуть переглянути умови. Ці випадки мають різні наслідки; виправлення назви не завжди потребує повторного погодження, тоді як збільшення кількості після резервування впливає на доступність товару. Команда повинна визначити, які поля можна коригувати вільно, а які переводять операцію назад на перевірку. Якщо будь-яка зміна сприймається однаково, працівники або пропускають важливі повідомлення, або перевантажують колег несуттєвими погодженнями. Значення має пропорційний контроль саме тих переходів, що змінюють зобов’язання підприємства.</p></div></details>
+      </article>
+
+      <article class="block" data-kind="sim" id="s3-5">
+        <header class="block-head"><span class="block-no">3.5</span><div><span class="kind"></span><h3>Паралельне редагування: хто правий?</h3></div></header>
+        <details class="acc" open><summary><span>Чому технічне збереження не вирішує конфлікту</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Паралельне редагування створює ситуації, які не можна вирішити лише технічним збереженням. Менеджер змінює кількість із десяти на п’ятнадцять, а комірник у той самий час підтверджує десять. Навіть якщо сервіс збереже обидві дії у своїй історії, потрібне змістове рішення: яка кількість чинна та чи перевірено додаткові п’ять одиниць. Для цього бажано відокремлювати запитане від погодженого і використовувати статус перевірки. Робочий процес не повинен робити висновок про погодження лише тому, що клітинку було змінено останньою. Час правки допомагає відтворити подію, але право прийняти рішення визначається роллю та процедурою.</p></div></details><p class="lede">Порівняйте дві структури документа для однієї й тієї самої ситуації.</p><div class="btnrow" id="parBtns"><button class="btn small active" data-m="0">Одна клітинка «Кількість»</button><button class="btn ghost small" data-m="1">Поля «Запитано / Погоджено» + статус перевірки</button></div><div class="result-box" id="parOut"></div>
+      </article>
+
+      <article class="block" data-kind="theory" id="s3-6">
+        <header class="block-head"><span class="block-no">3.6</span><div><span class="kind"></span><h3>Версія документа і історія операції</h3></div></header>
+        <details class="acc" open><summary><span>Стан у момент часу і послідовність подій</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Версія документа є станом у певний момент, а історія операції описує послідовність подій; ці поняття не потрібно змішувати. Відновлення попередньої версії допоможе повернути структуру таблиці, але може прибрати чинні замовлення, внесені пізніше. Історія конкретного замовлення повинна зберігати початкову потребу, погодження, зміни та результат виконання. У простому середовищі для цього можуть використовувати окремий журнал важливих змін. Його записи пов’язують із номером операції, часом, автором і причиною. Такий журнал не замінює повноцінних засобів аудиту, однак допомагає користувачам розуміти, чому поточне значення відрізняється від первинного.</p></div></details><details class="acc"><summary><span>Пошкоджені формули: спочатку масштаб</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Якщо в спільному реєстрі пошкоджено формули, спочатку встановлюють масштаб; помилка може стосуватися одного рядка, певної колонки або всього файла. Важливо визначити останній правильний стан і з’ясувати, які нові записи з’явилися після нього. Повернення цілого документа до ранньої версії іноді є найпростішою технічною дією, але не найкращим робочим рішенням. Часто доцільно відновити потрібні формули або фрагмент структури, зберігши нові чинні операції; вибір виконують після аналізу залежностей. Якщо відновлення впливає на склад і доставку, відповідальні підрозділи повинні отримати узгоджене повідомлення про чинний стан.</p></div></details><details class="acc"><summary><span>Помилка поширюється через похідні документи</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Після виправлення перевіряють і дані, і робочі висновки; наприклад, неправильна формула показала нульову вартість кількох замовлень. Повернення формули виправить таблицю, але менеджер міг уже передати помилковий звіт. Тоді потрібно оновити також похідний документ і повідомити його одержувача. Інформаційна помилка поширюється через копії, зведення та повідомлення, тому межі відновлення ширші за одну клітинку. Добре організоване середовище дозволяє знайти залежні матеріали через ідентифікатори та визначені місця зберігання. Це ще одна причина не створювати безконтрольну кількість файлів із подібними назвами.</p></div></details>
+      </article>
+
+      <article class="block" data-kind="sim" id="s3-7">
+        <header class="block-head"><span class="block-no">3.7</span><div><span class="kind"></span><h3>Відновлення: уся версія чи лише формули?</h3></div></header>
+        <p class="lede">О 10:00 реєстр був правильним, об 11:00 хтось пошкодив формули вартості, об 11:30 магазини внесли дві нові заявки, о 12:00 помилку виявили.</p><div class="btnrow" id="rstBtns"><button class="btn small active" data-m="0">Відновити весь файл до 10:00</button><button class="btn ghost small" data-m="1">Повернути лише формули</button></div><div class="result-box" id="rstOut"></div>
+      </article>
+
+      <div class="group-label" data-g="C" data-title="Погодження, відхилення і довідники"><b>C</b>Погодження, відхилення і довідники</div>
+
+      <article class="block" data-kind="theory" id="s3-8">
+        <header class="block-head"><span class="block-no">3.8</span><div><span class="kind"></span><h3>Остаточне погодження і подальші події</h3></div></header>
+        <details class="acc" open><summary><span>Фіксуємо чинне рішення</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Після обговорення зміни у спільному документі потрібно зафіксувати остаточне погодження, на яке спиратиметься наступний виконавець. Коментар із зауваженням залишається відкритим до перевірки виправлення або обґрунтованого рішення його не застосовувати, а відповідь «зроблено» потребує звіряння правильного товару, кількості чи дати. Якщо під час дискусії розглядали кілька варіантів, чинне рішення має бути доступним без читання всього листування, інакше новий працівник може використати вже відхилену пропозицію. Тому відповідальний перевіряє внесені дані, позначає завершення погодження та залишає зрозумілий запис про результат.</p></div></details><details class="acc"><summary><span>Дві пошкоджені одиниці: не стирати факт</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Після отримання магазин помічає, що дві одиниці пошкоджені; факт отримання шістнадцяти не потрібно стирати, бо він описує передачу. До нього додають інформацію про стан товару та подальше рішення відповідно до процедури. Якщо дві одиниці повернули, повернення є окремою подією з власним підтвердженням; так зберігається послідовність: відвантаження, отримання, виявлення відхилення та повернення.</p><p>Просте зменшення числа до чотирнадцяти не пояснило б, що відбулося з рештою. Для логістики це важливо при звірянні передачі, а для ритейлу – при визначенні доступного до продажу запасу. Реєстр не повинен приховувати проблему за виправленим підсумком. Його роль полягає у збереженні достатньої інформації, щоб різні підрозділи могли правильно виконати свої частини роботи.</p></div></details><div class="mindmap-wrap"><svg class="mm" viewBox="0 0 808 118" role="img" aria-label="Послідовність подій"><defs><marker id="arE" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" class="sv-arrow"/></marker></defs><g class="sv-line" marker-end="url(#arE)"><path class="mm-link" data-a="n0" data-b="n1" data-p="180 59 212 59"/><path class="mm-link" data-a="n1" data-b="n2" data-p="386 59 418 59"/><path class="mm-link" data-a="n2" data-b="n3" data-p="592 59 624 59"/></g><g class="mm-node" data-id="n0"><g class="mm-in"><rect x="10" y="20" width="170" height="78" rx="12" class="sv-core"/><text x="95.0" y="55" text-anchor="middle" class="sv-core-t" style="font-size:13.5px;font-family:var(--f-display)">Відвантаження</text><text x="95.0" y="75" text-anchor="middle" class="sv-core-t2" style="font-family:var(--f-mono);font-size:10.5px">склад · 16 од.</text></g></g><g class="mm-node" data-id="n1"><g class="mm-in"><rect x="216" y="20" width="170" height="78" rx="12" class="sv-node st-blue"/><text x="301.0" y="55" text-anchor="middle" class="sv-t" style="font-weight:700">Отримання</text><text x="301.0" y="77" text-anchor="middle" class="sv-ts">магазин · 16 од.</text></g></g><g class="mm-node" data-id="n2"><g class="mm-in"><rect x="422" y="20" width="170" height="78" rx="12" class="sv-node st-red"/><text x="507.0" y="55" text-anchor="middle" class="sv-t" style="font-weight:700">Відхилення</text><text x="507.0" y="77" text-anchor="middle" class="sv-ts">2 пошкоджені</text></g></g><g class="mm-node" data-id="n3"><g class="mm-in"><rect x="628" y="20" width="170" height="78" rx="12" class="sv-node st-olive"/><text x="713.0" y="55" text-anchor="middle" class="sv-t" style="font-weight:700">Повернення</text><text x="713.0" y="77" text-anchor="middle" class="sv-ts">окрема подія</text></g></g></svg></div><details class="acc"><summary><span>Виправлення довідника і його наслідки</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Виправлення довідника теж потребує оцінки наслідків; якщо товар помилково був позначений як упаковка з десяти одиниць, а фактично упаковка містить дванадцять, зміна поточного довідника не обов’язково повинна автоматично перераховувати всі завершені операції. Потрібно встановити, як дані були зафіксовані на момент події, які документи підтверджують кількість і які звіти використовували помилкове правило; відповідальні ролі погоджують коригування.</p><p>Для користувача важливо не сприймати довідник як простий текстовий список: його значення можуть впливати на формули, закупівлю та облік. Спільна робота з довідниками повинна мати визначеного власника змісту. Випадкове редагування багатьма учасниками без контролю створює ризик швидкого поширення однієї помилки через усі пов’язані записи.</p></div></details>
+      </article>
+
+      <div class="takeaway" id="s3-end"><div class="tk-icon">✓</div><div><span class="tk-label">Підсумок розділу</span><p>Контроль змін повинен завершуватися узгодженим станом документа, а не лише записом у журналі редагування. Після виправлення кількості відповідальний звіряє дані приймання, перевіряє пов’язані підсумки й повідомляє учасникам, які дії залежать від зміни. Отже, права доступу та історія версій створюють технічні умови для контролю, а належна комунікація доводить виправлення до тих працівників, які використовують його у своїй роботі.</p></div></div>
+
+    </div>
+  </section>
+
+  <!-- ================= S4 ================= -->
+  <section class="panel" id="s4">
+    <header class="sec-head">
+      <div class="sec-idx">04</div>
+      <div>
+        <span class="sec-kicker">Розділ 4 / 4</span>
+        <h2>Цифрові комунікації та координація торговельних операцій</h2>
+        <p class="lede">Узгоджений реєстр не усуває потреби в повідомленнях, але змінює їхнє призначення. Замість пересилання нової копії таблиці працівник посилається на конкретну заявку, називає виявлену розбіжність і пояснює, яке підтвердження потрібне. Наприклад, повідомлення «За заявкою № 204 прийнято 16 із 18 погоджених одиниць; потрібне рішення щодо двох відсутніх» дозволяє адресатові одразу зрозуміти стан операції. Саме така комунікація поєднує цифровий запис із наступною дією.</p>
+        <div class="sec-meta"></div>
+      </div>
+    </header>
+    <aside class="sec-toc" aria-label="Зміст розділу"><div class="toc-title">Зміст розділу</div><nav class="toc-list"></nav></aside>
+    <div class="sec-main">
+
+      <div class="group-label" data-g="A" data-title="Повідомлення і канали"><b>A</b>Повідомлення і канали</div>
+
+      <article class="block" data-kind="theory" id="s4-1">
+        <header class="block-head"><span class="block-no">4.1</span><div><span class="kind"></span><h3>Повідомлення пов’язане з робочим об’єктом</h3></div></header>
+        <details class="acc" open><summary><span>Реєстр фіксує стан, повідомлення — привертає увагу</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Організована цифрова комунікація пов’язує повідомлення з конкретним робочим об’єктом; якщо у чаті написано «це вже відправили», без номера замовлення й часу команда не може однозначно зрозуміти, про яку операцію йдеться. Реєстр має фіксувати стан, а повідомлення – привертати увагу до необхідної дії. Учасники повинні домовитися, який канал використовується для термінових уточнень, де зберігаються рішення і як підтверджується виконання.</p></div></details><details class="acc"><summary><span>Різні канали — різна взаємодія</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Різні канали підтримують різні види взаємодії; чат зручний для швидкого уточнення, електронний лист – для оформленого звернення, коментар у документі – для питання до конкретного фрагмента, а реєстр – для поточного стану операції. Проблема виникає, коли всі канали одночасно претендують на роль остаточного джерела. Диспетчер може побачити у чаті одну дату, у листі іншу, а в таблиці третю. Правило повинно визначати, де фіксується погоджена дата і як повідомляють про її зміну. Інші повідомлення допомагають координації, але не підміняють чинний запис, що зменшує час пошуку та ймовірність помилкового тлумачення.</p></div></details><div class="grid4"><div class="card"><h4>Чат</h4>Швидке уточнення.</div><div class="card"><h4>Електронний лист</h4>Оформлене звернення.</div><div class="card"><h4>Коментар у документі</h4>Питання до конкретного фрагмента даних.</div><div class="card"><h4>Реєстр</h4>Поточний чинний стан операції.</div></div>
+      </article>
+
+      <article class="block" data-kind="sim" id="s4-2">
+        <header class="block-head"><span class="block-no">4.2</span><div><span class="kind"></span><h3>Конструктор робочого повідомлення</h3></div></header>
+        <p class="lede">Позначте складові, які варто включити до повідомлення складу щодо заявки № 204.</p><div class="chk-list" id="msgBox"><label class="chk"><input type="checkbox" checked>Номер операції</label><label class="chk"><input type="checkbox">Фактичний стан</label><label class="chk"><input type="checkbox">Потрібна дія</label><label class="chk"><input type="checkbox">Адресат-роль</label><label class="chk"><input type="checkbox">Строк відповіді</label><label class="chk"><input type="checkbox">Повна адреса й телефон покупця</label></div><div class="msg-prev" id="msgPrev"></div><div class="meter" id="msgMeter"><i></i></div><div class="sim-log" id="msgOut"></div>
+      </article>
+
+      <article class="block" data-kind="theory" id="s4-3">
+        <header class="block-head"><span class="block-no">4.3</span><div><span class="kind"></span><h3>Самодостатній запис для асинхронної роботи</h3></div></header>
+        <details class="acc" open><summary><span>Об’єкт, стан, дія</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Робоче повідомлення повинно містити об’єкт, фактичний стан і потрібну дію. Фраза «Терміново перевірте доставку» не вказує, яку саме операцію та що потрібно встановити. Повідомлення з номером замовлення, підтвердженою проблемою та строком відповіді дозволяє адресатові діяти без додаткового уточнення. Водночас не варто переносити в чат усі клієнтські дані, якщо достатньо номера операції. Посилання на погоджений ресурс може забезпечити потрібний контекст за належного доступу. Змістовна точність і мінімізація даних підтримують одна одну: коротке повідомлення стає корисним завдяки правильному ідентифікатору, а не завдяки надмірному переліку відомостей.</p></div></details><details class="acc"><summary><span>Асинхронна робота і передача зміни</span><span class="arrow">▶</span></summary><div class="acc-body"><p><b>Асинхронна робота</b> означає, що учасники можуть виконувати свої частини в різний час; вона потребує більшої самодостатності запису. Якщо автор повідомлення вже завершив зміну, колега повинен зрозуміти зміст без негайного усного пояснення, тому важливі контекст, причина, наступна дія та місце результату. Для передачі між змінами корисно фіксувати відкриті питання й винятки. Перелік «усе в роботі» не пояснює, чи залишилися невиконані погодження, нестача товару або непідтверджені доставки. Якісний запис дозволяє новій зміні продовжити процес з того самого місця, а не повторювати вже виконану перевірку.</p></div></details><details class="acc"><summary><span>Цифровий етикет</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Цифровий етикет у робочому середовищі має практичний зміст; повідомлення повинно бути зрозумілим, адресованим потрібній ролі та пов’язаним із конкретною операцією. Надсилання всім учасникам кожного уточнення збільшує інформаційне навантаження і приховує справді важливі зміни, водночас виключення потрібного працівника може зупинити процес.</p><p>Тому команда визначає, які події потребують повідомлення, кому його надсилають і де залишається остаточне рішення. Тон має допомагати виправленню, а не переводити обговорення помилки у суперечку про особу автора; змістовне зауваження називає факт і потрібну дію. Так культура комунікації підтримує якість даних: працівники швидше повідомляють про невизначеність і не приховують виправлення.</p></div></details><details class="acc"><summary><span>Підсумковий запис рішення</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Для тривалого обговорення корисний короткий підсумковий запис; у ньому називають погоджений варіант, дату чинності та відповідального за реалізацію. Якщо розглядали три можливі дати доставки, новому працівникові не потрібно здогадуватися, яку обрано. Підсумок пов’язують із реєстром, а не залишають лише в усній розмові. Якщо рішення пізніше змінилося, його новий стан також фіксують, що дозволяє працювати між змінами й підрозділами без повторення всього обговорення. Інформаційні технології спільної роботи дають засоби для такого запису, але користувачі повинні домовитися про звичку ним користуватися; саме поєднання інструмента і правила створює стійкий результат команди.</p></div></details>
+      </article>
+
+      <div class="group-label" data-g="B" data-title="Єдиний реєстр і координація завдань"><b>B</b>Єдиний реєстр і координація завдань</div>
+
+      <article class="block" data-kind="data" id="s4-4">
+        <header class="block-head"><span class="block-no">4.4</span><div><span class="kind"></span><h3>Рисунок 2.2 · Організація спільної роботи з єдиним реєстром замовлень</h3></div></header>
+        <div class="mindmap-wrap" style="margin-bottom:0"><svg class="mm" viewBox="0 0 1100 300" role="img" aria-label="Рисунок 2.2"><defs><marker id="arR" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" class="sv-arrow"/></marker></defs><g class="sv-line" marker-end="url(#arR)"><path class="mm-link" data-a="core" data-b="n0" data-p="450 130 330 70"/><path class="mm-link" data-a="core" data-b="n1" data-p="450 170 330 230"/><path class="mm-link" data-a="core" data-b="n2" data-p="650 130 770 70"/><path class="mm-link" data-a="core" data-b="n3" data-p="650 170 770 230"/></g><g class="mm-node" data-id="core"><g class="mm-in"><rect x="430" y="108" width="240" height="84" rx="16" class="sv-core"/><text x="550" y="144" text-anchor="middle" class="sv-core-t" style="font-family:var(--f-display);font-size:15px;font-weight:700">РЕЄСТР № 204</text><text x="550" y="168" text-anchor="middle" class="sv-core-t2" style="font-family:var(--f-mono);font-size:12px">ОДНЕ ДЖЕРЕЛО СТАНУ</text></g></g><g class="mm-node" data-id="n0"><g class="mm-in"><rect x="40" y="20" width="290" height="100" rx="14" class="sv-node st-blue"/><text x="185.0" y="58" text-anchor="middle" class="sv-t" style="font-weight:700">Магазин</text><text x="185.0" y="80" text-anchor="middle" class="sv-ts">потреба 24 од.</text><text x="185.0" y="99" text-anchor="middle" class="sv-ts">отримання 16 од.</text></g></g><g class="mm-node" data-id="n1"><g class="mm-in"><rect x="40" y="180" width="290" height="100" rx="14" class="sv-node st-red"/><text x="185.0" y="218" text-anchor="middle" class="sv-t" style="font-weight:700">Покупець</text><text x="185.0" y="240" text-anchor="middle" class="sv-ts">лише необхідний результат</text><text x="185.0" y="259" text-anchor="middle" class="sv-ts">без внутрішнього файла</text></g></g><g class="mm-node" data-id="n2"><g class="mm-in"><rect x="770" y="20" width="290" height="100" rx="14" class="sv-node st-olive"/><text x="915.0" y="58" text-anchor="middle" class="sv-t" style="font-weight:700">Склад</text><text x="915.0" y="80" text-anchor="middle" class="sv-ts">погоджено 18 од.</text><text x="915.0" y="99" text-anchor="middle" class="sv-ts">відвантаження</text></g></g><g class="mm-node" data-id="n3"><g class="mm-in"><rect x="770" y="180" width="290" height="100" rx="14" class="sv-node st-ok"/><text x="915.0" y="218" text-anchor="middle" class="sv-t" style="font-weight:700">Диспетчер</text><text x="915.0" y="240" text-anchor="middle" class="sv-ts">планування доставки</text><text x="915.0" y="259" text-anchor="middle" class="sv-ts">завершення</text></g></g></svg></div><p>Спільний реєстр на рисунку 2.2 зберігає потребу магазину, погоджений обсяг складу та підтверджене отримання в окремих полях заявки № 204. Кожна роль доповнює визначені поля, а погодження та історія змін допомагають зберігати узгоджений стан. Покупцеві передають лише необхідний результат, а не весь внутрішній робочий файл. Така схема пояснює, чому централізоване джерело потребує водночас розподілу відповідальності.</p><p>Для координації використовують списки завдань або дошки зі станами виконання. Картка має містити назву дії, номер пов’язаної операції, відповідального, строк і критерій завершення. Статус «У роботі» показує процес, але для закриття потрібний перевірюваний результат, наприклад підтвердження відвантаження або погоджений документ. Кількість карток не характеризує якість роботи без розуміння, чи завершені потрібні операції та чи відповідають вони вимогам.</p>
+      </article>
+
+      <article class="block" data-kind="theory" id="s4-5">
+        <header class="block-head"><span class="block-no">4.5</span><div><span class="kind"></span><h3>Форми, картки завдань і строки</h3></div></header>
+        <details class="acc" open><summary><span>Онлайн-форма і повторне надсилання</span><span class="arrow">▶</span></summary><div class="acc-body"><p><b>Онлайн-форма</b> може забезпечити стандартизоване надходження заявки; обов’язкові поля допомагають зібрати номер торговельної точки, код товару, кількість і бажану дату постачання, однак надходження форми не означає автоматичного погодження заявки. Потрібна перевірка наявності товару, коректності даних і можливості доставки; якщо кожне повторне надсилання створює новий запис, команда має передбачити правило виявлення дублювання та спосіб оновлення чинної заявки.</p><p>Належний результат спільної роботи можна перевірити за відтворюваністю. Інший працівник повинен зрозуміти структуру файла, знайти потрібне замовлення, визначити відповідального і повторити розрахунок без усних пояснень автора. Для цього потрібні коротка інструкція, словник полів та погоджені статуси. Перевірка зрозумілості правил для нового учасника допомагає виявити неочевидні припущення автора.</p></div></details><details class="acc"><summary><span>Картка: дія, відповідальний, строк, критерій</span><span class="arrow">▶</span></summary><div class="acc-body"><p><b>Картка завдання</b> описує дію, яку можна завершити та перевірити. «Поліпшити логістику» є напрямом, але не конкретним робочим завданням. «Уточнити погоджену дату доставки замовлення 310 та внести підтвердження до реєстру» має визначений результат. Для контролю потрібні відповідальний, строк і критерій готовності; якщо дія залежить від відповіді партнера, корисно відрізняти активну роботу від очікування. Інакше картка довго залишається у стані «виконується», хоча працівник не може просунути її без зовнішньої події. Видимість залежності дозволяє керівникові організувати допомогу та правильно оцінити причину затримки.</p></div></details><details class="acc"><summary><span>Строк завдання і строк замовлення</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Строк завдання і строк виконання замовлення можуть не збігатися; для доставки у п’ятницю перевірка наявності та погодження транспорту мають відбутися раніше. Координація включає послідовність залежностей, а не лише кінцеву дату; якщо комплектування триває дві години, а транспорт виїжджає о десятій, завершення погодження о дев’ятій тридцять уже створює ризик. Простий план показує, яка дія відкриває можливість наступної. У спільному середовищі такі переходи варто робити явними. Це допомагає відрізняти локальну своєчасність від своєчасності всього процесу: один підрозділ може виконати власний строк, але загальна доставка все одно запізниться.</p></div></details><details class="acc"><summary><span>Обов’язкові факти і дані для уточнення</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Стандартизована форма зменшує неоднозначність первинного звернення, але потребує продуманих полів; обов’язковість кожної клітинки не завжди підвищує якість. Якщо працівник не знає певної відповіді, він може ввести довільне значення лише для відправлення форми; краще розрізняти обов’язкові факти та дані, які уточнюються пізніше. Потрібне також зрозуміле підтвердження отримання, що не створює враження остаточного погодження. Для повторного звернення корисно зазначати номер початкової заявки. Тоді команда може пов’язати виправлення з чинною операцією, а не створювати другу доставку за тим самим запитом. Структура форми повинна підтримувати подальший процес оброблення.</p></div></details>
+      </article>
+
+      <article class="block" data-kind="sim" id="s4-6">
+        <header class="block-head"><span class="block-no">4.6</span><div><span class="kind"></span><h3>Картка завдання: перевірювана дія чи лише напрям?</h3></div></header>
+        <div id="clsTask"></div><div class="sim-log" id="clsTaskScore">Оцініть кожне формулювання.</div>
+      </article>
+
+      <div class="group-label" data-g="C" data-title="Винятки, резервний журнал і оцінювання"><b>C</b>Винятки, резервний журнал і оцінювання</div>
+
+      <article class="block" data-kind="theory" id="s4-7">
+        <header class="block-head"><span class="block-no">4.7</span><div><span class="kind"></span><h3>Зрілість видно за винятками</h3></div></header>
+        <details class="acc" open><summary><span>Часткова поставка, зміна, збій</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Зрілість спільної роботи видно за тим, як команда опрацьовує винятки. Звичайна заявка може пройти процес без труднощів навіть у неорганізованому середовищі. Часткова поставка, зміна після погодження або тимчасовий збій показують, чи визначені відповідальність і правила. Якщо учасники можуть встановити чинний стан, знайти джерело та продовжити роботу, система організована належно.</p><p>Цей порядок дозволяє передати роботу іншому працівникові без втрати домовленостей і без повторного збирання відомостей. Назви сервісів та інтерфейси змінюються, але потреба в унікальних об’єктах, прозорих статусах, належному доступі й перевірюваних рішеннях залишається. Це робить навички спільної роботи придатними для різних підприємств і програмних середовищ.</p></div></details><details class="acc"><summary><span>Резервний журнал під час недоступності</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Під час недоступності спільного реєстру команда може продовжувати фіксувати окремі операції в <b>резервному журналі</b>. Для такого журналу потрібні тимчасовий унікальний номер, час, автор і позначка режиму роботи; після відновлення дані переносять за визначеним порядком. Якщо кожний працівник самостійно вставить власний список, можливі дублікати та суперечливі оновлення. Відповідальний за узгодження перевіряє, чи не була операція вже внесена іншим каналом. Завершення перенесення повинно мати підтвердження, а резервний журнал зберігають як джерело перевірки до закриття відповідного періоду; лише після звіряння команда повертається до одного чинного реєстру.</p></div></details><details class="acc"><summary><span>Конфлікт двох записів</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Конфлікт двох записів потребує перевірки фактичної події; якщо один працівник записав відвантаження двадцяти одиниць, а інший – вісімнадцяти, середнє значення дев’ятнадцять не є способом узгодження. Потрібні підтвердження комплектації, документ передачі або інше належне джерело; час запису також не гарантує правильності: пізніше повідомлення може повторювати давню помилку. Після встановлення факту виправляють чинний реєстр і пояснюють причину. Корисно зберігати відомості про відхилений запис, якщо це потрібно для простежуваності. Узгодження означає відновлення спільної картини процесу, а не механічне вибирання останнього числа.</p></div></details><details class="acc"><summary><span>Узгоджений результат для всіх ролей</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Завершення прикладу передбачає, що магазин, склад і диспетчер бачать узгоджений результат. Склад підтверджує відвантаження, магазин – отримання та стан, а диспетчер – завершення доставки; невиконаний або повернений обсяг має окремий погоджений подальший стан. Для керівника це дозволяє відрізнити нестачу погодженого товару від пошкодження під час виконання.</p><p>Для наступної заявки важливо знати, чи незадоволена потреба ще чинна. Таким чином, спільний реєстр підтримує і поточну дію, і подальший аналіз; він не зводиться до архіву повідомлень. У ньому факти пов’язані з об’єктами, ролями та часом. Саме такий зв’язок робить можливими контроль підсумків, передачу зміни й відповідальне повідомлення покупцеві або партнеру.</p></div></details>
+      </article>
+
+      <article class="block" data-kind="sim" id="s4-8">
+        <header class="block-head"><span class="block-no">4.8</span><div><span class="kind"></span><h3>Два записи: 20 чи 18 відвантажених одиниць?</h3></div></header>
+        <p class="lede">Один працівник записав відвантаження 20 одиниць, інший — 18. Як узгодити реєстр?</p><div class="btnrow" id="cfBtns"><button class="btn ghost small" data-m="0">Взяти середнє — 19</button><button class="btn ghost small" data-m="1">Залишити останній запис</button><button class="btn ghost small" data-m="2">Перевірити документ передачі</button></div><div class="sim-log" id="cfOut">Оберіть спосіб узгодження.</div>
+      </article>
+
+      <article class="block" data-kind="theory" id="s4-9">
+        <header class="block-head"><span class="block-no">4.9</span><div><span class="kind"></span><h3>Показники спільної роботи</h3></div></header>
+        <details class="acc" open><summary><span>Тривалість переходів між станами</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Оцінювання координації може включати тривалість переходів між станами; якщо заявка довго очікує уточнення, проблема може бути в неповних первинних даних. Якщо погоджена заявка довго не переходить до комплектування, потрібен аналіз ресурсів складу. Якщо відвантаження своєчасне, а отримання пізнє, перевіряють транспортну частину та підтвердження; загальний час не завжди показує, де виникає затримка.</p><p>Фіксація основних подій дозволяє розкласти його на складові без припущень за одним кінцевим числом. Водночас дані повинні надходити вчасно: запізніле внесення статусу може виглядати як реальна затримка операції. Тому потрібно відрізняти час фактичної події та час запису, якщо це суттєво для аналізу. Ця відмінність пов’язує культуру введення з якістю управлінських висновків.</p></div></details><details class="acc"><summary><span>Показники завершеного процесу</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Показники спільної роботи повинні характеризувати завершений процес; час погодження заявки вимірюють від визначеної початкової події до визначеного завершення. Частку повернених заявок рахують від усіх отриманих за відповідний період, указуючи причину повернення. Якщо частка зменшилася, потрібно з’ясувати, чи поліпшилася якість введення, чи команда перестала реєструвати помилки. Кількість повідомлень або відкриттів файла сама по собі не доводить користі; надмірне листування може бути ознакою неоднозначних правил. Оцінювання має показувати, чи стало менше повторного введення, чи швидше з’являється підтверджений результат і чи легше передавати роботу між ролями.</p></div></details><details class="acc"><summary><span>Сорок заявок і вісім повернень</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Припустімо, за тиждень надійшло сорок заявок, із яких вісім повернули для уточнення. Частка повернення становить 8 / 40 × 100 = 20 відсотків; після впорядкування довідників надійшло п’ятдесят заявок і п’ять повернули. Нова частка дорівнює 10 відсотків; абсолютна кількість повернень зменшилася на три, а частка – на десять відсоткових пунктів. Проте для висновку потрібно перевірити, чи однаково складними були заявки та чи збереглися правила обліку. Якщо другий тиждень містив лише прості повторні замовлення, поліпшення не можна повністю приписати новій таблиці. Числа стають доказом лише разом із контекстом.</p></div></details><details class="acc"><summary><span>Відтворюваність результату</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Спільне середовище можна оцінювати через здатність іншого працівника відтворити результат. Він має знайти замовлення, прочитати погоджений стан, установити джерело ціни та зрозуміти наступну дію. Якщо для цього необхідно телефонувати автору кожної колонки, структура ще недостатньо прозора; відтворюваність не означає довгу інструкцію до кожної клітинки. Часто достатньо послідовних назв, словника полів, кількох пояснених винятків і зрозумілих статусів. Саме така організація дозволяє команді працювати швидше без втрати контролю. Вона поєднує технічні можливості редактора з професійною культурою фіксації, перевірки та передачі інформації.</p></div></details>
+      </article>
+
+      <article class="block" data-kind="sim" id="s4-10">
+        <header class="block-head"><span class="block-no">4.10</span><div><span class="kind"></span><h3>Калькулятор: частка повернених заявок</h3></div></header>
+        <div class="calc"><label class="field">Тиждень 1 · заявок<input type="number" id="r1n" value="40" min="1"></label><label class="field">Тиждень 1 · повернено<input type="number" id="r1r" value="8" min="0"></label><label class="field">Тиждень 2 · заявок<input type="number" id="r2n" value="50" min="1"></label><label class="field">Тиждень 2 · повернено<input type="number" id="r2r" value="5" min="0"></label></div><div class="result-box" id="rrOut"></div>
+      </article>
+
+      <div class="takeaway" id="s4-end"><div class="tk-icon">✓</div><div><span class="tk-label">Висновок лекції</span><p>Спільна робота завершується тоді, коли всі учасники однаково розуміють поточний стан і подальші зобов’язання. Якщо дві одиниці залишаються недопоставленими, у реєстрі та повідомленні має бути однакове рішення щодо їх довезення, заміни або скасування. Цілісність процесу підтримують структура даних, розподіл прав, збереження змін і конкретні повідомлення; разом вони дозволяють передавати роботу між підрозділами без повторного збирання відомостей.</p></div></div>
+
+    </div>
+  </section>
+
+  <!-- ================= PRACTICE ================= -->
+  <section class="panel plain" id="practice">
+    <header class="sec-head">
+      <div class="sec-idx">✓</div>
+      <div>
+        <span class="sec-kicker">Практика</span>
+        <h2>Практика: ситуаційні кейси</h2>
+        <p class="lede">Прочитайте ситуацію, запишіть власну відповідь, а потім відкрийте розбір. Кожен кейс спирається на конкретний фрагмент лекції.</p>
+      </div>
+    </header>
+    <div class="sec-main"><div id="caseList"></div></div>
+  </section>
+
+  <!-- ================= QUIZ ================= -->
+  <section class="panel plain" id="quiz">
+    <header class="sec-head">
+      <div class="sec-idx">?</div>
+      <div>
+        <span class="sec-kicker">Самоперевірка</span>
+        <h2>Тест для самоперевірки</h2>
+        <p class="lede">Оберіть відповідь: правильна підсвітиться, а під питанням з'явиться пояснення.</p>
+      </div>
+    </header>
+    <div class="sec-main">
+      <div id="quizContainer"></div>
+      <div id="quizScoreBar"><span>Результат: <span id="quizScore">0 / 0</span></span><button class="btn small" id="quizReset" type="button">⟲ Пройти знову</button></div>
+    </div>
+  </section>
+
+  <!-- ================= REF ================= -->
+  <section class="panel plain" id="ref">
+    <header class="sec-head">
+      <div class="sec-idx">Aa</div>
+      <div>
+        <span class="sec-kicker">Довідка</span>
+        <h2>Глосарій лекції</h2>
+      </div>
+    </header>
+    <div class="sec-main"><dl class="gloss" id="glossList"></dl></div>
+  </section>
+
+  <footer>STEAM-HUB · ПУЕТ — інтерактивний конспект · Лекція 2 «Інформаційні технології спільної роботи з даними»</footer>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const fmt = (n, d=0) => Number(n).toLocaleString('uk-UA', {minimumFractionDigits:d, maximumFractionDigits:d});
+
+/* ---------- theme ---------- */
+const root = document.documentElement;
+function curTheme(){ const t = root.getAttribute('data-theme'); if(t) return t; return matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; }
+function paintThemeBtn(){ $('#themeBtn').textContent = curTheme()==='dark' ? '☀ Світла тема' : '☾ Темна тема'; }
+try{ const s = localStorage.getItem('lec02-theme'); if(s) root.setAttribute('data-theme', s); }catch(e){}
+$('#themeBtn').addEventListener('click', ()=>{
+  const next = curTheme()==='dark' ? 'light' : 'dark';
+  root.setAttribute('data-theme', next);
+  try{ localStorage.setItem('lec02-theme', next); }catch(e){}
+  paintThemeBtn();
+});
+paintThemeBtn();
+
+/* ---------- tabs ---------- */
+function openTab(id, scroll=true){
+  if(!document.getElementById(id)) return;
+  $$('#tabsNav button').forEach(b=>b.classList.toggle('active', b.dataset.t===id));
+  $$('section.panel').forEach(p=>p.classList.toggle('active', p.id===id));
+  // keep the active tab visible in the horizontally scrolling tab bar, start the section contents from the beginning
+  const tabs = $('#tabsNav'), act = tabs.querySelector('button.active');
+  if(act) tabs.scrollTo({left: Math.max(0, act.offsetLeft - 12), behavior:'auto'});
+  const toc = document.getElementById(id).querySelector('.toc-list'); if(toc){ toc.scrollLeft = 0; toc.parentElement.scrollTop = 0; }
+  if(scroll){
+    // jump to the start of the new section (its header right under the sticky tabs), wherever the reader was
+    const panel = document.getElementById(id), nav = $('#tabsNav');
+    const y = panel.getBoundingClientRect().top + window.scrollY - nav.offsetHeight - 22;
+    window.scrollTo({top: Math.max(0, y), behavior:'auto'});
+  }
+}
+$$('#tabsNav button').forEach(b=>b.addEventListener('click', ()=>openTab(b.dataset.t)));
+$$('[data-go]').forEach(c=>c.addEventListener('click', ()=>openTab(c.dataset.go)));
+if(location.hash) openTab(location.hash.slice(1), false);
+
+/* toggle group helper */
+function group(sel, fn){
+  const btns = $$(sel);
+  btns.forEach(b=>b.addEventListener('click', ()=>{
+    btns.forEach(x=>{ x.classList.remove('active'); x.classList.add('ghost'); });
+    b.classList.add('active'); b.classList.remove('ghost'); fn(b);
+  }));
+}
+
+/* ---------- mind maps: nodes are pushed away from the cursor, threads follow ---------- */
+const MM = (()=>{
+  const MAX = 15, K = 0.13, DAMP = 0.74, PAD = 6;
+  const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const active = new Set(); let running = false;
+  function parse(svg){
+    const nodes = [...svg.querySelectorAll('.mm-node')].map(g=>{
+      const r = g.querySelector('rect');
+      const b = {x:+r.getAttribute('x'), y:+r.getAttribute('y'), w:+r.getAttribute('width'), h:+r.getAttribute('height')};
+      return {g, b, cx:b.x+b.w/2, cy:b.y+b.h/2, x:0, y:0, vx:0, vy:0, tx:0, ty:0};
+    });
+    const byId = {}; nodes.forEach(n=>byId[n.g.dataset.id] = n);
+    const links = [...svg.querySelectorAll('.mm-link')].map(p=>({p, a:byId[p.dataset.a], b:byId[p.dataset.b], c:p.dataset.p.trim().split(/[\s,]+/).map(Number)}));
+    svg._mm = {nodes, links};
+    render(svg);
+  }
+  function render(svg){
+    const {nodes, links} = svg._mm;
+    nodes.forEach(n=>n.g.setAttribute('transform', `translate(${n.x.toFixed(2)} ${n.y.toFixed(2)})`));
+    links.forEach(l=>{
+      const ax = l.a ? l.a.x : 0, ay = l.a ? l.a.y : 0, bx = l.b ? l.b.x : 0, by = l.b ? l.b.y : 0, [x1,y1,x2,y2] = l.c;
+      // control point lags behind the ends, so the thread bends like a string
+      const qx = (x1+x2)/2 + (ax+bx)*0.15, qy = (y1+y2)/2 + (ay+by)*0.15;
+      l.p.setAttribute('d', `M${(x1+ax).toFixed(2)},${(y1+ay).toFixed(2)} Q${qx.toFixed(2)},${qy.toFixed(2)} ${(x2+bx).toFixed(2)},${(y2+by).toFixed(2)}`);
+    });
+  }
+  function toSvg(svg, e){ const m = svg.getScreenCTM(); return m ? new DOMPoint(e.clientX, e.clientY).matrixTransform(m.inverse()) : null; }
+  function onMove(e){
+    const svg = e.currentTarget, pt = toSvg(svg, e); if(!svg._mm || !pt) return;
+    svg._mm.nodes.forEach(n=>{
+      const inside = pt.x > n.b.x-PAD && pt.x < n.b.x+n.b.w+PAD && pt.y > n.b.y-PAD && pt.y < n.b.y+n.b.h+PAD;
+      if(inside){
+        // vector from the cursor to the node centre: cursor on the left → node goes right, etc.
+        const nx = (n.cx-pt.x)/(n.b.w/2), ny = (n.cy-pt.y)/(n.b.h/2), len = Math.hypot(nx, ny) || 1, f = Math.min(1, len) * MAX / len;
+        n.tx = nx*f; n.ty = ny*f;
+      } else { n.tx = 0; n.ty = 0; }
+      n.g.classList.toggle('mm-hot', inside);
+    });
+    kick(svg);
+  }
+  function onLeave(e){ const svg = e.currentTarget; if(!svg._mm) return; svg._mm.nodes.forEach(n=>{ n.tx = 0; n.ty = 0; n.g.classList.remove('mm-hot'); }); kick(svg); }
+  function kick(svg){ active.add(svg); if(!running){ running = true; requestAnimationFrame(step); } }
+  function step(){
+    active.forEach(svg=>{
+      let moving = false;
+      svg._mm.nodes.forEach(n=>{
+        n.vx = (n.vx + (n.tx-n.x)*K) * DAMP; n.vy = (n.vy + (n.ty-n.y)*K) * DAMP; n.x += n.vx; n.y += n.vy;
+        if(Math.abs(n.tx-n.x) + Math.abs(n.ty-n.y) + Math.abs(n.vx) + Math.abs(n.vy) > 0.04) moving = true; else { n.x = n.tx; n.y = n.ty; n.vx = n.vy = 0; }
+      });
+      render(svg);
+      if(!moving) active.delete(svg);
+    });
+    if(active.size) requestAnimationFrame(step); else running = false;
+  }
+  function attach(svg){
+    if(!svg) return; parse(svg);
+    if(still || svg._mmBound) return; svg._mmBound = true;
+    svg.addEventListener('pointermove', onMove); svg.addEventListener('pointerleave', onLeave);
+  }
+  return {attach};
+})();
+$$('svg.mm').forEach(MM.attach);
+
+/* ---------- chart helpers (lectures 2–5) ---------- */
+const pct = (a, b, d=2) => b ? fmt(a/b*100, d) : '—';
+function vbars(el, o){
+  const W = o.w||640, H = o.h||300, pl = o.pl||56, pr = 16, pt = 28, pb = o.pb||44, min = o.min||0, max = o.max;
+  const iw = W-pl-pr, ih = H-pt-pb, gs = o.groups, gw = iw/gs.length;
+  const y = v => pt + ih - (Math.max(min, Math.min(max, v)) - min) / (max - min) * ih;
+  let s = '', k = 0;
+  (o.ticks||[]).forEach(t=>{ s += `<line class="grid-l" x1="${pl}" x2="${W-pr}" y1="${y(t)}" y2="${y(t)}"/><text class="axt" x="${pl-8}" y="${y(t)+4}" text-anchor="end">${o.tf ? o.tf(t) : fmt(t)}</text>`; });
+  gs.forEach((g, gi)=>{
+    const nb = g.bars.length, bw = Math.min(o.bw||58, (gw*0.72 - (nb-1)*6)/nb), x0 = pl + gi*gw + (gw - bw*nb - (nb-1)*6)/2;
+    g.bars.forEach((b, bi)=>{
+      const x = x0 + bi*(bw+6), yy = y(b.v), hh = Math.max(0, pt+ih-yy);
+      s += `<rect data-i="${k++}" class="${b.cls||'b-blue'}" x="${x.toFixed(1)}" y="${yy.toFixed(1)}" width="${bw.toFixed(1)}" height="${hh.toFixed(1)}" rx="5"/>`;
+      if(b.lab !== undefined) s += `<text class="vlab" x="${(x+bw/2).toFixed(1)}" y="${(yy-8).toFixed(1)}" text-anchor="middle">${b.lab}</text>`;
+    });
+    s += `<text class="axt" x="${pl+gi*gw+gw/2}" y="${H-pb+21}" text-anchor="middle" style="font-size:12.5px;fill:var(--ink)">${g.l}</text>`;
+  });
+  s += `<line class="ax" x1="${pl}" x2="${W-pr}" y1="${pt+ih}" y2="${pt+ih}"/><line class="ax" x1="${pl}" x2="${pl}" y1="${pt-6}" y2="${pt+ih}"/>`;
+  if(min > 0) s += `<path class="brk" d="M${pl-9},${pt+ih-14} l9,-5 l9,5 M${pl-9},${pt+ih-6} l9,-5 l9,5"/>`;
+  if(o.target !== undefined){ const ty = y(o.target); s += `<line class="tgt" x1="${pl}" x2="${W-pr}" y1="${ty}" y2="${ty}"/><text class="tgt-t" x="${W-pr}" y="${ty-7}" text-anchor="end">${o.targetLab||''}</text>`; }
+  el.setAttribute('viewBox', `0 0 ${W} ${H}`); el.innerHTML = s;
+}
+function hbars(el, o){
+  const W = o.w||640, rh = o.rh||46, pl = o.pl||130, pr = o.pr||150, pt = 14, H = pt + o.rows.length*rh + 26, iw = W-pl-pr, max = o.max;
+  const x = v => pl + Math.max(0, Math.min(max, v))/max*iw;
+  let s = '';
+  o.rows.forEach((r, i)=>{
+    const yy = pt + i*rh + 8, bh = rh - 18;
+    s += `<text class="wf-tb" x="${pl-12}" y="${yy+bh/2+5}" text-anchor="end"${r.dim ? ' opacity=".45"' : ''}>${r.l}</text>`;
+    s += `<rect class="wf-bar" x="${pl}" y="${yy}" width="${iw}" height="${bh}" rx="6"/>`;
+    s += `<rect data-i="${i}" class="${r.dim ? 'b-dim' : (r.cls||'b-blue')}" x="${pl}" y="${yy}" width="${(x(r.v)-pl).toFixed(1)}" height="${bh}" rx="6"/>`;
+    s += `<text class="vlab" x="${W-pr+12}" y="${yy+bh/2+5}"${r.dim ? ' opacity=".45"' : ''}>${r.lab}</text>`;
+  });
+  if(o.target !== undefined){ const tx = x(o.target); s += `<line class="tgt" x1="${tx}" x2="${tx}" y1="${pt}" y2="${H-22}"/><text class="tgt-t" x="${tx}" y="${H-6}" text-anchor="middle">${o.targetLab||''}</text>`; }
+  el.setAttribute('viewBox', `0 0 ${W} ${H}`); el.innerHTML = s;
+}
+function classifier(boxSel, scoreSel, cats, items){
+  const box = $(boxSel); let done = 0, right = 0;
+  items.sort(()=>Math.random()-.5).forEach(it=>{
+    const d = document.createElement('div'); d.className = 'cls-item';
+    d.innerHTML = `<div class="txt">${it.t}</div><div class="opts">${cats.map((c,ci)=>`<button class="btn ghost small" type="button" data-c="${ci}">${c}</button>`).join('')}</div><div class="fb" hidden></div>`;
+    d.querySelectorAll('button').forEach(b=>b.addEventListener('click', ()=>{
+      if(d.dataset.done) return; d.dataset.done = 1; done++;
+      const ok = +b.dataset.c === it.c; if(ok) right++;
+      d.classList.add(ok ? 'right' : 'wrong');
+      d.querySelectorAll('button').forEach(x=>{ x.disabled = true; if(+x.dataset.c===it.c) x.classList.add('active'); });
+      const fb = d.querySelector('.fb'); fb.hidden = false; fb.textContent = (ok ? '✅ ' : '❌ Правильно: «'+cats[it.c]+'». ') + it.e;
+      $(scoreSel).textContent = `Виконано ${done} / ${items.length} · правильно ${right}` + (done===items.length ? (right===items.length ? ' · Чудово, усе правильно!' : ' · Перегляньте пояснення до помилок.') : '');
+    }));
+    box.appendChild(d);
+  });
+}
+function seg(sel, fn){ group(sel, fn); const first = $$(sel).find(b=>b.classList.contains('active')) || $$(sel)[0]; if(first) fn(first); }
+function checks(boxSel, fn){
+  const box = $(boxSel); const upd = ()=>{ box.querySelectorAll('.chk').forEach(l=>l.classList.toggle('on', l.querySelector('input').checked)); fn([...box.querySelectorAll('input')].map(i=>i.checked)); };
+  box.addEventListener('change', upd); upd();
+}
+function inputs(ids, fn){ ids.forEach(i=>$('#'+i).addEventListener('input', fn)); fn(); }
+const val = id => +$('#'+id).value || 0;
+const kvHtml = rows => `<div class="kv" style="margin:0">${rows.map(r=>`<div><div class="l">${r[0]}</div><div class="v ${r[2]||'blue'}">${r[1]}</div></div>`).join('')}</div>`;
+
+/* ================= СИМУЛЯТОРИ ЛЕКЦІЇ ================= */
+
+/* S1: реєстр */
+const regModes = [
+  {kv:[['ПЕРЕНЕСЕНЬ ВРУЧНУ','3 листи → 3 переписування','red'],['ЧИННА РЕДАКЦІЯ','невідома','red'],['ЗМІНА ПІСЛЯ ПОГОДЖЕННЯ','губиться в пошті','red']], p:'Склад переносить кожну заявку у власну таблицю, уточнює назви товарів і з’ясовує, чи не надіслано нову редакцію. Зміни можуть не дійти до інших працівників.'},
+  {kv:[['ПЕРЕНЕСЕНЬ ВРУЧНУ','0','ok'],['ЧИННА РЕДАКЦІЯ','остання цифра в клітинці','red'],['ЗМІНА ПІСЛЯ ПОГОДЖЕННЯ','непомітна','red']], p:'Спільність файла без правил навіть збільшує ризик: відредаговане значення може непомітно замінити те, за яким уже почали комплектування.'},
+  {kv:[['ПЕРЕНЕСЕНЬ ВРУЧНУ','0','ok'],['ЧИННА РЕДАКЦІЯ','ідентифікатор + статус','ok'],['ЗМІНА ПІСЛЯ ПОГОДЖЕННЯ','помітна подія для складу','ok']], p:'Заявки мають ідентифікатори та встановлений порядок зміни. Узгоджене середовище робить зміну керованою, а не просто технічно можливою.'}
+];
+seg('#regBtns button', b=>{ const m = regModes[+b.dataset.m]; $('#regOut').innerHTML = kvHtml(m.kv) + `<p style="margin:12px 0 0">${m.p}</p>`; });
+
+/* S1: заявка 204 */
+const reqSt = [
+  {r:[['ЗАПИТАНО','24 од.'],['ПОГОДЖЕНО','—'],['СТАТУС','Отримано'],['ПІДСТАВА ДЛЯ КОМПЛЕКТУВАННЯ','немає','red']], p:'Магазин указує свій код, код товару, одиницю вимірювання й бажаний день. Запис означає <b>потребу</b>, а не підтверджене постачання.'},
+  {r:[['ЗАПИТАНО','24 од.'],['ПОГОДЖЕНО','18 од.','ok'],['СТАТУС','Погоджено'],['НЕПОГОДЖЕНО','6 од.','red']], p:'Склад перевірив доступний запас і погодив 18. Менеджер бачить, що 6 одиниць не погоджені, і може уточнити, чи прийнятна часткова поставка.'},
+  {r:[['ЗАПИТАНО','24 од.'],['ПОГОДЖЕНО','18 од.','ok'],['СТАТУС','Планується доставка'],['ДИСПЕТЧЕР ПЛАНУЄ','18 од.','ok']], p:'Диспетчер отримує заявку лише після погодження. Початкові дані ніхто не переписує — кожна роль додає власне підтвердження.'},
+  {r:[['ЗАПИТАНО','30 од.','red'],['ПОГОДЖЕНО','18 од.'],['СТАТУС','Планується доставка'],['ДИСПЕТЧЕР ПЛАНУЄ','18 од.']], p:'❌ Працівник просто замінив 24 на 30. Склад може не помітити зміни, а диспетчер плануватиме 18. Історія потреби втрачена, нове зобов’язання виникло непомітно.'},
+  {r:[['ПОГОДЖЕНО (ЧИННЕ)','18 од.','ok'],['НОВА ПОТРЕБА','30 од. · на перевірці'],['ДОДАТКОВО','12 од. · не погоджені','red'],['СТАТУС ЗМІНИ','Очікує складу']], p:'✅ Погоджена кількість збережена, нова потреба позначена як зміна для перевірки. Додаткові 12 одиниць не стають погодженими автоматично, початковий план може залишитися чинним.'}
+];
+seg('#reqBtns button', b=>{ const s = reqSt[+b.dataset.i]; $('#reqOut').innerHTML = kvHtml(s.r) + `<p style="margin:12px 0 0">${s.p}</p>`; });
+
+/* S2: складений ключ */
+const keyRows = [['310','1','Пляшка 750 мл','2'],['310','2','Кришка з різьбою','4'],['310','2','Кришка з різьбою','4'],['310','3','Чохол','1'],['311','1','Пляшка 750 мл','6']];
+seg('#keyBtns button', b=>{
+  const k = +b.dataset.k, seen = new Set(), keep = keyRows.map(r=>{ const key = k===1 ? r[0] : r[0]+'/'+r[1]; if(!k) return true; if(seen.has(key)) return false; seen.add(key); return true; });
+  $('#keyTbl').innerHTML = `<div class="table-wrap"><table><thead><tr><th>№ замовлення</th><th>№ позиції</th><th>Товар</th><th class="num">Кількість</th><th>Результат</th></tr></thead><tbody>${keyRows.map((r,i)=>{
+    const legit = i!==2, gone = !keep[i];
+    const tag = gone ? (legit ? '<span class="pill red">видалено законний рядок</span>' : '<span class="pill ok">видалено повтор</span>') : (legit ? '' : '<span class="pill olive">технічний дубль</span>');
+    return `<tr style="${gone ? 'text-decoration:line-through;opacity:.55' : ''}"><td class="mono">${r[0]}</td><td class="mono">${r[1]}</td><td>${r[2]}</td><td class="num">${r[3]}</td><td style="text-decoration:none">${tag}</td></tr>`; }).join('')}</tbody></table></div>`;
+  const lost = keep.filter((x,i)=>!x && i!==2).length;
+  $('#keyOut').innerHTML = k===0 ? 'Повтор поєднання <b>310 / 2</b> потребує пояснення, а повтор номера 310 — нормальний: замовлення має три позиції.'
+    : k===1 ? `❌ Правило «унікальний № замовлення» знищило <b>${lost}</b> законні позиції. Автоматичне видалення без визначеної одиниці спостереження шкодить даним.`
+    : '✅ Поєднання номера замовлення і номера позиції однозначно визначає запис: прибрано лише технічний повтор.';
+});
+
+/* S2: порожні значення */
+const nullData = [['Центр',2],['Північ',0],['Південь',3],['Захід',null],['Схід',1],['Поділ',null]];
+seg('#nullBtns button', b=>{
+  const z = +b.dataset.m===1, vals = nullData.map(d=>d[1]===null ? (z ? 0 : null) : d[1]);
+  const used = vals.filter(v=>v!==null), avg = used.reduce((a,c)=>a+c,0)/used.length;
+  vbars($('#nullChart'), {w:640, h:250, max:4, ticks:[0,1,2,3,4], groups:nullData.map((d,i)=>({l:d[0], bars:[{v:vals[i]===null?0:vals[i], cls: d[1]===null ? 'b-red' : 'b-blue', lab: d[1]===null ? (z ? '0 ?' : 'немає') : d[1]}]}))});
+  $('#nullOut').innerHTML = kvHtml([['СЕРЕДНЄ ПОВЕРНЕНЬ', fmt(avg,2), z ? 'red' : 'ok'],['У РОЗРАХУНКУ', used.length + ' з 6'],['ПОЗА РОЗРАХУНКОМ', z ? '0 — приховано' : '2 магазини', z ? 'red' : 'blue']])
+    + `<p style="margin:12px 0 0">${z ? '❌ Порожні клітинки стали нулями: середнє знизилося з 1,50 до 1,00 і створило ілюзію кращого результату. Звіт уже не показує, що двох записів немає.' : '✅ Середнє рахується за підтвердженими записами, а звіт окремо показує, що 2 магазини залишилися поза розрахунком через неповні дані.'}</p>`;
+});
+
+/* S2: з'єднання таблиць */
+const posRows = [['310','1','Пляшка 750 мл',240],['310','2','Кришка з різьбою',360],['310','3','Чохол',500]];
+seg('#joinBtns button', b=>{
+  const j = +b.dataset.m===1, rows = j ? posRows.flatMap(r=>[[...r,'Д-1'],[...r,'Д-2']]) : posRows.map(r=>[...r,'']);
+  const sum = rows.reduce((a,r)=>a+r[3],0);
+  $('#joinTbl').innerHTML = `<div class="table-wrap"><table><thead><tr><th>№</th><th>Поз.</th><th>Товар</th><th class="num">Сума, грн</th>${j?'<th>Запис доставки</th>':''}</tr></thead><tbody>${rows.map(r=>`<tr><td class="mono">${r[0]}</td><td class="mono">${r[1]}</td><td>${r[2]}</td><td class="num">${fmt(r[3])}</td>${j?`<td class="mono">${r[4]}</td>`:''}</tr>`).join('')}</tbody></table></div>`;
+  $('#joinOut').innerHTML = kvHtml([['РЯДКІВ', rows.length, j?'red':'blue'],['ЗАМОВЛЕНЬ (УНІКАЛЬНИХ №)', '1', 'ok'],['СУМА', fmt(sum)+' грн', j?'red':'ok']])
+    + `<p style="margin:12px 0 0">${j ? '❌ Кожна позиція повторилася для двох записів доставки — підсумок подвоївся до 2 200 грн. Помилку видно до побудови звіту, якщо розуміти рівні даних.' : 'Три рядки, але одне замовлення: 240 + 360 + 500 = 1 100 грн. Додавання ще одного рядка цього замовлення збільшить кількість позицій, а не покупців.'}</p>`;
+});
+
+/* S2: три рівні кількості */
+inputs(['qReq','qApp','qRec'], ()=>{
+  const a = val('qReq'), p = val('qApp'), r = val('qRec'), mx = Math.max(a,p,r,1);
+  const top = Math.ceil(mx/6)*6, tk = [0, top/3, top*2/3, top].map(Math.round);
+  vbars($('#qChart'), {w:520, h:290, max:top, ticks:tk, bw:90, groups:[{l:'Запитано', bars:[{v:a, cls:'b-soft', lab:a}]},{l:'Погоджено', bars:[{v:p, cls:'b-blue', lab:p}]},{l:'Отримано', bars:[{v:r, cls:'b-ok', lab:r}]}]});
+  const notes = [];
+  if(p > a) notes.push('Погоджено більше, ніж запитано — потрібне пояснення.');
+  if(r > p) notes.push('Отримано більше погодженого — перевірте документ передачі.');
+  $('#qOut').innerHTML = `<div class="kv" style="margin:0;grid-template-columns:1fr 1fr">
+    <div><div class="l">ВИКОНАННЯ ПОГОДЖЕНОГО</div><div class="v ok">${pct(r,p)} %</div><div class="k">${r} / ${p} × 100</div></div>
+    <div><div class="l">ЗАБЕЗПЕЧЕНІСТЬ ПОТРЕБИ</div><div class="v blue">${pct(r,a)} %</div><div class="k">${r} / ${a} × 100</div></div>
+    <div><div class="l">НЕЗАДОВОЛЕНА ПОТРЕБА</div><div class="v red">${Math.max(0,a-p)} од.</div><div class="k">запитано − погоджено</div></div>
+    <div><div class="l">НЕВИКОНАНЕ ПОГОДЖЕНЕ</div><div class="v red">${Math.max(0,p-r)} од.</div><div class="k">погоджено − отримано</div></div></div>
+    <p style="margin:12px 0 0">Перший показник характеризує виконання зобов’язання складу, другий — задоволення заявленої потреби магазину.${notes.length ? ' <b>'+notes.join(' ')+'</b>' : ''}</p>`;
+});
+
+/* S3: доступ */
+classifier('#clsAccess', '#clsAccessScore', ['Перегляд','Коментування','Редагування','Окремий витяг'], [
+  {t:'Керівник перевіряє результат реєстру без зміни рядків', c:0, e:'Для контролю результату достатньо перегляду.'},
+  {t:'Учасник погодження залишає зауваження до заявки № 204', c:1, e:'Коментар фіксує питання до конкретного фрагмента.'},
+  {t:'Комірник підтверджує фактичну наявність у своїх полях', c:2, e:'Виконавець вносить дані відповідно до ролі.'},
+  {t:'Зовнішній перевізник виконує три доставки', c:3, e:'Навіть перегляд усього реєстру відкриє зайві закупівельні ціни — потрібен витяг з мінімальним набором полів.'},
+  {t:'Менеджер магазину вносить потребу й підтверджує приймання', c:2, e:'Магазин відповідає за поля потреби та приймання.'},
+  {t:'Постачальник має уточнити дату поставки до конкретного рядка', c:1, e:'Достатньо можливості коментувати без права змінювати дані.'},
+  {t:'Аналітик переглядає завершений період для звіту', c:0, e:'Для аналізу без зміни даних — перегляд.'}
+]);
+
+/* S3: паралельне редагування */
+const parSt = [
+  {kv:[['10:05 · МЕНЕДЖЕР','10 → 15'],['10:05 · КОМІРНИК','підтверджує 10'],['У КЛІТИНЦІ','15 (останнє збереження)','red'],['ПЕРЕВІРЕНО ДОДАТКОВІ 5?','ні','red']], p:'❌ Клітинку змінено останньою, але це не погодження. Склад комплектуватиме 10 або 15 — залежно від того, хто коли відкрив файл.'},
+  {kv:[['ЗАПИТАНО','15 (зміна менеджера)'],['ПОГОДЖЕНО','10 (комірник)','ok'],['СТАТУС ПЕРЕВІРКИ','5 од. очікують','red'],['ПІДСТАВА ДЛЯ КОМПЛЕКТУВАННЯ','10 од.','ok']], p:'✅ Обидві дії збережено у своїх полях. Час правки допомагає відтворити подію, а право прийняти рішення визначається роллю та процедурою.'}
+];
+seg('#parBtns button', b=>{ const s = parSt[+b.dataset.m]; $('#parOut').innerHTML = kvHtml(s.kv) + `<p style="margin:12px 0 0">${s.p}</p>`; });
+
+/* S3: відновлення */
+const rstSt = [
+  {kv:[['ФОРМУЛИ','відновлено','ok'],['НОВІ ЗАЯВКИ 11:30','втрачено 2','red'],['ПОВІДОМИТИ','магазини, склад, доставку','red']], p:'Повернення цілого документа — найпростіша технічна дія, але вона прибирає пізніші правильні записи інших учасників. Їх доведеться відтворювати.'},
+  {kv:[['ФОРМУЛИ','відновлено','ok'],['НОВІ ЗАЯВКИ 11:30','збережено 2','ok'],['ПОВІДОМИТИ','одержувачів помилкового звіту','blue']], p:'Після аналізу залежностей відновлено лише пошкоджений фрагмент. Але звіт із нульовою вартістю міг уже піти керівникові — похідний документ теж треба оновити.'}
+];
+seg('#rstBtns button', b=>{ const s = rstSt[+b.dataset.m]; $('#rstOut').innerHTML = kvHtml(s.kv) + `<p style="margin:12px 0 0">${s.p}</p>`; });
+
+/* S4: повідомлення */
+const msgParts = ['За заявкою № 204', 'прийнято 16 із 18 погоджених одиниць', 'потрібне рішення щодо двох відсутніх: довезення, заміна або скасування', 'Складу:', 'Відповідь потрібна до 15:00.', 'Покупець: вул. Соборна, 12, кв. 4, тел. +380 67 000 00 00.'];
+checks('#msgBox', on=>{
+  let t = (on[3] ? msgParts[3] + ' ' : '');
+  const body = [on[0] ? msgParts[0] : '', on[1] ? msgParts[1] : '', on[2] ? msgParts[2] : ''].filter(Boolean);
+  t += body.length ? body.join(on[0] && on[1] ? '; ' : ' — ').replace(/^За заявкою № 204; /, 'За заявкою № 204 ') + '.' : 'Терміново перевірте доставку!';
+  if(on[4]) t += ' ' + msgParts[4];
+  if(on[5]) t += '\n' + msgParts[5];
+  $('#msgPrev').textContent = t.replace(/^(.)/, c=>c.toUpperCase());
+  const score = (on[0]?30:0) + (on[1]?25:0) + (on[2]?25:0) + (on[3]?10:0) + (on[4]?10:0) - (on[5]?35:0);
+  const m = $('#msgMeter'); m.querySelector('i').style.width = Math.max(4, score) + '%'; m.classList.toggle('bad', score < 60 || on[5]);
+  const miss = [!on[0]&&'номер операції', !on[1]&&'фактичний стан', !on[2]&&'потрібну дію'].filter(Boolean);
+  $('#msgOut').innerHTML = on[5] ? '❌ Клієнтські дані в чаті зайві: достатньо номера операції, а контекст доступний у погодженому ресурсі.'
+    : miss.length ? `Бракує: <b>${miss.join(', ')}</b>. Адресат не зможе діяти без додаткового уточнення.` : '✅ Повідомлення містить об’єкт, фактичний стан і потрібну дію — адресат може діяти одразу.';
+});
+
+/* S4: картки */
+classifier('#clsTask', '#clsTaskScore', ['Перевірювана дія','Лише напрям'], [
+  {t:'Поліпшити логістику', c:1, e:'Це напрям: немає результату, відповідального і критерію готовності.'},
+  {t:'Уточнити погоджену дату доставки замовлення 310 та внести підтвердження до реєстру', c:0, e:'Визначений об’єкт, дія і результат.'},
+  {t:'Покращити комунікацію зі складом', c:1, e:'Не можна перевірити, коли завдання завершене.'},
+  {t:'Звірити 2 відсутні одиниці заявки № 204 з документом передачі до 12:00', c:0, e:'Є об’єкт, строк і перевірюваний результат.'},
+  {t:'Працювати уважніше з довідником', c:1, e:'Загальний заклик, а не дія.'},
+  {t:'Додати код товару в заявку 204 за довідником і закрити коментар', c:0, e:'Результат перевіряється закриттям коментаря.'}
+]);
+
+/* S4: конфлікт записів */
+const cfFb = ['❌ Середнє 19 не відповідає жодній реальній події. Узгодження — це встановлення факту, а не арифметика.',
+  '❌ Час запису не гарантує правильності: пізніше повідомлення може повторювати давню помилку.',
+  '✅ Потрібне належне джерело: підтвердження комплектації або документ передачі. Після встановлення факту виправляють реєстр, пояснюють причину і за потреби зберігають відомості про відхилений запис.'];
+$$('#cfBtns button').forEach(b=>b.addEventListener('click', ()=>{ $$('#cfBtns button').forEach(x=>{x.classList.add('ghost'); x.classList.remove('active');}); b.classList.remove('ghost'); b.classList.add('active'); $('#cfOut').innerHTML = cfFb[+b.dataset.m]; }));
+
+/* S4: частка повернень */
+inputs(['r1n','r1r','r2n','r2r'], ()=>{
+  const s1 = val('r1r')/Math.max(1,val('r1n'))*100, s2 = val('r2r')/Math.max(1,val('r2n'))*100, d = s2 - s1;
+  $('#rrOut').innerHTML = kvHtml([['ЧАСТКА · ТИЖДЕНЬ 1', fmt(s1,2)+' %'],['ЧАСТКА · ТИЖДЕНЬ 2', fmt(s2,2)+' %'],['ЗМІНА КІЛЬКОСТІ', (val('r2r')-val('r1r')>0?'+':'')+(val('r2r')-val('r1r'))+' заявок'],['ЗМІНА ЧАСТКИ', (d>0?'+':'')+fmt(d,2)+' в. п.', d>0?'red':'ok']])
+    + `<p style="margin:12px 0 0">Відносно початкової частки це ${s1 ? (d>0?'зростання':'зменшення')+' на '+fmt(Math.abs(d)/s1*100,1)+' %' : '—'}. <b>Відсоткові пункти і відсотки — різні величини.</b> Для висновку перевірте, чи однаково складними були заявки та чи збереглися правила обліку.</p>`;
+});
+
+
+/* ---------- practice cases ---------- */
+const cases = [{"t": "Нова потреба після погодження", "q": "Склад погодив 18 одиниць із запитаних 24, диспетчер уже планує рейс. Менеджер магазину відкриває реєстр і замінює 24 на 30. Що не так?", "a": "Технічна правка непомітно перетворюється на нове зобов’язання. Погоджену кількість потрібно зберегти, а нову потребу 30 позначити як зміну для перевірки: додаткові 12 одиниць не стають погодженими автоматично, склад має з’ясувати доступність, а диспетчер — можливість доставки."}, {"t": "Перевізник і повний реєстр", "q": "Перевізнику надали право перегляду всього реєстру замовлень, «щоб нічого не зламав». Чи достатньо цього обмеження?", "a": "Ні. Обмеження редагування не приховує видимі дані: перевізник побачить закупівельні ціни й усі клієнтські звернення. Потрібен окремий погоджений витяг лише з полями та операціями, необхідними для його доставок, а після завершення співпраці доступ переглядають."}, {"t": "Пошкоджені формули", "q": "О 12:00 виявили, що з 11:00 формули вартості показують нуль. Працівник пропонує відновити весь файл до версії 10:00. Як діяти?", "a": "Спочатку встановлюють масштаб: який фрагмент пошкоджено і які нові записи з’явилися після останнього правильного стану. Відновлення всієї версії прибере чинні заявки, внесені пізніше. Часто доцільно повернути лише формули, зберегти нові операції та оновити похідні звіти, які вже отримали помилкові значення."}, {"t": "Середнє з двох записів", "q": "У реєстрі одночасно з’явилися записи про відвантаження 20 і 18 одиниць. Бригадир пропонує записати 19 «як компроміс». Ваша оцінка?", "a": "Середнє не є способом узгодження: потрібна перевірка фактичної події за підтвердженням комплектації або документом передачі. Час запису також не гарантує правильності. Після встановлення факту виправляють реєстр і пояснюють причину."}, {"t": "Нулі замість порожніх клітинок", "q": "Щоб формула середнього «не ламалася», аналітик замінив усі порожні клітинки в полі «Повернення» нулями. Які наслідки?", "a": "Порожня клітинка означає, що дані ще не внесено, а нуль — що повернень не було. Заміна зменшує середнє і створює ілюзію кращого результату. Потрібен явний стан перевірки для незавершених записів і показ у звіті кількості випадків поза розрахунком."}, {"t": "«Це вже відправили»", "q": "У робочому чаті склад пише: «Це вже відправили». Диспетчер не впевнений, про яке замовлення йдеться. Як переписати повідомлення?", "a": "Повідомлення має містити об’єкт, фактичний стан і потрібну дію, наприклад: «За заявкою № 204 відвантажено 16 із 18 погоджених одиниць о 14:20; потрібне рішення щодо двох відсутніх». Повну адресу покупця в чат не переносять — достатньо номера операції та посилання на погоджений ресурс."}];
+$('#caseList').innerHTML = cases.map((c,i)=>`<div class="quiz-q"><h4><span class="idx" style="margin-right:8px">К${i+1}</span>${c.t}</h4><p>${c.q}</p>
+  <label class="field" for="case${i}">Ваша відповідь<textarea id="case${i}" rows="3" style="font-family:var(--f-body);font-size:15px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg-panel);color:var(--ink);width:100%"></textarea></label>
+  <div class="btnrow"><button class="btn ghost small" type="button" data-case="${i}">Показати розбір</button></div>
+  <div class="callout ok" id="caseA${i}" hidden><b>Розбір.</b> ${c.a}</div></div>`).join('');
+$$('[data-case]').forEach(b=>b.addEventListener('click', ()=>{ const el = $('#caseA'+b.dataset.case); el.hidden = !el.hidden; b.textContent = el.hidden ? 'Показати розбір' : 'Сховати розбір'; }));
+
+/* ---------- quiz ---------- */
+const quiz = [{"q": "Що означає модель SaaS?", "o": ["Оренда серверів", "Готовий застосунок як послуга", "Середовище для розроблення програм", "Локальне встановлення програми"], "c": 1, "e": "SaaS — «програмне забезпечення як послуга»: користувач працює з готовим застосунком."}, {"q": "Локальний файл Excel надіслали п’ятьом працівникам. Чи стало це спільним середовищем?", "o": ["Так, усі мають той самий файл", "Ні: потрібні спільне сховище, режим спільної роботи й доступ учасників", "Так, якщо файл має пароль", "Так, якщо всі працюють одночасно"], "c": 1, "e": "Кожен отримав власну копію; зміни не доходять до інших."}, {"q": "Чим синхронізація відрізняється від резервного копіювання?", "o": ["Нічим", "Синхронізація підтримує узгоджені копії, але може поширити помилкове видалення", "Синхронізація завжди зберігає всі версії", "Резервне копіювання працює лише офлайн"], "c": 1, "e": "Синхронізацію не слід автоматично вважати незалежним резервом."}, {"q": "Реєстр містить рядки позицій. Замовлення 310 має 3 позиції. Скільки замовлень?", "o": ["3", "1", "0", "Залежить від суми"], "c": 1, "e": "Номер повторюється на рівні позицій; рахують унікальні номери."}, {"q": "Який ключ однозначно визначає рядок позиції?", "o": ["Номер замовлення", "Назва товару", "Номер замовлення + номер позиції", "Сума рядка"], "c": 2, "e": "Складений ключ: повтор 310 нормальний, повтор 310/2 потребує пояснення."}, {"q": "Чому в клітинку краще не вводити «1200 грн»?", "o": ["Це некрасиво", "Число перетвориться на текст і завадить розрахунку", "Гривня не підтримується", "Так довше вводити"], "c": 1, "e": "Значення відокремлюють від оформлення."}, {"q": "Що означає порожня клітинка в полі «Повернення»?", "o": ["Повернень не було", "Показник ще не внесено", "Помилку формули", "Повернення скасовано"], "c": 1, "e": "Нуль — встановлений факт, порожньо — відсутність запису."}, {"q": "Погоджено 18, отримано 16. Частка виконання погодженого обсягу?", "o": ["66,67 %", "88,89 %", "75 %", "112,5 %"], "c": 1, "e": "16 / 18 × 100 ≈ 88,89 %."}, {"q": "Запитано 24, отримано 16. Забезпеченість потреби?", "o": ["66,67 %", "88,89 %", "150 %", "33,33 %"], "c": 0, "e": "16 / 24 × 100 ≈ 66,67 % — відповідь на інше питання, ніж виконання погодженого."}, {"q": "Яка роль у Google Таблицях дозволяє залишати зауваження без зміни даних?", "o": ["Переглядач", "Коментатор", "Редактор", "Власник"], "c": 1, "e": "Учасникові погодження достатньо можливості коментувати."}, {"q": "Захист діапазону в таблиці…", "o": ["Шифрує дані", "Приховує їх від усіх", "Обмежує редагування, але не забезпечує конфіденційності", "Замінює права доступу до файла"], "c": 2, "e": "Користувач із доступом усе одно бачить дані."}, {"q": "Чим ризиковане відновлення попередньої версії всього файла?", "o": ["Нічим", "Може прибрати пізніші правильні правки інших учасників", "Видаляє історію версій", "Змінює власника файла"], "c": 1, "e": "Спочатку встановлюють масштаб помилки і переносять лише потрібні значення."}, {"q": "Частка повернень зменшилася з 20 % до 10 %. Як правильно назвати зміну?", "o": ["На 10 %", "На 10 відсоткових пунктів", "На 50 відсоткових пунктів", "На 2 рази більше"], "c": 1, "e": "Різниця часток — у відсоткових пунктах; відносне зменшення — 50 %."}];
+let score = 0, answered = new Set();
+function buildQuiz(){
+  score = 0; answered = new Set();
+  $('#quizContainer').innerHTML = quiz.map((it,qi)=>`<div class="quiz-q"><h4>${qi+1}. ${it.q}</h4>${it.o.map((o,oi)=>`<button class="opt" type="button" data-q="${qi}" data-o="${oi}">${o}</button>`).join('')}<div class="quiz-fb" id="fb-${qi}" hidden></div></div>`).join('');
+  $('#quizScore').textContent = `0 / ${quiz.length}`;
+}
+$('#quizContainer').addEventListener('click', e=>{
+  const t = e.target.closest('.opt'); if(!t) return;
+  const qi = +t.dataset.q, oi = +t.dataset.o; if(answered.has(qi)) return; answered.add(qi);
+  $$(`.opt[data-q="${qi}"]`).forEach(o=>{ o.disabled = true; if(+o.dataset.o===quiz[qi].c) o.classList.add('correct'); else if(+o.dataset.o===oi) o.classList.add('wrong'); });
+  const ok = oi===quiz[qi].c; if(ok) score++;
+  const fb = $('#fb-'+qi); fb.hidden = false; fb.innerHTML = (ok ? '✅ <b>Правильно.</b> ' : '❌ <b>Не зовсім.</b> ') + quiz[qi].e;
+  $('#quizScore').textContent = `${score} / ${quiz.length}` + (answered.size===quiz.length ? ` · ${Math.round(score/quiz.length*100)}%` : '');
+});
+$('#quizReset').addEventListener('click', buildQuiz);
+buildQuiz();
+
+/* ---------- glossary ---------- */
+const gloss = [["Хмарні технології", "Використання віддалених обчислювальних ресурсів через мережу."], ["SaaS / PaaS / IaaS", "Готовий застосунок / середовище розроблення / обчислювальна інфраструктура як послуга."], ["Спільне робоче середовище", "Узгоджений ресурс із правилами зберігання, відповідальністю за поля та порядком передавання роботи."], ["Синхронізація", "Підтримання узгоджених копій на кількох пристроях; не є незалежним резервом."], ["Офлайн-режим", "Робота без зв’язку з подальшою синхронізацією; не усуває ризику конфліктних змін."], ["Власник ресурсу", "Роль, що керує налаштуваннями; відповідальність за зміст може бути розподілена."], ["Рівень деталізації", "Визначений зміст одного рядка таблиці: замовлення, позиція, рейс."], ["Складений ключ", "Поєднання полів, що однозначно визначає запис (№ замовлення + № позиції)."], ["Словник даних", "Опис поля: зміст, тип, допустимі значення, обов’язковість, відповідальна роль."], ["Перевірка даних", "Обмеження введення правилами: список статусів, діапазон значень."], ["Розрахункова колонка", "Значення, яке обчислює формула, а не вводить людина."], ["Контрольні підсумки", "Кількість записів, суми та унікальні значення, які звіряють до і після операції."], ["Статус", "Значення з погодженого списку, що відповідає перевірюваній події."], ["Запитана / погоджена / отримана кількість", "Потреба магазину / зобов’язання складу / підтверджений результат."], ["Переглядач / коментатор / редактор", "Рівні доступу: читання / зауваження / зміна даних."], ["Історія версій", "Збережені стани документа з можливістю повернення."], ["Захист діапазону", "Обмеження редагування клітинок; не є шифруванням."], ["Поділ відповідальності", "Підготовку і погодження важливої зміни виконують різні ролі."], ["Журнал важливих змін", "Записи з номером операції, часом, автором і причиною зміни."], ["Асинхронна робота", "Учасники виконують свої частини в різний час; потрібні самодостатні записи."], ["Картка завдання", "Дія з номером операції, відповідальним, строком і критерієм завершення."], ["Резервний журнал", "Тимчасовий запис операцій під час недоступності реєстру з подальшим звірянням."], ["Відсотковий пункт", "Різниця між двома частками, вираженими у відсотках."]];
+$('#glossList').innerHTML = gloss.map(g=>`<div><dt>${g[0]}</dt><dd>${g[1]}</dd></div>`).join('');
+
+/* ---------- section contents, meta, scroll-spy, reading progress ---------- */
+const plural = (n, f) => f[(n%10===1 && n%100!==11) ? 0 : (n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20)) ? 1 : 2];
+const spyLinks = new Map();
+$$('section.panel').forEach(p=>{
+  const blocks = [...p.querySelectorAll('article.block')];
+  const groups = p.querySelectorAll('.group-label').length;
+  const meta = p.querySelector('.sec-meta');
+  if(meta && blocks.length){
+    const sims = blocks.filter(b=>b.dataset.kind==='sim').length;
+    meta.innerHTML = `<span><b>${blocks.length}</b> ${plural(blocks.length,['блок','блоки','блоків'])}</span>`
+      + (groups ? `<span><b>${groups}</b> ${plural(groups,['тематична група','тематичні групи','тематичних груп'])}</span>` : '')
+      + (sims ? `<span><b>${sims}</b> ${plural(sims,['симулятор','симулятори','симуляторів'])}</span>` : '');
+  }
+  const toc = p.querySelector('.toc-list'); if(!toc) return;
+  const link = (el, no, title, kind)=>{
+    const a = document.createElement('a'); a.href = '#'+el.id; a.dataset.kind = kind;
+    a.innerHTML = `<span class="toc-no">${no}</span><span>${title}</span>`;
+    a.addEventListener('click', e=>{ e.preventDefault(); el.scrollIntoView({behavior:'smooth', block:'start'}); });
+    toc.appendChild(a); spyLinks.set(el, a);
+  };
+  p.querySelectorAll('.group-label, article.block').forEach(el=>{
+    if(el.classList.contains('group-label')){
+      const g = document.createElement('div'); g.className = 'toc-group';
+      g.innerHTML = `<i>${el.dataset.g}</i>${el.dataset.title}`; toc.appendChild(g); return;
+    }
+    link(el, el.querySelector('.block-no').textContent, el.querySelector('h3').textContent, el.dataset.kind);
+  });
+  const tk = p.querySelector('.takeaway');
+  if(tk) link(tk, '✓', tk.querySelector('.tk-label').textContent, 'end');
+  const legend = document.createElement('div'); legend.className = 'toc-legend';
+  legend.innerHTML = '<span style="--k:var(--blue)">теорія</span><span style="--k:var(--sim)">симулятор</span><span style="--k:var(--ok)">схема</span><span style="--k:var(--ink-soft)">поглиблення</span>';
+  toc.parentElement.appendChild(legend);
+});
+const spy = new IntersectionObserver(entries=>{
+  entries.forEach(en=>{
+    if(!en.isIntersecting) return;
+    const a = spyLinks.get(en.target); if(!a) return;
+    const list = a.parentElement;
+    list.querySelectorAll('a').forEach(x=>x.classList.toggle('on', x===a));
+    if(list.scrollWidth > list.clientWidth + 4) list.scrollTo({left: a.offsetLeft - 12, behavior:'smooth'});
+    else if(list.parentElement.scrollHeight > list.parentElement.clientHeight + 4){
+      const box = list.parentElement, top = a.offsetTop - box.clientHeight/2;
+      box.scrollTo({top, behavior:'smooth'});
+    }
+  });
+}, {rootMargin:'-30% 0px -60% 0px'});
+spyLinks.forEach((a, el)=>spy.observe(el));
+
+const navProg = $('#navProgress');
+function updProgress(){ const max = document.documentElement.scrollHeight - innerHeight; navProg.style.width = (max > 0 ? Math.min(100, scrollY/max*100) : 0) + '%'; }
+addEventListener('scroll', updProgress, {passive:true});
+addEventListener('resize', updProgress);
+$$('#tabsNav button, [data-go]').forEach(b=>b.addEventListener('click', ()=>setTimeout(updProgress, 60)));
+updProgress();
+
+/* ---------- static explanation cards → 3D flip cards (topic in front, explanation behind) ---------- */
+$$('.sec-main .card').forEach(card=>{
+  if(card.matches('a.card, .src-card') || card.closest('.kv')) return;
+  const h = card.querySelector(':scope > h4'); if(!h) return;
+  const lvl = card.querySelector(':scope > .lvl-n');
+  const idx = [...card.parentElement.children].indexOf(card) + 1;
+  const title = h.innerHTML, plain = h.textContent;
+  h.remove(); if(lvl) lvl.remove();
+  const f = document.createElement('div');
+  f.className = 'fcard' + (lvl ? ' lvl' : '');
+  f.tabIndex = 0; f.setAttribute('role', 'button'); f.setAttribute('aria-pressed', 'false');
+  f.innerHTML = `<div class="fcard-inner"><div class="fcard-face front">${lvl ? `<span class="lvl-n">${lvl.textContent}</span><span class="fnum">Рівень ${lvl.textContent}</span>` : `<span class="fnum">${String(idx).padStart(2,'0')}</span>`}<h4>${title}</h4><span class="fhint">↻ натисніть, щоб перевернути</span></div>`
+    + `<div class="fcard-face back"><span class="fback-t">${plain}</span><div>${card.innerHTML.trim()}</div></div></div>`;
+  card.replaceWith(f);
+});
+function flipCard(f){ f.classList.toggle('flipped'); f.setAttribute('aria-pressed', f.classList.contains('flipped')); }
+document.addEventListener('click', e=>{ const f = e.target.closest('.fcard'); if(f) flipCard(f); });
+document.addEventListener('keydown', e=>{ if((e.key==='Enter' || e.key===' ') && e.target.classList && e.target.classList.contains('fcard')){ e.preventDefault(); flipCard(e.target); } });
+
+/* ---------- scroll reveal: blocks, cards, lists, diagrams, charts ---------- */
+function clearLater(el){ (el._rvT || []).forEach(clearTimeout); el._rvT = []; }
+function later(el, fn, ms){ (el._rvT = el._rvT || []).push(setTimeout(fn, ms)); }
+function resetLinks(svg){ svg.querySelectorAll('.mm-link').forEach(p=>{ p.style.strokeDasharray = ''; p.style.strokeDashoffset = ''; p.style.transition = ''; p.style.markerEnd = ''; }); }
+function mmReveal(svg){
+  clearLater(svg);
+  svg.classList.remove('mm-wait', 'mm-anim'); svg.getBoundingClientRect(); svg.classList.add('mm-anim');
+  svg.querySelectorAll('.mm-in').forEach((g,i)=>g.style.setProperty('--i', i));
+  svg.querySelectorAll('.mm-link').forEach((p,i)=>{
+    const L = p.getTotalLength();
+    p.style.transition = 'none'; p.style.markerEnd = 'none';   // arrowhead appears when the line is drawn
+    p.style.strokeDasharray = L; p.style.strokeDashoffset = L; p.getBoundingClientRect();
+    p.style.transition = `stroke-dashoffset .9s cubic-bezier(.6,0,.2,1) ${0.3 + i*0.12}s`; p.style.strokeDashoffset = '0';
+    later(svg, ()=>{ p.style.markerEnd = ''; }, (1.15 + i*0.12) * 1000);
+  });
+  later(svg, ()=>{ svg.classList.remove('mm-anim'); resetLinks(svg); }, 2800);
+}
+function mmReset(svg){ clearLater(svg); svg.classList.remove('mm-anim'); svg.classList.add('mm-wait'); resetLinks(svg); }
+function chartReveal(svg){
+  clearLater(svg);
+  svg.classList.remove('ch-wait', 'ch-anim'); svg.getBoundingClientRect(); svg.classList.add('ch-anim');
+  svg.querySelectorAll('rect[data-i], .sv-res, .sv-avail').forEach((r,i)=>r.style.setProperty('--i', i));
+  later(svg, ()=>svg.classList.remove('ch-anim'), 2000);
+}
+function chartReset(svg){ clearLater(svg); svg.classList.remove('ch-anim'); svg.classList.add('ch-wait'); }
+
+/* Animations replay every time: an element resets once it is fully off screen
+   (or its section is closed) and plays again when it comes back into view. */
+if(!matchMedia('(prefers-reduced-motion: reduce)').matches && 'IntersectionObserver' in window){
+  const set = new Set($$('.sec-main > *'));
+  const staggered = $$('.fcard, .points > .point, .checklist > li, .io > *, .steps > .step, .gloss > div, .cls-item, .plan-card, .quiz-q');
+  staggered.forEach(el=>set.add(el));
+  set.forEach(el=>{
+    el.classList.add('rv');
+    if(staggered.includes(el)){ const sib = [...el.parentElement.children]; el.style.setProperty('--i', Math.min(sib.indexOf(el), 8)); }
+  });
+  // show when noticeably inside the viewport, hide only when completely outside — no flicker at the edges
+  const rvIn = new IntersectionObserver(es=>es.forEach(en=>{ if(en.isIntersecting) en.target.classList.add('in'); }), {threshold:0.06, rootMargin:'0px 0px -6% 0px'});
+  const rvOut = new IntersectionObserver(es=>es.forEach(en=>{
+    if(en.isIntersecting) return;
+    en.target.classList.remove('in');
+    en.target.classList.toggle('from-top', en.boundingClientRect.top < 0);   // left upwards → comes back from above
+  }), {threshold:0});
+  set.forEach(el=>{ rvIn.observe(el); rvOut.observe(el); });
+
+  const maps = $$('svg.mm, svg.flow'), charts = $$('svg.chart');
+  maps.forEach(x=>x.classList.add('mm-wait')); charts.forEach(x=>x.classList.add('ch-wait', 'ch-svg'));
+  const svgIn = new IntersectionObserver(es=>es.forEach(en=>{
+    const x = en.target; if(!en.isIntersecting || x._shown) return; x._shown = true;
+    x.classList.contains('ch-svg') ? chartReveal(x) : mmReveal(x);
+  }), {threshold:0.3});
+  const svgOut = new IntersectionObserver(es=>es.forEach(en=>{
+    const x = en.target; if(en.isIntersecting || !x._shown) return; x._shown = false;
+    x.classList.contains('ch-svg') ? chartReset(x) : mmReset(x);
+  }), {threshold:0});
+  [...maps, ...charts].forEach(x=>{ svgIn.observe(x); svgOut.observe(x); });
+}
+</script>
+</body></html>

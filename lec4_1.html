@@ -1,0 +1,1348 @@
+<!DOCTYPE html><html lang="uk"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"><style>body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+<title>Підготовка даних і візуалізація</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;600;700;800&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* Layout: HUD-панель → hero → липкі вкладки → одна активна панель-розділ.
+   Усередині розділу: шапка → зміст (праворуч / згори на мобільних) → тематичні групи → нумеровані блоки → висновок. */
+:root{
+  --bg:#f2f4fa; --bg-panel:#ffffff; --bg-soft:#f5f7fc; --grid:rgba(36,71,184,.05); --grid-dot:rgba(36,71,184,.13);
+  --ink:#10142b; --ink-soft:#5b6283; --on-ink:#ffffff;
+  --blue:#3d6cf0; --blue-deep:#2447b8; --blue-bright:#5b8cff;
+  --red:#e0405a; --olive:#d99a00; --olive-ink:#946800; --ok:#0d9b8a; --sim:#e8731c;
+  --core:#1b2559; --core-2:#2b3f8f;
+  --line:#e1e5f1; --line-strong:#cdd3e6; --nav-bg:rgba(255,255,255,.82);
+  --tint-blue:rgba(61,108,240,.08); --tint-red:rgba(224,64,90,.08); --tint-olive:rgba(217,154,0,.1); --tint-ok:rgba(13,155,138,.1); --tint-sim:rgba(232,115,28,.09);
+  --glow-1:rgba(61,108,240,.10); --glow-2:rgba(13,155,138,.07);
+  --shadow:0 1px 2px rgba(16,20,43,.04), 0 8px 26px rgba(16,20,43,.06);
+  --shadow-lg:0 2px 6px rgba(16,20,43,.05), 0 24px 60px rgba(16,20,43,.12);
+  --radius:18px;
+  --hero-bg:radial-gradient(700px 380px at 88% -5%, rgba(61,108,240,.2), transparent 62%), radial-gradient(520px 320px at 5% 115%, rgba(13,155,138,.16), transparent 62%), linear-gradient(135deg, #ffffff 0%, #eef2ff 55%, #e6f5f2 100%);
+  --hero-border:#e1e5f1; --hero-ink:#10142b; --hero-grid:rgba(36,71,184,.07); --hero-num:rgba(36,71,184,.15);
+  --hero-h1:linear-gradient(92deg,#10142b 25%, #2447b8 70%, #0d9b8a); --hero-sub:#4f5675;
+  --hero-tag-c:#0b7f72; --hero-tag-bg:rgba(13,155,138,.08); --hero-tag-b:rgba(13,155,138,.35);
+  --hero-chip-bg:rgba(255,255,255,.75); --hero-chip-b:#dfe3f0; --hero-chip-c:#10142b; --hero-chip-n:#3d6cf0;
+  --f-display:'Unbounded', 'Segoe UI', system-ui, sans-serif;
+  --f-body:'Manrope', 'Segoe UI', system-ui, sans-serif;
+  --f-mono:'JetBrains Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#070a14; --bg-panel:#0e1328; --bg-soft:#141a35; --grid:rgba(120,145,255,.04); --grid-dot:rgba(140,165,255,.14);
+    --ink:#e8ecff; --ink-soft:#9aa3c8; --on-ink:#0b0f1f;
+    --blue:#5b8cff; --blue-deep:#9db8ff; --blue-bright:#7aa2ff;
+    --red:#ff6b81; --olive:#ffb84d; --olive-ink:#ffc46b; --ok:#2fd9bb; --sim:#ffa04d;
+    --core:#24326e; --core-2:#3550b0;
+    --line:#212947; --line-strong:#313b64; --nav-bg:rgba(14,19,40,.82);
+    --tint-blue:rgba(91,140,255,.13); --tint-red:rgba(255,107,129,.12); --tint-olive:rgba(255,184,77,.12); --tint-ok:rgba(47,217,187,.11); --tint-sim:rgba(255,160,77,.12);
+    --glow-1:rgba(91,140,255,.14); --glow-2:rgba(47,217,187,.06);
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
+    --shadow-lg:0 2px 6px rgba(0,0,0,.3), 0 26px 64px rgba(0,0,0,.5); color-scheme:dark;
+    --hero-bg:radial-gradient(700px 380px at 88% -5%, rgba(91,140,255,.5), transparent 62%), radial-gradient(520px 320px at 5% 115%, rgba(47,217,187,.3), transparent 62%), linear-gradient(135deg, #0c1331 0%, #15204f 55%, #0f2a46 100%);
+    --hero-border:rgba(255,255,255,.06); --hero-ink:#fff; --hero-grid:rgba(255,255,255,.05); --hero-num:rgba(255,255,255,.13);
+    --hero-h1:linear-gradient(92deg,#ffffff 25%, #b7cbff 70%, #8ff2dd); --hero-sub:rgba(232,238,255,.78);
+    --hero-tag-c:#9ff0e0; --hero-tag-bg:rgba(47,217,187,.1); --hero-tag-b:rgba(47,217,187,.38);
+    --hero-chip-bg:rgba(255,255,255,.07); --hero-chip-b:rgba(255,255,255,.16); --hero-chip-c:#dfe6ff; --hero-chip-n:#8ff2dd;
+  }
+}
+:root[data-theme="dark"]{
+  --hero-bg:radial-gradient(700px 380px at 88% -5%, rgba(91,140,255,.5), transparent 62%), radial-gradient(520px 320px at 5% 115%, rgba(47,217,187,.3), transparent 62%), linear-gradient(135deg, #0c1331 0%, #15204f 55%, #0f2a46 100%);
+  --hero-border:rgba(255,255,255,.06); --hero-ink:#fff; --hero-grid:rgba(255,255,255,.05); --hero-num:rgba(255,255,255,.13);
+  --hero-h1:linear-gradient(92deg,#ffffff 25%, #b7cbff 70%, #8ff2dd); --hero-sub:rgba(232,238,255,.78);
+  --hero-tag-c:#9ff0e0; --hero-tag-bg:rgba(47,217,187,.1); --hero-tag-b:rgba(47,217,187,.38);
+  --hero-chip-bg:rgba(255,255,255,.07); --hero-chip-b:rgba(255,255,255,.16); --hero-chip-c:#dfe6ff; --hero-chip-n:#8ff2dd;
+  --bg:#070a14; --bg-panel:#0e1328; --bg-soft:#141a35; --grid:rgba(120,145,255,.04); --grid-dot:rgba(140,165,255,.14);
+  --ink:#e8ecff; --ink-soft:#9aa3c8; --on-ink:#0b0f1f;
+  --blue:#5b8cff; --blue-deep:#9db8ff; --blue-bright:#7aa2ff;
+  --red:#ff6b81; --olive:#ffb84d; --olive-ink:#ffc46b; --ok:#2fd9bb; --sim:#ffa04d;
+  --core:#24326e; --core-2:#3550b0;
+  --line:#212947; --line-strong:#313b64; --nav-bg:rgba(14,19,40,.82);
+  --tint-blue:rgba(91,140,255,.13); --tint-red:rgba(255,107,129,.12); --tint-olive:rgba(255,184,77,.12); --tint-ok:rgba(47,217,187,.11); --tint-sim:rgba(255,160,77,.12);
+  --glow-1:rgba(91,140,255,.14); --glow-2:rgba(47,217,187,.06);
+  --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
+  --shadow-lg:0 2px 6px rgba(0,0,0,.3), 0 26px 64px rgba(0,0,0,.5); color-scheme:dark;
+}
+
+/* ---------- база ---------- */
+*{box-sizing:border-box;}
+body{
+  background:
+    radial-gradient(1100px 600px at 90% -10%, var(--glow-1), transparent 60%),
+    radial-gradient(900px 520px at -10% 5%, var(--glow-2), transparent 60%),
+    linear-gradient(var(--grid) 1px, transparent 1px) 0 0/40px 40px,
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px) 0 0/40px 40px,
+    var(--bg);
+  background-attachment:fixed;
+  color:var(--ink); font-family:var(--f-body); font-size:16px; line-height:1.68; min-height:100vh;
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;}
+body::before{content:""; position:fixed; inset:0 0 auto; height:env(safe-area-inset-top,0px); z-index:60; background:var(--bg);}
+::selection{background:var(--blue); color:#fff;}
+h1,h2,h3,h4{margin:0 0 .5em; text-wrap:balance; line-height:1.25;}
+h3,h4{font-family:var(--f-body); font-weight:800; letter-spacing:-.005em;}
+.mono,code{font-family:var(--f-mono);}
+p{margin:0 0 .8em;}
+b,strong{font-weight:700;}
+.frame{max-width:1240px; margin:0 auto; padding-block:18px 80px; padding-left:max(16px, env(safe-area-inset-left,0px)); padding-right:max(16px, env(safe-area-inset-right,0px));}
+
+/* ---------- HUD ---------- */
+.hud-bar{display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between; padding:9px 10px 9px 18px; background:var(--nav-bg);
+  backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+  border:1px solid var(--line); border-radius:14px; margin-bottom:14px; box-shadow:var(--shadow);
+  font-family:var(--f-mono); font-size:11.5px; letter-spacing:.04em; color:var(--ink-soft);}
+.hud-bar .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ok);margin-right:8px;box-shadow:0 0 0 3px var(--tint-ok);}
+.theme-btn{font-family:var(--f-body); font-weight:700; font-size:12.5px; background:var(--bg-soft); color:var(--ink); border:1px solid var(--line); border-radius:10px; padding:7px 13px; cursor:pointer; transition:.18s;}
+.theme-btn:hover{border-color:var(--blue); color:var(--blue-deep); background:var(--tint-blue);}
+
+/* ---------- HERO (світлий у світлій темі, темний у темній) ---------- */
+header.hero{position:relative; isolation:isolate; overflow:hidden; border-radius:26px; color:var(--hero-ink);
+  padding:clamp(28px,5vw,56px) clamp(20px,4.5vw,54px) clamp(26px,4.5vw,48px); margin-bottom:16px;
+  background:var(--hero-bg); border:1px solid var(--hero-border); box-shadow:var(--shadow-lg);}
+header.hero::before{content:""; position:absolute; inset:0; z-index:-1;
+  background:linear-gradient(var(--hero-grid) 1px, transparent 1px) 0 0/34px 34px,
+             linear-gradient(90deg, var(--hero-grid) 1px, transparent 1px) 0 0/34px 34px;
+  -webkit-mask-image:linear-gradient(105deg, transparent 20%, #000 75%); mask-image:linear-gradient(105deg, transparent 20%, #000 75%);}
+.hero-num{position:absolute; right:-12px; bottom:-0.28em; z-index:-1; font-family:var(--f-display); font-weight:800; line-height:1;
+  font-size:clamp(150px,25vw,300px); letter-spacing:-.06em; color:transparent; -webkit-text-stroke:1.5px var(--hero-num); user-select:none; pointer-events:none;}
+.hero-tag{display:inline-block; font-family:var(--f-mono); font-size:11.5px; letter-spacing:.14em;
+  color:var(--hero-tag-c); background:var(--hero-tag-bg); border:1px solid var(--hero-tag-b); padding:5px 13px; border-radius:20px; margin-bottom:20px;}
+header.hero h1{font-family:var(--f-display); font-size:clamp(24px,3.9vw,44px); font-weight:700; line-height:1.16; letter-spacing:-.015em; max-width:900px;
+  background:var(--hero-h1); -webkit-background-clip:text; background-clip:text; color:transparent;}
+header.hero p.sub{color:var(--hero-sub); max-width:760px; font-size:17.5px; margin:14px 0 26px; line-height:1.6;}
+.hero-meta{display:flex; flex-wrap:wrap; gap:10px;}
+.chip{background:var(--bg-soft); border:1px solid var(--line); border-radius:10px; padding:6px 12px; font-size:13px; color:var(--ink);}
+header.hero .chip{display:inline-flex; align-items:baseline; gap:8px; background:var(--hero-chip-bg); border-color:var(--hero-chip-b); color:var(--hero-chip-c);
+  backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); padding:9px 15px; border-radius:13px; font-size:14px; font-weight:600;}
+header.hero .chip b{font-family:var(--f-display); font-size:17px; color:var(--hero-chip-n);}
+
+/* ---------- вкладки ---------- */
+nav.tabs{position:sticky; top:calc(env(safe-area-inset-top,0px) + 8px); z-index:50; display:flex; gap:4px; overflow-x:auto; background:var(--nav-bg);
+  backdrop-filter:blur(14px) saturate(1.4); -webkit-backdrop-filter:blur(14px) saturate(1.4);
+  border:1px solid var(--line); border-radius:16px; padding:6px; margin-bottom:20px; box-shadow:var(--shadow); scrollbar-width:none;}
+nav.tabs::-webkit-scrollbar{display:none;}
+nav.tabs button{flex:0 0 auto; font-family:var(--f-body); font-weight:700; font-size:13.5px; background:transparent; color:var(--ink-soft);
+  border:1px solid transparent; padding:9px 15px; border-radius:11px; cursor:pointer; transition:.18s; white-space:nowrap;}
+nav.tabs button:hover{background:var(--bg-soft); color:var(--ink);}
+nav.tabs button.active{background:linear-gradient(135deg, var(--core), var(--core-2)); color:#fff; box-shadow:0 6px 16px rgba(27,37,89,.28);}
+.nav-progress{position:absolute; left:16px; right:16px; bottom:0; height:2px; border-radius:2px; overflow:hidden; pointer-events:none;}
+.nav-progress i{display:block; height:100%; width:0; background:linear-gradient(90deg, var(--blue), var(--ok)); transition:width .12s linear;}
+button:focus-visible, .opt:focus-visible, summary:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, a:focus-visible{outline:2px solid var(--blue-bright); outline-offset:2px;}
+
+/* ---------- панель-розділ ---------- */
+section.panel{display:none; margin-bottom:22px;}
+section.panel.active{display:grid; grid-template-columns:minmax(0,1fr) 262px; gap:20px 24px; align-items:start; animation:fadeIn .4s ease;}
+section.panel.plain.active{display:block;}
+@keyframes fadeIn{from{opacity:.3; transform:translateY(8px);} to{opacity:1; transform:none;}}
+.sec-head{grid-column:1 / -1; position:relative; overflow:hidden; display:grid; grid-template-columns:auto minmax(0,1fr); gap:clamp(14px,3vw,30px); align-items:start;
+  background:var(--bg-panel); border:1px solid var(--line); border-radius:22px; padding:clamp(20px,3.4vw,34px); box-shadow:var(--shadow);}
+section.panel.plain .sec-head{margin-bottom:18px;}
+.sec-head::after{content:""; position:absolute; right:-90px; top:-110px; width:300px; height:300px; border-radius:50%; background:radial-gradient(circle, var(--tint-blue), transparent 70%); pointer-events:none;}
+.sec-idx{font-family:var(--f-display); font-weight:800; font-size:clamp(42px,6.5vw,74px); line-height:.92; letter-spacing:-.05em;
+  background:linear-gradient(140deg, var(--blue), var(--ok)); -webkit-background-clip:text; background-clip:text; color:transparent; min-width:1.2em;}
+.sec-kicker{font-family:var(--f-mono); font-size:11.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--blue);}
+.sec-head h2{font-family:var(--f-display); font-weight:700; font-size:clamp(19px,2.4vw,26px); line-height:1.28; letter-spacing:-.01em; margin:8px 0 12px;}
+.sec-head .lede{margin:0; max-width:80ch;}
+.sec-meta{display:flex; flex-wrap:wrap; gap:8px; margin-top:16px;}
+.sec-meta:empty{display:none;}
+.sec-meta span{font-size:12.5px; font-weight:600; padding:5px 11px; border-radius:999px; background:var(--bg-soft); border:1px solid var(--line); color:var(--ink-soft);}
+.sec-meta span b{font-family:var(--f-display); color:var(--ink); margin-right:3px;}
+.sec-main{min-width:0; grid-column:1; grid-row:2;}
+.sec-head, .sec-toc{min-width:0;}
+@media(max-width:640px){ .sec-head{grid-template-columns:minmax(0,1fr); gap:4px;} }
+
+/* ---------- зміст розділу + scroll-spy ---------- */
+.sec-toc{grid-column:2; grid-row:2; position:sticky; top:84px; max-height:calc(100vh - 104px); overflow:auto; scrollbar-width:thin;
+  background:var(--bg-panel); border:1px solid var(--line); border-radius:18px; padding:16px 12px 14px; box-shadow:var(--shadow);}
+.toc-title{font-family:var(--f-mono); font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--ink-soft); padding:0 8px 6px;}
+.toc-list{display:flex; flex-direction:column; gap:1px;}
+.toc-group{font-size:11.5px; font-weight:800; color:var(--ink); padding:12px 8px 4px; display:flex; gap:8px; align-items:center;}
+.toc-group i{font-style:normal; font-family:var(--f-display); font-size:10.5px; color:#fff; background:var(--core); width:20px; height:20px; border-radius:6px; display:grid; place-items:center; flex:none;}
+.toc-list a{--k:var(--blue); --kt:var(--tint-blue); display:flex; gap:8px; padding:6px 8px; border-radius:9px; font-size:13px; line-height:1.38; color:var(--ink-soft); text-decoration:none; transition:.15s;}
+.toc-list a[data-kind="sim"]{--k:var(--sim); --kt:var(--tint-sim);}
+.toc-list a[data-kind="data"]{--k:var(--ok); --kt:var(--tint-ok);}
+.toc-list a[data-kind="extra"]{--k:var(--ink-soft); --kt:var(--bg-soft);}
+.toc-list a[data-kind="end"]{--k:var(--ok); --kt:var(--tint-ok); margin-top:8px; border-top:1px dashed var(--line); padding-top:10px; border-radius:0 0 9px 9px;}
+.toc-list a .toc-no{font-family:var(--f-mono); font-size:11px; font-weight:700; color:var(--k); min-width:30px; padding-top:1px;}
+.toc-list a:hover{background:var(--bg-soft); color:var(--ink);}
+.toc-list a.on{background:var(--kt); color:var(--ink); font-weight:700; box-shadow:inset 3px 0 0 var(--k);}
+.toc-legend{display:flex; flex-wrap:wrap; gap:6px 12px; margin:12px 8px 0; padding-top:12px; border-top:1px solid var(--line); font-size:11px; color:var(--ink-soft);}
+.toc-legend span::before{content:""; display:inline-block; width:8px; height:8px; border-radius:2px; margin-right:6px; background:var(--k);}
+@media(max-width:1020px){
+  section.panel.active{grid-template-columns:minmax(0,1fr);}
+  .sec-toc{grid-column:1; grid-row:auto; position:sticky; top:72px; z-index:40; max-height:none; overflow:visible; padding:8px; border-radius:14px; background:var(--nav-bg);
+    backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);}
+  .sec-main{grid-row:auto;}
+  .toc-title, .toc-group, .toc-legend{display:none;}
+  .toc-list{flex-direction:row; overflow-x:auto; gap:4px; scrollbar-width:none;}
+  .toc-list::-webkit-scrollbar{display:none;}
+  .toc-list a{flex:0 0 auto; white-space:nowrap; max-width:240px; overflow:hidden; text-overflow:ellipsis; border:1px solid var(--line); background:var(--bg-panel);}
+  .toc-list a[data-kind="end"]{margin-top:0; border-top:1px solid var(--line); padding-top:6px; border-radius:9px;}
+}
+
+/* ---------- тематичні групи ---------- */
+.group-label{display:flex; align-items:center; gap:12px; margin:30px 2px 14px; font-weight:800; font-size:13px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-soft);}
+.sec-main > .group-label:first-child{margin-top:4px;}
+.group-label b{font-family:var(--f-display); font-size:12.5px; color:#fff; background:linear-gradient(135deg,var(--core),var(--core-2)); width:30px; height:30px; border-radius:9px; display:grid; place-items:center; letter-spacing:0; flex:none;}
+.group-label::after{content:""; flex:1; height:1px; background:linear-gradient(90deg, var(--line-strong), transparent);}
+
+/* ---------- блоки ---------- */
+article.block{--k:var(--blue); --kt:var(--tint-blue); position:relative; background:var(--bg-panel); border:1px solid var(--line); border-radius:var(--radius);
+  padding:22px clamp(16px,2.6vw,28px) 24px; box-shadow:var(--shadow); margin-bottom:16px; scroll-margin-top:90px; min-width:0;}
+@media(max-width:1020px){ article.block{scroll-margin-top:136px;} }
+article.block::before{content:""; position:absolute; left:-1px; top:24px; height:44px; width:4px; border-radius:0 4px 4px 0; background:var(--k);}
+article.block[data-kind="sim"]{--k:var(--sim); --kt:var(--tint-sim);}
+article.block[data-kind="data"]{--k:var(--ok); --kt:var(--tint-ok);}
+article.block[data-kind="extra"]{--k:var(--ink-soft); --kt:var(--bg-soft);}
+.block-head{display:flex; gap:14px; align-items:center; margin-bottom:14px;}
+.block-no{flex:none; min-width:48px; height:48px; padding:0 8px; border-radius:14px; display:grid; place-items:center;
+  font-family:var(--f-display); font-weight:700; font-size:14px; color:var(--k); background:var(--kt); border:1px solid color-mix(in srgb, var(--k) 28%, transparent);}
+.kind{display:block; font-family:var(--f-mono); font-size:10.5px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:var(--k);}
+.block[data-kind="theory"] .kind::before{content:"◆  Теорія";}
+.block[data-kind="sim"] .kind::before{content:"▶  Симулятор";}
+.block[data-kind="data"] .kind::before{content:"▦  Схема · таблиця";}
+.block[data-kind="extra"] .kind::before{content:"＋  Поглиблення";}
+.block-head h3{margin:3px 0 0; font-size:clamp(17px,1.9vw,19.5px); line-height:1.3;}
+.block > .lede:first-of-type{margin-top:-2px;}
+
+/* ---------- текст ---------- */
+.lede{color:var(--ink-soft); font-size:16px; max-width:78ch;}
+.prose{max-width:80ch;}
+.prose p{color:var(--ink);}
+.muted{color:var(--ink-soft);}
+.mini-title{display:block; font-family:var(--f-mono); font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-soft); margin:20px 0 10px;}
+.mini-title:first-child{margin-top:4px;}
+.tag-sim{display:inline-block; font-family:var(--f-mono); font-size:10.5px; font-weight:700; letter-spacing:.1em; color:var(--sim); background:var(--tint-sim); border:1px solid color-mix(in srgb, var(--sim) 40%, transparent); border-radius:6px; padding:1px 7px; margin:0 2px; vertical-align:middle;}
+.definition{position:relative; padding:20px 22px 20px 24px; border-radius:16px; background:linear-gradient(135deg, var(--tint-blue), transparent 80%); border:1px solid color-mix(in srgb, var(--blue) 25%, transparent);}
+.definition .term{display:block; font-family:var(--f-display); font-weight:700; font-size:18px; color:var(--blue-deep); margin-bottom:4px;}
+.definition p{margin:0; font-size:17px;}
+.points{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; margin:14px 0;}
+.point{padding:14px 16px; border-radius:14px; background:var(--bg-soft); border:1px solid var(--line); border-top:3px solid var(--blue);}
+.point.warn{border-top-color:var(--red);}
+.point.ok{border-top-color:var(--ok);}
+.point b{display:block; font-weight:800; margin-bottom:4px;}
+.point p{margin:0; color:var(--ink-soft); font-size:15px; line-height:1.6;}
+.checklist{list-style:none; padding:0; margin:0; display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:8px;}
+.checklist li{display:flex; gap:10px; align-items:flex-start; padding:10px 14px; border-radius:12px; background:var(--tint-ok); border:1px solid color-mix(in srgb,var(--ok) 25%,transparent); font-weight:600; font-size:15px; line-height:1.45;}
+.checklist li::before{content:"✓"; color:var(--ok); font-weight:800;}
+.io{display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); gap:12px; align-items:stretch; margin:14px 0;}
+.io-cell{padding:14px 16px; border-radius:14px; background:var(--bg-soft); border:1px solid var(--line); font-weight:700; line-height:1.45;}
+.io-cell .l{display:block; font-family:var(--f-mono); font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--blue); margin-bottom:5px; font-weight:700;}
+.io-arrow{display:grid; place-items:center; font-size:22px; color:var(--blue); font-weight:800;}
+@media(max-width:640px){ .io{grid-template-columns:minmax(0,1fr);} .io-arrow{transform:rotate(90deg);} }
+
+/* ---------- висновок ---------- */
+.takeaway{position:relative; overflow:hidden; display:grid; grid-template-columns:auto minmax(0,1fr); gap:18px; align-items:start; padding:24px clamp(18px,3vw,28px);
+  border-radius:20px; margin:26px 0 6px; color:#fff; scroll-margin-top:90px;
+  background:radial-gradient(420px 220px at 100% 0%, rgba(47,217,187,.35), transparent 65%), linear-gradient(135deg, #15204f, #1d3270);
+  box-shadow:var(--shadow-lg);}
+.tk-icon{width:46px; height:46px; border-radius:14px; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.2); display:grid; place-items:center; font-size:20px; font-weight:800; color:#8ff2dd;}
+.tk-label{font-family:var(--f-mono); font-size:11px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:#8ff2dd;}
+.takeaway p{margin:6px 0 0; color:rgba(240,244,255,.9); font-size:16.5px; line-height:1.65; max-width:84ch;}
+
+/* ---------- акордеони ---------- */
+details.acc{border:1px solid var(--line); border-radius:14px; margin-bottom:10px; overflow:hidden; background:var(--bg-panel); transition:border-color .2s, box-shadow .2s;}
+details.acc[open]{border-color:color-mix(in srgb, var(--blue) 35%, var(--line)); box-shadow:0 6px 20px rgba(36,71,184,.07);}
+details.acc summary{cursor:pointer; list-style:none; padding:14px 16px 14px 18px; display:flex; justify-content:space-between; gap:12px; align-items:center;
+  font-weight:700; font-size:15.5px; line-height:1.4; transition:background .15s;}
+details.acc summary::-webkit-details-marker{display:none;}
+details.acc summary:hover{background:var(--bg-soft); color:var(--blue-deep);}
+details.acc summary .arrow{flex:0 0 auto; width:28px; height:28px; border-radius:50%; display:grid; place-items:center; font-size:9px; color:var(--blue);
+  background:var(--tint-blue); transition:transform .25s;}
+details.acc[open] summary .arrow{transform:rotate(90deg);}
+details.acc .acc-body{padding:14px 20px 8px; max-width:86ch; border-top:1px dashed var(--line);}
+
+/* ---------- сітки й картки ---------- */
+.grid2{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px;}
+.grid3{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px;}
+.grid4{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px;}
+.grid5{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px;}
+@media(max-width:900px){.grid4{grid-template-columns:repeat(2,minmax(0,1fr));}}
+@media(max-width:800px){.grid2,.grid3{grid-template-columns:minmax(0,1fr);}}
+@media(max-width:480px){.grid4{grid-template-columns:minmax(0,1fr);}}
+.card{background:var(--bg-soft); border:1px solid var(--line); border-radius:14px; padding:16px 18px; min-width:0; line-height:1.55;}
+.card h4{color:var(--blue-deep); font-size:15.5px; margin-bottom:6px;}
+.card p:last-child{margin-bottom:0;}
+.card .k{font-family:var(--f-mono); font-size:11.5px; color:var(--ink-soft);}
+a.card{color:inherit; text-decoration:none; cursor:pointer; transition:.2s;}
+a.card:hover{border-color:var(--blue); transform:translateY(-3px); box-shadow:var(--shadow);}
+.levels .card{position:relative; padding-top:18px; overflow:hidden;}
+.lvl-n{position:absolute; right:12px; top:4px; font-family:var(--f-display); font-weight:800; font-size:48px; line-height:1; color:var(--blue); opacity:.13;}
+.levels .card:nth-child(2){border-color:color-mix(in srgb, var(--blue) 30%, var(--line));}
+.levels .card:nth-child(3){border-color:color-mix(in srgb, var(--ok) 40%, var(--line)); background:linear-gradient(160deg, var(--tint-ok), var(--bg-soft) 70%);}
+.levels .ex{margin-top:10px; padding-top:10px; border-top:1px dashed var(--line-strong); font-size:14.5px; color:var(--ink-soft);}
+.plan-card{display:flex; flex-direction:column; gap:4px; background:var(--bg-panel);}
+.plan-card .plan-n{font-family:var(--f-display); font-weight:800; font-size:30px; line-height:1; margin-bottom:8px;
+  background:linear-gradient(140deg, var(--blue), var(--ok)); -webkit-background-clip:text; background-clip:text; color:transparent;}
+.plan-card p{color:var(--ink-soft); font-size:14.5px; flex:1;}
+.plan-card .k{color:var(--blue-deep); font-weight:700;}
+.src-card{background:var(--bg-panel); text-align:left;}
+.src-card .l{font-family:var(--f-mono); font-size:11px; color:var(--ink-soft); margin-top:8px;}
+.src-card .big{font-family:var(--f-display); font-weight:800; font-size:34px; line-height:1.1; color:var(--blue-deep);}
+
+/* ---------- кнопки ---------- */
+.btn{font-family:var(--f-body); font-weight:700; font-size:13.5px; cursor:pointer; border:1px solid var(--core); background:var(--core); color:#fff; padding:9px 16px; border-radius:11px; transition:.18s; line-height:1.3;}
+.btn:hover{background:var(--blue); border-color:var(--blue); color:#fff; transform:translateY(-1px);}
+.btn.ghost{background:var(--bg-panel); color:var(--ink); border-color:var(--line-strong);}
+.btn.ghost:hover{border-color:var(--blue); color:var(--blue-deep); background:var(--tint-blue);}
+.btn.warn{background:var(--bg-panel); color:var(--red); border-color:color-mix(in srgb, var(--red) 45%, transparent);}
+.btn.warn:hover{background:var(--tint-red); color:var(--red);}
+.btn.small{padding:6px 12px; font-size:12.5px; border-radius:9px;}
+.btn.active{background:var(--blue); border-color:var(--blue); color:#fff; box-shadow:0 4px 12px color-mix(in srgb, var(--blue) 30%, transparent);}
+.btn:disabled{opacity:.5; cursor:default; transform:none;}
+.btn.active:disabled{opacity:1;}
+.btnrow{display:flex; gap:8px; flex-wrap:wrap; margin:12px 0; align-items:center;}
+
+/* ---------- сцени симуляторів ---------- */
+.mindmap-wrap{background:radial-gradient(var(--grid-dot) 1px, transparent 1.2px) 0 0/18px 18px, var(--bg-soft); border:1px solid var(--line); border-radius:16px; padding:14px; margin:14px 0; overflow-x:auto;}
+.mindmap-wrap svg{width:100%; min-width:560px; height:auto; display:block;}
+.sim-stage{background:var(--bg-soft); border:1px solid var(--line); border-radius:16px; padding:12px; overflow-x:auto;}
+.sim-stage svg{width:100%; height:auto; display:block;}
+.sim-log{position:relative; background:var(--bg-soft); border:1px solid var(--line); border-radius:12px; padding:11px 16px 11px 34px; font-size:14.5px; line-height:1.55; min-height:46px; margin-top:10px; color:var(--ink);}
+.sim-log::before{content:"›"; position:absolute; left:14px; top:8px; font-family:var(--f-mono); font-weight:700; font-size:18px; color:var(--sim);}
+.result-box{background:linear-gradient(135deg, var(--tint-blue), transparent 85%), var(--bg-panel); border:1px solid color-mix(in srgb, var(--blue) 35%, var(--line)); border-radius:14px; padding:16px 20px; margin-top:10px;}
+.result-box .big{font-size:24px; line-height:1.3; color:var(--blue-deep); font-family:var(--f-display); font-weight:700; font-variant-numeric:tabular-nums; margin:2px 0;}
+
+/* svg tokens */
+.sv-bg{fill:var(--bg-soft);} .sv-node{fill:var(--bg-panel); stroke:var(--line-strong); stroke-width:2;}
+.sv-core{fill:var(--core);} .sv-core-t{fill:#ffffff;} .sv-core-t2{fill:#9fd8ff;}
+.sv-t{fill:var(--ink); font-family:var(--f-body); font-size:13px;} .sv-ts{fill:var(--ink-soft); font-family:var(--f-mono); font-size:10.5px;}
+.sv-line{stroke:var(--line-strong); stroke-width:2; fill:none;} .sv-arrow{fill:var(--ink-soft);}
+.st-blue{stroke:var(--blue);} .st-red{stroke:var(--red);} .st-olive{stroke:var(--olive);} .st-ok{stroke:var(--ok);}
+.sv-node.on{fill:var(--tint-blue); stroke:var(--blue); stroke-width:3;}
+.sv-node.done{stroke:var(--ok);}
+.sv-res{fill:var(--blue-deep);} .sv-avail{fill:var(--tint-ok); stroke:var(--ok); stroke-width:2;}
+.sv-shelf{stroke:var(--red); stroke-width:2.5; stroke-dasharray:5 4;}
+.sv-wt{fill:#fff; font-family:var(--f-mono); font-size:13px; font-weight:700;}
+.sv-it{fill:var(--ink); font-family:var(--f-mono); font-size:13px; font-weight:700;}
+
+/* ---------- таблиці ---------- */
+.table-wrap{overflow-x:auto; margin:12px 0; border:1px solid var(--line); border-radius:14px; background:var(--bg-panel);}
+table{border-collapse:separate; border-spacing:0; width:100%; font-size:14.5px;}
+th,td{padding:10px 14px; text-align:left; vertical-align:top; border-bottom:1px solid var(--line);}
+tbody tr:last-child td{border-bottom:none;}
+th{background:var(--bg-soft); font-size:11.5px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-soft);}
+tbody tr:nth-child(even) td{background:color-mix(in srgb, var(--bg-soft) 60%, transparent);}
+td.num, th.num{text-align:right; font-variant-numeric:tabular-nums; font-family:var(--f-mono);}
+caption{caption-side:top; text-align:left; font-family:var(--f-mono); font-size:11.5px; font-weight:700; letter-spacing:.06em; color:var(--ink-soft); padding:12px 14px 10px; border-bottom:1px solid var(--line);}
+tr.hl td{background:var(--tint-blue) !important;}
+tr.hl td:first-child{box-shadow:inset 3px 0 0 var(--blue);}
+
+/* ---------- кроки ---------- */
+.steps{counter-reset:step; margin-top:12px;}
+.step{position:relative; padding:6px 10px 16px 34px; border-left:2px solid var(--line-strong); margin-left:14px;}
+.step:last-child{border-left-color:transparent;}
+.step::before{counter-increment:step; content:counter(step); position:absolute; left:-15px; top:4px; width:28px; height:28px; border-radius:50%;
+  background:linear-gradient(135deg, var(--blue), var(--ok)); color:#fff; display:flex; align-items:center; justify-content:center; font-family:var(--f-display); font-weight:700; font-size:12px; box-shadow:0 0 0 4px var(--bg-panel);}
+.step b{font-weight:800;}
+
+/* ---------- виноски ---------- */
+.callout{--c:var(--red); --ct:var(--tint-red); position:relative; border:1px solid color-mix(in srgb, var(--c) 26%, transparent); border-left:4px solid var(--c); background:var(--ct);
+  padding:13px 18px; border-radius:6px 14px 14px 6px; margin:14px 0; max-width:88ch; line-height:1.6;}
+.callout.blue{--c:var(--blue); --ct:var(--tint-blue);}
+.callout.ok{--c:var(--ok); --ct:var(--tint-ok);}
+.callout > b:first-child{display:block; color:var(--c); font-weight:800; margin-bottom:2px;}
+.callout.blue > b:first-child{color:var(--blue-deep);}
+
+/* ---------- поля ---------- */
+.field{display:flex; flex-direction:column; gap:5px; font-size:12px; font-weight:700; color:var(--ink-soft);}
+.field input, .field select{font-family:var(--f-mono); font-size:15px; padding:9px 11px; border:1px solid var(--line-strong); border-radius:10px; background:var(--bg-panel); color:var(--ink); width:100%; transition:border-color .15s, box-shadow .15s;}
+.field input:focus, .field select:focus, .field textarea:focus{outline:none; border-color:var(--blue); box-shadow:0 0 0 3px var(--tint-blue);}
+.calc{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin:12px 0; padding:16px; border-radius:14px; background:var(--bg-soft); border:1px solid var(--line);}
+.kv{display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:10px; margin-top:10px;}
+.kv > div{background:var(--bg-panel); border:1px solid var(--line); border-radius:14px; padding:12px 14px; min-width:0;}
+.kv .l{font-family:var(--f-mono); font-size:10.5px; font-weight:700; color:var(--ink-soft); letter-spacing:.08em;}
+.kv .v{font-family:var(--f-display); font-weight:700; font-size:20px; line-height:1.35; font-variant-numeric:tabular-nums;}
+.kv .v.red{color:var(--red);} .kv .v.ok{color:var(--ok);} .kv .v.blue{color:var(--blue-deep);}
+.kv .k{font-size:12px; color:var(--ink-soft);}
+
+/* класифікатор */
+.cls-item{display:flex; flex-wrap:wrap; gap:8px 12px; align-items:center; justify-content:space-between; padding:11px 14px; border:1px solid var(--line); border-radius:12px; background:var(--bg-panel); margin-bottom:8px; transition:.2s;}
+.cls-item .txt{flex:1 1 260px; min-width:0; font-weight:600;}
+.cls-item .opts{display:flex; gap:6px; flex-wrap:wrap;}
+.cls-item.right{border-color:var(--ok); background:var(--tint-ok);}
+.cls-item.wrong{border-color:var(--red); background:var(--tint-red);}
+.cls-item .fb{flex-basis:100%; font-size:14px; color:var(--ink-soft);}
+
+/* картки-перевертні */
+.flip{cursor:pointer; text-align:left; font:inherit; color:inherit; width:100%; background:var(--bg-panel); transition:.2s;}
+.flip:hover{border-color:var(--blue); transform:translateY(-2px);}
+.flip .back{display:none; color:var(--ink-soft); font-size:14px; margin-top:8px; padding-top:8px; border-top:1px dashed var(--line-strong);}
+.flip.open .back{display:block;}
+.flip.open{border-color:var(--blue); background:linear-gradient(160deg, var(--tint-blue), var(--bg-panel) 70%);}
+.flip .hint{font-family:var(--f-mono); font-size:11px; color:var(--blue); margin-top:6px;}
+.flip.open .hint{display:none;}
+.badge{display:inline-block; font-family:var(--f-mono); font-size:11px; font-weight:700; padding:2px 9px; border-radius:20px; border:1px solid currentColor;}
+.badge.ok{color:var(--ok);} .badge.red{color:var(--red);} .badge.olive{color:var(--olive-ink);} .badge.blue{color:var(--blue-deep);}
+
+.role-out{min-height:84px;}
+
+/* ---------- практика й тест ---------- */
+.quiz-q{border:1px solid var(--line); border-radius:var(--radius); padding:20px clamp(16px,2.6vw,24px); margin-bottom:14px; background:var(--bg-panel); box-shadow:var(--shadow);}
+.quiz-q h4{font-size:16.5px; margin-bottom:12px; display:flex; gap:10px; align-items:baseline;}
+.quiz-q textarea{font-family:var(--f-body) !important; border-radius:10px !important;}
+.opt{display:block; width:100%; text-align:left; margin-bottom:8px; padding:11px 14px; border-radius:11px; border:1px solid var(--line-strong); background:var(--bg-soft); color:var(--ink); cursor:pointer; font-family:var(--f-body); font-size:15px; font-weight:600; transition:.15s;}
+.opt:hover:not(:disabled){border-color:var(--blue); background:var(--tint-blue);}
+.opt:disabled{cursor:default;}
+.opt.correct{background:var(--tint-ok); border-color:var(--ok); color:var(--ink);}
+.opt.correct::after{content:"  ✓"; color:var(--ok); font-weight:800;}
+.opt.wrong{background:var(--tint-red); border-color:var(--red);}
+.quiz-fb{font-size:14.5px; margin-top:8px; color:var(--ink-soft); padding:10px 14px; border-radius:10px; background:var(--bg-soft);}
+#quizScoreBar{position:sticky; bottom:calc(env(safe-area-inset-bottom,0px) + 12px); background:linear-gradient(135deg, var(--core), var(--core-2)); color:#fff; padding:12px 14px 12px 20px; border-radius:16px; font-weight:700; display:flex; flex-wrap:wrap; gap:10px; justify-content:space-between; align-items:center; box-shadow:var(--shadow-lg);}
+#quizScore{font-family:var(--f-display);}
+#quizScoreBar .btn{background:#fff; color:var(--core); border-color:#fff;}
+.idx{font-family:var(--f-mono); font-size:12px; color:#fff; background:linear-gradient(135deg, var(--sim), var(--red)); padding:3px 9px; border-radius:7px; font-weight:700; flex:0 0 auto;}
+
+/* ---------- глосарій ---------- */
+.gloss{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin:0;}
+@media(max-width:800px){.gloss{grid-template-columns:minmax(0,1fr);}}
+.gloss div{padding:14px 16px; border:1px solid var(--line); border-radius:14px; background:var(--bg-panel); border-left:3px solid var(--blue);}
+.gloss dt{font-weight:800; color:var(--blue-deep); font-size:15.5px;}
+.gloss dd{margin:4px 0 0; color:var(--ink-soft); font-size:15px; line-height:1.55;}
+footer{text-align:center; color:var(--ink-soft); font-family:var(--f-mono); font-size:11.5px; padding:24px 0 0;}
+
+
+/* ---------- поява під час прокручування ---------- */
+.rv{opacity:0; transform:translateY(26px); transition:opacity .7s ease, transform .8s cubic-bezier(.16,1,.3,1); transition-delay:calc(var(--i,0) * 70ms);}
+.rv.from-top{transform:translateY(-26px);}
+.rv.in{opacity:1; transform:none;}
+
+/* ---------- ментальні карти: поява + відштовхування ---------- */
+.mindmap-wrap svg, .sim-stage svg{overflow:visible;}
+.mm-node .mm-in{transform-box:fill-box; transform-origin:center;}
+.mm-node rect{transition:stroke-width .2s, filter .25s;}
+.mm-node.mm-hot rect{stroke-width:3; filter:drop-shadow(0 8px 16px rgba(36,71,184,.28));}
+.mm-wait .mm-in, .mm-wait .mm-link{opacity:0;}
+.mm-anim .mm-in{animation:mmPop .75s cubic-bezier(.2,1.35,.4,1) both; animation-delay:calc(var(--i,0) * 95ms + 80ms);}
+@keyframes mmPop{from{opacity:0; transform:translateY(14px) scale(.8);} to{opacity:1; transform:none;}}
+
+/* ---------- графіки ---------- */
+.ch-wait rect[data-i], .ch-wait .sv-res, .ch-wait .sv-avail{opacity:0;}
+.ch-anim rect[data-i]{transform-box:fill-box; transform-origin:50% 100%; animation:barUp .8s cubic-bezier(.2,1,.3,1) both; animation-delay:calc(var(--i,0) * 55ms);}
+.ch-anim .sv-res, .ch-anim .sv-avail{transform-box:fill-box; transform-origin:0 50%; animation:barRight .9s cubic-bezier(.2,1,.3,1) both; animation-delay:calc(var(--i,0) * 180ms + 100ms);}
+@keyframes barUp{from{transform:scaleY(0);} to{transform:none;}}
+@keyframes barRight{from{transform:scaleX(0);} to{transform:none;}}
+
+/* ---------- картки-перевертні ---------- */
+.fcard{position:relative; perspective:1100px; cursor:pointer; outline:none; min-width:0; -webkit-tap-highlight-color:transparent;}
+.fcard-inner{display:grid; height:100%; transform-style:preserve-3d; transition:transform .8s cubic-bezier(.3,1.3,.45,1);}
+.fcard:hover .fcard-inner{transform:rotateY(-8deg) rotateX(3deg);}
+.fcard.flipped .fcard-inner{transform:rotateY(180deg);}
+.fcard.flipped:hover .fcard-inner{transform:rotateY(172deg) rotateX(3deg);}
+.fcard:focus-visible .fcard-face{outline:2px solid var(--blue-bright); outline-offset:2px;}
+.fcard-face{grid-area:1 / 1; position:relative; overflow:hidden; display:flex; flex-direction:column; min-height:136px; padding:16px 18px;
+  border-radius:16px; border:1px solid var(--line); -webkit-backface-visibility:hidden; backface-visibility:hidden;}
+.fcard-face.front{background:linear-gradient(155deg, var(--bg-panel) 30%, var(--bg-soft)); box-shadow:var(--shadow);}
+.fcard-face.front::after{content:""; position:absolute; right:-36px; top:-36px; width:120px; height:120px; border-radius:50%; background:radial-gradient(circle, var(--tint-blue), transparent 70%); pointer-events:none;}
+.fcard-face.front h4{margin:auto 0 0; padding-top:14px; font-size:16.5px; line-height:1.3; color:var(--ink);}
+.fnum{font-family:var(--f-display); font-weight:800; font-size:13px; color:var(--blue);}
+.fval{font-family:var(--f-mono); font-size:15px; color:var(--blue-deep); margin-top:4px;}
+.fhint{margin-top:10px; font-family:var(--f-mono); font-size:10.5px; letter-spacing:.06em; color:var(--ink-soft); transition:color .2s;}
+.fcard:hover .fhint{color:var(--blue);}
+.fcard-face.back{transform:rotateY(180deg); font-size:14.5px; line-height:1.55; color:var(--ink);
+  background:linear-gradient(155deg, var(--tint-blue), transparent 75%), var(--bg-panel); border-color:color-mix(in srgb, var(--blue) 40%, var(--line)); box-shadow:var(--shadow);}
+.fback-t{font-family:var(--f-mono); font-size:10.5px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--blue); margin-bottom:8px;}
+.fcard-face.back p{margin:6px 0 0;}
+.fcard-face.back .badge{align-self:flex-start;}
+.fcard-face.back .ex{margin-top:10px; padding-top:10px; border-top:1px dashed var(--line-strong); font-size:14px; color:var(--ink-soft);}
+.fcard.lvl .lvl-n{position:absolute; right:14px; top:6px; font-family:var(--f-display); font-weight:800; font-size:54px; line-height:1; color:var(--blue); opacity:.16;}
+.levels .fcard:nth-child(2) .fcard-face{border-color:color-mix(in srgb, var(--blue) 30%, var(--line));}
+.levels .fcard:nth-child(3) .fcard-face{border-color:color-mix(in srgb, var(--ok) 45%, var(--line));}
+.levels .fcard:nth-child(3) .front{background:linear-gradient(155deg, var(--tint-ok), var(--bg-panel) 70%);}
+
+@media (prefers-reduced-motion: reduce){ .rv{opacity:1; transform:none;} .fcard:hover .fcard-inner{transform:none;} .fcard.flipped .fcard-inner{transform:rotateY(180deg);} }
+
+@media (prefers-reduced-motion: reduce){ *{animation:none !important; transition:none !important;} html{scroll-behavior:auto;} }
+
+/* ---- додатково для лекцій 2–5 ---- */
+.fig-note{font-size:12.5px; color:var(--ink-soft); margin:10px 2px 0; font-family:var(--f-mono); line-height:1.5;}
+svg .b-blue{fill:var(--blue);} svg .b-ok{fill:var(--ok);} svg .b-red{fill:var(--red);} svg .b-olive{fill:var(--olive);}
+svg .b-soft{fill:var(--line-strong);} svg .b-core{fill:var(--core-2);} svg .b-dim{fill:var(--line-strong); opacity:.55;}
+svg .ax{stroke:var(--ink-soft); stroke-width:1.5;} svg .grid-l{stroke:var(--line); stroke-width:1;}
+svg .axt{fill:var(--ink-soft); font-family:var(--f-mono); font-size:11px;}
+svg .vlab{fill:var(--ink); font-family:var(--f-mono); font-size:12.5px; font-weight:700;}
+svg .tgt{stroke:var(--red); stroke-width:2; stroke-dasharray:6 5; fill:none;}
+svg .tgt-t{fill:var(--red); font-family:var(--f-mono); font-size:11px; font-weight:700;}
+svg .brk{stroke:var(--red); stroke-width:2; fill:none;}
+svg .wf-win{fill:var(--bg-panel); stroke:var(--line-strong); stroke-width:1.5;}
+svg .wf-bar{fill:var(--bg-soft); stroke:var(--line); stroke-width:1;}
+svg .wf-acc{fill:var(--tint-blue); stroke:var(--blue); stroke-width:1.5;}
+svg .wf-ok{fill:var(--tint-ok); stroke:var(--ok); stroke-width:1.5;}
+svg .wf-red{fill:var(--tint-red); stroke:var(--red); stroke-width:1.5;}
+svg .wf-cell{fill:none; stroke:var(--line); stroke-width:1;}
+svg .wf-t{fill:var(--ink); font-family:var(--f-body); font-size:12.5px;}
+svg .wf-tb{fill:var(--ink); font-family:var(--f-body); font-size:13px; font-weight:700;}
+svg .wf-ts{fill:var(--ink-soft); font-family:var(--f-mono); font-size:10.5px;}
+svg .wf-hl{fill:none; stroke:var(--sim); stroke-width:2.5; stroke-dasharray:7 5;}
+svg .wf-hlt{fill:var(--sim); font-family:var(--f-mono); font-size:11px; font-weight:700;}
+svg .wf-dot{stroke:var(--bg-panel); stroke-width:2;}
+.chk-list{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:8px; margin:12px 0;}
+.chk{display:flex; gap:10px; align-items:flex-start; padding:10px 14px; border:1px solid var(--line); border-radius:12px; background:var(--bg-panel); cursor:pointer; font-weight:600; font-size:14.5px; line-height:1.45; transition:border-color .2s, background .2s;}
+.chk input{margin-top:3px; accent-color:var(--blue); flex:none;}
+.chk.on{border-color:var(--blue); background:var(--tint-blue);}
+.msg-prev{font-family:var(--f-mono); font-size:13.5px; line-height:1.65; padding:14px 16px; border-radius:12px; background:var(--bg-soft); border:1px dashed var(--line-strong); white-space:pre-wrap; color:var(--ink); margin-top:10px;}
+.msg-prev mark{background:var(--tint-red); color:var(--red); padding:0 3px; border-radius:4px;}
+.msg-prev ins{background:var(--tint-ok); color:var(--ok); text-decoration:none; padding:0 3px; border-radius:4px;}
+.cm{display:grid; grid-template-columns:auto 1fr 1fr; gap:6px; font-size:14px; margin:12px 0;}
+.cm > div{padding:12px 14px; border-radius:12px; border:1px solid var(--line); background:var(--bg-panel); text-align:center; font-weight:700;}
+.cm .h{background:transparent; border:none; font-family:var(--f-mono); font-size:10.5px; letter-spacing:.08em; color:var(--ink-soft); text-transform:uppercase; display:flex; align-items:center; justify-content:center;}
+.cm .n{font-family:var(--f-display); font-size:26px; display:block; line-height:1.2;}
+.cm .tp{background:var(--tint-ok); border-color:color-mix(in srgb,var(--ok) 40%,transparent); color:var(--ok);}
+.cm .fn,.cm .fp{background:var(--tint-red); border-color:color-mix(in srgb,var(--red) 40%,transparent); color:var(--red);}
+.cm .tn{background:var(--tint-blue); border-color:color-mix(in srgb,var(--blue) 35%,transparent); color:var(--blue-deep);}
+.cm small{display:block; font-family:var(--f-mono); font-size:10.5px; font-weight:500; opacity:.85;}
+.meter{height:10px; border-radius:6px; background:var(--bg-soft); border:1px solid var(--line); overflow:hidden; margin-top:8px;}
+.meter i{display:block; height:100%; width:0; background:linear-gradient(90deg,var(--blue),var(--ok)); transition:width .45s cubic-bezier(.2,1,.3,1);}
+.meter.bad i{background:linear-gradient(90deg,var(--olive),var(--red));}
+.range-row{display:flex; gap:14px; align-items:center; flex-wrap:wrap; margin:12px 0; font-weight:700; font-size:14px;}
+.range-row input[type=range]{accent-color:var(--blue); flex:1 1 240px;}
+.range-row output{font-family:var(--f-mono); min-width:64px; color:var(--blue-deep);}
+.pill{display:inline-block; font-family:var(--f-mono); font-size:11px; font-weight:700; padding:3px 8px; border-radius:8px; background:var(--tint-blue); color:var(--blue-deep); vertical-align:middle;}
+.pill.red{background:var(--tint-red); color:var(--red);} .pill.ok{background:var(--tint-ok); color:var(--ok);} .pill.olive{background:var(--tint-olive); color:var(--olive-ink);}
+.seq{display:grid; gap:8px; margin:12px 0;}
+.seq button{text-align:left; justify-content:flex-start;}
+.seq-out{display:flex; flex-wrap:wrap; gap:6px; margin:10px 0; min-height:34px;}
+.seq-out span{font-size:13px; font-weight:700; padding:6px 10px; border-radius:9px; background:var(--tint-ok); border:1px solid color-mix(in srgb,var(--ok) 35%,transparent);}
+.seq-out span.bad{background:var(--tint-red); border-color:color-mix(in srgb,var(--red) 35%,transparent);}
+.legend{display:flex; flex-wrap:wrap; gap:14px; font-size:13px; color:var(--ink-soft); margin:8px 2px 0;}
+.legend i{display:inline-block; width:12px; height:12px; border-radius:3px; margin-right:6px; vertical-align:-1px;}
+.split2{display:grid; grid-template-columns:minmax(0,1.05fr) minmax(0,1fr); gap:16px; align-items:start;}
+@media (max-width:820px){ .split2{grid-template-columns:1fr;} }
+</style>
+
+</head><body>
+<div class="frame">
+  <div class="hud-bar">
+    <span><span class="dot"></span>SYSTEM: STEAM‑HUB / IT‑ECONOMY.LAB — ОНЛАЙН · ЛЕКЦІЯ: 4.1</span>
+    <button class="theme-btn" id="themeBtn" type="button">☾ Темна тема</button>
+  </div>
+
+  <header class="hero">
+    <span class="hero-num" aria-hidden="true">4.1</span>
+    <span class="hero-tag">// LECTURE_4.1 · DATA.VIZ.CORE</span>
+    <h1>Підготовка даних і вибір способу візуалізації</h1>
+    <p class="sub">Інтерактивний конспект лекції: від аналітичного питання до підготовлених даних, коректні показники й агрегація, вибір типу діаграми та доброчесне графічне подання на прикладі трьох магазинів.</p>
+    <div class="hero-meta">
+      <span class="chip"><b>4</b> розділи теорії</span>
+      <span class="chip"><b>12</b> симуляторів</span>
+      <span class="chip"><b>6</b> кейсів практики</span>
+      <span class="chip"><b>13</b> питань тесту</span>
+    </div>
+  </header>
+
+  <nav class="tabs" id="tabsNav" aria-label="Розділи лекції">
+    <button data-t="map" class="active">🗺 Огляд</button>
+    <button data-t="s1">01 · Питання і дані</button>
+    <button data-t="s2">02 · Показники</button>
+    <button data-t="s3">03 · Типи діаграм</button>
+    <button data-t="s4">04 · Доброчесність</button>
+    <button data-t="practice">✅ Практика</button>
+    <button data-t="quiz">❓ Тест</button>
+    <button data-t="ref">📚 Глосарій</button>
+    <div class="nav-progress" aria-hidden="true"><i id="navProgress"></i></div>
+  </nav>
+
+  <!-- ================= MAP ================= -->
+  <section class="panel plain active" id="map">
+    <header class="sec-head">
+      <div class="sec-idx">00</div>
+      <div>
+        <span class="sec-kicker">Огляд лекції</span>
+        <h2>Загальна карта лекції</h2>
+        <p class="lede"><b>Мета:</b> сформувати вміння перетворювати торговельні та логістичні записи на коректні аналітичні показники, добирати тип діаграми відповідно до питання й запобігати спотворенню змісту під час графічного подання даних.</p>
+      </div>
+    </header>
+    <div class="sec-main">
+      <article class="block" data-kind="data" id="map-1">
+        <header class="block-head"><span class="block-no">◎</span><div><span class="kind"></span><h3>Ментальна карта лекції</h3></div></header>
+        <div class="mindmap-wrap" style="margin-bottom:0"><svg class="mm" viewBox="0 0 1100 300" role="img" aria-label="Ментальна карта лекції"><defs><marker id="arM" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" class="sv-arrow"/></marker></defs><g class="sv-line" marker-end="url(#arM)"><path class="mm-link" data-a="core" data-b="n0" data-p="450 130 330 70"/><path class="mm-link" data-a="core" data-b="n1" data-p="450 170 330 230"/><path class="mm-link" data-a="core" data-b="n2" data-p="650 130 770 70"/><path class="mm-link" data-a="core" data-b="n3" data-p="650 170 770 230"/></g><g class="mm-node" data-id="core"><g class="mm-in"><rect x="430" y="108" width="240" height="84" rx="16" class="sv-core"/><text x="550" y="144" text-anchor="middle" class="sv-core-t" style="font-family:var(--f-display);font-size:15px;font-weight:700">ЛЕКЦІЯ 4.1</text><text x="550" y="168" text-anchor="middle" class="sv-core-t2" style="font-family:var(--f-mono);font-size:12px">ДАНІ → ВІЗУАЛІЗАЦІЯ</text></g></g><g class="mm-node" data-id="n0"><g class="mm-in"><rect x="40" y="20" width="290" height="100" rx="14" class="sv-node st-blue"/><text x="185.0" y="58" text-anchor="middle" class="sv-t" style="font-weight:700">01 · Питання і дані</text><text x="185.0" y="80" text-anchor="middle" class="sv-ts">показник, період, одиниці</text><text x="185.0" y="99" text-anchor="middle" class="sv-ts">пропуски, дублікати, журнал</text></g></g><g class="mm-node" data-id="n1"><g class="mm-in"><rect x="40" y="180" width="290" height="100" rx="14" class="sv-node st-red"/><text x="185.0" y="218" text-anchor="middle" class="sv-t" style="font-weight:700">02 · Показники</text><text x="185.0" y="240" text-anchor="middle" class="sv-ts">зважене середнє, медіана</text><text x="185.0" y="259" text-anchor="middle" class="sv-ts">в. п. і відсотки, внесок</text></g></g><g class="mm-node" data-id="n2"><g class="mm-in"><rect x="770" y="20" width="290" height="100" rx="14" class="sv-node st-olive"/><text x="915.0" y="58" text-anchor="middle" class="sv-t" style="font-weight:700">03 · Типи діаграм</text><text x="915.0" y="80" text-anchor="middle" class="sv-ts">стовпчики, лінія, гістограма</text><text x="915.0" y="99" text-anchor="middle" class="sv-ts">точкова, складені, карта</text></g></g><g class="mm-node" data-id="n3"><g class="mm-in"><rect x="770" y="180" width="290" height="100" rx="14" class="sv-node st-ok"/><text x="915.0" y="218" text-anchor="middle" class="sv-t" style="font-weight:700">04 · Доброчесність</text><text x="915.0" y="240" text-anchor="middle" class="sv-ts">початок шкали, спільна шкала</text><text x="915.0" y="259" text-anchor="middle" class="sv-ts">підписи, колір, висновок</text></g></g></svg></div>
+      </article>
+
+      <article class="block" data-kind="theory" id="map-2">
+        <header class="block-head"><span class="block-no">≡</span><div><span class="kind"></span><h3>План лекції</h3></div></header>
+        <div class="grid4"><a class="card plan-card" data-go="s1"><span class="plan-n">01</span><h4>Питання і дані</h4><p>Аналітичне питання та підготовка даних.</p><span class="k">11 блоків · 4 симулятори →</span></a><a class="card plan-card" data-go="s2"><span class="plan-n">02</span><h4>Показники</h4><p>Показники, агрегація і зведені таблиці.</p><span class="k">10 блоків · 4 симулятори →</span></a><a class="card plan-card" data-go="s3"><span class="plan-n">03</span><h4>Типи діаграм</h4><p>Типи діаграм та їх відповідність задачі.</p><span class="k">10 блоків · 2 симулятори →</span></a><a class="card plan-card" data-go="s4"><span class="plan-n">04</span><h4>Доброчесність</h4><p>Читабельність і доброчесність візуалізації.</p><span class="k">6 блоків · 2 симулятори →</span></a></div>
+      </article>
+
+      <div class="callout blue"><b>Як користуватись.</b> Кожен розділ складається з коротких теоретичних блоків (розгортаються кліком), карток-понять (перевертаються натисканням) та позначених <span class="tag-sim">SIM</span> інтерактивних моделей, у яких можна змінювати числа і бачити наслідки. Наприкінці є кейси для практики, тест і глосарій.</div>
+    </div>
+  </section>
+
+  <!-- ================= S1 ================= -->
+  <section class="panel" id="s1">
+    <header class="sec-head">
+      <div class="sec-idx">01</div>
+      <div>
+        <span class="sec-kicker">Розділ 1 / 4</span>
+        <h2>Аналітичне питання та підготовка даних</h2>
+        <p class="lede">Керівник мережі магазинів бачить зростання продажів і хоче визначити, чи справді торговельні точки почали працювати ефективніше. Для відповіді недостатньо діаграми з двома загальними сумами, адже обсяг міг зрости через додаткові дні роботи, зміну цін або інший склад покупок. Візуалізацію починають із формулювання питання та підготовки порівнянних даних, щоб графік показував саме ту властивість процесу, на основі якої керівник планує ухвалити рішення.</p>
+        <div class="sec-meta"></div>
+      </div>
+    </header>
+    <aside class="sec-toc" aria-label="Зміст розділу"><div class="toc-title">Зміст розділу</div><nav class="toc-list"></nav></aside>
+    <div class="sec-main">
+
+      <div class="group-label" data-g="A" data-title="Питання раніше за діаграму"><b>A</b>Питання раніше за діаграму</div>
+
+      <article class="block" data-kind="theory" id="s1-1">
+        <header class="block-head"><span class="block-no">1.1</span><div><span class="kind"></span><h3>Від загального питання до вимірюваного показника</h3></div></header>
+        <details class="acc" open><summary><span>Що таке візуалізація і з чого вона починається</span><span class="arrow">▶</span></summary><div class="acc-body"><p><b>Візуалізація даних</b> – це подання значень і взаємозв’язків за допомогою графічних засобів. Вона допомагає порівнювати показники, помічати зміни, знаходити відхилення й пояснювати результат. Для фахівця з ритейлу графік може показати зміну продажів, а для логіста – різницю у своєчасності доставки за напрямами; побудова починається з питання, на яке має відповісти графік. Якщо питання не визначено, навіть правильно оформлена діаграма може не допомогти прийняти рішення; питання «як працює магазин?» потрібно конкретизувати.</p><p>Воно може означати обсяг виручки, кількість покупок, <b>середній чек</b>, частку повернень або доступність товару. Ці показники характеризують різні сторони роботи й можуть змінюватися у протилежних напрямах. Підвищення виручки може бути наслідком зростання цін, а не кількості покупок. Тому аналітик визначає показник, період, одиниці виміру та основу порівняння до вибору діаграми.</p></div></details><details class="acc"><summary><span>Яке спостереження підтвердить висновок</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Аналітичне питання визначає, які дані потрібно зібрати і які відмінності між записами зберегти. Керівник може запитати, чому збільшилася виручка, але для відповіді недостатньо показати два загальні числа. Потрібні відомості про кількість покупок, ціни, склад асортименту, години роботи та повернення. Для логіста запитання про запізнення потребує погодженого строку, фактичного завершення, маршруту й обсягу доставок. Питання слід формулювати так, щоб було зрозуміло, яке спостереження може його підтвердити або спростувати. Це захищає від побудови графіків, які виглядають інформативно, але не містять даних для потрібного висновку; візуалізація починається з логіки дослідження, а не з оформлення.</p></div></details><div class="io"><div class="io-cell"><span class="l">Нечітке питання</span>«Як працює магазин?»</div><div class="io-arrow">→</div><div class="io-cell"><span class="l">Робоче питання</span>Показник (виручка, кількість покупок, середній чек, частка повернень) + період + одиниці + основа порівняння</div></div>
+      </article>
+
+      <article class="block" data-kind="theory" id="s1-2">
+        <header class="block-head"><span class="block-no">1.2</span><div><span class="kind"></span><h3>Об’єкт спостереження і спільна основа порівняння</h3></div></header>
+        <details class="acc" open><summary><span>Чеки, позиції, доставки, маршрути</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Об’єкт спостереження може відрізнятися від об’єкта рішення; дані збирають про окремі чеки, а рішення приймають щодо категорії товарів. Дані фіксують про зупинки рейсу, а висновок стосується маршруту; перехід між рівнями потребує правил групування. Якщо одна доставка містить кілька товарних позицій, кількість рядків позицій не дорівнює кількості доставок. Під час підготовки важливо зберігати ідентифікатор вищого рівня, щоб правильно узагальнювати деталі. Без такого зв’язку аналітик може отримати велику таблицю, з якої неможливо достовірно порахувати потрібний показник. Обсяг даних сам по собі не компенсує помилки їхньої структури.</p></div></details><details class="acc"><summary><span>Абсолютний і нормований показник</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Для порівняння потрібно визначити спільну основу; два магазини можуть мати різну площу, різний асортимент і різну тривалість роботи. Абсолютна виручка показує господарський результат, але не завжди дозволяє оцінити інтенсивність використання ресурсів. <b>Нормований показник</b>, наприклад виручка на день роботи, допомагає розглянути інший аспект. Проте його теж потрібно тлумачити обережно: один день може містити вісім або дванадцять робочих годин; вибір знаменника залежить від питання. Не існує універсального показника, який одночасно справедливо описує всі сторони діяльності. Доцільно поєднувати кілька узгоджених характеристик і пояснювати межі кожної.</p></div></details><div class="grid3"><div class="card"><h4>Абсолютна виручка</h4>Господарський результат і внесок магазину в мережу.</div><div class="card"><h4>Виручка на день роботи</h4>Інтенсивність використання ресурсів; день може мати 8 або 12 годин.</div><div class="card"><h4>Кілька узгоджених показників</h4>Жоден знаменник не описує всіх сторін роботи — межі кожного пояснюють.</div></div>
+      </article>
+
+      <article class="block" data-kind="theory" id="s1-3">
+        <header class="block-head"><span class="block-no">1.3</span><div><span class="kind"></span><h3>Пропуск не дорівнює нулю</h3></div></header>
+        <details class="acc" open><summary><span>Підготовка: джерело, структура, типи, повнота</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Підготовка охоплює перевірку джерела, структури, типів даних і повноти записів. Для кожного набору потрібно зазначити, що означає рядок: операцію продажу, день роботи магазину або підсумок рейсу. Якщо одна таблиця містить повернення як окремі від’ємні операції, а друга вже показує чистий продаж, їх не можна додавати без узгодження. Так само не можна порівнювати повний місяць із кількома його днями без пояснення різниці періодів; пропущене значення слід відрізняти від нуля.</p><p>Нуль продажів означає встановлений факт відсутності реалізації за певний період; порожня клітинка може означати, що дані ще не надійшли. Якщо замінити всі пропуски нулями, середнє зменшиться, а на графіку виникне уявний спад. Спосіб оброблення пропусків залежить від задачі й має бути зафіксований. Якщо підтверджених даних немає, у звіті позначають неповноту й уточнюють охоплення, замість того щоб підміняти пропущені записи довільними значеннями.</p></div></details><details class="acc"><summary><span>Причина пропусків змінює висновок</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Пропуски впливають на висновок по-різному залежно від причини. Якщо відсутні дані за випадковий день, одна ситуація; якщо система не реєструє продажі саме під час пікового навантаження, інша. У другому випадку підсумок систематично занижується, тому перед обробленням потрібно з’ясувати, які записи відсутні та чому. Заміна середнім значенням іноді використовується в аналітичних методах, але не є універсальним виправленням господарського обліку. У звіті з неповними даними зберігають явну позначку неповноти та вказують, яку частину періоду або операцій охоплено. Користувач повинен бачити, чи графік описує весь період або лише підтверджену частину.</p></div></details>
+      </article>
+
+      <article class="block" data-kind="sim" id="s1-4">
+        <header class="block-head"><span class="block-no">1.4</span><div><span class="kind"></span><h3>Порожні дні як нулі: звідки береться «спад»</h3></div></header>
+        <p class="lede">Денний продаж магазину, тис. грн. За середу й п’ятницю дані ще не надійшли з каси.</p><div class="btnrow" id="gapBtns"><button class="btn small active" data-m="0">Позначити неповноту</button><button class="btn ghost small" data-m="1">Замінити пропуски нулями</button></div><div class="sim-stage"><svg class="chart" id="gapChart" role="img" aria-label="Денний продаж"></svg></div><div class="result-box" id="gapOut"></div>
+      </article>
+
+      <div class="group-label" data-g="B" data-title="Очищення без втрати сліду"><b>B</b>Очищення без втрати сліду</div>
+
+      <article class="block" data-kind="theory" id="s1-5">
+        <header class="block-head"><span class="block-no">1.5</span><div><span class="kind"></span><h3>Первинний файл, журнал і походження даних</h3></div></header>
+        <details class="acc" open><summary><span>Виправлення залишає слід</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Виправлення помилок повинно залишати слід; первинний набір зберігають окремо, а робочі дані очищують за підтвердженими правилами. Підозріло велике значення перевіряють, але не видаляють лише тому, що воно відрізняється від інших: це може бути реальна велика покупка або рейс; окремо контролюють дублікати, різні написання категорій та одиниці виміру. Візуалізація може допомогти знайти відхилення, проте причину встановлюють за джерелом і умовами обліку.</p></div></details><details class="acc"><summary><span>Журнал підготовки</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Первинний файл потрібно зберігати як основу перевірки, а перетворення виконувати у робочій копії або керованому процесі. Якщо аналітик одразу видаляє підозрілі рядки з єдиного джерела, пізніше неможливо встановити, що саме змінилося. <b>Журнал підготовки</b> може містити дату, правило, кількість змінених записів і підставу. Наприклад, назви двох однакових категорій об’єднали після звірення з довідником, а неправильну одиницю виправили за документом. Така фіксація не повинна бути надмірно складною; її мета – дозволити іншому працівникові зрозуміти шлях від первинних записів до графіка та перевірити суттєві рішення.</p></div></details><details class="acc"><summary><span>Система, період вивантаження, момент оновлення</span><span class="arrow">▶</span></summary><div class="acc-body"><p><b>Походження даних</b> включає не лише назву файла; важливі система, період вивантаження, умови відбору та момент оновлення. Два файли з однаковою назвою можуть містити різні зрізи, якщо один сформовано до завершення зміни, а інший після внесення повернень. Під час поєднання потрібно встановити, чи відображають вони один стан; якщо дані оновлюються нерівномірно, звіт повинен повідомляти про це. Користувач може прийняти попередній результат за остаточний, якщо не бачить часу оновлення. Простежуваність допомагає розрізняти помилку розрахунку, відсутність нових записів і законну зміну показника після завершення обліку.</p></div></details><ul class="checklist"><li>дата зміни</li><li>правило</li><li>кількість змінених записів</li><li>підстава (довідник, документ)</li></ul>
+      </article>
+
+      <article class="block" data-kind="theory" id="s1-6">
+        <header class="block-head"><span class="block-no">1.6</span><div><span class="kind"></span><h3>Дублікати і незвичні значення</h3></div></header>
+        <details class="acc" open><summary><span>Дубль визначають за моделлю операції</span><span class="arrow">▶</span></summary><div class="acc-body"><p><b>Дублікати</b> визначають за моделлю операції; повтор однакового товару в різних чеках є нормальним, а повтор того самого рядка одного чека може бути помилкою імпорту. Для перевірки потрібні ключі: номер чека, номер позиції та інші визначені ознаки. Повне співпадіння видимих клітинок не завжди доводить дублювання: дві законні покупки можуть мати однакові суми та товари, водночас технічний дубль може відрізнятися лише часом завантаження; очищення повинно спиратися на зміст події. Автоматична команда корисна після визначення правила, але не повинна самостійно встановлювати, яка торговельна операція справді відбулася.</p></div></details><details class="acc"><summary><span>Велике значення — помилка чи подія?</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Незвично велике значення може бути помилкою, а може відображати важливу подію. Продаж одній організації ста одиниць товару відрізняється від типових роздрібних покупок, але не стає неправильним через свою величину; аналітик перевіряє джерело, одиницю вимірювання та обставини. Якщо значення підтверджене, його можна показати окремо або пояснити вплив на середнє; видалення лише для красивішої діаграми спотворює картину. У логістиці довгий рейс може бути наслідком реальної затримки, яка саме й потребує уваги. Відхилення не завжди заважає аналізу; часто воно містить головну інформацію про процес.</p></div></details>
+      </article>
+
+      <article class="block" data-kind="sim" id="s1-7">
+        <header class="block-head"><span class="block-no">1.7</span><div><span class="kind"></span><h3>Технічний дубль чи законний запис?</h3></div></header>
+        <div id="clsDup"></div><div class="sim-log" id="clsDupScore">Оцініть кожну пару схожих рядків.</div>
+      </article>
+
+      <div class="group-label" data-g="C" data-title="Звіт трьох магазинів: узгодження джерел"><b>C</b>Звіт трьох магазинів: узгодження джерел</div>
+
+      <article class="block" data-kind="theory" id="s1-8">
+        <header class="block-head"><span class="block-no">1.8</span><div><span class="kind"></span><h3>Три файли різного рівня</h3></div></header>
+        <details class="acc" open><summary><span>Позиції чеків, повернення, календар роботи</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Розглянемо звіт мережі з трьох магазинів за два послідовні тижні, щоб зіставити обсяг продажів та інтенсивність роботи торговельних точок. Перший файл містить позиції чеків, другий – повернення, третій – календар роботи. Керівник хоче встановити, у якому магазині найбільше змінилися чисті продажі та чи пояснюється це кількістю робочих днів; потрібно визначити одиниці та рівні всіх джерел.</p><p>Рядок продажу описує позицію чека, рядок повернення – окрему подію, а календар – день роботи магазину. Без цього узгодження просте додавання таблиць не дасть потрібного результату. Спочатку визначають коди магазинів і товарів, правила віднесення до періоду та спосіб врахування повернень; лише після цього можна перейти до підсумків.</p></div></details><details class="acc"><summary><span>Як не відняти повернення двічі</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Якщо повернення вже відображене у файлі продажів як від’ємний рядок, додаткове віднімання з окремого файла повторно зменшить виручку. Якщо файл продажів містить лише первинну реалізацію, повернення потрібно врахувати окремо за погодженим правилом. Аналітик перевіряє структуру на кількох відомих операціях і звіряє контрольні суми.</p><p>Важливо також установити, до якого періоду відноситься повернення: до дня події або до початкового продажу залежно від задачі та обліку; ці підходи створюють різні аналітичні зрізи. Правило обліку повернень задають до розрахунку показника й застосовують однаково до всіх магазинів, щоб підсумок не залежав від випадкової структури файла; правильний графік починається саме з таких уточнень.</p></div></details>
+      </article>
+
+      <article class="block" data-kind="sim" id="s1-9">
+        <header class="block-head"><span class="block-no">1.9</span><div><span class="kind"></span><h3>Повернення: структура файла і правило обліку</h3></div></header>
+        <p class="lede">За тиждень магазин реалізував товарів на 74 000 грн, повернення становили 4 000 грн. Оберіть, як влаштований файл продажів і що робить аналітик.</p><div class="btnrow" id="rtS"><span style="font-size:13px;font-weight:700">Файл продажів:</span><button class="btn small active" data-m="0">уже містить повернення від’ємними рядками</button><button class="btn ghost small" data-m="1">лише первинна реалізація</button></div><div class="btnrow" id="rtA"><span style="font-size:13px;font-weight:700">Аналітик:</span><button class="btn small active" data-m="1">віднімає окремий файл повернень</button><button class="btn ghost small" data-m="0">не віднімає</button></div><div class="result-box" id="rtOut"></div>
+      </article>
+
+      <article class="block" data-kind="theory" id="s1-10">
+        <header class="block-head"><span class="block-no">1.10</span><div><span class="kind"></span><h3>Назви, коди, типи і масштаб</h3></div></header>
+        <details class="acc" open><summary><span>«Центр», «центр» і М01</span><span class="arrow">▶</span></summary><div class="acc-body"><p>У довіднику один магазин позначений як «Центр», у файлі повернень – як «центр», а в календарі – кодом М01. Якщо використати текстові назви без узгодження, система може створити три окремі групи. Аналітик пов’язує їх через підтверджений код, зберігаючи зрозумілу назву для подання. Не варто автоматично об’єднувати всі схожі назви, оскільки «Центр 1» і «Центр 2» можуть бути різними точками; для кожної заміни потрібна підстава. Виправлення довідника є змістовою роботою, яку можна частково автоматизувати після визначення правила. Таблиця відповідності допомагає повторити підготовку при новому вивантаженні та уникнути щотижневого ручного вгадування назв.</p></div></details><details class="acc"><summary><span>Дати як текст, «грн» у сумі, тисячі гривень</span><span class="arrow">▶</span></summary><div class="acc-body"><p>У первинному наборі дві дати збережені як текст, а одна сума містить слово «грн». Такі значення можуть не потрапити до правильного групування або суми; перетворення виконують після перевірки формату. Особливої уваги потребують записи дат, які допускають різне тлумачення дня та місяця. Потрібно знати вихідне правило, а не покладатися лише на автоматичне розпізнавання; для сум перевіряють десяткові роздільники та одиниці. Якщо один файл містить гривні, а інший тисячі гривень, формально правильне додавання створить неправдивий результат. До об’єднання кожне поле повинно мати визначений тип і масштаб. Перевірка кількох крайніх та типових значень допомагає виявити систематичну помилку.</p></div></details>
+      </article>
+
+      <article class="block" data-kind="sim" id="s1-11">
+        <header class="block-head"><span class="block-no">1.11</span><div><span class="kind"></span><h3>Таблиця відповідності назв магазинів</h3></div></header>
+        <p class="lede">Магазин «Центр» у довіднику має код <span class="mono">М01</span>. Які записи можна пов’язати з ним?</p><div id="clsName"></div><div class="sim-log" id="clsNameScore">Для кожної заміни потрібна підстава.</div>
+      </article>
+
+      <div class="takeaway" id="s1-end"><div class="tk-icon">✓</div><div><span class="tk-label">Підсумок розділу</span><p>Після підготовки реєстру аналітик повинен мати змогу пояснити, який рядок відповідає окремій операції, які записи включені до підсумку і як обліковуються повернення. Для порівняння магазинів до продажів додають тривалість роботи, оскільки однакова сума за п’ять і за сім днів означає різну інтенсивність. Ці правила формують основу показників, які надалі обчислюють у таблиці та використовують для побудови діаграм.</p></div></div>
+
+    </div>
+  </section>
+
+  <!-- ================= S2 ================= -->
+  <section class="panel" id="s2">
+    <header class="sec-head">
+      <div class="sec-idx">02</div>
+      <div>
+        <span class="sec-kicker">Розділ 2 / 4</span>
+        <h2>Показники, агрегація і зведені таблиці</h2>
+        <p class="lede">Розрахунок показника повинен відповідати змісту порівняння; загальна сума продажів показує внесок магазину в результат мережі, продаж на робочий день допомагає зіставити інтенсивність, а відносний приріст характеризує зміну щодо початкового обсягу. Жоден із цих показників не замінює інші, тому в аналізі спочатку погоджують визначення та знаменник, а вже потім обирають формулу, групування або зведену таблицю, що дозволяє відтворити результат і перевірити його за первинними записами.</p>
+        <div class="sec-meta"></div>
+      </div>
+    </header>
+    <aside class="sec-toc" aria-label="Зміст розділу"><div class="toc-title">Зміст розділу</div><nav class="toc-list"></nav></aside>
+    <div class="sec-main">
+
+      <div class="group-label" data-g="A" data-title="Агрегація і середні"><b>A</b>Агрегація і середні</div>
+
+      <article class="block" data-kind="theory" id="s2-1">
+        <header class="block-head"><span class="block-no">2.1</span><div><span class="kind"></span><h3>Узагальнення детальних записів</h3></div></header>
+        <details class="acc" open><summary><span>Групування, виручка, середній чек</span><span class="arrow">▶</span></summary><div class="acc-body"><p><b>Агрегація</b> означає узагальнення детальних записів за визначеною ознакою; продажі окремих товарів можна підсумувати за магазином, категорією або тижнем. Та сама таблиця відповідає на різні питання залежно від групування. Для перевірки підсумок згрупованих значень має дорівнювати підсумку вихідної вибірки, якщо записи не виключалися. Якщо використовували фільтр, потрібно назвати його умови й перевірити, що висновок стосується саме обраного набору.</p><p>Виручку від продажу за незмінної ціни кожної позиції визначають як суму добутків кількості на ціну. Якщо враховують повернення, знижки або інші коригування, формулу уточнюють відповідно до структури даних; <b>середній чек</b> дорівнює загальній виручці, поділеній на кількість чеків. Кількість проданих одиниць не можна використовувати як кількість чеків, якщо в одній покупці може бути кілька товарів. Показник потрібно визначити за економічним змістом, а не за наявністю зручного стовпця.</p></div></details><details class="acc"><summary><span>Назва показника не замінює визначення</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Назва показника не замінює його визначення. «Продажі» можуть означати виручку, кількість товарів, кількість чеків або чистий результат після повернень. Для кожного показника потрібно встановити одиниці, правила включення, період і формулу. Якщо використовується середнє, уточнюють, по чому воно обчислене: по чеках, днях або магазинах; дві правильні формули можуть відповідати на різні питання. Середній денний продаж магазину і середній продаж на одну операцію не є взаємозамінними; прозоре визначення дозволяє зіставляти звіти різних підрозділів. Без нього суперечність чисел може бути наслідком різного змісту, а не помилки арифметики.</p></div></details><details class="acc"><summary><span>Зведена таблиця і функція підсумовування</span><span class="arrow">▶</span></summary><div class="acc-body"><p><b>Зведена таблиця</b> дозволяє групувати дані та застосовувати функцію підсумовування без ручного створення кожного підсумку. Для виручки зазвичай застосовують суму, для кількості операцій – лічильник, для відповідних вимірювань – середнє. Якщо числа збережені як текст, середовище може застосувати лічильник замість суми. Після створення зведення потрібно перевірити вибрану функцію, діапазон джерела і результат на невеликому фрагменті; оновлення вихідного файла також потребує перевірки оновлення аналітичного подання.</p></div></details><details class="acc"><summary><span>Що рахує лічильник</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Зведена таблиця перетворює детальні записи на зріз, визначений групуванням; якщо рядки відповідають магазинам, а колонки – категоріям, клітинки можуть містити суму виручки. Зміна функції на кількість створює інший звіт; потрібно перевіряти, що саме рахує лічильник: рядки позицій, непорожні клітинки або унікальні операції. Джерело має охоплювати всі потрібні записи без додаткових підсумкових рядків. Якщо до детальних позицій включити вже готовий загальний підсумок, результат буде завищений. Структура даних і вибір функції визначають зміст зведення ще до побудови діаграми.</p></div></details><details class="acc"><summary><span>Календарні правила групування</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Групування в часі потребує послідовного календарного правила; день, тиждень і місяць мають різну тривалість та можуть містити різну кількість робочих днів. Порівняння місячних обсягів іноді потребує додаткового показника на день роботи. Для тижнів важливо визначити початок та правила включення перехідних дат. Якщо одна система починає тиждень у понеділок, а інша використовує інше правило, однакові назви періодів не гарантують однакової вибірки; календарні особливості мають бути явно визначені. Це особливо важливо для промоакцій, коли короткий інтенсивний період може потрапляти до різних груп у різних звітах.</p></div></details>
+      </article>
+
+      <article class="block" data-kind="sim" id="s2-2">
+        <header class="block-head"><span class="block-no">2.2</span><div><span class="kind"></span><h3>Загальна частка своєчасності: середнє чи сума?</h3></div></header>
+        <details class="acc" open><summary><span>90 зі 100 і 1 з 2</span><span class="arrow">▶</span></summary><div class="acc-body"><p>У логістиці <b>частка своєчасних доставок</b> дорівнює кількості доставок у межах обіцяного строку, поділеній на загальну кількість завершених доставок у визначеній вибірці. Припустімо, один маршрут виконав своєчасно 90 зі 100 доставок, а другий – одну з двох. Середнє двох відсотків становить 70, але загальна частка дорівнює 91 / 102 × 100, тобто приблизно 89,22 відсотка. Показники з різними обсягами потрібно об’єднувати через суму чисельників і знаменників, а не просте середнє часток.</p></div></details><div class="calc"><label class="field">Маршрут 1 · доставок<input type="number" id="pa" value="100" min="1"></label><label class="field">Маршрут 1 · своєчасних<input type="number" id="pao" value="90" min="0"></label><label class="field">Маршрут 2 · доставок<input type="number" id="pb" value="2" min="1"></label><label class="field">Маршрут 2 · своєчасних<input type="number" id="pbo" value="1" min="0"></label></div><div class="result-box" id="poolOut"></div>
+      </article>
+
+      <article class="block" data-kind="theory" id="s2-3">
+        <header class="block-head"><span class="block-no">2.3</span><div><span class="kind"></span><h3>Середня ціна, середнє і медіана</h3></div></header>
+        <details class="acc" open><summary><span>190 грн чи 150 грн?</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Середня ціна проданої одиниці повинна враховувати кількість товарів; якщо продано одну одиницю за сто гривень і дев’ять за двісті, виручка становить 1900 гривень, а кількість – десять одиниць. Середня фактична ціна дорівнює 190 гривень; просте середнє двох цін дає 150 гривень і описує інший показник: середнє двох наведених цін без урахування обсягів. Для економічної інтерпретації це суттєва відмінність. Аналогічна логіка застосовується до часток своєчасності, середнього чека та витрат на доставку. Підсумкове середнє потрібно отримувати з відповідних сум, якщо групи мають різну кількість спостережень.</p></div></details><details class="acc"><summary><span>5, 6, 7, 8 і 34 хвилини</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Середнє арифметичне чутливе до великих відхилень; для часу комплектування зі значеннями 5, 6, 7, 8 і 34 хвилини середнє дорівнює 12 хвилинам, а медіана – 7. <b>Медіана</b> є центральним значенням упорядкованого ряду: половина спостережень лежить не вище неї, а половина не нижче; обидва показники правильні, але характеризують різні властивості. Середнє допомагає оцінювати сумарне навантаження, а медіана – типовий випадок без сильного впливу одиничного довгого процесу. Для керівника важливо також бачити саму тривалу операцію, оскільки вона може пояснювати проблему. Один показник не повинен приховувати форму розподілу.</p></div></details>
+      </article>
+
+      <article class="block" data-kind="sim" id="s2-4">
+        <header class="block-head"><span class="block-no">2.4</span><div><span class="kind"></span><h3>Середнє і медіана часу комплектування</h3></div></header>
+        <p class="lede">Змініть тривалості (хв): одна довга операція зсуває середнє, але майже не впливає на медіану.</p><div class="calc"><label class="field">Операція 1<input type="number" id="mm1" value="5" min="0"></label><label class="field">Операція 2<input type="number" id="mm2" value="6" min="0"></label><label class="field">Операція 3<input type="number" id="mm3" value="7" min="0"></label><label class="field">Операція 4<input type="number" id="mm4" value="8" min="0"></label><label class="field">Операція 5<input type="number" id="mm5" value="34" min="0"></label></div><div class="split2"><div class="sim-stage"><svg class="chart" id="mmChart" role="img" aria-label="Тривалості"></svg></div><div class="result-box" id="mmOut"></div></div>
+      </article>
+
+      <div class="group-label" data-g="B" data-title="Відсотки, відсоткові пункти і база"><b>B</b>Відсотки, відсоткові пункти і база</div>
+
+      <article class="block" data-kind="theory" id="s2-5">
+        <header class="block-head"><span class="block-no">2.5</span><div><span class="kind"></span><h3>Зміна, приріст і база відсотка</h3></div></header>
+        <details class="acc" open><summary><span>Абсолютна зміна і темп приросту</span><span class="arrow">▶</span></summary><div class="acc-body"><p><b>Абсолютна зміна</b> дорівнює різниці нового й базового значень; <b>темп приросту</b> визначають як цю різницю, поділену на базове значення, з подальшим множенням на 100. Зростання виручки з 20000 до 25000 грн означає абсолютну зміну 5000 грн і приріст 25 відсотків; якщо базове значення нульове, звичайна формула темпу приросту непридатна. Зміна частки з 80 до 85 відсотків дорівнює п’яти відсотковим пунктам; відносний приріст цієї частки становить 6,25 відсотка.</p></div></details><details class="acc"><summary><span>Від чого рахують відсоток</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Відсоток завжди пов’язаний із базою; частка повернень може рахуватися за кількістю одиниць, кількістю чеків або сумою виручки. Ці показники не обов’язково збігаються; якщо повернули один дорогий товар, грошова частка може бути значною за невеликої кількісної частки. Для графіка потрібно назвати базу, щоб читач не домислював її. Аналогічно виконання плану визначають як факт, поділений на план, тоді як приріст порівнює факт із попереднім періодом. Факт може перевищувати минулий місяць і водночас не досягати плану. Обидва спостереження правильні, але відповідають на різні питання.</p></div></details><details class="acc"><summary><span>П’ять пунктів або двадцять п’ять відсотків</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Зміна частки з двадцяти до двадцяти п’яти відсотків становить п’ять <b>відсоткових пунктів</b>. Відносно початкової частки це приріст на двадцять п’ять відсотків, оскільки 5 / 20 × 100 = 25; у повідомленні потрібно прямо називати обраний спосіб. Якщо написати лише «зросло на п’ять відсотків», читач може неправильно зрозуміти величину. Для абсолютного показника приріст також залежить від бази: збільшення з десяти до двадцяти становить сто відсотків, а з тисячі до тисячі десяти – один відсоток. Високий темп на малій базі не обов’язково означає великий внесок у загальний результат.</p></div></details><details class="acc"><summary><span>Структура груп змінює загальну частку</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Склад загальної частки може змінюватися навіть за стабільних результатів кожної групи. Припустімо, один маршрут має своєчасність 95 відсотків, а інший 80. Якщо більша частина доставок переходить на другий маршрут, загальний показник зменшиться без погіршення якості всередині маршрутів, тому аналіз загального числа варто доповнювати обсягами груп. Так само зростання частки дорогих товарів може збільшити середній чек без зміни цін на окремі позиції; зміна структури є самостійним фактором. Візуалізація повинна допомагати розрізняти зміну результату в групах і зміну ваги самих груп.</p></div></details><details class="acc"><summary><span>Округлення на етапі подання</span><span class="arrow">▶</span></summary><div class="acc-body"><p><b>Округлення</b> виконують на етапі подання, зберігаючи достатню точність розрахунків; якщо кожну частку спочатку округлити до цілого числа, їхня сума може відрізнятися від ста відсотків. Це не завжди є помилкою вихідних даних, але потребує зрозумілого пояснення. Надмірна кількість десяткових знаків також заважає читанню й створює враження точності, якої дані не мають. Для невеликої вибірки частка з багатьма знаками виглядає переконливіше, ніж дозволяє інформація; обсяг спостережень варто показувати поруч. Точність оформлення повинна відповідати змісту та практичній потребі, а не можливості редактора відобразити багато цифр.</p></div></details>
+      </article>
+
+      <article class="block" data-kind="sim" id="s2-6">
+        <header class="block-head"><span class="block-no">2.6</span><div><span class="kind"></span><h3>Калькулятор: пункти, відсотки, база</h3></div></header>
+        <div class="calc"><label class="field">Частка в базовому періоді, %<input type="number" id="ppA" value="20" step="0.5"></label><label class="field">Частка в новому періоді, %<input type="number" id="ppB" value="25" step="0.5"></label><label class="field">Базове значення<input type="number" id="vA" value="10"></label><label class="field">Нове значення<input type="number" id="vB" value="20"></label></div><div class="result-box" id="ppOut"></div>
+      </article>
+
+      <div class="group-label" data-g="C" data-title="Три магазини за два тижні"><b>C</b>Три магазини за два тижні</div>
+
+      <article class="block" data-kind="theory" id="s2-7">
+        <header class="block-head"><span class="block-no">2.7</span><div><span class="kind"></span><h3>Абсолютні обсяги і продаж на день</h3></div></header>
+        <details class="acc" open><summary><span>Дані після підготовки</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Після підготовки отримано такі чисті продажі. Магазин «Центр» мав сімдесят тисяч гривень за сім робочих днів першого тижня і сімдесят дві тисячі за шість днів другого. «Північ» мала сорок вісім тисяч за шість днів і п’ятдесят чотири тисячі також за шість. «Південь» мала сорок тисяч за п’ять днів і сорок дві тисячі за сім. Абсолютні обсяги зросли в усіх трьох магазинах; проте питання про інтенсивність потребує розрахунку на день роботи. Такий приклад показує, чому одного графіка загальної виручки недостатньо для висновку про зміну діяльності. Показник має відповідати конкретному питанню та враховувати різну тривалість роботи.</p></div></details><details class="acc"><summary><span>«Центр» +20 %, «Південь» −25 %</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Для «Центру» продаж на день зріс із десяти до дванадцяти тисяч гривень, тобто на двадцять відсотків. Для «Півночі» він зріс із восьми до дев’яти тисяч, тобто на дванадцять з половиною відсотків. Для «Півдня» він зменшився з восьми до шести тисяч, тобто на двадцять п’ять відсотків, водночас загальний тижневий обсяг «Півдня» збільшився на п’ять відсотків. Два спостереження не суперечать одне одному: магазин працював більше днів. Керівник отримує важливе уточнення, яке неможливо побачити за абсолютним підсумком. Однак навіть показник на день ще не враховує години, асортимент і кількість покупців. Його межі потрібно назвати, щоб не перетворити корисне уточнення на остаточну оцінку всіх сторін роботи.</p></div></details>
+      </article>
+
+      <article class="block" data-kind="data" id="s2-8">
+        <header class="block-head"><span class="block-no">2.8</span><div><span class="kind"></span><h3>Таблиця 4.1.1 · Продажі та робочі дні трьох магазинів за два тижні</h3></div></header>
+        <div class="table-wrap"><table><thead><tr><th>Магазин</th><th>Перший тиждень сума і дні</th><th>Другий тиждень сума і дні</th><th>Продаж на день першого і другого тижня</th></tr></thead><tbody><tr><td>Центр</td><td>70000 грн 7 днів</td><td>72000 грн 6 днів</td><td>10000 грн і 12000 грн</td></tr><tr><td>Північ</td><td>48000 грн 6 днів</td><td>54000 грн 6 днів</td><td>8000 грн і 9000 грн</td></tr><tr><td>Південь</td><td>40000 грн 5 днів</td><td>42000 грн 7 днів</td><td>8000 грн і 6000 грн</td></tr></tbody></table></div>
+      </article>
+
+      <article class="block" data-kind="sim" id="s2-9">
+        <header class="block-head"><span class="block-no">2.9</span><div><span class="kind"></span><h3>Сума, інтенсивність і внесок у приріст</h3></div></header>
+        <div class="btnrow" id="stBtns"><button class="btn small active" data-m="0">Сума за тиждень</button><button class="btn ghost small" data-m="1">Продаж на робочий день</button><button class="btn ghost small" data-m="2">Внесок у приріст</button></div><div class="split2"><div class="sim-stage"><svg class="chart" id="stChart" role="img" aria-label="Продажі магазинів"></svg><div class="legend" id="stLeg"></div></div><div class="result-box" id="stOut"></div></div>
+      </article>
+
+      <article class="block" data-kind="theory" id="s2-10">
+        <header class="block-head"><span class="block-no">2.10</span><div><span class="kind"></span><h3>Мережевий підсумок і внески</h3></div></header>
+        <details class="acc" open><summary><span>158 і 168 тисяч, 8 777,78 і 8 842,11 гривні</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Загальна сума першого тижня становить сто п’ятдесят вісім тисяч гривень, другого – сто шістдесят вісім тисяч; приріст дорівнює десяти тисячам, або приблизно 6,33 відсотка. Загальна кількість магазиноднів зросла з вісімнадцяти до дев’ятнадцяти; якщо потрібен середній продаж на один магазинодень мережі, суми ділять на відповідну загальну кількість днів: приблизно 8777,78 і 8842,11 гривні. Зростання цього показника становить приблизно 0,73 відсотка. Не можна отримати його простим середнім трьох магазинних середніх без урахування кількості днів. Загальний результат майже стабільний за інтенсивністю, хоча абсолютний обсяг збільшився. Зважування допомагає правильно тлумачити мережевий підсумок.</p></div></details><details class="acc"><summary><span>Незважене середнє — інше питання</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Якщо мета – оцінити типовий магазин, іноді може бути потрібне незважене середнє магазинних показників; воно відповідає іншому питанню, надаючи кожному магазину однакову вагу. Для мережевого обсягу доцільне зважування за кількістю спостережень, а для порівняння типових одиниць аналізу можлива інша логіка; обидва методи можуть бути коректними за ясного визначення. Помилка виникає, коли один показник називають іншим або непомітно змінюють правило між періодами. Фахівець повинен пояснити, що саме узагальнюється і чому. Вибір формули є частиною змісту аналізу, а не лише технічним способом отримати одне число для картки.</p></div></details><details class="acc"><summary><span>Абсолютний внесок і відносний темп</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Для пошуку внеску в приріст розглядають абсолютні зміни магазинів. «Центр» додав дві тисячі гривень, «Північ» – шість тисяч, «Південь» – дві тисячі; сума змін дорівнює десяти тисячам загального приросту. Найбільший абсолютний внесок має «Північ»; відносні темпи становлять приблизно 2,86, 12,5 і 5 відсотків. Високий темп та великий внесок у цьому прикладі збігаються, але так буває не завжди. Малий магазин може подвоїти виручку й дати менше гривень приросту, ніж невелика зміна великої точки. Для керівника корисно бачити обидві величини. Діаграма повинна називати, чи порівнює вона абсолютну зміну, відносний темп або частку внеску.</p></div></details><details class="acc"><summary><span>Від’ємні внески і внески понад 100 %</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Якщо одна група має спад, внески можуть бути від’ємними, а позитивний внесок іншої перевищувати сто відсотків загального приросту; це не обов’язково помилка. Наприклад, один магазин додає дванадцять тисяч, другий втрачає дві, а мережа зростає на десять. Внесок першого відносно загального приросту становить сто двадцять відсотків, другого – мінус двадцять. Такі значення не утворюють звичайну структуру невід’ємних частин, тому кругова діаграма непридатна. Потрібна форма, що показує додавання та віднімання, або проста таблиця змін; розуміння економічної природи величини визначає допустимий графік. Автоматичне меню не повинно вибирати форму без цієї перевірки.</p></div></details>
+      </article>
+
+      <div class="takeaway" id="s2-end"><div class="tk-icon">✓</div><div><span class="tk-label">Підсумок розділу</span><p>У розглянутому звіті загальні продажі мережі зросли зі 158 до 168 тисяч гривень, проте середній продаж на один магазинодень збільшився лише приблизно на 0,73 відсотка. Отже, приріст суми значною мірою пов’язаний із тривалістю роботи, а зміни окремих магазинів відрізняються. Для графічного пояснення потрібно показати обсяг і продаж на день у різних, чітко підписаних діаграмах, щоб читач не сприйняв зростання загальної суми як однакове поліпшення всіх торговельних точок.</p></div></div>
+
+    </div>
+  </section>
+
+  <!-- ================= S3 ================= -->
+  <section class="panel" id="s3">
+    <header class="sec-head">
+      <div class="sec-idx">03</div>
+      <div>
+        <span class="sec-kicker">Розділ 3 / 4</span>
+        <h2>Типи діаграм та їх відповідність задачі</h2>
+        <p class="lede">Тип діаграми обирають за тим, що саме потрібно порівняти. Якщо керівник хоче визначити внесок магазинів у продажі, доречні стовпчики з однаковою основою; якщо потрібно простежити зміну протягом тижнів, використовують лінійний графік із правильним порядком дат. Для аналізу часу доставки й відстані потрібне подання пар числових значень. Цей вибір впливає на висновок, оскільки кожна графічна форма підкреслює певні зв’язки та може приховувати інші.</p>
+        <div class="sec-meta"></div>
+      </div>
+    </header>
+    <aside class="sec-toc" aria-label="Зміст розділу"><div class="toc-title">Зміст розділу</div><nav class="toc-list"></nav></aside>
+    <div class="sec-main">
+
+      <div class="group-label" data-g="A" data-title="Вибір типу діаграми"><b>A</b>Вибір типу діаграми</div>
+
+      <article class="block" data-kind="data" id="s3-1">
+        <header class="block-head"><span class="block-no">3.1</span><div><span class="kind"></span><h3>Скріншот 4.1.1 · Вибір типу діаграми в Microsoft Excel</h3></div></header>
+        <p>У Microsoft Excel діаграму будують за підготовленим діапазоном із заголовками та числовими значеннями. Для звіту магазинів спочатку виділяють назви торговельних точок і продажі за два тижні, далі на вкладці Insert відкривають Recommended Charts або вибирають тип через All Charts. На скріншоті 4.1.1 показано вікно вибору: ліворуч розміщені варіанти, а в центрі – попередній перегляд. Для порівняння тижнів доцільно обрати згруповані стовпчики, тоді як складені стовпчики на показаному перегляді відповідають питанню про склад цілого.</p><div class="sim-stage"><svg class="flow" viewBox="0 0 900 360" role="img" aria-label="Схема вікна вибору діаграми"><g class="mm-in"><rect class="wf-win" x="10" y="10" width="880" height="340" rx="12"/><rect class="wf-bar" x="10" y="10" width="880" height="42" rx="12"/><text class="wf-tb" x="30" y="37">Insert Chart</text><rect class="wf-acc" x="150" y="62" width="160" height="28" rx="8"/><text class="wf-t" x="230" y="81" text-anchor="middle">Recommended Charts</text><text class="wf-t" x="360" y="81" text-anchor="middle">All Charts</text></g><g class="mm-in"><rect class="wf-bar" x="24" y="100" width="190" height="236" rx="8"/><text class="wf-t" x="44" y="125">Recommended</text><rect class="wf-acc" x="30" y="136" width="178" height="24" rx="6"/><text class="wf-t" x="44" y="153">Column</text><text class="wf-t" x="44" y="181">Line</text><text class="wf-t" x="44" y="209">Pie</text><text class="wf-t" x="44" y="237">Bar</text><text class="wf-t" x="44" y="265">Area</text><text class="wf-t" x="44" y="293">X Y (Scatter)</text><text class="wf-t" x="44" y="321">Combo</text></g><g class="mm-in"><rect class="wf-bar" x="230" y="100" width="644" height="236" rx="8"/><text class="wf-tb" x="250" y="126">Clustered Column</text><rect x="300" y="142" width="44" height="168" rx="4" class="b-blue"/><rect x="350" y="137" width="44" height="173" rx="4" class="b-ok"/><text class="wf-ts" x="347" y="328" text-anchor="middle">Центр</text><rect x="470" y="195" width="44" height="115" rx="4" class="b-blue"/><rect x="520" y="180" width="44" height="130" rx="4" class="b-ok"/><text class="wf-ts" x="517" y="328" text-anchor="middle">Північ</text><rect x="640" y="214" width="44" height="96" rx="4" class="b-blue"/><rect x="690" y="209" width="44" height="101" rx="4" class="b-ok"/><text class="wf-ts" x="687" y="328" text-anchor="middle">Південь</text><line x1="280" x2="850" y1="310" y2="310" class="ax"/></g><g class="mm-in"><rect class="wf-hl" x="26" y="104" width="186" height="34" rx="8"/><text class="wf-hlt" x="120" y="352" text-anchor="middle">тип ліворуч → попередній перегляд у центрі</text></g></svg></div><p class="fig-note">Схематичне відтворення англомовного інтерфейсу за матеріалами: Джерело: Microsoft Support. Назви вкладок і розміщення команд залежать від версії.</p><p>Після вставлення аналітик задає назву, одиницю виміру та легенду, а потім перевіряє діапазон і відповідність чисел стовпчикам. Другу діаграму продажу на день будують за окремими обчисленими значеннями, не підміняючи ними загальний продаж. Таким чином, рекомендація застосунку допомагає переглянути форми, але остаточний вибір випливає зі змісту порівняння. Скріншот відтворює англомовний інтерфейс із документації; назви вкладок і розміщення команд залежать від версії.</p>
+      </article>
+
+      <article class="block" data-kind="theory" id="s3-2">
+        <header class="block-head"><span class="block-no">3.2</span><div><span class="kind"></span><h3>Категорії, час, структура, зв’язок, розподіл</h3></div></header>
+        <details class="acc" open><summary><span>Стовпчики, смуги і лінії</span><span class="arrow">▶</span></summary><div class="acc-body"><p><b>Стовпчикові й смугові діаграми</b> підходять для порівняння категорій; вертикальні стовпчики зручні для коротких назв, горизонтальні смуги – для довших назв магазинів, товарів або маршрутів. Якщо категорії не мають природного порядку, їх можна впорядкувати за значенням, щоб полегшити порівняння. Для стовпчиків вісь величини зазвичай починається з нуля, оскільки читач порівнює довжину; усічена вісь здатна візуально перебільшити різницю.</p><p><b>Лінійний графік</b> відображає зміну показника у впорядкованому часі. Періоди повинні йти послідовно, а нерівномірні інтервали потрібно правильно відобразити або пояснити. Лінія між категоріями, які не мають послідовного зв’язку, може створити хибне відчуття безперервності. Для кількох магазинів можна побудувати кілька ліній на спільній шкалі, але надмірна кількість серій ускладнює читання. У такому разі доцільно вибрати ключові серії або окремі невеликі графіки зі спільною шкалою.</p></div></details><details class="acc"><summary><span>Складені стовпчики, кругова, точкова, гістограма</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Структуру цілого можна показати складеними стовпчиками або круговою діаграмою для невеликої кількості взаємовиключних частин. Кругова діаграма непридатна, якщо частки перетинаються або не утворюють одного цілого; близькі значення часто легше порівнювати смугами, ніж секторами. Стовпчики, нормовані до 100 відсотків, показують склад, але приховують різницю загальних обсягів, тому для порівняння структури магазинів із різними продажами корисно додати самі обсяги; <b>точкова діаграма</b> використовує пару числових координат для кожного спостереження.</p><p>Вона може показати, як змінюється час рейсу зі збільшенням відстані. Виявлений зв’язок не доводить причинності, оскільки на час можуть впливати дорожні умови, кількість зупинок і завантаження. <b>Гістограма</b>, своєю чергою, групує вимірювання за інтервалами й показує розподіл. Її потрібно відрізняти від стовпчикової діаграми категорій: у гістограмі інтервали представляють числову шкалу.</p></div></details><div class="grid5"><div class="card"><h4>Стовпчики / смуги</h4>Порівняння категорій; вісь від нуля, бо читач порівнює довжину.</div><div class="card"><h4>Лінійний графік</h4>Зміна у впорядкованому часі; лінія між непослідовними категоріями вводить в оману.</div><div class="card"><h4>Складені стовпчики</h4>Склад цілого; нормування до 100 % приховує різницю обсягів.</div><div class="card"><h4>Точкова</h4>Зв’язок двох числових значень; зв’язок не доводить причинності.</div><div class="card"><h4>Гістограма</h4>Розподіл вимірювань за числовими інтервалами — не те саме, що стовпчики категорій.</div></div>
+      </article>
+
+      <article class="block" data-kind="data" id="s3-3">
+        <header class="block-head"><span class="block-no">3.3</span><div><span class="kind"></span><h3>Таблиця 4.1.2 · Добір діаграми за аналітичним питанням</h3></div></header>
+        <div class="table-wrap"><table><thead><tr><th>Питання</th><th>Доцільний тип</th><th>Приклад</th><th>Основна перевірка</th></tr></thead><tbody><tr><td>Яка категорія має більше</td><td>Стовпчики або смуги</td><td>Виручка за категоріями</td><td>Однакові одиниці й база осі</td></tr><tr><td>Як показник змінюється</td><td>Лінійний графік</td><td>Доставки за тижнями</td><td>Правильний порядок часу</td></tr><tr><td>З чого складається ціле</td><td>Складені стовпчики</td><td>Продажі за каналами</td><td>Сума частин відповідає цілому</td></tr><tr><td>Як пов’язані два значення</td><td>Точкова діаграма</td><td>Відстань і час рейсу</td><td>Обидві осі числові</td></tr><tr><td>Як розподілені вимірювання</td><td>Гістограма</td><td>Час комплектування</td><td>Інтервали групування обґрунтовані</td></tr></tbody></table></div>
+      </article>
+
+      <article class="block" data-kind="sim" id="s3-4">
+        <header class="block-head"><span class="block-no">3.4</span><div><span class="kind"></span><h3>Яка діаграма відповідає питанню?</h3></div></header>
+        <div id="clsChart"></div><div class="sim-log" id="clsChartScore">Оберіть форму для кожного аналітичного питання.</div>
+      </article>
+
+      <div class="group-label" data-g="B" data-title="Рисунок 4.1.1: дві діаграми замість однієї"><b>B</b>Рисунок 4.1.1: дві діаграми замість однієї</div>
+
+      <article class="block" data-kind="data" id="s3-5">
+        <header class="block-head"><span class="block-no">3.5</span><div><span class="kind"></span><h3>Рисунок 4.1.1 · Порівняння продажів магазинів і продажу на робочий день</h3></div></header>
+        <div class="grid2"><div class="sim-stage"><svg class="chart" id="f41a" role="img" aria-label="Продажі за тиждень"></svg><p class="fig-note" style="margin:6px 4px 0">Продажі за тиждень, тис. грн</p></div><div class="sim-stage"><svg class="chart" id="f41b" role="img" aria-label="Продаж на робочий день"></svg><p class="fig-note" style="margin:6px 4px 0">Продаж на робочий день, тис. грн</p></div></div><div class="legend"><span><i style="background:var(--blue)"></i>тиждень 1</span><span><i style="background:var(--ok)"></i>тиждень 2</span></div><p>На рисунку 4.1.1 зіставлено продажі Центру, Півночі й Півдня за два тижні та продаж на один робочий день. Ліва діаграма показує внесок магазинів у загальний обсяг, а права – зміну інтенсивності роботи, тому ці подання потрібно читати разом. Для Півдня зростання загальної суми з 40 до 42 тисяч гривень поєднується зі спадом продажу на день із восьми до шести тисяч, що спрямовує аналіз на додаткові дні роботи та доступність асортименту.</p>
+      </article>
+
+      <article class="block" data-kind="theory" id="s3-6">
+        <header class="block-head"><span class="block-no">3.6</span><div><span class="kind"></span><h3>Форма, порядок і спільне подання</h3></div></header>
+        <details class="acc" open><summary><span>Положення і довжина проти площі</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Графічна форма впливає на те, які відмінності читач помітить найшвидше. Положення на спільній шкалі та довжина смуг добре підтримують точне порівняння. Площі секторів або декоративних фігур складніше порівнювати, особливо для близьких величин, тому для ранжування магазинів смугова діаграма часто зрозуміліша за кругову. Тип графіка обирають за питанням: порівняння категорій, зміна у часі, структура, розподіл або зв’язок. Однаковий набір чисел може бути поданий кількома способами, але вони підкреслюватимуть різні властивості. Доречна візуалізація полегшує правильний висновок без потреби відчитувати кожну клітинку таблиці.</p></div></details><details class="acc"><summary><span>Порядок категорій несе зміст</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Порядок категорій також несе зміст; для місяців використовують календарну послідовність, для діапазонів часу – зростання меж, для незалежних товарних категорій можливе ранжування за значенням. Алфавітне впорядкування зручне для пошуку, але може приховувати найбільші та найменші результати. Якщо графік порівнює кілька періодів, бажано зберігати узгоджений порядок категорій, щоб читач не шукав кожну знову; сортування повинно відповідати призначенню. Не варто міняти порядок лише для створення бажаного враження. Якщо впорядкування має аналітичний сенс, його можна коротко пояснити в підписі або заголовку.</p></div></details><details class="acc"><summary><span>Дві узгоджені діаграми для магазинів</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Порівняння магазинів доцільно подати двома узгодженими діаграмами: на першій показати загальні продажі за кожний тиждень у гривнях, а на другій – продаж на один робочий день. Усередині кожної діаграми магазини мають однакову шкалу, тоді як одиниці між двома графіками відрізняються й прямо зазначені в підписах. За такого подання читач бачить, що «Південь» збільшив загальну суму з 40 до 42 тисяч гривень, але через перехід від п’яти до семи робочих днів продаж на день зменшився з восьми до шести тисяч. Розміщення цих показників на одній числовій осі приховало б їх різний зміст, тоді як два прості графіки дозволяють пов’язати обсяг із тривалістю роботи.</p></div></details>
+      </article>
+
+      <div class="group-label" data-g="C" data-title="Час, структура, розподіл, зв’язок"><b>C</b>Час, структура, розподіл, зв’язок</div>
+
+      <article class="block" data-kind="theory" id="s3-7">
+        <header class="block-head"><span class="block-no">3.7</span><div><span class="kind"></span><h3>Лінії і неповні періоди</h3></div></header>
+        <details class="acc" open><summary><span>Значення тижня — підсумок інтервалу</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Лінійний графік показує послідовність змін, але спосіб з’єднання точок потрібно тлумачити обережно. Значення виручки за тиждень є підсумком інтервалу, а не миттєвим вимірюванням у конкретну секунду. Лінія допомагає бачити тенденцію, проте не підтверджує плавної зміни всередині тижня. Для денних даних вихідні та свята можуть створювати повторювані коливання. Порівняння аналогічних днів або додаткове узагальнення допомагає відрізняти календарний ефект від стійкого зростання. Якщо застосовано згладжування, читач повинен знати метод і розмір вікна. Згладжена лінія не повинна приховувати важливі короткочасні провали або піки.</p></div></details><details class="acc"><summary><span>Неповний поточний період і прогноз</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Неповний поточний період потрібно відокремлювати від завершених; продажі за десять днів місяця не можна без позначення ставити поруч із повними попередніми місяцями як рівнозначні підсумки. Можна порівняти однакову кількість днів або показати поточний результат як неповний; прогноз завершення, якщо він є, слід відрізняти від факту. Для цього використовують окреме позначення, підпис і пояснення методу. Читач має бачити межу між зареєстрованими операціями та очікуванням. У торговельному звіті ця межа важлива для планування, оскільки прогноз не є підтвердженою виручкою і не повинен підміняти її.</p></div></details><details class="acc"><summary><span>Два тижневі підсумки не показують форми процесу</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Для часової динаміки потрібні детальніші дані, ніж два тижневі підсумки. Два значення показують зміну між періодами, але не дозволяють установити форму процесу всередині них. Якщо побудувати довгу плавну лінію між двома точками, вона не додасть нових відомостей. Денний ряд може показати, чи був спад поступовим, чи пов’язаний з одним днем; при цьому потрібні позначки неробочих днів і відсутності даних. Нуль у неробочий день має інший зміст, ніж нуль продажів у відкритому магазині; для аналізу інтенсивності ці випадки розрізняють. Графік повинен зберігати важливий контекст, навіть якщо це потребує короткого пояснення поряд із ним.</p></div></details>
+      </article>
+
+      <article class="block" data-kind="theory" id="s3-8">
+        <header class="block-head"><span class="block-no">3.8</span><div><span class="kind"></span><h3>Складені стовпчики і гістограми</h3></div></header>
+        <details class="acc" open><summary><span>Нормування до 100 % і різниця обороту</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Складений стовпчик показує, як частини формують загальний обсяг; для порівняння структури різних магазинів можна нормувати кожний стовпчик до ста відсотків. Тоді однакова висота приховує різницю обороту; магазин із виручкою сто тисяч і магазин із виручкою десять тисяч можуть мати однакові частки категорій. Поруч доцільно показати загальні обсяги або окремий графік. Для точного порівняння внутрішніх частин складених стовпчиків виникає складність: не всі частини мають спільну базу. Якщо головне питання стосується однієї категорії, її краще винести у самостійне порівняння. Вибір залежить від головного висновку.</p></div></details><details class="acc"><summary><span>Межі й ширина інтервалів</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Гістограма показує, скільки спостережень потрапляє до числових інтервалів; для часу комплектування можна використати межі від нуля до п’яти, від п’яти до десяти хвилин і далі. Потрібно визначити, до якого інтервалу належить граничне значення; занадто широкі інтервали приховують структуру, а дуже вузькі створюють випадкову нерівність. Для порівняння двох груп межі мають бути узгодженими. Якщо інтервали різної ширини, висота частоти без належного врахування ширини може вводити в оману. У гістограмі часу комплектування зручно використати рівні інтервали, наприклад по п’ять хвилин, і прямо вказати їхні межі, що дозволяє зосередитися на змісті розподілу.</p></div></details><details class="acc"><summary><span>Однаковий середній чек, різні розподіли</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Для розподілу чеків потрібен набір окремих сум, а не лише загальна виручка. Два магазини можуть мати однаковий <b>середній чек</b>, але різні розподіли: в одному більшість покупок близькі до середнього, в іншому поєднані багато малих і кілька великих; гістограма допоможе побачити цю різницю. Межі інтервалів мають бути однаковими для порівняння; потрібно також указати кількість чеків, оскільки більша частота може відображати більший обсяг магазину. За потреби порівнюють частки в інтервалах, пояснюючи нормування. Зведене середнє не замінює форму розподілу, якщо саме вона впливає на рішення щодо асортименту чи обслуговування.</p></div></details>
+      </article>
+
+      <article class="block" data-kind="sim" id="s3-9">
+        <header class="block-head"><span class="block-no">3.9</span><div><span class="kind"></span><h3>Гістограма: як ширина інтервалу змінює картину</h3></div></header>
+        <p class="lede">32 вимірювання часу комплектування (хв). Оберіть ширину інтервалу; граничне значення належить правому інтервалу.</p><div class="btnrow" id="hgBtns"><button class="btn ghost small" data-w="2">2 хв</button><button class="btn small active" data-w="5">5 хв</button><button class="btn ghost small" data-w="10">10 хв</button><button class="btn ghost small" data-w="20">20 хв</button></div><div class="sim-stage"><svg class="chart" id="hgChart" role="img" aria-label="Гістограма"></svg></div><div class="sim-log" id="hgOut"></div>
+      </article>
+
+      <article class="block" data-kind="extra" id="s3-10">
+        <header class="block-head"><span class="block-no">3.10</span><div><span class="kind"></span><h3>Точкова діаграма і карта</h3></div></header>
+        <details class="acc" open><summary><span>Відстань і час рейсу</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Точкова діаграма допомагає побачити зв’язок двох числових характеристик; для кожного рейсу можна подати відстань та час. Зростання часу з відстанню є очікуваним, але розкид пояснюють також зупинки, дорожні умови й завантаження. Окремий далекий рейс може сильно впливати на загальне враження, тому потрібно знати кількість спостережень і перевіряти незвичні точки; лінія тенденції є способом узагальнення, а не доказом причини. Якщо на графіку одночасно зростають витрати на рекламу та продажі, можливий вплив сезонності або інших змін. Для причинного висновку потрібне ширше дослідження умов.</p></div></details><details class="acc"><summary><span>Коли розташування має значення</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Карта доречна, коли розташування має значення для задачі; вона може показати точки доставки, зони обслуговування або концентрацію звернень. Проте великі за площею території привертають більше уваги незалежно від кількості операцій. Порівняння районів за загальним обсягом і за показником на населення відповідає на різні питання. Для логістики важливі також дорожні зв’язки, які не завжди видно через просту географічну близькість; карта не замінює таблиці точних величин. Її використовують, коли просторове пояснення допомагає рішенню, а не лише для привабливого оформлення. Підписи та визначення одиниць залишаються обов’язковими.</p></div></details>
+      </article>
+
+      <div class="takeaway" id="s3-end"><div class="tk-icon">✓</div><div><span class="tk-label">Підсумок розділу</span><p>На рисунку з даними магазинів одна діаграма показує зростання абсолютного продажу в кожній точці, а інша – зниження продажу на день у магазині «Південь». Суперечності тут немає: графіки відповідають на різні питання та використовують різні показники. Таке спільне подання дає керівникові підставу перевірити, що відбувалося в додаткові дні роботи «Півдня», замість того щоб робити висновок лише за підсумковою сумою.</p></div></div>
+
+    </div>
+  </section>
+
+  <!-- ================= S4 ================= -->
+  <section class="panel" id="s4">
+    <header class="sec-head">
+      <div class="sec-idx">04</div>
+      <div>
+        <span class="sec-kicker">Розділ 4 / 4</span>
+        <h2>Читабельність і доброчесність візуалізації</h2>
+        <p class="lede">Навіть правильні числа можна подати так, що читач перебільшить або недооцінить зміну. Найчастіше це трапляється через початок шкали, різні одиниці, неповний період або відсутність підпису показника. Для звіту про магазини важливо, щоб висота стовпчика відповідала величині продажу, а назва пояснювала, йдеться про загальну суму чи продаж на день. Читабельність і коректність оформлення забезпечують можливість використати графік у реальному обговоренні результатів без додаткового вгадування його змісту.</p>
+        <div class="sec-meta"></div>
+      </div>
+    </header>
+    <aside class="sec-toc" aria-label="Зміст розділу"><div class="toc-title">Зміст розділу</div><nav class="toc-list"></nav></aside>
+    <div class="sec-main">
+
+      <div class="group-label" data-g="A" data-title="Оформлення, яке читається без автора"><b>A</b>Оформлення, яке читається без автора</div>
+
+      <article class="block" data-kind="theory" id="s4-1">
+        <header class="block-head"><span class="block-no">4.1</span><div><span class="kind"></span><h3>Назва, підписи, колір</h3></div></header>
+        <details class="acc" open><summary><span>Що має пояснювати назва діаграми</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Назва діаграми повинна пояснювати, що саме показано, за який період і для якої вибірки. Підписи осей містять одиниці виміру, а легенда – назви серій, якщо їх кілька. Для графіка «Виручка магазинів за жовтень» потрібне уточнення року й того, чи дані охоплюють увесь місяць. Підпис «Продажі» без одиниць не дозволяє зрозуміти, чи йдеться про гроші, одиниці товару або кількість операцій; колір слід застосовувати послідовно.</p><p>Якщо магазин «Центр» позначений певним кольором на одному графіку, бажано зберегти позначення на інших. Для друку у відтінках сірого потрібні додаткові засоби розрізнення: підписи, маркери або різні типи ліній; важливий статус не повинен передаватися лише кольором. Зайві об’ємні ефекти, тіні й декоративні елементи ускладнюють оцінювання величин, тому для аналітичної роботи доцільне просте двовимірне подання.</p></div></details><details class="acc"><summary><span>Заголовок: показник, об’єкт, період</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Заголовок повинен називати показник, об’єкт і період; якщо використано вибірку, її межі також мають бути зрозумілими. Одиниці виміру можна подати на осі або в підзаголовку, але вони не повинні зникати при копіюванні рисунка до іншого документа; підпис джерела та часу оновлення допомагає перевірити результат. Для кількох серій потрібні зрозумілі назви, а не технічні позначки «ряд 1» і «ряд 2». Прямі підписи біля ліній іноді зменшують потребу постійно звертатися до легенди. Оформлення має знижувати зусилля читача, зберігаючи всі відомості, необхідні для правильного тлумачення.</p></div></details><details class="acc"><summary><span>Колір не єдиний носій змісту</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Колір не повинен бути єдиним носієм важливої відмінності; частина читачів може мати труднощі з розрізненням відтінків, а чорно-білий друк прибирає значну частину кольорового кодування. Маркери, типи ліній, прямі підписи та штрихування допомагають зберігати зміст; контраст має бути достатнім для тексту й осей. Надто світла сітка може зникнути, а надто темна – відволікати від даних. Для робочого звіту обирають графіки з читабельними числами й чіткими підписами, які зберігають зміст під час друку або копіювання. Прикраси не повинні перекривати об’єкти або змінювати їхню видиму величину. Доступність графіка є частиною точності комунікації, а не лише питанням стилю.</p></div></details><ul class="checklist"><li>показник і одиниці</li><li>об’єкт і вибірка</li><li>період і повнота</li><li>назви серій замість «ряд 1»</li><li>джерело і час оновлення</li><li>читається у відтінках сірого</li></ul>
+      </article>
+
+      <div class="group-label" data-g="B" data-title="Масштаб і доброчесність"><b>B</b>Масштаб і доброчесність</div>
+
+      <article class="block" data-kind="theory" id="s4-2">
+        <header class="block-head"><span class="block-no">4.2</span><div><span class="kind"></span><h3>Шкала визначає зорове повідомлення</h3></div></header>
+        <details class="acc" open><summary><span>Усічена вісь, спільні шкали, подвійні осі</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Масштаб впливає на сприйняття; на лінійному графіку усічена вісь іноді допомагає показати невеликі зміни, але її межі мають бути очевидними. Для порівняння кількох графіків однакових показників бажано використовувати спільні шкали. <b>Подвійні осі</b> потребують особливої обережності: зміна їх масштабів може створити уявний зв’язок між серіями. Для порівняння показників часто ясніше показати два окремі графіки з узгодженим часом.</p><p>Перед використанням діаграми перевіряють її діапазон, категорії, одиниці, підсумки, масштаб і дату оновлення. Якщо значення округлено, підпис має відповідати точності, потрібній для рішення. Інформацію про виключені записи або неповний період подають поруч із графіком. Доброчесна візуалізація дозволяє читачеві встановити, що справді випливає з даних, а що залишається припущенням для подальшої перевірки.</p></div></details><details class="acc"><summary><span>100 і 110 на осі від 95</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Для смуг і стовпчиків довжина є основою порівняння, тому початок шкали особливо важливий. Два значення сто і сто десять відрізняються на десять відсотків. Якщо почати вісь із дев’яноста п’яти, видимі частини стовпчиків матимуть висоти п’ять і п’ятнадцять, створюючи враження триразової різниці. Числові підписи можуть бути правильними, але зорове повідомлення залишатиметься спотвореним. Для лінійного графіка ненульовий початок іноді доречний, якщо потрібно розглянути невеликі коливання, однак межі мають бути очевидними. Рішення про масштаб приймають за природою графічного порівняння та завданням, а не за бажанням посилити ефект.</p></div></details><details class="acc"><summary><span>Спільна шкала для малих графіків</span><span class="arrow">▶</span></summary><div class="acc-body"><p><b>Спільна шкала</b> дозволяє порівнювати кілька невеликих графіків; якщо для кожного магазину автоматично встановити власний максимум, слабка та сильна динаміка можуть виглядати однаково. Однакова висота панелей не означатиме однакового обсягу; потрібно або зберігати спільні межі, або чітко повідомляти про різні шкали. Другий варіант може допомогти аналізувати форму змін усередині кожної групи, але не дозволяє безпосередньо порівнювати величини. Аналітик повинен визначити, що саме читач порівнюватиме. Невдалий масштаб здатний змінити висновок навіть за правильних даних і формул, тому його перевіряють як частину змісту.</p></div></details>
+      </article>
+
+      <article class="block" data-kind="sim" id="s4-3">
+        <header class="block-head"><span class="block-no">4.3</span><div><span class="kind"></span><h3>Рисунок 4.1.2 · Вплив початку шкали на сприйняття різниці (інтерактивно)</h3></div></header>
+        <p class="lede">«Центр»: 70 тис. грн у першому тижні і 72 тис. грн у другому. Пересувайте початок осі.</p><div class="range-row">Початок осі<input type="range" id="axMin" min="0" max="69" value="0" step="1"><output id="axOut">0 тис.</output></div><div class="split2"><div class="sim-stage"><svg class="chart" id="axChart" role="img" aria-label="Рисунок 4.1.2"></svg></div><div class="result-box" id="axRes"></div></div><p>Якщо для «Центру» показати сімдесят і сімдесят дві тисячі на шкалі від шістдесяти дев’яти, видимі висоти становитимуть одну й три тисячі. Читач може сприйняти майже триразове зростання, хоча фактичний приріст лише приблизно 2,86 відсотка; усічена база стовпчиків створює сильне спотворення. Правильне подання з нульовою базою покаже невелику різницю; якщо потрібно детально розглянути зміну, можна додати числовий підпис приросту або окремий графік абсолютних змін. Так зберігається точність без перебільшення. Порівняння шкал на рисунку показує, що доброчесність залежить не лише від чисел, а й від способу кодування їхньої величини.</p>
+      </article>
+
+      <article class="block" data-kind="theory" id="s4-4">
+        <header class="block-head"><span class="block-no">4.4</span><div><span class="kind"></span><h3>Порівнянність, період, сезонність, точність</h3></div></header>
+        <details class="acc" open><summary><span>Незмінність змісту показника</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Для тривалого аналізу потрібно перевіряти незмінність змісту показників; якщо магазин змінив графік роботи, асортимент або спосіб врахування повернень, ряд може відображати не лише зміну продажу. Позначка події на графіку допомагає читачеві зрозуміти можливий вплив, але не доводить причинного зв’язку. Якщо визначення показника змінилося істотно, потрібне явне повідомлення або перерахунок попередніх значень за однаковим правилом. Інакше плавна лінія створюватиме враження однорідного процесу там, де дані описують різні умови; порівнянність є частиною підготовки, а не додатковою прикрасою графіка. Вона дозволяє правильно тлумачити тенденцію та не приписувати організаційний ефект технічній зміні обліку.</p></div></details><details class="acc"><summary><span>Вибір початку і кінця періоду</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Вибір початку і кінця періоду впливає на враження; графік, що починається з незвично низького дня, може показувати сильне зростання, а початок із піку – спад. Для професійного звіту період визначають за задачею та пояснюють; не варто добирати межі лише для підтвердження бажаного твердження. Якщо короткий фрагмент потрібний для аналізу конкретної події, доцільно показати його контекст у ширшому ряді. Читач повинен знати, чи зміна є звичайним коливанням, чи відрізняється від попередніх періодів. Правильні числа можуть бути подані вибірково, тому доброчесність включає також прозорість відбору часу та груп.</p></div></details><details class="acc"><summary><span>Сезонність</span><span class="arrow">▶</span></summary><div class="acc-body"><p><b>Сезонність</b> означає повторювані зміни, пов’язані з календарем або циклом діяльності. У торгівлі обсяг може залежати від дня тижня, свят або періоду року; порівняння сусідніх днів не завжди описує тенденцію. Для аналізу можна зіставляти аналогічні дні або показувати кілька циклів; проте сезонний зв’язок не гарантує повторення за нових умов. Якщо змінилися ціни чи доступність, минулий шаблон може не спрацювати. Виявлену повторюваність у минулих продажах потрібно відрізняти від прогнозу, який ще має підтвердитися на наступних періодах. Графік допомагає виявити закономірність, а її використання для майбутнього потребує перевірки припущень та меж застосовності.</p></div></details><details class="acc"><summary><span>Невизначеність вимірювання</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Невизначеність вимірювання теж впливає на графічний висновок; якщо час операції записується лише з точністю до десяти хвилин, різниця у дві хвилини не може бути надійно встановлена з такого джерела. Якщо частина чеків надходить із затримкою, поточне число має попередній статус; оформлення з багатьма десятковими знаками не збільшує фактичної точності. Доцільно показувати лише ту деталізацію, яку підтримують дані, і пояснювати суттєві обмеження. У професійному аналізі важливо не створювати ілюзії точності. Читач повинен розуміти, наскільки детальним є вимірювання та чи достатня різниця для практичного висновку.</p></div></details>
+      </article>
+
+      <div class="group-label" data-g="C" data-title="Від графіка до висновку"><b>C</b>Від графіка до висновку</div>
+
+      <article class="block" data-kind="theory" id="s4-5">
+        <header class="block-head"><span class="block-no">4.5</span><div><span class="kind"></span><h3>Що справді випливає з графіка</h3></div></header>
+        <details class="acc" open><summary><span>Перевірка словесним описом</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Підготовлений графік можна перевірити через короткий словесний опис; якщо автор не може одним зв’язним абзацом пояснити показник, період, вибірку та встановлене спостереження, можливо, діаграма поєднує надто багато задач. Опис повинен відповідати рисунку, а рисунок – джерелу; порівняння цих рівнів допомагає виявити непослідовність назв, одиниць і висновків. Така перевірка дозволяє використовувати графік у робочому звіті: читач отримує не лише зображення, а й достатні підстави для правильного тлумачення результату. Автор звіту відповідає за відповідність графіка джерелу та змісту висновку. Саме це робить візуалізацію корисною у реальних торговельних та логістичних рішеннях.</p></div></details><details class="acc"><summary><span>«Усі магазини працюють краще» — надто широко</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Назва «Усі магазини працюють краще» була б надто широкою для цього набору. Встановлено зростання загальних чистих продажів у всіх точках, але «Південь» має спад продажу на день. До того ж відсутні дані про витрати, повернення за причинами та задоволеність покупців; коректний висновок має називати саме виміряну властивість. Можна сказати, що мережевий тижневий обсяг зріс, а зміна інтенсивності неоднакова між магазинами. Наступне питання стосується причин спаду «Півдня» та ресурсів його додаткових днів роботи; так аналітичний виклад залишається точним і корисним. Він не підміняє багатовимірну оцінку одним зручним графіком.</p></div></details><details class="acc"><summary><span>Причини спаду «Півдня»</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Причини зниження продажу на день у магазині «Південь» встановлюють за додатковими відомостями про асортимент, кількість відвідувачів, чеки й ціни. Якщо в додаткові дні частина товарів була відсутня, потрібно перевірити зв’язок продажів із доступністю; якщо зменшилася відвідуваність – зіставити кількість відвідувачів та покупок. Зниження цін також може зменшити виручку при незмінній кількості проданих одиниць, тому його оцінюють окремо. Графік визначає напрям перевірки, а обґрунтований висновок формується після зіставлення кожного припущення з відповідними даними. Така послідовність переводить візуальне спостереження у конкретний аналіз роботи магазину.</p></div></details><details class="acc"><summary><span>Контроль готового матеріалу</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Контроль готового матеріалу включає узгодженість усіх підписів; суми у таблиці мають збігатися зі стовпчиками, формули приросту – використовувати правильну базу, а висновок – відповідати обраному періоду. Якщо рисунок скопійований до презентації, на ньому повинні залишитися одиниці й умови. Не варто передавати зображення без контексту, сподіваючись, що одержувач знає його походження. Для великих звітів корисно мати короткий опис джерела та правил підготовки поряд із відповідним графіком або в описі звіту; прозорість дозволяє перевірити результат без повторення всього процесу. Добре оформлений графік є завершеним повідомленням лише тоді, коли його можна правильно прочитати незалежно від автора.</p></div></details><details class="acc"><summary><span>Спостереження, пояснення, перевірка</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Після побудови діаграми потрібно перевірити, яке твердження з неї випливає; якщо видно зростання виручки, можна описати величину та період. Причину встановлюють за додатковими даними; якщо видно відмінність між маршрутами, потрібно перевірити обсяг, склад доставок і правила своєчасності. Заголовок із причинним твердженням не повинен випереджати доказ. Корисно розрізняти спостереження, можливе пояснення та подальшу перевірку, що дозволяє використовувати графік як основу дослідження, не надаючи йому більшої доказової сили, ніж містять дані. Добра візуалізація допомагає бачити і результат, і межі його тлумачення.</p></div></details><details class="acc"><summary><span>Візуалізація — лише один етап</span><span class="arrow">▶</span></summary><div class="acc-body"><p>Візуалізація завершує лише один етап роботи з даними; вона може показати проблему, але не автоматично визначає здійсненне рішення. Якщо на графіку зростає час комплектування, потрібно перевірити зміну обсягу замовлень, асортименту та ресурсів. Рішення може стосуватися графіка роботи, розміщення товарів або процедури перевірки. Важливо зберігати зв’язок між діаграмою та первинними записами, щоб перейти до деталей. У наступній лекції ця логіка розширюється до інформаційної панелі, яка поєднує кілька показників і підтримує робочі дії. Підготовка даних, прозорі формули та доречні графічні форми є її необхідною основою.</p></div></details>
+      </article>
+
+      <article class="block" data-kind="sim" id="s4-6">
+        <header class="block-head"><span class="block-no">4.6</span><div><span class="kind"></span><h3>Спостереження, пояснення чи перевірка?</h3></div></header>
+        <div id="clsObs"></div><div class="sim-log" id="clsObsScore">Розкладіть твердження про магазин «Південь».</div>
+      </article>
+
+      <div class="takeaway" id="s4-end"><div class="tk-icon">✓</div><div><span class="tk-label">Висновок лекції</span><p>Графік завершує підготовку даних, але відкриває наступний етап аналізу: встановлення причин і вибір дії. Зменшення продажу на день у «Півдні» є підтвердженим спостереженням, тоді як нестача товару, слабша відвідуваність або незручний графік роботи залишаються можливими поясненнями до їх перевірки. У наступному блоці окремі графіки та показники об’єднуються в інформаційну панель, яка допомагає бачити ці відхилення у зв’язку з обсягом роботи, витратами та потребами конкретного користувача.</p></div></div>
+
+    </div>
+  </section>
+
+  <!-- ================= PRACTICE ================= -->
+  <section class="panel plain" id="practice">
+    <header class="sec-head">
+      <div class="sec-idx">✓</div>
+      <div>
+        <span class="sec-kicker">Практика</span>
+        <h2>Практика: ситуаційні кейси</h2>
+        <p class="lede">Прочитайте ситуацію, запишіть власну відповідь, а потім відкрийте розбір. Кожен кейс спирається на конкретний фрагмент лекції.</p>
+      </div>
+    </header>
+    <div class="sec-main"><div id="caseList"></div></div>
+  </section>
+
+  <!-- ================= QUIZ ================= -->
+  <section class="panel plain" id="quiz">
+    <header class="sec-head">
+      <div class="sec-idx">?</div>
+      <div>
+        <span class="sec-kicker">Самоперевірка</span>
+        <h2>Тест для самоперевірки</h2>
+        <p class="lede">Оберіть відповідь: правильна підсвітиться, а під питанням з'явиться пояснення.</p>
+      </div>
+    </header>
+    <div class="sec-main">
+      <div id="quizContainer"></div>
+      <div id="quizScoreBar"><span>Результат: <span id="quizScore">0 / 0</span></span><button class="btn small" id="quizReset" type="button">⟲ Пройти знову</button></div>
+    </div>
+  </section>
+
+  <!-- ================= REF ================= -->
+  <section class="panel plain" id="ref">
+    <header class="sec-head">
+      <div class="sec-idx">Aa</div>
+      <div>
+        <span class="sec-kicker">Довідка</span>
+        <h2>Глосарій лекції</h2>
+      </div>
+    </header>
+    <div class="sec-main"><dl class="gloss" id="glossList"></dl></div>
+  </section>
+
+  <footer>STEAM-HUB · ПУЕТ — інтерактивний конспект · Лекція 4 «Підготовка даних і вибір способу візуалізації»</footer>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const fmt = (n, d=0) => Number(n).toLocaleString('uk-UA', {minimumFractionDigits:d, maximumFractionDigits:d});
+
+/* ---------- theme ---------- */
+const root = document.documentElement;
+function curTheme(){ const t = root.getAttribute('data-theme'); if(t) return t; return matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; }
+function paintThemeBtn(){ $('#themeBtn').textContent = curTheme()==='dark' ? '☀ Світла тема' : '☾ Темна тема'; }
+try{ const s = localStorage.getItem('lec41-theme'); if(s) root.setAttribute('data-theme', s); }catch(e){}
+$('#themeBtn').addEventListener('click', ()=>{
+  const next = curTheme()==='dark' ? 'light' : 'dark';
+  root.setAttribute('data-theme', next);
+  try{ localStorage.setItem('lec41-theme', next); }catch(e){}
+  paintThemeBtn();
+});
+paintThemeBtn();
+
+/* ---------- tabs ---------- */
+function openTab(id, scroll=true){
+  if(!document.getElementById(id)) return;
+  $$('#tabsNav button').forEach(b=>b.classList.toggle('active', b.dataset.t===id));
+  $$('section.panel').forEach(p=>p.classList.toggle('active', p.id===id));
+  // keep the active tab visible in the horizontally scrolling tab bar, start the section contents from the beginning
+  const tabs = $('#tabsNav'), act = tabs.querySelector('button.active');
+  if(act) tabs.scrollTo({left: Math.max(0, act.offsetLeft - 12), behavior:'auto'});
+  const toc = document.getElementById(id).querySelector('.toc-list'); if(toc){ toc.scrollLeft = 0; toc.parentElement.scrollTop = 0; }
+  if(scroll){
+    // jump to the start of the new section (its header right under the sticky tabs), wherever the reader was
+    const panel = document.getElementById(id), nav = $('#tabsNav');
+    const y = panel.getBoundingClientRect().top + window.scrollY - nav.offsetHeight - 22;
+    window.scrollTo({top: Math.max(0, y), behavior:'auto'});
+  }
+}
+$$('#tabsNav button').forEach(b=>b.addEventListener('click', ()=>openTab(b.dataset.t)));
+$$('[data-go]').forEach(c=>c.addEventListener('click', ()=>openTab(c.dataset.go)));
+if(location.hash) openTab(location.hash.slice(1), false);
+
+/* toggle group helper */
+function group(sel, fn){
+  const btns = $$(sel);
+  btns.forEach(b=>b.addEventListener('click', ()=>{
+    btns.forEach(x=>{ x.classList.remove('active'); x.classList.add('ghost'); });
+    b.classList.add('active'); b.classList.remove('ghost'); fn(b);
+  }));
+}
+
+/* ---------- mind maps: nodes are pushed away from the cursor, threads follow ---------- */
+const MM = (()=>{
+  const MAX = 15, K = 0.13, DAMP = 0.74, PAD = 6;
+  const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const active = new Set(); let running = false;
+  function parse(svg){
+    const nodes = [...svg.querySelectorAll('.mm-node')].map(g=>{
+      const r = g.querySelector('rect');
+      const b = {x:+r.getAttribute('x'), y:+r.getAttribute('y'), w:+r.getAttribute('width'), h:+r.getAttribute('height')};
+      return {g, b, cx:b.x+b.w/2, cy:b.y+b.h/2, x:0, y:0, vx:0, vy:0, tx:0, ty:0};
+    });
+    const byId = {}; nodes.forEach(n=>byId[n.g.dataset.id] = n);
+    const links = [...svg.querySelectorAll('.mm-link')].map(p=>({p, a:byId[p.dataset.a], b:byId[p.dataset.b], c:p.dataset.p.trim().split(/[\s,]+/).map(Number)}));
+    svg._mm = {nodes, links};
+    render(svg);
+  }
+  function render(svg){
+    const {nodes, links} = svg._mm;
+    nodes.forEach(n=>n.g.setAttribute('transform', `translate(${n.x.toFixed(2)} ${n.y.toFixed(2)})`));
+    links.forEach(l=>{
+      const ax = l.a ? l.a.x : 0, ay = l.a ? l.a.y : 0, bx = l.b ? l.b.x : 0, by = l.b ? l.b.y : 0, [x1,y1,x2,y2] = l.c;
+      // control point lags behind the ends, so the thread bends like a string
+      const qx = (x1+x2)/2 + (ax+bx)*0.15, qy = (y1+y2)/2 + (ay+by)*0.15;
+      l.p.setAttribute('d', `M${(x1+ax).toFixed(2)},${(y1+ay).toFixed(2)} Q${qx.toFixed(2)},${qy.toFixed(2)} ${(x2+bx).toFixed(2)},${(y2+by).toFixed(2)}`);
+    });
+  }
+  function toSvg(svg, e){ const m = svg.getScreenCTM(); return m ? new DOMPoint(e.clientX, e.clientY).matrixTransform(m.inverse()) : null; }
+  function onMove(e){
+    const svg = e.currentTarget, pt = toSvg(svg, e); if(!svg._mm || !pt) return;
+    svg._mm.nodes.forEach(n=>{
+      const inside = pt.x > n.b.x-PAD && pt.x < n.b.x+n.b.w+PAD && pt.y > n.b.y-PAD && pt.y < n.b.y+n.b.h+PAD;
+      if(inside){
+        // vector from the cursor to the node centre: cursor on the left → node goes right, etc.
+        const nx = (n.cx-pt.x)/(n.b.w/2), ny = (n.cy-pt.y)/(n.b.h/2), len = Math.hypot(nx, ny) || 1, f = Math.min(1, len) * MAX / len;
+        n.tx = nx*f; n.ty = ny*f;
+      } else { n.tx = 0; n.ty = 0; }
+      n.g.classList.toggle('mm-hot', inside);
+    });
+    kick(svg);
+  }
+  function onLeave(e){ const svg = e.currentTarget; if(!svg._mm) return; svg._mm.nodes.forEach(n=>{ n.tx = 0; n.ty = 0; n.g.classList.remove('mm-hot'); }); kick(svg); }
+  function kick(svg){ active.add(svg); if(!running){ running = true; requestAnimationFrame(step); } }
+  function step(){
+    active.forEach(svg=>{
+      let moving = false;
+      svg._mm.nodes.forEach(n=>{
+        n.vx = (n.vx + (n.tx-n.x)*K) * DAMP; n.vy = (n.vy + (n.ty-n.y)*K) * DAMP; n.x += n.vx; n.y += n.vy;
+        if(Math.abs(n.tx-n.x) + Math.abs(n.ty-n.y) + Math.abs(n.vx) + Math.abs(n.vy) > 0.04) moving = true; else { n.x = n.tx; n.y = n.ty; n.vx = n.vy = 0; }
+      });
+      render(svg);
+      if(!moving) active.delete(svg);
+    });
+    if(active.size) requestAnimationFrame(step); else running = false;
+  }
+  function attach(svg){
+    if(!svg) return; parse(svg);
+    if(still || svg._mmBound) return; svg._mmBound = true;
+    svg.addEventListener('pointermove', onMove); svg.addEventListener('pointerleave', onLeave);
+  }
+  return {attach};
+})();
+$$('svg.mm').forEach(MM.attach);
+
+/* ---------- chart helpers (lectures 2–5) ---------- */
+const pct = (a, b, d=2) => b ? fmt(a/b*100, d) : '—';
+function vbars(el, o){
+  const W = o.w||640, H = o.h||300, pl = o.pl||56, pr = 16, pt = 28, pb = o.pb||44, min = o.min||0, max = o.max;
+  const iw = W-pl-pr, ih = H-pt-pb, gs = o.groups, gw = iw/gs.length;
+  const y = v => pt + ih - (Math.max(min, Math.min(max, v)) - min) / (max - min) * ih;
+  let s = '', k = 0;
+  (o.ticks||[]).forEach(t=>{ s += `<line class="grid-l" x1="${pl}" x2="${W-pr}" y1="${y(t)}" y2="${y(t)}"/><text class="axt" x="${pl-8}" y="${y(t)+4}" text-anchor="end">${o.tf ? o.tf(t) : fmt(t)}</text>`; });
+  gs.forEach((g, gi)=>{
+    const nb = g.bars.length, bw = Math.min(o.bw||58, (gw*0.72 - (nb-1)*6)/nb), x0 = pl + gi*gw + (gw - bw*nb - (nb-1)*6)/2;
+    g.bars.forEach((b, bi)=>{
+      const x = x0 + bi*(bw+6), yy = y(b.v), hh = Math.max(0, pt+ih-yy);
+      s += `<rect data-i="${k++}" class="${b.cls||'b-blue'}" x="${x.toFixed(1)}" y="${yy.toFixed(1)}" width="${bw.toFixed(1)}" height="${hh.toFixed(1)}" rx="5"/>`;
+      if(b.lab !== undefined) s += `<text class="vlab" x="${(x+bw/2).toFixed(1)}" y="${(yy-8).toFixed(1)}" text-anchor="middle">${b.lab}</text>`;
+    });
+    s += `<text class="axt" x="${pl+gi*gw+gw/2}" y="${H-pb+21}" text-anchor="middle" style="font-size:12.5px;fill:var(--ink)">${g.l}</text>`;
+  });
+  s += `<line class="ax" x1="${pl}" x2="${W-pr}" y1="${pt+ih}" y2="${pt+ih}"/><line class="ax" x1="${pl}" x2="${pl}" y1="${pt-6}" y2="${pt+ih}"/>`;
+  if(min > 0) s += `<path class="brk" d="M${pl-9},${pt+ih-14} l9,-5 l9,5 M${pl-9},${pt+ih-6} l9,-5 l9,5"/>`;
+  if(o.target !== undefined){ const ty = y(o.target); s += `<line class="tgt" x1="${pl}" x2="${W-pr}" y1="${ty}" y2="${ty}"/><text class="tgt-t" x="${W-pr}" y="${ty-7}" text-anchor="end">${o.targetLab||''}</text>`; }
+  el.setAttribute('viewBox', `0 0 ${W} ${H}`); el.innerHTML = s;
+}
+function hbars(el, o){
+  const W = o.w||640, rh = o.rh||46, pl = o.pl||130, pr = o.pr||150, pt = 14, H = pt + o.rows.length*rh + 26, iw = W-pl-pr, max = o.max;
+  const x = v => pl + Math.max(0, Math.min(max, v))/max*iw;
+  let s = '';
+  o.rows.forEach((r, i)=>{
+    const yy = pt + i*rh + 8, bh = rh - 18;
+    s += `<text class="wf-tb" x="${pl-12}" y="${yy+bh/2+5}" text-anchor="end"${r.dim ? ' opacity=".45"' : ''}>${r.l}</text>`;
+    s += `<rect class="wf-bar" x="${pl}" y="${yy}" width="${iw}" height="${bh}" rx="6"/>`;
+    s += `<rect data-i="${i}" class="${r.dim ? 'b-dim' : (r.cls||'b-blue')}" x="${pl}" y="${yy}" width="${(x(r.v)-pl).toFixed(1)}" height="${bh}" rx="6"/>`;
+    s += `<text class="vlab" x="${W-pr+12}" y="${yy+bh/2+5}"${r.dim ? ' opacity=".45"' : ''}>${r.lab}</text>`;
+  });
+  if(o.target !== undefined){ const tx = x(o.target); s += `<line class="tgt" x1="${tx}" x2="${tx}" y1="${pt}" y2="${H-22}"/><text class="tgt-t" x="${tx}" y="${H-6}" text-anchor="middle">${o.targetLab||''}</text>`; }
+  el.setAttribute('viewBox', `0 0 ${W} ${H}`); el.innerHTML = s;
+}
+function classifier(boxSel, scoreSel, cats, items){
+  const box = $(boxSel); let done = 0, right = 0;
+  items.sort(()=>Math.random()-.5).forEach(it=>{
+    const d = document.createElement('div'); d.className = 'cls-item';
+    d.innerHTML = `<div class="txt">${it.t}</div><div class="opts">${cats.map((c,ci)=>`<button class="btn ghost small" type="button" data-c="${ci}">${c}</button>`).join('')}</div><div class="fb" hidden></div>`;
+    d.querySelectorAll('button').forEach(b=>b.addEventListener('click', ()=>{
+      if(d.dataset.done) return; d.dataset.done = 1; done++;
+      const ok = +b.dataset.c === it.c; if(ok) right++;
+      d.classList.add(ok ? 'right' : 'wrong');
+      d.querySelectorAll('button').forEach(x=>{ x.disabled = true; if(+x.dataset.c===it.c) x.classList.add('active'); });
+      const fb = d.querySelector('.fb'); fb.hidden = false; fb.textContent = (ok ? '✅ ' : '❌ Правильно: «'+cats[it.c]+'». ') + it.e;
+      $(scoreSel).textContent = `Виконано ${done} / ${items.length} · правильно ${right}` + (done===items.length ? (right===items.length ? ' · Чудово, усе правильно!' : ' · Перегляньте пояснення до помилок.') : '');
+    }));
+    box.appendChild(d);
+  });
+}
+function seg(sel, fn){ group(sel, fn); const first = $$(sel).find(b=>b.classList.contains('active')) || $$(sel)[0]; if(first) fn(first); }
+function checks(boxSel, fn){
+  const box = $(boxSel); const upd = ()=>{ box.querySelectorAll('.chk').forEach(l=>l.classList.toggle('on', l.querySelector('input').checked)); fn([...box.querySelectorAll('input')].map(i=>i.checked)); };
+  box.addEventListener('change', upd); upd();
+}
+function inputs(ids, fn){ ids.forEach(i=>$('#'+i).addEventListener('input', fn)); fn(); }
+const val = id => +$('#'+id).value || 0;
+const kvHtml = rows => `<div class="kv" style="margin:0">${rows.map(r=>`<div><div class="l">${r[0]}</div><div class="v ${r[2]||'blue'}">${r[1]}</div></div>`).join('')}</div>`;
+
+/* ================= СИМУЛЯТОРИ ЛЕКЦІЇ ================= */
+
+/* S1: пропуски */
+const gapD = [['Пн',12],['Вт',11],['Ср',null],['Чт',13],['Пт',null],['Сб',18],['Нд',16]];
+seg('#gapBtns button', b=>{
+  const z = +b.dataset.m===1, v = gapD.map(d=>d[1]===null ? (z ? 0 : null) : d[1]), used = v.filter(x=>x!==null), avg = used.reduce((a,c)=>a+c,0)/used.length;
+  vbars($('#gapChart'), {w:640, h:240, max:20, ticks:[0,5,10,15,20], target:avg, targetLab:'середнє ' + fmt(avg,1), groups:gapD.map((d,i)=>({l:d[0], bars:[{v:v[i]??0, cls:d[1]===null?'b-red':'b-blue', lab:d[1]===null?(z?'0':'немає даних'):d[1]}]}))});
+  $('#gapOut').innerHTML = kvHtml([['СЕРЕДНІЙ ДЕННИЙ ПРОДАЖ', fmt(avg,1)+' тис. грн', z?'red':'ok'],['ОХОПЛЕННЯ', z ? '7 з 7 днів (хибно)' : '5 з 7 днів', z?'red':'blue']])
+    + `<p style="margin:12px 0 0">${z ? '❌ На графіку з’явилися два «провали», а середнє впало з 14,0 до 10,0 тис. грн. Нуль означає встановлений факт відсутності продажу — тут такого факту немає.' : '✅ Графік і середнє описують підтверджену частину періоду, а неповнота прямо позначена. Читач бачить, що за середу й п’ятницю дані ще не надійшли.'}</p>`;
+});
+/* S1: дублікати */
+classifier('#clsDup', '#clsDupScore', ['Технічний дубль','Законний запис'], [
+  {t:'Два рядки: чек № 812, позиція 3, той самий товар і сума; різниться лише час завантаження', c:0, e:'Той самий рядок того самого чека — повтор імпорту.'},
+  {t:'Два чеки № 812 і № 815 з однаковим товаром і сумою 64 грн', c:1, e:'Дві законні покупки можуть мати однакові суми й товари.'},
+  {t:'Продаж однієї позиції на 100 одиниць організації', c:1, e:'Велике значення перевіряють, але не видаляють через саму величину.'},
+  {t:'Рейс Р-17 повторився у вивантаженні з тим самим номером і часом відправлення', c:0, e:'Той самий ключ операції — дубль.'},
+  {t:'Той самий товар у позиціях 1 і 2 одного чека з різною ціною (акція)', c:1, e:'Позиції різняться ключем і змістом.'}
+]);
+/* S1: повернення */
+let rtS = 0, rtA = 1;
+function drawRt(){
+  const file = rtS===0 ? 70000 : 74000, res = rtA ? file - 4000 : file, ok = res === 70000;
+  $('#rtOut').innerHTML = kvHtml([['СУМА У ФАЙЛІ ПРОДАЖІВ', fmt(file)+' грн'],['ВІДНЯТО ОКРЕМО', rtA ? '4 000 грн' : '0 грн'],['ЧИСТІ ПРОДАЖІ У ЗВІТІ', fmt(res)+' грн', ok?'ok':'red']])
+    + `<p style="margin:12px 0 0">${ok ? '✅ Чисті продажі — 70 000 грн. Правило погоджене зі структурою файла.' : res < 70000 ? '❌ Повернення враховано двічі: виручку занижено на 4 000 грн.' : '❌ Повернення не враховано: виручку завищено на 4 000 грн.'} Структуру перевіряють на кількох відомих операціях і звіряють контрольні суми.</p>`;
+}
+seg('#rtS button', b=>{ rtS = +b.dataset.m; drawRt(); }); seg('#rtA button', b=>{ rtA = +b.dataset.m; drawRt(); });
+/* S1: назви */
+classifier('#clsName', '#clsNameScore', ['Пов’язати з М01','Не об’єднувати без підстави'], [
+  {t:'«центр» у файлі повернень, у рядку вказано код М01', c:0, e:'Пов’язуємо через підтверджений код, а не через схожість назви.'},
+  {t:'Код М01 у календарі роботи', c:0, e:'Той самий код у довіднику.'},
+  {t:'«Центр 1» без коду магазину', c:1, e:'«Центр 1» і «Центр 2» можуть бути різними точками — потрібна підстава.'},
+  {t:'«ЦЕНТР » з пробілом наприкінці, код М01', c:0, e:'Технічна різниця написання, код підтверджує відповідність.'},
+  {t:'«Центральний» у новому вивантаженні, код не заповнений', c:1, e:'Схожа назва не доводить, що це та сама точка.'}
+]);
+
+/* S2: зважена частка */
+inputs(['pa','pao','pb','pbo'], ()=>{
+  const a = Math.max(1,val('pa')), ao = val('pao'), b = Math.max(1,val('pb')), bo = val('pbo');
+  const simple = (ao/a + bo/b)/2*100, pooled = (ao+bo)/(a+b)*100;
+  $('#poolOut').innerHTML = kvHtml([['МАРШРУТ 1', fmt(ao/a*100,2)+' %'],['МАРШРУТ 2', fmt(bo/b*100,2)+' %'],['ПРОСТЕ СЕРЕДНЄ ЧАСТОК', fmt(simple,2)+' %', 'red'],['ЗАГАЛЬНА ЧАСТКА', fmt(pooled,2)+' %', 'ok']])
+    + `<p style="margin:12px 0 0">Загальна частка = (${ao} + ${bo}) / (${a} + ${b}) × 100. Просте середнє надає маршрутам однакову вагу незалежно від кількості доставок — для частки всіх доставок підсумовують чисельники і знаменники.</p>`;
+});
+/* S2: середнє і медіана */
+inputs(['mm1','mm2','mm3','mm4','mm5'], ()=>{
+  const v = [1,2,3,4,5].map(i=>val('mm'+i)), s = [...v].sort((a,b)=>a-b), med = s[2], mean = v.reduce((a,c)=>a+c,0)/5, top = Math.max(10, Math.ceil(Math.max(...v)/10)*10);
+  vbars($('#mmChart'), {w:520, h:250, max:top, ticks:[0, top/2, top], target:mean, targetLab:'середнє ' + fmt(mean,1), bw:56, groups:s.map((x,i)=>({l:'#'+(i+1), bars:[{v:x, cls:i===2?'b-ok':'b-blue', lab:x}]}))});
+  $('#mmOut').innerHTML = kvHtml([['СЕРЕДНЄ', fmt(mean,1)+' хв'],['МЕДІАНА', fmt(med,1)+' хв', 'ok'],['НАЙДОВША ОПЕРАЦІЯ', s[4]+' хв', s[4] > 2*med ? 'red' : 'blue']])
+    + `<p style="margin:12px 0 0">Середнє допомагає оцінити сумарне навантаження, медіана — типовий випадок. ${s[4] > 2*med ? 'Найдовшу операцію варто показати окремо: вона може пояснювати проблему.' : ''}</p>`;
+});
+/* S2: пункти і відсотки */
+inputs(['ppA','ppB','vA','vB'], ()=>{
+  const a = val('ppA'), b = val('ppB'), x = val('vA'), y = val('vB');
+  $('#ppOut').innerHTML = kvHtml([['ЗМІНА ЧАСТКИ', (b-a>=0?'+':'')+fmt(b-a,2)+' в. п.'],['ВІДНОСНИЙ ПРИРІСТ ЧАСТКИ', a ? (b-a>=0?'+':'')+fmt((b-a)/a*100,2)+' %' : 'не визначено', a?'blue':'red'],['АБСОЛЮТНА ЗМІНА ЗНАЧЕННЯ', (y-x>=0?'+':'')+fmt(y-x,2)],['ТЕМП ПРИРОСТУ ЗНАЧЕННЯ', x ? (y-x>=0?'+':'')+fmt((y-x)/x*100,2)+' %' : 'не визначено (база 0)', x?'blue':'red']])
+    + `<p style="margin:12px 0 0">Фраза «зросло на ${fmt(b-a,0)} відсотків» неоднозначна: називайте спосіб прямо. Високий темп на малій базі не обов’язково означає великий внесок у загальний результат.</p>`;
+});
+/* S2: магазини */
+const SH = [['Центр',70,7,72,6],['Північ',48,6,54,6],['Південь',40,5,42,7]];
+seg('#stBtns button', b=>{
+  const m = +b.dataset.m;
+  if(m===0) vbars($('#stChart'), {w:540, h:270, max:80, ticks:[0,20,40,60,80], bw:52, groups:SH.map(s=>({l:s[0], bars:[{v:s[1], cls:'b-blue', lab:s[1]},{v:s[3], cls:'b-ok', lab:s[3]}]}))});
+  if(m===1) vbars($('#stChart'), {w:540, h:270, max:14, ticks:[0,4,8,12], bw:52, groups:SH.map(s=>({l:s[0], bars:[{v:s[1]/s[2], cls:'b-blue', lab:fmt(s[1]/s[2],0)},{v:s[3]/s[4], cls:s[3]/s[4] < s[1]/s[2] ? 'b-red' : 'b-ok', lab:fmt(s[3]/s[4],0)}]}))});
+  if(m===2) vbars($('#stChart'), {w:540, h:270, max:8, ticks:[0,2,4,6,8], bw:80, groups:SH.map(s=>({l:s[0], bars:[{v:s[3]-s[1], cls:'b-olive', lab:'+'+(s[3]-s[1])}]}))});
+  $('#stLeg').innerHTML = m===2 ? '<span><i style="background:var(--olive)"></i>абсолютна зміна, тис. грн</span>' : '<span><i style="background:var(--blue)"></i>тиждень 1</span><span><i style="background:var(--ok)"></i>тиждень 2</span>' + (m===1 ? '<span><i style="background:var(--red)"></i>спад</span>' : '');
+  const txt = [
+    'Абсолютні обсяги зросли в усіх трьох магазинах. Але «Південь» у другому тижні працював 7 днів замість 5 — сума сама по собі не відповідає на питання про інтенсивність.',
+    'На день: «Центр» 10 → 12 тис. (+20 %), «Північ» 8 → 9 тис. (+12,5 %), «Південь» 8 → 6 тис. (−25 %). Загальний тижневий обсяг «Півдня» при цьому зріс на 5 %.',
+    'Найбільший абсолютний внесок має «Північ» (+6 тис.), сума внесків дорівнює загальному приросту 10 тис. Відносні темпи: 2,86 %, 12,5 % і 5 %.'][m];
+  $('#stOut').innerHTML = kvHtml([['МЕРЕЖА · СУМА', '158 → 168 тис.'],['ПРИРІСТ', '+6,33 %', 'ok'],['НА МАГАЗИНОДЕНЬ', '8 777,78 → 8 842,11'],['ПРИРІСТ ІНТЕНСИВНОСТІ', '+0,73 %', 'blue']]) + `<p style="margin:12px 0 0">${txt}</p>`;
+});
+
+/* S3: рисунок 4.1.1 */
+vbars($('#f41a'), {w:460, h:250, max:80, ticks:[0,40,80], bw:40, groups:SH.map(s=>({l:s[0], bars:[{v:s[1], cls:'b-blue', lab:s[1]},{v:s[3], cls:'b-ok', lab:s[3]}]}))});
+vbars($('#f41b'), {w:460, h:250, max:14, ticks:[0,7,14], bw:40, groups:SH.map(s=>({l:s[0], bars:[{v:s[1]/s[2], cls:'b-blue', lab:s[1]/s[2]},{v:s[3]/s[4], cls:'b-ok', lab:s[3]/s[4]}]}))});
+/* S3: тип діаграми */
+classifier('#clsChart', '#clsChartScore', ['Стовпчики / смуги','Лінійний','Складені стовпчики','Точкова','Гістограма'], [
+  {t:'Яка категорія товарів дає найбільшу виручку?', c:0, e:'Порівняння категорій на спільній основі.'},
+  {t:'Як змінювалася кількість доставок за 12 тижнів?', c:1, e:'Зміна показника у впорядкованому часі.'},
+  {t:'З яких каналів продажу складається виручка магазину?', c:2, e:'Склад цілого; частини мають утворювати ціле.'},
+  {t:'Як пов’язані відстань і тривалість рейсу?', c:3, e:'Пара числових координат для кожного рейсу.'},
+  {t:'Як розподілений час комплектування замовлень?', c:4, e:'Кількість спостережень у числових інтервалах.'},
+  {t:'Ранжування 15 маршрутів із довгими назвами за своєчасністю', c:0, e:'Горизонтальні смуги зручні для довгих назв і впорядкування за значенням.'},
+  {t:'Внески магазинів у приріст, серед яких є від’ємний', c:0, e:'Від’ємні частини не утворюють структуру цілого — кругова непридатна; потрібна форма з додаванням і відніманням або таблиця змін.'}
+]);
+/* S3: гістограма */
+const HG = [4,5,5,6,6,6,7,7,7,7,8,8,8,9,9,10,10,11,12,12,13,14,15,16,18,21,23,26,29,34,6,7];
+seg('#hgBtns button', b=>{
+  const w = +b.dataset.w, n = Math.ceil(36/w), bins = Array(n).fill(0);
+  HG.forEach(x=>bins[Math.min(n-1, Math.floor(x/w))]++);
+  const mx = Math.max(...bins), top = Math.ceil(mx/4)*4;
+  vbars($('#hgChart'), {w:680, h:250, max:top, ticks:[0, top/2, top], bw: w===2 ? 30 : 64, groups:bins.map((c,i)=>({l:`${i*w}–${(i+1)*w}`, bars:[{v:c, cls:'b-blue', lab:c||''}]}))});
+  $('#hgOut').innerHTML = w===2 ? 'Дуже вузькі інтервали створюють випадкову нерівність: окремі стовпчики «скачуть» через одне-два спостереження.'
+    : w===5 ? 'Рівні інтервали по 5 хвилин показують головне: більшість операцій займає 5–10 хвилин, але є довгий «хвіст» до 35 хвилин.'
+    : 'Широкі інтервали приховують структуру: різниця між типовими і затяжними операціями майже зникає.';
+});
+
+/* S4: шкала */
+inputs(['axMin'], ()=>{
+  const m = val('axMin'), a = 70-m, c = 72-m, ratio = c/a;
+  $('#axOut').textContent = m + ' тис.';
+  vbars($('#axChart'), {w:440, h:270, min:m, max:75, ticks:[m, Math.round((m+75)/2), 75], bw:90, groups:[{l:'Тиждень 1', bars:[{v:70, cls:'b-blue', lab:'70 тис.'}]},{l:'Тиждень 2', bars:[{v:72, cls:'b-ok', lab:'72 тис.'}]}]});
+  $('#axRes').innerHTML = kvHtml([['ФАКТИЧНИЙ ПРИРІСТ', '+2,86 %', 'ok'],['ВИДИМІ ВИСОТИ', `${a} : ${c}`],['ВИДИМА РІЗНИЦЯ', '×' + fmt(ratio,2), ratio > 1.3 ? 'red' : 'blue']])
+    + `<p style="margin:12px 0 0">${m===0 ? '✅ Нульова база: висота стовпчика відповідає величині продажу, різниця невелика — як і в даних.' : ratio > 1.3 ? '❌ Усічена база стовпчиків створює сильне спотворення: читач побачить «зростання» в ' + fmt(ratio,1) + ' раза. Числові підписи правильні, але зорове повідомлення — ні.' : 'База вже не нульова: межі мають бути очевидними, а для стовпчиків краще повернутися до нуля й додати підпис приросту.'}</p>`;
+});
+/* S4: твердження */
+classifier('#clsObs', '#clsObsScore', ['Спостереження','Можливе пояснення','Наступна перевірка'], [
+  {t:'Загальний продаж «Півдня» зріс з 40 до 42 тис. грн', c:0, e:'Встановлено за даними.'},
+  {t:'Продаж на день у «Півдні» знизився з 8 до 6 тис. грн', c:0, e:'Підтверджене спостереження.'},
+  {t:'У додаткові дні частина товарів була відсутня', c:1, e:'Припущення до перевірки.'},
+  {t:'Зіставити продажі з доступністю асортименту за кожен день', c:2, e:'Конкретна перевірка гіпотези про нестачу товару.'},
+  {t:'Відвідуваність у нові дні роботи була нижчою', c:1, e:'Можливе пояснення.'},
+  {t:'Порівняти кількість відвідувачів і чеків у додаткові дні', c:2, e:'Дані, що підтвердять або спростують гіпотезу.'},
+  {t:'Ціни знизилися, тому виручка на день менша', c:1, e:'Пояснення; його оцінюють окремо за кількістю проданих одиниць.'}
+]);
+
+
+/* ---------- practice cases ---------- */
+const cases = [{"t": "Зростання, яке не є поліпшенням", "q": "Керівник бачить, що виручка магазину «Південь» зросла з 40 до 42 тис. грн, і хоче відзначити команду. Що потрібно перевірити?", "a": "Тривалість роботи: магазин працював 7 днів замість 5, тому продаж на робочий день знизився з 8 до 6 тис. грн (−25 %). Абсолютна сума та інтенсивність відповідають на різні питання; причину спаду встановлюють за асортиментом, відвідуваністю, чеками й цінами."}, {"t": "Пропуски, замінені нулями", "q": "Касова система не передала продажі за два дні. Аналітик поставив нулі, «щоб графік не розривався». Які наслідки?", "a": "Середнє зменшилося, на графіку з’явився уявний спад. Нуль означає встановлений факт відсутності продажу. Потрібно позначити неповноту, указати охоплення періоду і з’ясувати причину пропусків — особливо якщо дані губляться саме в пікові години."}, {"t": "Середнє маршрутних часток", "q": "Маршрут А: 95 своєчасних зі 100, маршрут Б: 5 із 10. У звіті загальна своєчасність — 72,5 %. Чи правильно?", "a": "Це просте середнє двох часток з однаковою вагою маршрутів. Частка своєчасних серед усіх доставок дорівнює (95 + 5) / (100 + 10) × 100 ≈ 90,91 %. Показники з різними обсягами об’єднують через суму чисельників і знаменників."}, {"t": "Повернення відняли двічі", "q": "Виручка за тиждень у звіті вийшла меншою за касові дані на суму повернень. Аналітик відняв файл повернень від файла продажів. Де може бути помилка?", "a": "Якщо повернення вже відображені у файлі продажів від’ємними рядками, повторне віднімання занижує виручку. Структуру перевіряють на кількох відомих операціях, звіряють контрольні суми і заздалегідь погоджують правило обліку повернень для всіх магазинів."}, {"t": "«Триразове зростання»", "q": "На слайді стовпчики 70 і 72 тис. грн побудовано на осі від 69 тис. Учасники наради вирішили, що продажі зросли майже втричі. Як виправити?", "a": "Для стовпчиків вісь починають із нуля, бо читач порівнює довжину. Фактичний приріст — 2,86 %. Щоб показати невелику зміну детальніше, додають числовий підпис приросту або окремий графік абсолютних змін."}, {"t": "Кругова діаграма внесків", "q": "Один магазин додав 12 тис. грн, інший втратив 2 тис., мережа зросла на 10 тис. Менеджер хоче показати внески круговою діаграмою. Що не так?", "a": "Внески 120 % і −20 % не утворюють структуру невід’ємних частин одного цілого, тому кругова діаграма непридатна. Потрібна форма, що показує додавання та віднімання, або проста таблиця змін."}];
+$('#caseList').innerHTML = cases.map((c,i)=>`<div class="quiz-q"><h4><span class="idx" style="margin-right:8px">К${i+1}</span>${c.t}</h4><p>${c.q}</p>
+  <label class="field" for="case${i}">Ваша відповідь<textarea id="case${i}" rows="3" style="font-family:var(--f-body);font-size:15px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg-panel);color:var(--ink);width:100%"></textarea></label>
+  <div class="btnrow"><button class="btn ghost small" type="button" data-case="${i}">Показати розбір</button></div>
+  <div class="callout ok" id="caseA${i}" hidden><b>Розбір.</b> ${c.a}</div></div>`).join('');
+$$('[data-case]').forEach(b=>b.addEventListener('click', ()=>{ const el = $('#caseA'+b.dataset.case); el.hidden = !el.hidden; b.textContent = el.hidden ? 'Показати розбір' : 'Сховати розбір'; }));
+
+/* ---------- quiz ---------- */
+const quiz = [{"q": "З чого починається побудова візуалізації?", "o": ["З вибору кольорів", "З питання, на яке має відповісти графік", "З вибору програми", "З обсягу даних"], "c": 1, "e": "Аналітик визначає показник, період, одиниці й основу порівняння до вибору діаграми."}, {"q": "Чим відрізняється порожня клітинка від нуля продажів?", "o": ["Нічим", "Порожньо — даних може ще не бути; нуль — встановлений факт", "Нуль означає помилку", "Порожня клітинка завжди означає нуль"], "c": 1, "e": "Заміна пропусків нулями створює уявний спад."}, {"q": "Як визначити загальну частку своєчасності кількох маршрутів?", "o": ["Просте середнє часток", "Сума своєчасних / сума завершених", "Максимальна частка", "Медіана часток"], "c": 1, "e": "Через суму чисельників і знаменників."}, {"q": "Продано 1 од. за 100 грн і 9 од. за 200 грн. Середня фактична ціна одиниці?", "o": ["150 грн", "190 грн", "200 грн", "100 грн"], "c": 1, "e": "1900 / 10 = 190 грн; 150 — середнє двох цін без урахування обсягів."}, {"q": "Час комплектування 5, 6, 7, 8, 34 хв. Медіана?", "o": ["12", "7", "8", "6"], "c": 1, "e": "Центральне значення впорядкованого ряду; середнє — 12."}, {"q": "Частка зросла з 20 % до 25 %. Це…", "o": ["+5 %", "+5 відсоткових пунктів, або +25 % відносно", "+25 відсоткових пунктів", "+20 %"], "c": 1, "e": "5 / 20 × 100 = 25 %."}, {"q": "Чому темп приросту непридатний, якщо базове значення нульове?", "o": ["Він завжди 100 %", "Ділення на нуль: звичайна формула не визначена", "Він від’ємний", "Це заборонено правилами"], "c": 1, "e": "Темп = різниця / базове значення × 100."}, {"q": "Яка діаграма показує зміну показника у впорядкованому часі?", "o": ["Кругова", "Лінійний графік", "Точкова", "Гістограма"], "c": 1, "e": "Періоди повинні йти послідовно."}, {"q": "Гістограма відрізняється від стовпчикової діаграми категорій тим, що…", "o": ["Має кольори", "Інтервали представляють числову шкалу", "Не має осей", "Показує лише відсотки"], "c": 1, "e": "Ширина інтервалів має бути обґрунтованою."}, {"q": "Стовпчики 100 і 110 на осі від 95. Яке враження створюється?", "o": ["Різниця 10 %", "Майже триразова різниця", "Однакові значення", "Різниця 5 %"], "c": 1, "e": "Видимі висоти 5 і 15."}, {"q": "Нормовані до 100 % складені стовпчики…", "o": ["Показують загальний обсяг", "Показують склад, але приховують різницю обсягів", "Замінюють лінійний графік", "Показують розподіл"], "c": 1, "e": "Поруч доцільно показати самі обсяги."}, {"q": "Точкова діаграма показала, що час рейсу зростає з відстанню. Це доводить…", "o": ["Причинний зв’язок", "Лише зв’язок; на час впливають і зупинки, умови, завантаження", "Що відстань не важлива", "Помилку даних"], "c": 1, "e": "Лінія тенденції — узагальнення, а не доказ причини."}, {"q": "Що робити, якщо важливий статус позначено лише червоним кольором?", "o": ["Нічого", "Додати підписи, маркери або тип лінії", "Зробити колір яскравішим", "Прибрати легенду"], "c": 1, "e": "Для друку у відтінках сірого й доступності колір не може бути єдиним носієм змісту."}];
+let score = 0, answered = new Set();
+function buildQuiz(){
+  score = 0; answered = new Set();
+  $('#quizContainer').innerHTML = quiz.map((it,qi)=>`<div class="quiz-q"><h4>${qi+1}. ${it.q}</h4>${it.o.map((o,oi)=>`<button class="opt" type="button" data-q="${qi}" data-o="${oi}">${o}</button>`).join('')}<div class="quiz-fb" id="fb-${qi}" hidden></div></div>`).join('');
+  $('#quizScore').textContent = `0 / ${quiz.length}`;
+}
+$('#quizContainer').addEventListener('click', e=>{
+  const t = e.target.closest('.opt'); if(!t) return;
+  const qi = +t.dataset.q, oi = +t.dataset.o; if(answered.has(qi)) return; answered.add(qi);
+  $$(`.opt[data-q="${qi}"]`).forEach(o=>{ o.disabled = true; if(+o.dataset.o===quiz[qi].c) o.classList.add('correct'); else if(+o.dataset.o===oi) o.classList.add('wrong'); });
+  const ok = oi===quiz[qi].c; if(ok) score++;
+  const fb = $('#fb-'+qi); fb.hidden = false; fb.innerHTML = (ok ? '✅ <b>Правильно.</b> ' : '❌ <b>Не зовсім.</b> ') + quiz[qi].e;
+  $('#quizScore').textContent = `${score} / ${quiz.length}` + (answered.size===quiz.length ? ` · ${Math.round(score/quiz.length*100)}%` : '');
+});
+$('#quizReset').addEventListener('click', buildQuiz);
+buildQuiz();
+
+/* ---------- glossary ---------- */
+const gloss = [["Візуалізація даних", "Подання значень і взаємозв’язків графічними засобами."], ["Аналітичне питання", "Конкретне питання з показником, періодом, одиницями та основою порівняння."], ["Нормований показник", "Показник на спільну основу: виручка на день роботи, на одиницю площі тощо."], ["Журнал підготовки", "Запис правил очищення: дата, правило, кількість змінених записів, підстава."], ["Походження даних", "Система, період вивантаження, умови відбору і момент оновлення набору."], ["Дублікат", "Повтор того самого запису операції; визначається за ключем і змістом події."], ["Таблиця відповідності", "Правила зв’язку різних написань і кодів одного об’єкта."], ["Агрегація", "Узагальнення детальних записів за визначеною ознакою."], ["Середній чек", "Загальна виручка / кількість чеків."], ["Зважене середнє", "Середнє з урахуванням кількості спостережень у групах."], ["Медіана", "Центральне значення впорядкованого ряду."], ["Абсолютна зміна / темп приросту", "Нове − базове / (нове − базове) / базове × 100."], ["Відсотковий пункт", "Різниця двох часток, виражених у відсотках."], ["Зведена таблиця", "Групування даних із функцією підсумовування без ручних підсумків."], ["Магазинодень", "Один день роботи одного магазину — основа для мережевої інтенсивності."], ["Внесок у приріст", "Абсолютна зміна групи у складі загальної зміни."], ["Стовпчикова / смугова діаграма", "Порівняння категорій за довжиною; вісь від нуля."], ["Лінійний графік", "Зміна показника у впорядкованому часі."], ["Складені стовпчики", "Склад цілого з частин."], ["Точкова діаграма", "Зв’язок двох числових характеристик спостережень."], ["Гістограма", "Кількість спостережень у числових інтервалах."], ["Усічена вісь", "Шкала, що починається не з нуля; для стовпчиків спотворює враження."], ["Сезонність", "Повторювані зміни, пов’язані з календарем або циклом діяльності."], ["Доброчесна візуалізація", "Подання, з якого читач правильно встановлює, що випливає з даних."]];
+$('#glossList').innerHTML = gloss.map(g=>`<div><dt>${g[0]}</dt><dd>${g[1]}</dd></div>`).join('');
+
+/* ---------- section contents, meta, scroll-spy, reading progress ---------- */
+const plural = (n, f) => f[(n%10===1 && n%100!==11) ? 0 : (n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20)) ? 1 : 2];
+const spyLinks = new Map();
+$$('section.panel').forEach(p=>{
+  const blocks = [...p.querySelectorAll('article.block')];
+  const groups = p.querySelectorAll('.group-label').length;
+  const meta = p.querySelector('.sec-meta');
+  if(meta && blocks.length){
+    const sims = blocks.filter(b=>b.dataset.kind==='sim').length;
+    meta.innerHTML = `<span><b>${blocks.length}</b> ${plural(blocks.length,['блок','блоки','блоків'])}</span>`
+      + (groups ? `<span><b>${groups}</b> ${plural(groups,['тематична група','тематичні групи','тематичних груп'])}</span>` : '')
+      + (sims ? `<span><b>${sims}</b> ${plural(sims,['симулятор','симулятори','симуляторів'])}</span>` : '');
+  }
+  const toc = p.querySelector('.toc-list'); if(!toc) return;
+  const link = (el, no, title, kind)=>{
+    const a = document.createElement('a'); a.href = '#'+el.id; a.dataset.kind = kind;
+    a.innerHTML = `<span class="toc-no">${no}</span><span>${title}</span>`;
+    a.addEventListener('click', e=>{ e.preventDefault(); el.scrollIntoView({behavior:'smooth', block:'start'}); });
+    toc.appendChild(a); spyLinks.set(el, a);
+  };
+  p.querySelectorAll('.group-label, article.block').forEach(el=>{
+    if(el.classList.contains('group-label')){
+      const g = document.createElement('div'); g.className = 'toc-group';
+      g.innerHTML = `<i>${el.dataset.g}</i>${el.dataset.title}`; toc.appendChild(g); return;
+    }
+    link(el, el.querySelector('.block-no').textContent, el.querySelector('h3').textContent, el.dataset.kind);
+  });
+  const tk = p.querySelector('.takeaway');
+  if(tk) link(tk, '✓', tk.querySelector('.tk-label').textContent, 'end');
+  const legend = document.createElement('div'); legend.className = 'toc-legend';
+  legend.innerHTML = '<span style="--k:var(--blue)">теорія</span><span style="--k:var(--sim)">симулятор</span><span style="--k:var(--ok)">схема</span><span style="--k:var(--ink-soft)">поглиблення</span>';
+  toc.parentElement.appendChild(legend);
+});
+const spy = new IntersectionObserver(entries=>{
+  entries.forEach(en=>{
+    if(!en.isIntersecting) return;
+    const a = spyLinks.get(en.target); if(!a) return;
+    const list = a.parentElement;
+    list.querySelectorAll('a').forEach(x=>x.classList.toggle('on', x===a));
+    if(list.scrollWidth > list.clientWidth + 4) list.scrollTo({left: a.offsetLeft - 12, behavior:'smooth'});
+    else if(list.parentElement.scrollHeight > list.parentElement.clientHeight + 4){
+      const box = list.parentElement, top = a.offsetTop - box.clientHeight/2;
+      box.scrollTo({top, behavior:'smooth'});
+    }
+  });
+}, {rootMargin:'-30% 0px -60% 0px'});
+spyLinks.forEach((a, el)=>spy.observe(el));
+
+const navProg = $('#navProgress');
+function updProgress(){ const max = document.documentElement.scrollHeight - innerHeight; navProg.style.width = (max > 0 ? Math.min(100, scrollY/max*100) : 0) + '%'; }
+addEventListener('scroll', updProgress, {passive:true});
+addEventListener('resize', updProgress);
+$$('#tabsNav button, [data-go]').forEach(b=>b.addEventListener('click', ()=>setTimeout(updProgress, 60)));
+updProgress();
+
+/* ---------- static explanation cards → 3D flip cards (topic in front, explanation behind) ---------- */
+$$('.sec-main .card').forEach(card=>{
+  if(card.matches('a.card, .src-card') || card.closest('.kv')) return;
+  const h = card.querySelector(':scope > h4'); if(!h) return;
+  const lvl = card.querySelector(':scope > .lvl-n');
+  const idx = [...card.parentElement.children].indexOf(card) + 1;
+  const title = h.innerHTML, plain = h.textContent;
+  h.remove(); if(lvl) lvl.remove();
+  const f = document.createElement('div');
+  f.className = 'fcard' + (lvl ? ' lvl' : '');
+  f.tabIndex = 0; f.setAttribute('role', 'button'); f.setAttribute('aria-pressed', 'false');
+  f.innerHTML = `<div class="fcard-inner"><div class="fcard-face front">${lvl ? `<span class="lvl-n">${lvl.textContent}</span><span class="fnum">Рівень ${lvl.textContent}</span>` : `<span class="fnum">${String(idx).padStart(2,'0')}</span>`}<h4>${title}</h4><span class="fhint">↻ натисніть, щоб перевернути</span></div>`
+    + `<div class="fcard-face back"><span class="fback-t">${plain}</span><div>${card.innerHTML.trim()}</div></div></div>`;
+  card.replaceWith(f);
+});
+function flipCard(f){ f.classList.toggle('flipped'); f.setAttribute('aria-pressed', f.classList.contains('flipped')); }
+document.addEventListener('click', e=>{ const f = e.target.closest('.fcard'); if(f) flipCard(f); });
+document.addEventListener('keydown', e=>{ if((e.key==='Enter' || e.key===' ') && e.target.classList && e.target.classList.contains('fcard')){ e.preventDefault(); flipCard(e.target); } });
+
+/* ---------- scroll reveal: blocks, cards, lists, diagrams, charts ---------- */
+function clearLater(el){ (el._rvT || []).forEach(clearTimeout); el._rvT = []; }
+function later(el, fn, ms){ (el._rvT = el._rvT || []).push(setTimeout(fn, ms)); }
+function resetLinks(svg){ svg.querySelectorAll('.mm-link').forEach(p=>{ p.style.strokeDasharray = ''; p.style.strokeDashoffset = ''; p.style.transition = ''; p.style.markerEnd = ''; }); }
+function mmReveal(svg){
+  clearLater(svg);
+  svg.classList.remove('mm-wait', 'mm-anim'); svg.getBoundingClientRect(); svg.classList.add('mm-anim');
+  svg.querySelectorAll('.mm-in').forEach((g,i)=>g.style.setProperty('--i', i));
+  svg.querySelectorAll('.mm-link').forEach((p,i)=>{
+    const L = p.getTotalLength();
+    p.style.transition = 'none'; p.style.markerEnd = 'none';   // arrowhead appears when the line is drawn
+    p.style.strokeDasharray = L; p.style.strokeDashoffset = L; p.getBoundingClientRect();
+    p.style.transition = `stroke-dashoffset .9s cubic-bezier(.6,0,.2,1) ${0.3 + i*0.12}s`; p.style.strokeDashoffset = '0';
+    later(svg, ()=>{ p.style.markerEnd = ''; }, (1.15 + i*0.12) * 1000);
+  });
+  later(svg, ()=>{ svg.classList.remove('mm-anim'); resetLinks(svg); }, 2800);
+}
+function mmReset(svg){ clearLater(svg); svg.classList.remove('mm-anim'); svg.classList.add('mm-wait'); resetLinks(svg); }
+function chartReveal(svg){
+  clearLater(svg);
+  svg.classList.remove('ch-wait', 'ch-anim'); svg.getBoundingClientRect(); svg.classList.add('ch-anim');
+  svg.querySelectorAll('rect[data-i], .sv-res, .sv-avail').forEach((r,i)=>r.style.setProperty('--i', i));
+  later(svg, ()=>svg.classList.remove('ch-anim'), 2000);
+}
+function chartReset(svg){ clearLater(svg); svg.classList.remove('ch-anim'); svg.classList.add('ch-wait'); }
+
+/* Animations replay every time: an element resets once it is fully off screen
+   (or its section is closed) and plays again when it comes back into view. */
+if(!matchMedia('(prefers-reduced-motion: reduce)').matches && 'IntersectionObserver' in window){
+  const set = new Set($$('.sec-main > *'));
+  const staggered = $$('.fcard, .points > .point, .checklist > li, .io > *, .steps > .step, .gloss > div, .cls-item, .plan-card, .quiz-q');
+  staggered.forEach(el=>set.add(el));
+  set.forEach(el=>{
+    el.classList.add('rv');
+    if(staggered.includes(el)){ const sib = [...el.parentElement.children]; el.style.setProperty('--i', Math.min(sib.indexOf(el), 8)); }
+  });
+  // show when noticeably inside the viewport, hide only when completely outside — no flicker at the edges
+  const rvIn = new IntersectionObserver(es=>es.forEach(en=>{ if(en.isIntersecting) en.target.classList.add('in'); }), {threshold:0.06, rootMargin:'0px 0px -6% 0px'});
+  const rvOut = new IntersectionObserver(es=>es.forEach(en=>{
+    if(en.isIntersecting) return;
+    en.target.classList.remove('in');
+    en.target.classList.toggle('from-top', en.boundingClientRect.top < 0);   // left upwards → comes back from above
+  }), {threshold:0});
+  set.forEach(el=>{ rvIn.observe(el); rvOut.observe(el); });
+
+  const maps = $$('svg.mm, svg.flow'), charts = $$('svg.chart');
+  maps.forEach(x=>x.classList.add('mm-wait')); charts.forEach(x=>x.classList.add('ch-wait', 'ch-svg'));
+  const svgIn = new IntersectionObserver(es=>es.forEach(en=>{
+    const x = en.target; if(!en.isIntersecting || x._shown) return; x._shown = true;
+    x.classList.contains('ch-svg') ? chartReveal(x) : mmReveal(x);
+  }), {threshold:0.3});
+  const svgOut = new IntersectionObserver(es=>es.forEach(en=>{
+    const x = en.target; if(en.isIntersecting || !x._shown) return; x._shown = false;
+    x.classList.contains('ch-svg') ? chartReset(x) : mmReset(x);
+  }), {threshold:0});
+  [...maps, ...charts].forEach(x=>{ svgIn.observe(x); svgOut.observe(x); });
+}
+</script>
+</body></html>
