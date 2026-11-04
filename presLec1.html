@@ -330,7 +330,7 @@ h1.display { font-size: 48px; }
 
 /* S15 — пілот */
 .timeline { position: relative; display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px; margin-top: 34px; }
-.timeline::before { content: ''; position: absolute; left: 20px; right: 20px; top: 21px; height: 2px; background: linear-gradient(90deg, var(--accent), var(--accent-2)); opacity: .5; }
+.timeline::before { content: ''; position: absolute; left: 20px; right: 20px; top: 21px; height: 2px; background: linear-gradient(90deg, var(--accent), var(--accent-2)); opacity: .5; transform-origin: 0 50%; transform: scaleX(var(--draw, 1)); }
 .tl-dot { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; font-family: var(--font-display); font-weight: 700; font-size: 16px; background: var(--bg); border: 2px solid var(--accent-2); color: var(--accent-2); position: relative; box-shadow: 0 0 22px rgba(47,224,192,.3); margin-bottom: 18px; }
 .tl-item h3 { font-family: var(--font-display); font-weight: 600; font-size: 17px; margin: 0 0 8px; }
 .tl-item p { margin: 0; font-size: 14.5px; line-height: 1.5; color: var(--muted); }
@@ -1286,7 +1286,9 @@ function goTo(next) {
   current = next;
 
   inc.classList.add('active');
-  gsap.set(inc, { opacity: 1 });
+  // static parts of the incoming slide (e.g. timeline line) wait until the outgoing slide is gone
+  gsap.set(inc, { opacity: 0 });
+  inc.querySelectorAll('.timeline').forEach(t => t.style.setProperty('--draw', reduceMotion ? 1 : 0));
 
   const tl = gsap.timeline({
     onComplete() { out.classList.remove('active'); activeTl = null; }
@@ -1296,6 +1298,8 @@ function goTo(next) {
     tl.to(el, { y: -dir * 260 * s, opacity: 0, duration: reduceMotion ? 0.01 : 0.7, ease: 'power2.in' }, 0);
   });
   tl.to(out, { opacity: 0, duration: 0.5 }, 0.3);
+  tl.to(inc, { opacity: 1, duration: reduceMotion ? 0.01 : 0.45, ease: 'power1.out' }, 0.55);
+  inc.querySelectorAll('.timeline').forEach(t => tl.to(t, { '--draw': 1, duration: reduceMotion ? 0.01 : 1.1, ease: 'power2.inOut' }, 0.75));
   incEls.forEach((el, k) => {
     const s = +el.dataset.speed;
     tl.fromTo(el, { y: reduceMotion ? 0 : dir * 320 * s, opacity: 0 },

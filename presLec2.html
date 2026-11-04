@@ -1,0 +1,1500 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Лекція 2 · Спільна робота з даними</title>
+
+<!-- Шрифти з підтримкою кирилиці -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;700;800&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+/* =========================================================
+   ТЕМА — змінюйте кольори й шрифти тут
+   ========================================================= */
+:root {
+  --bg:            #060913;
+  --bg-2:          #0d1430;
+  --surface:       rgba(22, 30, 60, 0.55);
+  --border:        rgba(140, 165, 255, 0.16);
+  --border-strong: rgba(140, 165, 255, 0.34);
+  --text:          #eaf0ff;
+  --muted:         #93a0c8;
+  --dim:           #5a6690;
+  --accent:        #5b8cff;   /* синій — основний акцент */
+  --accent-2:      #2fe0c0;   /* м’ятний — позитивний результат */
+  --warm:          #ffb84d;   /* бурштин — увага, числа */
+  --danger:        #ff6b81;   /* помилки, ризики */
+
+  --font-display: 'Unbounded', sans-serif;
+  --font-body:    'Manrope', sans-serif;
+  --font-mono:    'JetBrains Mono', monospace;
+
+  --radius: 20px;
+}
+
+/* =========================================================
+   БАЗА + МАСШТАБУВАННЯ ПОЛОТНА 1280×720
+   ========================================================= */
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; height: 100%; overflow: hidden;
+  background: var(--bg); color: var(--text);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+.stage {
+  position: fixed; width: 1280px; height: 720px; overflow: hidden;
+  background: radial-gradient(ellipse 80% 70% at 72% 18%, var(--bg-2) 0%, var(--bg) 70%);
+}
+
+/* =========================================================
+   ФОНОВІ ПАРАЛАКС-ШАРИ (спільні для всіх слайдів)
+   ========================================================= */
+.bg { position: absolute; inset: 0; pointer-events: none; }
+.stars { position: absolute; left: -80px; top: -60px; width: 1440px; height: 2800px; }
+.stars i { position: absolute; left: 0; top: 0; display: block; border-radius: 50%; }
+.stars.far i { width: 1px; height: 1px; }
+.stars.mid i { width: 2px; height: 2px; }
+.orb {
+  position: absolute; border-radius: 50%; filter: blur(70px); opacity: .55;
+}
+.orb.o1 { width: 520px; height: 520px; left: 640px; top: -160px; background: radial-gradient(circle, rgba(91,140,255,.55), transparent 65%); }
+.orb.o2 { width: 440px; height: 440px; left: -120px; top: 380px; background: radial-gradient(circle, rgba(47,224,192,.35), transparent 65%); }
+.orb.o3 { width: 300px; height: 300px; left: 420px; top: 260px; background: radial-gradient(circle, rgba(255,184,77,.16), transparent 65%); }
+.floor-wrap {
+  position: absolute; left: -30%; right: -30%; bottom: 0; height: 260px;
+  perspective: 380px; perspective-origin: 50% 0%;
+  -webkit-mask-image: linear-gradient(to top, rgba(0,0,0,.9), transparent 55%);
+          mask-image: linear-gradient(to top, rgba(0,0,0,.9), transparent 55%);
+  opacity: .32;
+}
+.floor {
+  position: absolute; left: 0; right: 0; top: 0; height: 700px;
+  transform-origin: 50% 0%; transform: rotateX(72deg);
+  background-image:
+    linear-gradient(rgba(91,140,255,.55) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(91,140,255,.55) 1px, transparent 1px);
+  background-size: 70px 70px;
+}
+.vignette {
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at center, transparent 55%, rgba(3,5,12,.7) 100%);
+}
+
+/* =========================================================
+   HUD: шапка, прогрес, точки
+   ========================================================= */
+.hud {
+  position: absolute; left: 88px; right: 88px; top: 34px; z-index: 50;
+  display: flex; justify-content: space-between; align-items: center;
+  font-family: var(--font-mono); font-size: 12px; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--muted); pointer-events: none;
+}
+.hud-left { display: flex; align-items: center; gap: 10px; }
+.hud-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent-2); box-shadow: 0 0 12px var(--accent-2); }
+.hud-right { display: flex; gap: 22px; }
+.hud-count b { color: var(--text); font-weight: 600; }
+.progress { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: rgba(255,255,255,.04); z-index: 50; }
+.progress div { height: 100%; width: 0; background: linear-gradient(90deg, var(--accent), var(--accent-2)); box-shadow: 0 0 12px var(--accent); transition: width .8s cubic-bezier(.16,1,.3,1); }
+.slide-dots {
+  position: absolute; bottom: 26px; left: 50%; transform: translateX(-50%);
+  display: flex; gap: 7px; z-index: 50;
+}
+.slide-dots .dot {
+  width: 6px; height: 6px; border-radius: 50%; border: none; padding: 0; cursor: pointer;
+  background: var(--muted); opacity: .3; transition: all .3s;
+}
+.slide-dots .dot.active { background: var(--accent-2); opacity: 1; transform: scale(1.5); box-shadow: 0 0 10px var(--accent-2); }
+.slide-dots .dot.sec { width: 14px; border-radius: 3px; }
+
+/* =========================================================
+   СЛАЙДИ
+   ========================================================= */
+.slide { position: absolute; inset: 0; visibility: hidden; }
+.slide.active { visibility: visible; }
+.content { position: absolute; left: 88px; right: 88px; top: 100px; bottom: 86px; }
+.pos { position: absolute; }  /* обгортка для вільно розміщених паралакс-елементів */
+
+/* --- Типографіка --- */
+.eyebrow {
+  font-family: var(--font-mono); font-size: 13px; letter-spacing: .2em; text-transform: uppercase;
+  color: var(--accent-2); display: flex; align-items: center; gap: 12px; margin-bottom: 18px;
+}
+.eyebrow::before { content: ''; width: 28px; height: 1px; background: currentColor; }
+.display { font-family: var(--font-display); font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; margin: 0; }
+h1.display { font-size: 48px; }
+.title { font-family: var(--font-display); font-weight: 600; font-size: 34px; line-height: 1.18; letter-spacing: -0.015em; margin: 0 0 14px; }
+.xl { font-size: 60px; }
+.lead { font-size: 20px; line-height: 1.55; color: var(--muted); margin: 0; max-width: 640px; }
+.body { font-size: 16px; line-height: 1.6; color: var(--muted); margin: 0; }
+.grad { background: linear-gradient(95deg, var(--accent) 0%, var(--accent-2) 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.warm-t { color: var(--warm); } .mint-t { color: var(--accent-2); } .blue-t { color: var(--accent); } .danger-t { color: var(--danger); }
+.mono { font-family: var(--font-mono); }
+.label { font-family: var(--font-mono); font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--dim); }
+
+/* --- Скляна картка --- */
+.card {
+  background: linear-gradient(160deg, rgba(255,255,255,.075), rgba(255,255,255,.015));
+  border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 24px; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 24px 60px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.06);
+}
+.card h3 { font-family: var(--font-display); font-weight: 600; font-size: 18px; margin: 0 0 10px; letter-spacing: -0.01em; }
+.card p { margin: 0; font-size: 15px; line-height: 1.55; color: var(--muted); }
+.card.mint { border-color: rgba(47,224,192,.35); }
+.card.warm { border-color: rgba(255,184,77,.35); }
+.card.danger { border-color: rgba(255,107,129,.38); }
+.card.blue { border-color: rgba(91,140,255,.42); }
+
+/* --- Декор --- */
+.ghost-num {
+  position: absolute; font-family: var(--font-display); font-weight: 800; font-size: 500px; line-height: .8;
+  color: transparent; -webkit-text-stroke: 1.5px rgba(91,140,255,.2); letter-spacing: -0.05em; user-select: none;
+}
+.ring { position: absolute; border-radius: 50%; border: 1px solid var(--border); }
+.ring::after {
+  content: ''; position: absolute; inset: 14%; border-radius: 50%;
+  border: 1px dashed rgba(47,224,192,.25); animation: spin 60s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.chip {
+  display: inline-block; font-family: var(--font-mono); font-size: 14px; font-weight: 500; letter-spacing: .06em;
+  padding: 9px 16px; border-radius: 999px; color: var(--text);
+  background: rgba(20,28,58,.65); border: 1px solid var(--border-strong);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 10px 30px rgba(0,0,0,.35);
+  animation: floaty 7s ease-in-out infinite;
+}
+.chip.big { font-size: 20px; padding: 12px 22px; }
+.chip.mint { color: var(--accent-2); border-color: rgba(47,224,192,.4); }
+.chip.warm { color: var(--warm); border-color: rgba(255,184,77,.4); }
+.chip.blue { color: var(--accent); border-color: rgba(91,140,255,.5); }
+.chip.faint { opacity: .55; font-size: 12px; }
+@keyframes floaty { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-14px); } }
+
+.icon { width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.ibox {
+  width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; margin-bottom: 14px;
+  background: rgba(91,140,255,.12); border: 1px solid rgba(91,140,255,.3); color: var(--accent);
+}
+.ibox.mint { background: rgba(47,224,192,.1); border-color: rgba(47,224,192,.3); color: var(--accent-2); }
+.ibox.warm { background: rgba(255,184,77,.1); border-color: rgba(255,184,77,.3); color: var(--warm); }
+.ibox.danger { background: rgba(255,107,129,.1); border-color: rgba(255,107,129,.3); color: var(--danger); }
+
+.note {
+  display: flex; gap: 14px; align-items: center; font-size: 15px; line-height: 1.5; color: var(--muted);
+  padding: 14px 20px; border-radius: 14px; background: rgba(255,184,77,.06); border: 1px solid rgba(255,184,77,.22);
+}
+.note b { color: var(--warm); font-weight: 600; }
+.note.mint { background: rgba(47,224,192,.06); border-color: rgba(47,224,192,.24); }
+.note.mint b { color: var(--accent-2); }
+.note.danger { background: rgba(255,107,129,.06); border-color: rgba(255,107,129,.26); }
+.note.danger b { color: var(--danger); }
+
+/* --- Розділові слайди --- */
+.section-break .content { display: flex; flex-direction: column; justify-content: center; }
+.section-break .lead { margin-top: 22px; }
+
+/* =========================================================
+   МАКЕТИ ОКРЕМИХ СЛАЙДІВ
+   ========================================================= */
+/* S2 — мета і план */
+.goal-grid { display: grid; grid-template-columns: 1fr 560px; gap: 64px; height: 100%; align-items: center; }
+.skills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 26px; }
+.skills span { font-size: 13px; padding: 7px 13px; border-radius: 999px; border: 1px solid var(--border-strong); color: var(--text); background: rgba(91,140,255,.08); }
+.plan-item { display: flex; align-items: center; gap: 22px; padding: 18px 24px; margin-bottom: 14px; }
+.plan-item .n { font-family: var(--font-display); font-weight: 700; font-size: 30px; min-width: 64px; }
+.plan-item .t { font-size: 17px; font-weight: 600; line-height: 1.35; }
+.plan-item .s { font-size: 13px; color: var(--muted); margin-top: 3px; font-weight: 400; }
+
+/* S4 — від 48 до рішення */
+.flow4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px; align-items: end; margin-top: 30px; }
+.step { position: relative; display: flex; flex-direction: column; }
+.step .big { font-family: var(--font-display); font-weight: 700; font-size: 46px; line-height: 1; margin: 14px 0 14px; letter-spacing: -0.03em; }
+.step:not(:last-child)::after {
+  content: '→'; position: absolute; right: -19px; top: 50%; color: var(--accent-2); font-size: 18px; z-index: 2;
+}
+
+/* S5 — ІТ vs ІС */
+.itis { display: grid; grid-template-columns: 1fr 430px; gap: 48px; height: 100%; }
+.pipe { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+.pipe-row { display: grid; grid-template-columns: 150px 1fr; gap: 14px; align-items: center; padding: 12px 18px; border-radius: 14px; background: rgba(255,255,255,.03); border: 1px solid var(--border); }
+.pipe-row .k { font-family: var(--font-mono); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent-2); }
+.pipe-row .v { font-size: 15px; }
+.orbit { position: relative; width: 430px; height: 430px; }
+.orbit svg { position: absolute; inset: 0; }
+.onode {
+  position: absolute; width: 104px; height: 104px; margin: -52px 0 0 -52px; border-radius: 50%;
+  display: grid; place-items: center; text-align: center; font-size: 14px; font-weight: 600;
+  background: rgba(16,24,52,.85); border: 1px solid var(--border-strong);
+  box-shadow: 0 0 30px rgba(91,140,255,.15);
+}
+.onode.hot { border-color: rgba(255,184,77,.6); color: var(--warm); box-shadow: 0 0 34px rgba(255,184,77,.22); }
+.ocenter {
+  position: absolute; left: 215px; top: 215px; width: 132px; height: 132px; margin: -66px 0 0 -66px; border-radius: 50%;
+  display: grid; place-items: center; text-align: center;
+  background: radial-gradient(circle at 35% 30%, rgba(91,140,255,.55), rgba(47,224,192,.18) 70%);
+  border: 1px solid rgba(91,140,255,.6); box-shadow: 0 0 60px rgba(91,140,255,.35);
+  font-family: var(--font-display); font-weight: 700; font-size: 15px; line-height: 1.25;
+}
+
+/* S6 — потоки */
+.tracks { position: relative; margin: 30px 0 28px; height: 206px; }
+.track { position: relative; height: 82px; }
+.track-label { font-family: var(--font-mono); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; }
+.track .line { position: absolute; left: 0; right: 0; top: 54px; height: 2px; border-radius: 2px; }
+.track.info .line { background: linear-gradient(90deg, rgba(47,224,192,.15), rgba(47,224,192,.6)); }
+.track.goods .line { background: linear-gradient(90deg, rgba(91,140,255,.15), rgba(91,140,255,.6)); }
+.pulse {
+  position: absolute; top: -6px; width: 14px; height: 14px; border-radius: 50%;
+  background: var(--accent-2); box-shadow: 0 0 18px var(--accent-2), 0 0 40px var(--accent-2);
+  animation: run 2.6s cubic-bezier(.5,0,.5,1) infinite;
+}
+.truck { position: absolute; top: -27px; color: var(--accent); animation: run 7s linear infinite; }
+.truck .icon { width: 32px; height: 32px; }
+@keyframes run { from { left: 0%; } to { left: calc(100% - 40px); } }
+.stations { position: absolute; left: 0; right: 0; bottom: 0; display: flex; justify-content: space-between; }
+.stations span { font-size: 14px; font-weight: 600; color: var(--text); padding: 6px 12px; border-radius: 10px; background: rgba(255,255,255,.05); border: 1px solid var(--border); }
+.grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+
+/* S7 — одна подія, чотири погляди */
+.event-map { position: relative; height: 420px; margin-top: 12px; }
+.event-map > svg { position: absolute; inset: 0; }
+.ev-center {
+  position: absolute; left: 552px; top: 210px; width: 190px; height: 190px; margin: -95px 0 0 -95px; border-radius: 50%;
+  display: grid; place-items: center; text-align: center;
+  background: radial-gradient(circle at 35% 30%, rgba(255,184,77,.35), rgba(91,140,255,.12) 70%);
+  border: 1px solid rgba(255,184,77,.55); box-shadow: 0 0 70px rgba(255,184,77,.2);
+}
+.ev-center b { display: block; font-family: var(--font-display); font-size: 38px; font-weight: 700; }
+.ev-center span { font-size: 14px; color: var(--muted); }
+.ev-card { position: absolute; width: 330px; display: flex; gap: 16px; align-items: flex-start; padding: 18px 20px; }
+.ev-card .ibox { margin: 0; flex: none; }
+
+/* S8 — три групи даних */
+.chain3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 44px; margin: 30px 0 26px; }
+.chain3 .card { position: relative; min-height: 250px; }
+.chain3 .card:not(:last-child)::after {
+  content: ''; position: absolute; right: -45px; top: 50%; width: 44px; height: 2px;
+  background: linear-gradient(90deg, var(--border-strong), var(--accent-2));
+}
+.tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+.tags span { font-size: 12.5px; padding: 5px 10px; border-radius: 8px; background: rgba(255,255,255,.05); border: 1px solid var(--border); color: var(--text); }
+
+/* S9 — пастки */
+.split2 { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; margin-top: 26px; }
+.receipt { display: flex; gap: 26px; align-items: center; margin: 18px 0; }
+.paper {
+  width: 170px; padding: 14px 16px; background: #eef2ff; color: #0b1022; border-radius: 6px 6px 0 0; font-family: var(--font-mono); font-size: 12px;
+  -webkit-mask: radial-gradient(circle 6px at 6px 100%, transparent 98%, #000) -6px 0 / 12px 100% repeat-x;
+  padding-bottom: 20px;
+}
+.paper .r { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px dashed rgba(11,16,34,.25); }
+.paper .h { font-weight: 600; margin-bottom: 4px; }
+.eq { font-family: var(--font-display); font-size: 26px; font-weight: 700; line-height: 1.25; }
+.num-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 16px; }
+.num-cols .col { padding: 14px 16px; border-radius: 14px; background: rgba(255,255,255,.03); border: 1px solid var(--border); }
+.num-cols .col div { font-size: 14px; padding: 5px 0; display: flex; justify-content: space-between; gap: 8px; }
+.num-cols .col div span:last-child { font-family: var(--font-mono); color: var(--muted); }
+
+/* S11 — сходинки змін */
+.stairs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; align-items: end; height: 380px; margin-top: 18px; }
+.stair { position: relative; display: flex; flex-direction: column; justify-content: flex-start; overflow: hidden; }
+.stair .lvl { font-family: var(--font-display); font-weight: 800; font-size: 64px; line-height: 1; opacity: .16; position: absolute; right: 18px; bottom: 10px; }
+.stair .mini-flow { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; font-size: 12.5px; }
+.stair .mini-flow span { padding: 4px 9px; border-radius: 8px; background: rgba(47,224,192,.1); border: 1px solid rgba(47,224,192,.3); color: var(--accent-2); }
+
+/* S12 — канали */
+.channel svg text { font-family: var(--font-body); font-size: 13px; font-weight: 600; fill: var(--text); }
+.channel svg .sub { font-family: var(--font-mono); font-size: 11px; fill: var(--muted); font-weight: 400; }
+.flow-dash { stroke-dasharray: 5 7; animation: dash 1.4s linear infinite; }
+@keyframes dash { to { stroke-dashoffset: -24; } }
+
+/* S13 — процес */
+.before-after { display: grid; grid-template-columns: 1fr 70px 1fr; gap: 0; align-items: stretch; margin-top: 22px; }
+.ba-arrow { display: grid; place-items: center; font-size: 26px; color: var(--accent-2); }
+.stack-row { display: flex; justify-content: space-between; align-items: center; padding: 11px 16px; margin-bottom: 8px; border-radius: 12px; background: rgba(255,255,255,.035); border: 1px solid var(--border); font-size: 15px; }
+.stack-row .pen { font-family: var(--font-mono); font-size: 12px; color: var(--warm); }
+.hub { display: flex; align-items: center; gap: 16px; }
+.hub-core { flex: none; width: 128px; height: 128px; border-radius: 26px; display: grid; place-items: center; text-align: center; font-family: var(--font-display); font-size: 14px; font-weight: 600; line-height: 1.3; background: linear-gradient(150deg, rgba(47,224,192,.28), rgba(91,140,255,.18)); border: 1px solid rgba(47,224,192,.5); box-shadow: 0 0 40px rgba(47,224,192,.18); }
+.hub-outs { display: flex; flex-direction: column; gap: 8px; flex: 1; }
+.hub-outs span { font-size: 14px; padding: 9px 14px; border-radius: 10px; background: rgba(255,255,255,.04); border: 1px solid var(--border); position: relative; }
+.hub-outs span::before { content: ''; position: absolute; left: -17px; top: 50%; width: 16px; height: 1px; background: rgba(47,224,192,.6); }
+
+/* S14 — ідентифікація */
+.trap { margin-top: 14px; padding: 10px 12px; border-radius: 10px; font-size: 13.5px; line-height: 1.45; background: rgba(255,107,129,.07); border: 1px solid rgba(255,107,129,.25); color: var(--text); }
+.trap b { color: var(--danger); font-family: var(--font-mono); font-weight: 600; }
+
+/* S15 — пілот */
+.timeline { position: relative; display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px; margin-top: 34px; }
+.timeline::before { content: ''; position: absolute; left: 20px; right: 20px; top: 21px; height: 2px; background: linear-gradient(90deg, var(--accent), var(--accent-2)); opacity: .5; transform-origin: 0 50%; transform: scaleX(var(--draw, 1)); }
+.tl-dot { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; font-family: var(--font-display); font-weight: 700; font-size: 16px; background: var(--bg); border: 2px solid var(--accent-2); color: var(--accent-2); position: relative; box-shadow: 0 0 22px rgba(47,224,192,.3); margin-bottom: 18px; }
+.tl-item h3 { font-family: var(--font-display); font-weight: 600; font-size: 17px; margin: 0 0 8px; }
+.tl-item p { margin: 0; font-size: 14.5px; line-height: 1.5; color: var(--muted); }
+.quote { margin-top: 36px; display: grid; grid-template-columns: 70px 1fr; gap: 18px; align-items: start; }
+.quote .qm { font-family: var(--font-display); font-size: 90px; line-height: .8; color: var(--accent); opacity: .6; }
+.quote p { font-size: 19px; line-height: 1.5; margin: 0; color: var(--text); }
+.quote p span { color: var(--muted); font-size: 15px; display: block; margin-top: 8px; }
+
+/* S17 — класи систем */
+.sys5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin-top: 26px; }
+.sys { display: flex; flex-direction: column; padding: 22px 18px; min-height: 360px; }
+.sys .ac { font-family: var(--font-display); font-weight: 800; font-size: 36px; letter-spacing: -0.02em; line-height: 1; }
+.sys .full { font-size: 12.5px; color: var(--muted); margin: 8px 0 18px; line-height: 1.4; min-height: 52px; }
+.sys .row { border-top: 1px solid var(--border); padding: 10px 0; }
+.sys .row .label { display: block; margin-bottom: 4px; font-size: 10px; }
+.sys .row div { font-size: 14px; line-height: 1.4; }
+
+/* S18 — статуси */
+.pipeline { position: relative; display: grid; grid-template-columns: repeat(5, 1fr); margin-top: 40px; }
+.pl-track { position: absolute; left: 10%; right: 10%; top: 27px; height: 3px; background: rgba(255,255,255,.08); border-radius: 3px; overflow: hidden; }
+.pl-fill { height: 100%; width: 0; background: linear-gradient(90deg, var(--accent), var(--accent-2)); box-shadow: 0 0 14px var(--accent-2); }
+.pl-node { text-align: center; padding: 0 8px; }
+.pl-circle { width: 56px; height: 56px; margin: 0 auto 16px; border-radius: 50%; display: grid; place-items: center; background: var(--bg); border: 2px solid var(--accent); color: var(--accent); position: relative; z-index: 2; box-shadow: 0 0 24px rgba(91,140,255,.3); }
+.pl-node:last-child .pl-circle { border-color: var(--accent-2); color: var(--accent-2); box-shadow: 0 0 24px rgba(47,224,192,.35); }
+.pl-node h3 { font-family: var(--font-display); font-weight: 600; font-size: 15px; margin: 0 0 6px; }
+.pl-node p { margin: 0; font-size: 13px; color: var(--muted); line-height: 1.4; }
+.neq { margin-top: 46px; text-align: center; font-family: var(--font-display); font-weight: 700; font-size: 30px; letter-spacing: -0.01em; }
+.neq .x { color: var(--danger); margin: 0 14px; }
+
+/* S19 — інтеграція */
+.integ { display: grid; grid-template-columns: 1fr 380px; gap: 28px; margin-top: 22px; }
+.obj-table { padding: 8px 0; }
+.obj-row { display: grid; grid-template-columns: 150px 1fr 1fr; gap: 16px; padding: 14px 22px; border-bottom: 1px solid var(--border); align-items: center; font-size: 14px; line-height: 1.4; }
+.obj-row:last-child { border-bottom: none; }
+.obj-row.head { padding-top: 10px; padding-bottom: 10px; }
+.obj-row .o { font-weight: 700; font-size: 15px; }
+.obj-row .o span { display: block; font-family: var(--font-mono); font-size: 11.5px; color: var(--accent); font-weight: 500; margin-top: 3px; }
+.obj-row .bad { color: var(--danger); }
+.exch { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin: 16px 0 18px; }
+.exch span { flex: 1; text-align: center; padding: 10px 4px; border-radius: 10px; font-size: 13px; font-weight: 600; font-family: var(--font-mono); }
+.exch i { font-style: normal; color: var(--dim); }
+
+/* S21 — якість */
+.quality { display: grid; grid-template-columns: 1fr 330px; gap: 28px; margin-top: 22px; }
+.q6 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.q { padding: 18px 18px; min-height: 150px; }
+.q .qn { font-family: var(--font-mono); font-size: 11px; color: var(--accent-2); letter-spacing: .14em; }
+.q h3 { margin: 8px 0 8px; font-size: 17px; }
+.q p { font-size: 13.5px; }
+.cost-bars { display: flex; align-items: flex-end; gap: 12px; height: 190px; margin: 18px 0 10px; }
+.cost-bars .cb { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; }
+.cost-bars .bar { width: 100%; border-radius: 8px 8px 3px 3px; height: 0; background: linear-gradient(to top, rgba(255,107,129,.25), rgba(255,107,129,.85)); }
+.cost-bars .bl { font-size: 11.5px; color: var(--muted); margin-top: 8px; text-align: center; line-height: 1.3; }
+
+/* S22 — інтерактивний запас */
+.stock { display: grid; grid-template-columns: 470px 1fr; gap: 36px; align-items: start; }
+.legend3 { display: flex; flex-direction: column; gap: 9px; margin: 18px 0 20px; }
+.legend3 div { display: flex; gap: 12px; align-items: baseline; font-size: 14.5px; color: var(--muted); }
+.legend3 b { color: var(--text); min-width: 96px; font-weight: 600; }
+.sw { width: 10px; height: 10px; border-radius: 3px; flex: none; transform: translateY(1px); }
+.formula { font-family: var(--font-mono); font-size: 14px; padding: 12px 16px; border-radius: 12px; background: rgba(91,140,255,.08); border: 1px solid rgba(91,140,255,.28); margin-bottom: 18px; }
+.ev-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+.ev-btn {
+  font-family: var(--font-body); font-size: 13.5px; font-weight: 600; text-align: left; line-height: 1.3;
+  padding: 11px 14px; border-radius: 12px; cursor: pointer; color: var(--text);
+  background: rgba(255,255,255,.04); border: 1px solid var(--border); transition: all .25s;
+}
+.ev-btn small { display: block; font-family: var(--font-mono); font-weight: 400; font-size: 10.5px; color: var(--dim); letter-spacing: .1em; text-transform: uppercase; margin-bottom: 3px; }
+.ev-btn:hover { border-color: var(--border-strong); background: rgba(255,255,255,.07); }
+.ev-btn.active { border-color: var(--accent-2); background: rgba(47,224,192,.1); box-shadow: 0 0 24px rgba(47,224,192,.15); }
+.ev-btn.err.active { border-color: var(--danger); background: rgba(255,107,129,.1); box-shadow: 0 0 24px rgba(255,107,129,.15); }
+.bars-panel { display: flex; flex-direction: column; padding: 22px 28px; height: 520px; }
+.bars3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 26px; }
+.b3 { display: flex; flex-direction: column; align-items: center; }
+.b3 .val { font-family: var(--font-display); font-weight: 700; font-size: 44px; line-height: 1; }
+.b3 .delta { font-family: var(--font-mono); font-size: 13px; height: 18px; margin: 6px 0 8px; }
+.b3 .track3 { position: relative; width: 74px; height: 230px; border-radius: 14px; background: rgba(255,255,255,.04); border: 1px solid var(--border); overflow: hidden; }
+.b3 .fill { position: absolute; left: 0; right: 0; bottom: 0; height: 0; border-radius: 12px; transition: background .4s; }
+.b3 .nm { margin-top: 12px; font-size: 13px; font-weight: 600; text-align: center; }
+.stock-cap { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--border); min-height: 96px; }
+.stock-cap h3 { margin: 0 0 6px; font-family: var(--font-display); font-size: 16px; font-weight: 600; }
+.stock-cap p { margin: 0; font-size: 14px; line-height: 1.5; color: var(--muted); }
+
+/* S23–24 — економіка */
+.econ { display: grid; grid-template-columns: 1fr 1fr 350px; gap: 20px; margin-top: 24px; }
+.calc { display: flex; flex-direction: column; }
+.calc .ln { display: flex; justify-content: space-between; font-size: 14.5px; padding: 9px 0; border-bottom: 1px dashed var(--border); color: var(--muted); }
+.calc .ln b { color: var(--text); font-family: var(--font-mono); font-weight: 500; }
+.calc .res { font-family: var(--font-display); font-weight: 700; font-size: 44px; margin: 18px 0 4px; letter-spacing: -0.02em; line-height: 1; }
+.calc .res small { font-size: 18px; font-weight: 600; color: var(--muted); }
+.payback { display: flex; flex-direction: column; justify-content: center; text-align: center; background: linear-gradient(160deg, rgba(47,224,192,.16), rgba(91,140,255,.08)); border-color: rgba(47,224,192,.4); }
+.payback .huge { font-family: var(--font-display); font-weight: 800; font-size: 82px; line-height: 1; letter-spacing: -0.04em; }
+.split-bar { display: flex; height: 54px; border-radius: 14px; overflow: hidden; margin: 22px 0 8px; border: 1px solid var(--border); }
+.split-bar div { display: flex; align-items: center; padding: 0 18px; font-size: 14px; font-weight: 600; white-space: nowrap; }
+.split-bar .a { width: 0; background: linear-gradient(90deg, rgba(47,224,192,.45), rgba(91,140,255,.45)); }
+.split-bar .b { flex: 1; background: rgba(255,255,255,.04); color: var(--muted); justify-content: flex-end; }
+.stats3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 22px; }
+.stat { padding: 22px; }
+.stat .v { font-family: var(--font-display); font-weight: 700; font-size: 42px; line-height: 1; letter-spacing: -0.02em; margin: 6px 0 10px; }
+.stat .v small { font-size: 18px; color: var(--muted); font-weight: 600; }
+
+/* S25 — KPI */
+.kpi-formula { display: flex; align-items: center; gap: 10px; margin: 26px 0 20px; flex-wrap: nowrap; }
+.kpi-core { flex: none; font-family: var(--font-display); font-weight: 800; font-size: 34px; padding: 18px 26px; border-radius: 20px; background: linear-gradient(150deg, rgba(91,140,255,.4), rgba(47,224,192,.2)); border: 1px solid rgba(91,140,255,.6); box-shadow: 0 0 50px rgba(91,140,255,.3); }
+.kpi-formula .op { font-family: var(--font-display); color: var(--dim); font-size: 22px; }
+.kpi-part { flex: 1; text-align: center; padding: 14px 6px; border-radius: 14px; background: rgba(255,255,255,.04); border: 1px solid var(--border); }
+.kpi-part b { display: block; font-size: 15px; margin-bottom: 3px; }
+.kpi-part span { font-size: 11.5px; color: var(--muted); }
+.chain4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; margin-top: 10px; }
+.chain4 > div { position: relative; padding: 20px 26px 20px 30px; background: rgba(255,255,255,.04); border: 1px solid var(--border); clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 50%, calc(100% - 18px) 100%, 0 100%, 18px 50%); margin-right: -10px; }
+.chain4 > div:last-child { margin-right: 0; clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 18px 50%); border-radius: 0 14px 14px 0; }
+.chain4 > div:first-child { clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 50%, calc(100% - 18px) 100%, 0 100%); border-radius: 14px 0 0 14px; }
+.chain4 .label { color: var(--accent-2); }
+.chain4 b { display: block; font-size: 16px; margin-top: 6px; }
+
+/* S26 — підсумок */
+.final3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 40px; }
+.final3 .card { padding: 22px 24px; }
+.final3 .fn { font-family: var(--font-display); font-weight: 700; font-size: 15px; color: var(--accent-2); margin-bottom: 12px; }
+.final3 p { color: var(--text); font-size: 17px; line-height: 1.45; }
+
+
+/* ================= ЛЕКЦІЯ 2: додаткові макети ================= */
+.files { display: flex; flex-direction: column; gap: 10px; margin: 16px 0 14px; }
+.file { display: flex; align-items: center; gap: 12px; padding: 11px 14px; border-radius: 12px; font-family: var(--font-mono); font-size: 13.5px;
+  background: rgba(255,107,129,.06); border: 1px solid rgba(255,107,129,.3); color: var(--text); }
+.file .icon { color: var(--danger); flex: none; width: 20px; height: 20px; }
+.hub-outs span b { color: var(--accent-2); font-weight: 700; }
+.layers { display: flex; flex-direction: column; gap: 12px; margin-top: 22px; }
+.layer { display: grid; grid-template-columns: 96px 1fr; gap: 18px; align-items: center; padding: 16px 20px; }
+.layer .ac { font-family: var(--font-display); font-weight: 800; font-size: 26px; }
+.layer b { display: block; font-size: 16px; margin-bottom: 3px; }
+.ticks { list-style: none; padding: 0; margin: 14px 0 0; display: flex; flex-direction: column; gap: 10px; }
+.ticks li { display: flex; gap: 12px; align-items: flex-start; font-size: 15.5px; line-height: 1.45; color: var(--text); }
+.ticks li::before { content: "✓"; color: var(--accent-2); font-weight: 800; }
+.ticks.bad li::before { content: "✗"; color: var(--danger); }
+.neq-row { display: flex; gap: 12px; flex-wrap: wrap; }
+.neq-chip { flex: 1; padding: 13px 16px; border-radius: 14px; font-size: 15px; line-height: 1.4; background: rgba(255,184,77,.07); border: 1px solid rgba(255,184,77,.32); color: var(--text); }
+.neq-chip b { color: var(--warm); }
+.ktable { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 15px; }
+.ktable th { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--dim); text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--border); font-weight: 500; }
+.ktable td { padding: 11px 12px; border-bottom: 1px solid var(--border); }
+.ktable td.k { font-family: var(--font-mono); color: var(--accent); font-weight: 600; }
+.ktable td.n { text-align: right; font-family: var(--font-mono); }
+.ktable tr.tot td { border-bottom: none; font-weight: 800; color: var(--accent-2); padding-top: 14px; }
+.cmp { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin: 12px 0 10px; }
+.cmp span { font-family: var(--font-mono); font-size: 15px; padding: 7px 12px; border-radius: 10px; }
+.cmp .bad { color: var(--danger); background: rgba(255,107,129,.08); border: 1px solid rgba(255,107,129,.35); text-decoration: line-through; }
+.cmp .good { color: var(--accent-2); background: rgba(47,224,192,.08); border: 1px solid rgba(47,224,192,.4); }
+.cmp .arr { padding: 0; color: var(--dim); }
+.status-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.status-chips span { font-family: var(--font-mono); font-size: 11.5px; padding: 5px 10px; border-radius: 999px; border: 1px solid var(--border-strong); color: var(--text); background: rgba(91,140,255,.08); }
+.q .qr { margin-top: 10px; font-size: 12.5px; color: var(--accent-2); }
+.tokens3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 16px; }
+.token { padding: 16px 12px; border-radius: 14px; background: rgba(255,255,255,.04); border: 1px solid var(--border); text-align: center; }
+.token .t { font-family: var(--font-display); font-weight: 700; font-size: 34px; line-height: 1; margin-bottom: 8px; }
+.token p { margin: 0; font-size: 13.5px; line-height: 1.45; color: var(--muted); }
+.pipeline.six { grid-template-columns: repeat(6, 1fr); }
+.pipeline.six .pl-track { left: 8%; right: 8%; }
+.pipeline.six .pl-node h3 { font-size: 14px; }
+.msg { padding: 14px 18px; border-radius: 18px 18px 18px 6px; font-size: 16px; line-height: 1.5; color: var(--text); }
+.msg.bad { background: rgba(255,107,129,.08); border: 1px solid rgba(255,107,129,.35); }
+.msg.good { background: rgba(47,224,192,.08); border: 1px solid rgba(47,224,192,.4); }
+.msg .who { display: block; font-family: var(--font-mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; margin-bottom: 6px; }
+.tf { display: grid; grid-template-columns: 150px 1fr; gap: 12px; padding: 10px 0; border-bottom: 1px dashed var(--border); font-size: 15px; }
+.tf span:first-child { font-family: var(--font-mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--dim); padding-top: 2px; }
+.final3 .card p { font-size: 16px; }
+
+/* Доступність */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- Набір іконок (SVG-спрайт) -->
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="i-box" viewBox="0 0 24 24"><path d="M3 7.5 12 3l9 4.5-9 4.5-9-4.5zM3 7.5v9L12 21l9-4.5v-9M12 12v9"/></symbol>
+  <symbol id="i-cart" viewBox="0 0 24 24"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2 3h3l2.6 12.2h11.2L21 7H6.2"/></symbol>
+  <symbol id="i-receipt" viewBox="0 0 24 24"><path d="M6 2h12v20l-3-2-3 2-3-2-3 2V2zM9 7h6M9 11h6M9 15h4"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 21h18M6 17v-6M11 17V6M16 17v-9M20 17v-4"/></symbol>
+  <symbol id="i-truck" viewBox="0 0 24 24"><path d="M1 5h13v11H1zM14 9h4.5L22 12.5V16h-8"/><circle cx="5.5" cy="18" r="2"/><circle cx="17.5" cy="18" r="2"/></symbol>
+  <symbol id="i-barcode" viewBox="0 0 24 24"><path d="M3 5v14M6 5v14M9 5v14M13 5v14M15 5v14M18 5v14M21 5v14"/></symbol>
+  <symbol id="i-rfid" viewBox="0 0 24 24"><rect x="2" y="8" width="9" height="12" rx="2"/><path d="M14 10a4 4 0 0 1 0 6M17 7.5a8 8 0 0 1 0 11M20 5a12 12 0 0 1 0 16"/></symbol>
+  <symbol id="i-temp" viewBox="0 0 24 24"><path d="M14 14.8V4.5a2.5 2.5 0 0 0-5 0v10.3a4.5 4.5 0 1 0 5 0zM11.5 9v7"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M4 12.5 9.5 18 20 6.5"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3 2 20h20L12 3zM12 10v4M12 17h.01"/></symbol>
+  <symbol id="i-layers" viewBox="0 0 24 24"><path d="m12 3 9 5-9 5-9-5 9-5zM3 13l9 5 9-5"/></symbol>
+  <symbol id="i-inbox" viewBox="0 0 24 24"><path d="M3 13h5l1.5 3h5L16 13h5M5 5h14l2 8v6H3v-6l2-8z"/></symbol>
+  <symbol id="i-store" viewBox="0 0 24 24"><path d="M3 9 4.5 4h15L21 9M3 9h18v0a3 3 0 0 1-6 0 3 3 0 0 1-6 0 3 3 0 0 1-6 0zM5 12v8h14v-8M10 20v-5h4v5"/></symbol>
+  <symbol id="i-hand" viewBox="0 0 24 24"><path d="M7 11V5.5a1.5 1.5 0 0 1 3 0V10m0-1.5V4a1.5 1.5 0 0 1 3 0v6m0-4.5a1.5 1.5 0 0 1 3 0V11m0-3a1.5 1.5 0 0 1 3 0v6a7 7 0 0 1-7 7h-1a7 7 0 0 1-6-3.5L3 13a1.5 1.5 0 0 1 2.6-1.5L7 13"/></symbol>
+  <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 18h10.5a4 4 0 0 0 .6-7.96A6 6 0 0 0 6.5 9.5 4.25 4.25 0 0 0 7 18z"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4V5zM8 9h8M8 12h5"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M6 2h8l5 5v15H6V2zM14 2v5h5M9 13h7M9 17h5"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M18 14a6 6 0 0 1 3.5 6"/></symbol>
+  <symbol id="i-history" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5M12 7v5l3 2"/></symbol>
+</svg>
+
+<div class="stage">
+
+  <!-- ========== ФОНОВІ ПАРАЛАКС-ШАРИ ========== -->
+  <div class="bg">
+    <div class="stars far" id="starsFar"></div>
+    <div class="orb o1"></div>
+    <div class="orb o2"></div>
+    <div class="orb o3"></div>
+    <div class="stars mid" id="starsMid"></div>
+    <div class="floor-wrap" id="floorWrap"><div class="floor" id="floor"></div></div>
+    <div class="vignette"></div>
+  </div>
+
+  <!-- ========== HUD ========== -->
+  <header class="hud">
+    <div class="hud-left"><span class="hud-dot"></span>Лекція 2 · Спільна робота з даними</div>
+    <div class="hud-right"><span id="hudSection">Вступ</span><span class="hud-count"><b id="hudNum">01</b> / <span id="hudTotal">30</span></span></div>
+  </header>
+
+  <!--
+    Як працює паралакс:
+    data-speed — наскільки далеко елемент «їде» під час зміни слайда (0.2 = далекий фон, 1.6 = передній план)
+    data-depth — наскільки сильно елемент реагує на рух миші
+  -->
+
+  <!-- ===================== SLIDE 1: Титул ===================== -->
+  <section class="slide" data-section="Вступ">
+    <div class="ghost-num" data-speed="0.25" data-depth="0.35" style="left:690px; top:150px;">02</div>
+    <div class="ring" data-speed="0.4" data-depth="0.6" style="left:760px; top:80px; width:520px; height:520px;"></div>
+
+    <div class="content" style="display:flex; flex-direction:column; justify-content:center;">
+      <div data-speed="1" data-depth="0.12" style="max-width:720px;">
+        <div class="eyebrow">Лекція 2 · Спільна робота з даними</div>
+        <h1 class="display">Інформаційні технології <span class="grad">спільної роботи з даними</span></h1>
+      </div>
+      <p class="lead" data-speed="1.2" data-depth="0.18" style="margin-top:26px; max-width:600px;">Хмарне середовище, структура реєстру, права доступу та комунікації, що тримають заявку узгодженою</p>
+      <div class="label" data-speed="1.4" data-depth="0.2" style="margin-top:44px;">→ / пробіл / колесо миші — далі</div>
+    </div>
+
+    <div class="pos" data-speed="1.7" data-depth="1.6" style="left:900px; top:150px;"><span class="chip big blue">SaaS</span></div>
+    <div class="pos" data-speed="1.2" data-depth="1.1" style="left:1080px; top:240px;"><span class="chip mint" style="animation-delay:-2s">№ 204</span></div>
+    <div class="pos" data-speed="0.8" data-depth="0.7" style="left:820px; top:330px;"><span class="chip faint" style="animation-delay:-4s">версії</span></div>
+    <div class="pos" data-speed="1.9" data-depth="1.9" style="left:1000px; top:420px;"><span class="chip big warm" style="animation-delay:-1s">24 → 18 → 16</span></div>
+    <div class="pos" data-speed="1.0" data-depth="0.9" style="left:1130px; top:520px;"><span class="chip" style="animation-delay:-3s">доступ</span></div>
+    <div class="pos" data-speed="0.6" data-depth="0.5" style="left:860px; top:560px;"><span class="chip faint" style="animation-delay:-5s">реєстр</span></div>
+  </section>
+
+  <!-- ===================== SLIDE 2: Мета і план ===================== -->
+  <section class="slide" data-section="Вступ">
+    <div class="ring" data-speed="0.3" data-depth="0.4" style="left:-220px; top:300px; width:560px; height:560px;"></div>
+    <div class="content goal-grid">
+      <div data-speed="1" data-depth="0.15">
+        <div class="eyebrow">Мета теми</div>
+        <h2 class="title">Один документ — <span class="grad">одна узгоджена картина</span></h2>
+        <p class="body" style="font-size:17px;">Сформувати знання про хмарні сервіси та спільне інформаційне середовище: структурувати робочі дані, розподіляти права доступу, погоджувати зміни й контролювати командні завдання в торгівлі.</p>
+        <div class="skills">
+          <span>Структурувати реєстр</span>
+          <span>Розподіляти доступ</span>
+          <span>Погоджувати зміни</span>
+          <span>Координувати команду</span>
+        </div>
+      </div>
+      <div>
+        <div class="card plan-item" data-speed="1.0" data-depth="0.3"><div class="n grad">01</div><div class="t">Хмарні технології<div class="s">та спільне робоче середовище</div></div></div>
+        <div class="card plan-item" data-speed="1.15" data-depth="0.4"><div class="n grad">02</div><div class="t">Структурування даних<div class="s">у спільних документах і таблицях</div></div></div>
+        <div class="card plan-item" data-speed="1.3" data-depth="0.5"><div class="n grad">03</div><div class="t">Права доступу й версії<div class="s">та погодження змін</div></div></div>
+        <div class="card plan-item" data-speed="1.45" data-depth="0.6"><div class="n grad">04</div><div class="t">Цифрові комунікації<div class="s">і координація торговельних операцій</div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== SLIDE 3: Розділ 1 ===================== -->
+  <section class="slide section-break" data-section="01 · Хмарне середовище" data-sec="1">
+    <div class="ghost-num" data-speed="0.2" data-depth="0.3" style="left:760px; top:110px; font-size:620px;">1</div>
+    <div class="content">
+      <div class="eyebrow" data-speed="1" data-depth="0.1">Розділ 01</div>
+      <h2 class="display xl" data-speed="1.15" data-depth="0.15">Хмара і спільне<br><span class="grad">середовище</span></h2>
+      <p class="lead" data-speed="1.3" data-depth="0.2">Спільний файл корисний лише разом із правилами зберігання, ролями й передачею роботи</p>
+    </div>
+    <div class="pos" data-speed="1.8" data-depth="1.7" style="left:930px; top:170px;"><span class="chip big blue">SaaS</span></div>
+    <div class="pos" data-speed="1.1" data-depth="1.0" style="left:1080px; top:300px;"><span class="chip" style="animation-delay:-2s">OneDrive</span></div>
+    <div class="pos" data-speed="0.7" data-depth="0.6" style="left:860px; top:420px;"><span class="chip faint" style="animation-delay:-4s">Google Таблиці</span></div>
+    <div class="pos" data-speed="1.5" data-depth="1.4" style="left:1010px; top:520px;"><span class="chip mint" style="animation-delay:-1s">одне джерело</span></div>
+  </section>
+
+  <!-- ===================== SLIDE 4: Копії vs одне джерело ===================== -->
+  <section class="slide" data-section="01 · Хмарне середовище">
+    <div class="content">
+      <div data-speed="1" data-depth="0.12">
+        <div class="eyebrow">Навіщо спільне середовище</div>
+        <h2 class="title">Одне узгоджене джерело <span class="grad">замість копій</span></h2>
+      </div>
+      <div class="before-after">
+        <div class="card danger" data-speed="1.25" data-depth="0.4">
+          <span class="label" style="color:var(--danger)">Кожен — зі своєю копією</span>
+          <div class="files">
+            <div class="file"><svg class="icon"><use href="#i-file"/></svg>Реєстр_остаточний.xlsx</div>
+            <div class="file"><svg class="icon"><use href="#i-file"/></svg>Реєстр_остаточний_новий.xlsx</div>
+            <div class="file"><svg class="icon"><use href="#i-file"/></svg>Реєстр_ще_один_остаточний.xlsx</div>
+          </div>
+          <p>Зміни не доходять до інших працівників, і ніхто не знає, який запис основний.</p>
+        </div>
+        <div class="ba-arrow" data-speed="1.4" data-depth="0.6">→</div>
+        <div class="card mint" data-speed="1.55" data-depth="0.5">
+          <span class="label" style="color:var(--accent-2)">Один ресурс за одним посиланням</span>
+          <div class="hub" style="margin-top:16px;">
+            <div class="hub-core">Реєстр<br>заявок</div>
+            <div class="hub-outs"><span><b>Магазин</b> фіксує заявку</span><span><b>Склад</b> перевіряє виконання</span><span><b>Диспетчер</b> додає доставку</span></div>
+          </div>
+          <p style="margin-top:16px;">Кожен бачить актуальний стан — за належного доступу й своєчасних змін.</p>
+        </div>
+      </div>
+      <div class="note" data-speed="1.7" data-depth="0.2" style="margin-top:18px;">
+        <svg class="icon" style="color:var(--warm);flex:none"><use href="#i-alert"/></svg>
+        <span>Порядок <b>назв і зберігання</b> — частина технології, а не другорядна формальність.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== SLIDE 5: SaaS / PaaS / IaaS ===================== -->
+  <section class="slide" data-section="01 · Хмарне середовище">
+    <div class="content itis" style="grid-template-columns:1fr 400px;">
+      <div>
+        <div data-speed="1" data-depth="0.12">
+          <div class="eyebrow">Моделі хмарних послуг</div>
+          <h2 class="title">Хмара змінює місце роботи, <span class="grad">а не відповідальність</span></h2>
+        </div>
+        <div class="layers">
+          <div class="card layer mint" data-speed="1.15" data-depth="0.3"><span class="ac mint-t">SaaS</span><div><b>Програмне забезпечення як послуга</b><p>Готовий застосунок: Google Таблиці, Microsoft 365. Найчастіше — саме те, що потрібно фахівцю з торгівлі.</p></div></div>
+          <div class="card layer" data-speed="1.3" data-depth="0.4"><span class="ac blue-t">PaaS</span><div><b>Платформа як послуга</b><p>Середовище для розроблення й розгортання програм.</p></div></div>
+          <div class="card layer" data-speed="1.45" data-depth="0.5"><span class="ac" style="color:#9fb6ff">IaaS</span><div><b>Інфраструктура як послуга</b><p>Обчислювальні ресурси: сервери, сховища, мережі.</p></div></div>
+        </div>
+      </div>
+      <div class="card warm" data-speed="1.35" data-depth="0.6" style="align-self:center;">
+        <div class="ibox warm"><svg class="icon"><use href="#i-users"/></svg></div>
+        <h3>За користувачем лишається</h3>
+        <ul class="ticks">
+          <li>зміст даних, які він вносить</li>
+          <li>кому відкрито доступ і які дії дозволено</li>
+          <li>дотримання робочих процедур</li>
+          <li>як відновлюються дані після помилки</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== SLIDE 6: Спільний файл ≠ процес ===================== -->
+  <section class="slide" data-section="01 · Хмарне середовище">
+    <div class="content">
+      <div data-speed="1" data-depth="0.12">
+        <div class="eyebrow">Технологія ≠ процес</div>
+        <h2 class="title">Спільний файл — ще не <span class="grad">спільний процес</span></h2>
+      </div>
+      <div class="split2" style="grid-template-columns:360px 1fr; margin-top:22px; align-items:stretch;">
+        <div class="card payback" data-speed="1.2" data-depth="0.5" style="padding:26px;">
+          <span class="label">Файл відкрили</span>
+          <div class="huge grad" style="margin:10px 0 4px; font-size:96px;"><span class="count" data-to="10">10</span></div>
+          <div style="font-family:var(--font-display); font-weight:600; font-size:18px;">працівників одночасно</div>
+          <p style="margin-top:14px; font-size:14px; color:var(--muted);">Але це не означає, що вони виконують узгоджений процес.</p>
+        </div>
+        <div class="grid3" style="grid-template-columns:1fr 1fr; gap:14px;">
+          <div class="card" data-speed="1.3" data-depth="0.35"><div class="ibox"><svg class="icon"><use href="#i-check"/></svg></div><h3>Спільна мета</h3><p>Що команда має отримати в результаті.</p></div>
+          <div class="card" data-speed="1.4" data-depth="0.4"><div class="ibox mint"><svg class="icon"><use href="#i-layers"/></svg></div><h3>Об'єкти обліку</h3><p>Заявка, позиція, доставка — з ідентифікаторами.</p></div>
+          <div class="card" data-speed="1.5" data-depth="0.45"><div class="ibox warm"><svg class="icon"><use href="#i-hand"/></svg></div><h3>Правила передачі</h3><p>Хто й коли передає роботу наступному.</p></div>
+          <div class="card" data-speed="1.6" data-depth="0.5"><div class="ibox"><svg class="icon"><use href="#i-lock"/></svg></div><h3>Повноваження</h3><p>Хто може погодити, змінити, закрити.</p></div>
+        </div>
+      </div>
+      <div class="note mint" data-speed="1.75" data-depth="0.2" style="margin-top:16px;">
+        <svg class="icon" style="color:var(--accent-2);flex:none"><use href="#i-layers"/></svg>
+        <span>Спочатку — <b>домовленість про процес</b>, потім вибір редактора. Локальний файл не стає спільним лише тому, що його надіслали кільком людям.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== SLIDE 7: Ролі ===================== -->
+  <section class="slide" data-section="01 · Хмарне середовище">
+    <div class="content">
+      <div data-speed="1" data-depth="0.12">
+        <div class="eyebrow">Учасник працює з роллю</div>
+        <h2 class="title">Кожна роль — <span class="grad">своя перевірка</span></h2>
+      </div>
+      <div class="grid3" style="margin-top:26px;">
+        <div class="card" data-speed="1.2" data-depth="0.35"><div class="ibox"><svg class="icon"><use href="#i-store"/></svg></div><h3>Менеджер магазину</h3><p>Відповідає за <b style="color:var(--text)">обґрунтованість заявки</b>: що, скільки й коли потрібно.</p></div>
+        <div class="card" data-speed="1.4" data-depth="0.5"><div class="ibox mint"><svg class="icon"><use href="#i-box"/></svg></div><h3>Комірник</h3><p>Підтверджує <b style="color:var(--text)">фактичну наявність</b> і погоджує обсяг.</p></div>
+        <div class="card" data-speed="1.6" data-depth="0.65"><div class="ibox warm"><svg class="icon"><use href="#i-truck"/></svg></div><h3>Диспетчер</h3><p>Оцінює <b style="color:var(--text)">можливість доставки</b> й планує рейс.</p></div>
+      </div>
+      <div class="neq" data-speed="1.5" data-depth="0.25" style="margin-top:44px;">«Бажана дата»<span class="x">≠</span><span class="grad">«погоджений графік»</span></div>
+      <p class="body" data-speed="1.7" data-depth="0.2" style="text-align:center; margin-top:12px;">Якщо назвати ці поля однаково, побажання почнуть читати як зобов'язання. Одна людина може мати кілька ролей, але функції варто розрізняти.</p>
+    </div>
+  </section>
+
+  <!-- ===================== SLIDE 8: Межі відповідальності ===================== -->
+  <section class="slide" data-section="01 · Хмарне середовище">
+    <div class="content">
+      <div data-speed="1" data-depth="0.12">
+        <div class="eyebrow">Хмара і відповідальність</div>
+        <h2 class="title">Сервіс працює — <span class="grad">але налаштування ваші</span></h2>
+      </div>
+      <div class="split2" style="margin-top:22px;">
+        <div class="card" data-speed="1.25" data-depth="0.4">
+          <div class="ibox"><svg class="icon"><use href="#i-cloud"/></svg></div>
+          <h3>Постачальник сервісу</h3>
+          <ul class="ticks"><li>підтримує інфраструктуру</li><li>оновлює програму</li><li>забезпечує працездатність</li></ul>
+        </div>
+        <div class="card mint" data-speed="1.4" data-depth="0.5">
+          <div class="ibox mint"><svg class="icon"><use href="#i-users"/></svg></div>
+          <h3>Організація і користувач</h3>
+          <ul class="ticks"><li>визначають склад даних</li><li>вирішують, хто має доступ і які дії дозволені</li><li>вибирають, кому передати посилання</li></ul>
+        </div>
+      </div>
+      <div class="neq-row" data-speed="1.6" data-depth="0.25" style="margin-top:20px;">
+        <div class="neq-chip"><b>Синхронізація ≠</b> резервна копія</div>
+        <div class="neq-chip"><b>Сервіс доступний ≠</b> процес доступний</div>
+        <div class="neq-chip"><b>Прийняте звернення ≠</b> погоджене замовлення</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== SLIDE 9: Папки, назви, власник ===================== -->
+  <section class="slide" data-section="01 · Хмарне середовище">
+    <div class="content">
+      <div data-speed="1" data-depth="0.12">
+        <div class="eyebrow">Структура середовища</div>
+        <h2 class="title">Папки й назви, зрозумілі <span class="grad">без автора</span></h2>
+      </div>
+      <div class="chain3" style="margin:26px 0 22px;">
+        <div class="card" data-speed="1.2" data-depth="0.35" style="min-height:190px;">
+          <div class="ibox"><svg class="icon"><use href="#i-layers"/></svg></div>
+          <h3>Довідники</h3><p>Затверджені товари, одиниці, постачальники.</p>
+        </div>
+        <div class="card" data-speed="1.35" data-depth="0.45" style="min-height:190px;">
+          <div class="ibox mint"><svg class="icon"><use href="#i-inbox"/></svg></div>
+          <h3>Поточні операції</h3><p>Один чинний «Реєстр замовлень».</p>
+        </div>
+        <div class="card" data-speed="1.5" data-depth="0.55" style="min-height:190px;">
+          <div class="ibox warm"><svg class="icon"><use href="#i-history"/></svg></div>
+          <h3>Погоджені результати</h3><p>Архів із періодом і позначкою завершення.</p>
+        </div>
+      </div>
+      <div class="grid3" data-speed="1.65" data-depth="0.3" style="gap:14px;">
+        <div class="note mint" style="display:block;"><b>Власник, замісник, адміністратор</b> — процес не зникає разом із доступом однієї людини.</div>
+        <div class="note" style="display:block;"><b>Особистий акаунт</b> для ключового реєстру — ризик при звільненні працівника.</div>
+        <div class="note mint" style="display:block;"><b>Інструкція поруч</b>: колонки, статуси, довідники, куди писати про проблему.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== SLIDE 10: Заявка 24 → 18 ===================== -->
+  <section class="slide" data-section="01 · Хмарне середовище">
+    <div class="content">
+      <div data-speed="1" data-depth="0.12">
+        <div class="eyebrow">Розгорнутий приклад</div>
+        <h2 class="title">Кожна роль <span class="grad">додає</span> підтвердження, а не замінює</h2>
+      </div>
+      <div class="flow4" style="margin-top:22px;">
+        <div class="card step" data-speed="1.0" data-depth="0.3" style="min-height:220px;">
+          <span class="label">Магазин · потреба</span>
+          <div class="big blue-t">24</div>
+          <p>Код товару, одиниця, бажаний день отримання.</p>
+        </div>
+        <div class="card step mint" data-speed="1.15" data-depth="0.4" style="min-height:250px;">
+          <span class="label">Склад · погоджено</span>
+          <div class="big mint-t">18</div>
+          <p>Перевірено доступний запас.</p>
+        </div>
+        <div class="card step warm" data-speed="1.3" data-depth="0.5" style="min-height:280px;">
+          <span class="label">Не погоджено</span>
+          <div class="big warm-t">6</div>
+          <p>Менеджер уточнює, чи прийнятна часткова поставка.</p>
+        </div>
+        <div class="card step" data-speed="1.45" data-depth="0.6" style="min-height:310px;">
+          <span class="label">Диспетчер</span>
+          <div class="big" style="font-size:34px;">Планує 18</div>
+          <p>Отримує заявку лише після погодження.</p>
+        </div>
+      </div>
+      <div class="note danger" data-speed="1.6" data-depth="0.2" style="margin-top:20px;">
+        <svg class="icon" style="color:var(--danger);flex:none"><use href="#i-alert"/></svg>
+        <span>Магазин змінив потребу на 30 після погодження? <b>+12 одиниць не стають погодженими автоматично</b> — це подія для перевірки, а не тиха заміна числа.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== SLIDE 11: Розділ 2 ===================== -->
+  <section class="slide section-break" data-section="02 · Структура даних" data-sec="1">
+    <div class="ghost-num" data-speed="0.2" data-depth="0.3" style="left:720px; top:110px; font-size:620px;">2</div>
+    <div class="content">
+      <div class="eyebrow" data-speed="1" data-depth="0.1">Розділ 02</div>
+      <h2 class="display xl" data-speed="1.15" data-depth="0.15">Структура даних<br>у <span class="grad">таблицях</span></h2>
+      <p class="lead" data-speed="1.3" data-depth="0.2">Таблиця має відтворювати логіку операції, а не лише гарно виглядати</p>
+    </div>
+    <div class="pos" data-speed="1.7" data-depth="1.6" style="left:960px; top:160px;"><span class="chip big blue">310 · 2</span></div>
+    <div class="pos" data-speed="1.0" data-depth="0.9" style="left:1100px; top:290px;"><span class="chip" style="animation-delay:-2s">статус</span></div>
+    <div class="pos" data-speed="0.7" data-depth="0.6" style="left:880px; top:390px;"><span class="chip faint" style="animation-delay:-4s">словник полів</span></div>
+    <div class="pos" data-speed="1.5" data-depth="1.4" style="left:990px; top:500px;"><span class="chip mint" style="animation-delay:-1s">24 · 18 · 16</span></div>
+  </section>
+
+  <!-- ===================== SLIDE 12: Що означає один рядок ===================== -->
+  <section class="slide" data-section="02 · Структура даних">
+    <div class="content">
+      <div data-speed="1" data-depth="0.12">
+        <div class="eyebrow">Рівень деталізації</div>
+        <h2 class="title">Що означає <span class="grad">один рядок</span>?</h2>
+      </div>
+      <div class="split2" style="grid-template-columns:400px 1fr; margin-top:20px;">
+        <div data-speed="1.2" data-depth="0.35">
+          <p class="body" style="font-size:16px;">Рядок може відповідати замовленню, товарній позиції або рейсу. Змішувати рівні в одній таблиці — отримати некоректні суми.</p>
+          <div class="tokens3" style="grid-template-columns:1fr; gap:10px;">
+            <div class="token" style="text-align:left; padding:14px 18px;"><div class="t" style="font-size:20px; margin:0 0 4px;">Повтор <span class="blue-t">310</span></div><p>нормально: одне замовлення має кілька позицій</p></div>
+            <div class="token" style="text-align:left; padding:14px 18px; border-color:rgba(255,107,129,.4);"><div class="t" style="font-size:20px; margin:0 0 4px;">Повтор <span class="danger-t">310 + 2</span></div><p>потребує пояснення: складений ключ має бути унікальним</p></div>
+          </div>
+        </div>
+        <div class="card" data-speed="1.4" data-depth="0.5">
+          <span class="label">Реєстр позицій · замовлення 310</span>
+          <table class="ktable" style="margin-top:10px;">
+            <thead><tr><th>Замовлення</th><th>Позиція</th><th>Товар</th><th style="text-align:right">Сума, грн</th></tr></thead>
+            <tbody>
+              <tr><td class="k">310</td><td class="k">1</td><td>Пляшка 750 мл</td><td class="n">240</td></tr>
+              <tr><td class="k">310</td><td class="k">2</td><td>Термочашка</td><td class="n">360</td></tr>
+              <tr><td class="k">310</td><td class="k">3</td><td>Ланч-бокс</td><td class="n">500</td></tr>
+              <tr class="tot"><td colspan="3">3 рядки = 1 замовлення</td><td class="n"><span class="count" data-to="1100">1 100</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== SLIDE 13: Значення ≠ оформлення ===================== -->
+  <section class="slide" data-section="02 · Структура даних">
+    <div class="content">
+      <div data-speed="1" data-depth="0.12">
+        <div class="eyebrow">Тип даних</div>
+        <h2 class="title">Значення — окремо <span class="grad">від оформлення</span></h2>
+      </div>
+      <div class="grid3" style="grid-template-columns:1fr 1fr; gap:16px; margin-top:22px;">
+        <div class="card" data-speed="1.15" data-depth="0.3"><span class="label">Число</span>
+          <div class="cmp"><span class="bad">«1200 грн»</span><span class="arr">→</span><span class="good">1200</span></div><p>Текст із валютою не порахується формулою.</p></div>
+        <div class="card" data-speed="1.3" data-depth="0.4"><span class="label">Код товару</span>
+          <div class="cmp"><span class="bad">451</span><span class="arr">→</span><span class="good">«0451»</span></div><p>Код із початковим нулем зберігають як текст.</p></div>
+        <div class="card" data-speed="1.45" data-depth="0.5"><span class="label">Одиниця виміру</span>
+          <div class="cmp"><span class="bad">«5»</span><span class="arr">→</span><span class="good">5 кор. × 12 = 60 шт</span></div><p>Без одиниці однакове число — різні зобов'язання.</p></div>
+        <div class="card" data-speed="1.6" data-depth="0.6"><span class="label">Статус</span>
+          <div class="cmp"><span class="bad">колір клітинки</span><span class="arr">→</span><span class="good">значення зі списку</span></div>
+          <div class="status-chips"><span>Нове</span><span>Погоджене</span><span>Комплектується</span><span>Відвантажене</span><span>Закрите</span><span>Скасоване</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== SLIDE 14: Таблиця 2.1 ===================== -->
+  <section class="slide" data-section="02 · Структура даних">
+    <div class="content">
+      <div data-speed="1" data-depth="0.12">
+        <div class="eyebrow">Таблиця 2.1 · Правила спільного реєстру</div>
+        <h2 class="title">Шість правил, які <span class="grad">можна перевірити</span></h2>
+      </div>
+      <div class="q6" style="margin-top:22px;">
+        <div class="card q" data-speed="1.1" data-depth="0.3"><div class="qn">01</div><h3>Ідентифікатор</h3><p>Унікальний за рівнем деталізації</p><div class="qr">✓ немає невиправданих повторів</div></div>
+        <div class="card q" data-speed="1.2" data-depth="0.35"><div class="qn">02</div><h3>Дата</h3><p>Єдиний формат і тип даних</p><div class="qr">✓ правильне сортування за часом</div></div>
+        <div class="card q" data-speed="1.3" data-depth="0.4"><div class="qn">03</div><h3>Кількість</h3><p>Додатне число для чинної позиції</p><div class="qr">✓ від'ємні — на перевірку</div></div>
+        <div class="card q" data-speed="1.4" data-depth="0.45"><div class="qn">04</div><h3>Статус</h3><p>Значення з погодженого списку</p><div class="qr">✓ одне написання стану</div></div>
+        <div class="card q" data-speed="1.5" data-depth="0.5"><div class="qn">05</div><h3>Формула</h3><p>Окремо від ручного введення</p><div class="qr">✓ зміна входу оновлює суму</div></div>
+        <div class="card q" data-speed="1.6" data-depth="0.55"><div class="qn">06</div><h3>Відповідальний</h3><p>Визначена роль або учасник</p><div class="qr">✓ ясно, хто робить наступний крок</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== SLIDE 15: Пастки ===================== -->
+  <section class="slide" data-section="02 · Структура даних">
+    <div class="content">
+      <div data-speed="1" data-depth="0.12">
+        <div class="eyebrow">Формат ≠ правильність</div>
+        <h2 class="title">Зелена клітинка ще <span class="grad">не доводить правду</span></h2>
+      </div>
+      <div class="split2" style="margin-top:22px;">
+        <div class="card" data-speed="1.25" data-depth="0.4">
+          <span class="label">Порожнє, нуль і невідоме — різні речі</span>
+          <div class="tokens3">
+            <div class="token"><div class="t mint-t">0</div><p>повернень не було</p></div>
+            <div class="token"><div class="t" style="color:var(--dim)">—</div><p>ще не внесено</p></div>
+            <div class="token"><div class="t warm-t">?</div><p>немає підтвердження</p></div>
+          </div>
+          <p style="margin-top:14px;">Заміна порожніх клітинок нулями «покращує» середнє й створює ілюзію кращого результату.</p>
+        </div>
+        <div class="card danger" data-speed="1.4" data-depth="0.5">
+          <span class="label" style="color:var(--danger)">Типові технічні пастки</span>
+          <ul class="ticks bad">
+            <li>Сортування лише одного стовпця змішує дані різних записів</li>
+            <li>Фільтр приховує рядки, а не видаляє їх</li>
+            <li>Формула може рахувати весь реєстр, а не видиму вибірку</li>
+            <li>Закріплене посилання хибне в рядках нижче першого</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== SLIDE 16: Таблиця 2.2 ===================== -->
+  <section class="slide" data-section="02 · Структура даних">
+    <div class="content">
+      <div data-speed="1" data-depth="0.12">
+        <div class="eyebrow">Таблиця 2.2 · Показники реєстру позицій</div>
+        <h2 class="title">Рядки, замовлення, гроші — <span class="grad">різні підрахунки</span></h2>
+      </div>
+      <div class="grid3" style="grid-template-columns:repeat(4,1fr); gap:14px; margin-top:22px;">
+        <div class="card" data-speed="1.15" data-depth="0.3"><h3>Кількість рядків</h3><p>Товарні позиції або події</p><div class="trap"><b>✗</b> називати рядки замовленнями</div></div>
+        <div class="card" data-speed="1.3" data-depth="0.4"><h3>Кількість замовлень</h3><p>Унікальні номери замовлень</p><div class="trap"><b>✗</b> підсумовувати повтори номерів</div></div>
+        <div class="card" data-speed="1.45" data-depth="0.5"><h3>Вартість товарів</h3><p>Суми підтверджених позицій</p><div class="trap"><b>✗</b> повторно включати підсумок</div></div>
+        <div class="card" data-speed="1.6" data-depth="0.6"><h3>Незадоволена потреба</h3><p>Запитано мінус погоджено</p><div class="trap"><b>✗</b> втратити запитане після заміни</div></div>
+      </div>
+      <div class="note mint" data-speed="1.75" data-depth="0.2" style="margin-top:20px;">
+        <svg class="icon" style="color:var(--accent-2);flex:none"><use href="#i-check"/></svg>
+        <span><b>Контрольні підсумки</b> до й після імпорту чи сортування: кількість записів, сума кількостей і вартості, унікальні замовлення, порожні обов'язкові поля.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== SLIDE 17: Інтерактив 24 / 18 / 16 ===================== -->
+  <section class="slide" data-section="02 · Структура даних" data-enter="stock">
+    <div class="content stock">
+      <div data-speed="1" data-depth="0.12">
+        <div class="eyebrow">Інтерактив · натисніть показник</div>
+        <h2 class="title" style="font-size:30px;">Три рівні кількості — <span class="grad">три різні питання</span></h2>
+        <div class="legend3">
+          <div><span class="sw" style="background:var(--accent)"></span><b>Запитано</b>початкова потреба магазину</div>
+          <div><span class="sw" style="background:var(--warm)"></span><b>Погоджено</b>прийняте складом зобов'язання</div>
+          <div><span class="sw" style="background:var(--accent-2)"></span><b>Отримано</b>підтверджений результат</div>
+        </div>
+        <div class="formula">Виконання = отримано ÷ погоджено<br>Забезпеченість = отримано ÷ запитано</div>
+        <div class="ev-btns" data-no-nav>
+          <button class="ev-btn active" data-state="0"><small>Заявка № 204</small>Три значення поруч</button>
+          <button class="ev-btn" data-state="1"><small>Показник 1</small>Виконання погодженого</button>
+          <button class="ev-btn" data-state="2"><small>Показник 2</small>Забезпеченість потреби</button>
+          <button class="ev-btn err" data-state="3"><small>Помилка</small>Погоджене замінили фактичним</button>
+        </div>
+      </div>
+      <div class="card bars-panel" data-speed="1.35" data-depth="0.45" data-no-nav>
+        <div class="bars3">
+          <div class="b3"><div class="val" id="vP">24</div><div class="delta" id="dP"></div><div class="track3"><div class="fill" id="fP"></div></div><div class="nm">Запитано</div></div>
+          <div class="b3"><div class="val" id="vR">18</div><div class="delta" id="dR"></div><div class="track3"><div class="fill" id="fR"></div></div><div class="nm">Погоджено</div></div>
+          <div class="b3"><div class="val" id="vA">16</div><div class="delta" id="dA"></div><div class="track3"><div class="fill" id="fA"></div></div><div class="nm">Отримано</div></div>
+        </div>
+        <div class="stock-cap"><h3 id="capT"></h3><p id="capP"></p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== SLIDE 18: Статуси ===================== -->
+  <section class="slide" data-section="02 · Структура даних">
+    <div class="content">
+      <div data-speed="1" data-depth="0.12">
+        <div class="eyebrow">Статуси заявки</div>
+        <h2 class="title">Статус — це подія, <span class="grad">яку можна перевірити</span></h2>
+      </div>
+      <div class="pipeline six" data-speed="1.3" data-depth="0.4">
+        <div class="pl-track"><div class="pl-fill" id="plFill"></div></div>
+        <div class="pl-node"><div class="pl-circle"><svg class="icon"><use href="#i-inbox"/></svg></div><h3>Отримано</h3><p>Заявка є</p></div>
+        <div class="pl-node"><div class="pl-circle"><svg class="icon"><use href="#i-eye"/></svg></div><h3>Перевірено</h3><p>Контроль виконано</p></div>
+        <div class="pl-node"><div class="pl-circle"><svg class="icon"><use href="#i-check"/></svg></div><h3>Погоджено</h3><p>Обсяг і умови прийнято</p></div>
+        <div class="pl-node"><div class="pl-circle"><svg class="icon"><use href="#i-box"/></svg></div><h3>Комплектується</h3><p>Склад почав роботу</p></div>
+        <div class="pl-node"><div class="pl-circle"><svg class="icon"><use href="#i-truck"/></svg></div><h3>Відвантажено</h3><p>Передано з місця</p></div>
+        <div class="pl-node"><div class="pl-circle"><svg class="icon"><use href="#i-store"/></svg></div><h3>Завершено</h3><p>Результат підтверджено</p></div>
+      </div>
+      <div class="neq-row" data-speed="1.55" data-depth="0.25" style="justify-content:center; margin-top:40px;">
+        <div class="neq-chip" style="background:rgba(91,140,255,.08); border-color:rgba(91,140,255,.35);">Винятки явно: <b class="blue-t">очікує уточнення · часткове виконання · скасовано</b></div>
+        <div class="neq-chip" style="background:rgba(255,107,129,.08); border-color:rgba(255,107,129,.4);"><b class="danger-t">«майже готово»</b> — не статус</div>
+      </div>
+      <div class="neq" data-speed="1.7" data-depth="0.2" style="margin-top:28px; font-size:26px;">«Відвантажено»<span class="x">≠</span><span class="grad">«доставлено»</span></div>
+    </div>
+  </section>
+
+  <!-- ===================== SLIDE 19: Розділ 3 ===================== -->
+  <section class="slide section-break" data-section="03 · Доступ і версії" data-sec="1">
+    <div class="ghost-num" data-speed="0.2" data-depth="0.3" style="left:720px; top:110px; font-size:620px;">3</div>
+    <div class="content">
+      <div class="eyebrow" data-speed="1" data-depth="0.1">Розділ 03</div>
+      <h2 class="display xl" data-speed="1.15" data-depth="0.15">Права, версії<br>і <span class="grad">погодження</span></h2>
+      <p class="lead" data-speed="1.3" data-depth="0.2">Доступ — частина розподілу обов'язків, а історія змін — опора для виправлень</p>
+    </div>
+    <div class="pos" data-speed="1.8" data-depth="1.7" style="left:950px; top:150px;"><span class="chip big blue">Редактор</span></div>
+    <div class="pos" data-speed="1.2" data-depth="1.1" style="left:1110px; top:250px;"><span class="chip mint" style="animation-delay:-2s">Коментатор</span></div>
+    <div class="pos" data-speed="0.8" data-depth="0.7" style="left:860px; top:340px;"><span class="chip" style="animation-delay:-4s">Переглядач</span></div>
+    <div class="pos" data-speed="1.6" data-depth="1.5" style="left:1020px; top:440px;"><span class="chip big warm" style="animation-delay:-1s">Share</span></div>
+    <div class="pos" data-speed="1.0" data-depth="0.9" style="left:900px; top:550px;"><span class="chip faint" style="animation-delay:-3s">історія версій</span></div>
+  </section>
+
+  <!-- ===================== SLIDE 20: Рівні доступу ===================== -->
+  <section class="slide" data-section="03 · Доступ і версії">
+    <div class="content">
+      <div data-speed="1" data-depth="0.12">
+        <div class="eyebrow">Рівні доступу</div>
+        <h2 class="title">Доступ відповідає <span class="grad">робочому завданню</span></h2>
+      </div>
+      <div class="grid3" style="margin-top:22px;">
+        <div class="card" data-speed="1.2" data-depth="0.35"><div class="ibox"><svg class="icon"><use href="#i-eye"/></svg></div><h3>Переглядач</h3><p>Читає й перевіряє результат — наприклад, керівник.</p></div>
+        <div class="card warm" data-speed="1.35" data-depth="0.45"><div class="ibox warm"><svg class="icon"><use href="#i-chat"/></svg></div><h3>Коментатор</h3><p>Учасник погодження: питання до конкретного фрагмента.</p></div>
+        <div class="card mint" data-speed="1.5" data-depth="0.55"><div class="ibox mint"><svg class="icon"><use href="#i-file"/></svg></div><h3>Редактор</h3><p>Виконавець, який вносить дані своєї ролі.</p></div>
+      </div>
+      <div class="split2" data-speed="1.65" data-depth="0.25" style="margin-top:16px; gap:16px;">
+        <div class="note danger" style="display:block;"><b>«Будь-хто з посиланням»</b> для робочих даних — і всім повні права? Більше випадкових змін, менше відповідальності.</div>
+        <div class="note mint" style="display:block;"><b>Перевізнику — витяг</b>: лише адреси й актуальні доставки, без закупівельних цін і клієнтських звернень.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== SLIDE 21: Життєвий цикл прав ===================== -->
+  <section class="slide" data-section="03 · Доступ і версії">
+    <div class="content">
+      <div data-speed="1" data-depth="0.12">
+        <div class="eyebrow">Права мають життєвий цикл</div>
+        <h2 class="title">Надати, змінити, <span class="grad">припинити</span></h2>
+      </div>
+      <div class="timeline">
+        <div class="tl-item" data-speed="1.15" data-depth="0.3"><div class="tl-dot">1</div><h3>Надати</h3><p>На початку визначеної роботи — мінімально потрібне.</p></div>
+        <div class="tl-item" data-speed="1.3" data-depth="0.4"><div class="tl-dot">2</div><h3>Змінити</h3><p>При переході працівника до іншої ролі.</p></div>
+        <div class="tl-item" data-speed="1.45" data-depth="0.5"><div class="tl-dot">3</div><h3>Припинити</h3><p>Після завершення потреби — особливо партнерам і тимчасовим працівникам.</p></div>
+        <div class="tl-item" data-speed="1.6" data-depth="0.6"><div class="tl-dot">4</div><h3>Перевірити</h3><p>Після переміщення файла в іншу папку чи організаційних змін.</p></div>
+      </div>
+      <div class="card quote" data-speed="1.75" data-depth="0.3">
+        <div class="qm">“</div>
+        <p>Захист діапазону ≠ шифрування.<span>Він береже формули від випадкових змін, але не приховує даних від того, хто має доступ до файла.</span></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== SLIDE 22: Версія vs історія ===================== -->
+  <section class="slide" data-section="03 · Доступ і версії">
+    <div class="content">
+      <div data-speed="1" data-depth="0.12">
+        <div class="eyebrow">Версії та історія операції</div>
+        <h2 class="title">Стан документа ≠ <span class="grad">історія заявки</span></h2>
+      </div>
+      <div class="split2" style="margin-top:20px;">
+        <div class="card" data-speed="1.25" data-depth="0.4">
+          <div class="ibox"><svg class="icon"><use href="#i-history"/></svg></div>
+          <h3>Версія документа</h3>
+          <p>Стан усього файла в певний момент. Відновлення цілого файла може <b style="color:var(--danger)">прибрати пізніші правильні правки</b> колег.</p>
+        </div>
+        <div class="card mint" data-speed="1.4" data-depth="0.5">
+          <div class="ibox mint"><svg class="icon"><use href="#i-receipt"/></svg></div>
+          <h3>Історія операції</h3>
+          <p>Послідовність подій заявки: потреба → погодження → зміни → результат. Журнал: № операції, час, автор, причина.</p>
+        </div>
+      </div>
+      <div class="label" data-speed="1.5" data-depth="0.2" style="margin:20px 0 10px;">Пошкоджено формули — порядок дій</div>
+      <div class="chain4" data-speed="1.6" data-depth="0.45">
+        <div><span class="label">01</span><b>Встановити масштаб</b></div>
+        <div><span class="label">02</span><b>Знайти правильний стан</b></div>
+        <div><span class="label">03</span><b>Відновити фрагмент</b></div>
+        <div style="background:rgba(47,224,192,.1);"><span class="label">04</span><b>Повідомити залежних</b></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== SLIDE 23: Паралельне редагування ===================== -->
+  <section class="slide" data-section="03 · Доступ і версії">
+    <div class="content">
+      <div data-speed="1" data-depth="0.12">
+        <div class="eyebrow">Паралельне редагування</div>
+        <h2 class="title">Остання правка ≠ <span class="grad">погоджене рішення</span></h2>
+      </div>
+      <div class="split2" style="margin-top:22px;">
+        <div class="card" data-speed="1.25" data-depth="0.4">
+          <span class="label">Одночасно в одній заявці</span>
+          <div class="cmp" style="margin-top:14px;"><span class="bad" style="color:var(--accent); border-color:rgba(91,140,255,.4); background:rgba(91,140,255,.08); text-decoration:none;">Менеджер: 10 → 15</span></div>
+          <div class="cmp"><span class="bad" style="color:var(--warm); border-color:rgba(255,184,77,.4); background:rgba(255,184,77,.08); text-decoration:none;">Комірник: підтверджує 10</span></div>
+          <div class="formula" style="margin:14px 0 0; border-color:rgba(47,224,192,.4); background:rgba(47,224,192,.08);">Запитано 15 · Погоджено 10<br>Статус: на перевірці +5</div>
+        </div>
+        <div class="card danger" data-speed="1.4" data-depth="0.5">
+          <span class="label" style="color:var(--danger)">Два записи про одне відвантаження</span>
+          <div class="eq" style="margin:16px 0 10px;">20 і 18 → <span class="danger-t">19?</span></div>
+          <p>Середнє — не спосіб узгодження. Потрібна <b style="color:var(--text)">фактична подія</b>: підтвердження комплектації чи документ передачі. Пізніший запис може повторювати давню помилку.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== SLIDE 24: Подія не стирається ===================== -->
+  <section class="slide" data-section="03 · Доступ і версії">
+    <div class="content">
+      <div data-speed="1" data-depth="0.12">
+        <div class="eyebrow">Виправлення без приховування</div>
+        <h2 class="title">Факт не стирають — <span class="grad">додають нову подію</span></h2>
+      </div>
+      <div class="chain4" data-speed="1.25" data-depth="0.4" style="margin-top:34px;">
+        <div><span class="label">Подія 1</span><b>Відвантажено 16</b></div>
+        <div><span class="label">Подія 2</span><b>Отримано 16</b></div>
+        <div style="background:rgba(255,184,77,.1);"><span class="label" style="color:var(--warm)">Подія 3</span><b>2 пошкоджені</b></div>
+        <div style="background:rgba(47,224,192,.1);"><span class="label">Подія 4</span><b>Повернення 2</b></div>
+      </div>
+      <div class="split2" style="margin-top:26px;">
+        <div class="note danger" data-speed="1.45" data-depth="0.3" style="display:block;"><b>16 → 14 без пояснення</b> ховає проблему за «виправленим» підсумком: незрозуміло, що сталося з рештою.</div>
+        <div class="note mint" data-speed="1.6" data-depth="0.35" style="display:block;"><b>Довідник теж обережно</b>: якщо в упаковці 12, а не 10, — завершені операції не перераховують автоматично, коригування погоджують.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== SLIDE 25: Розділ 4 ===================== -->
+  <section class="slide section-break" data-section="04 · Комунікації" data-sec="1">
+    <div class="ghost-num" data-speed="0.2" data-depth="0.3" style="left:720px; top:110px; font-size:620px;">4</div>
+    <div class="content">
+      <div class="eyebrow" data-speed="1" data-depth="0.1">Розділ 04</div>
+      <h2 class="display xl" data-speed="1.15" data-depth="0.15">Комунікації<br>і <span class="grad">координація</span></h2>
+      <p class="lead" data-speed="1.3" data-depth="0.2">Реєстр фіксує стан, повідомлення привертає увагу до наступної дії</p>
+    </div>
+    <div class="pos" data-speed="1.8" data-depth="1.7" style="left:960px; top:160px;"><span class="chip big mint">№ 204</span></div>
+    <div class="pos" data-speed="1.1" data-depth="1.0" style="left:1110px; top:290px;"><span class="chip warm" style="animation-delay:-2s">чат</span></div>
+    <div class="pos" data-speed="0.7" data-depth="0.6" style="left:870px; top:400px;"><span class="chip faint" style="animation-delay:-4s">картка завдання</span></div>
+    <div class="pos" data-speed="1.5" data-depth="1.4" style="left:1000px; top:510px;"><span class="chip big blue" style="animation-delay:-1s">20 % → 10 %</span></div>
+  </section>
+
+  <!-- ===================== SLIDE 26: Канали ===================== -->
+  <section class="slide" data-section="04 · Комунікації">
+    <div class="content">
+      <div data-speed="1" data-depth="0.12">
+        <div class="eyebrow">Канали комунікації</div>
+        <h2 class="title">Повідомлення кличе до дії — <span class="grad">реєстр фіксує стан</span></h2>
+      </div>
+      <div class="grid3" style="grid-template-columns:repeat(4,1fr); gap:14px; margin-top:20px;">
+        <div class="card" data-speed="1.15" data-depth="0.3"><div class="ibox warm"><svg class="icon"><use href="#i-chat"/></svg></div><h3>Чат</h3><p>Швидке уточнення</p></div>
+        <div class="card" data-speed="1.3" data-depth="0.4"><div class="ibox"><svg class="icon"><use href="#i-mail"/></svg></div><h3>Лист</h3><p>Оформлене звернення</p></div>
+        <div class="card" data-speed="1.45" data-depth="0.5"><div class="ibox"><svg class="icon"><use href="#i-file"/></svg></div><h3>Коментар</h3><p>Питання до фрагмента</p></div>
+        <div class="card mint" data-speed="1.6" data-depth="0.6"><div class="ibox mint"><svg class="icon"><use href="#i-layers"/></svg></div><h3>Реєстр</h3><p>Єдине джерело стану</p></div>
+      </div>
+      <div class="split2" style="margin-top:18px; gap:16px;">
+        <div class="msg bad" data-speed="1.5" data-depth="0.3"><span class="who danger-t">✗ Без об'єкта й дії</span>«Терміново перевірте доставку»</div>
+        <div class="msg good" data-speed="1.65" data-depth="0.35"><span class="who mint-t">✓ Об'єкт · стан · дія</span>«За заявкою № 204 прийнято 16 із 18 погоджених; потрібне рішення щодо 2 відсутніх до 14:00»</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== SLIDE 27: Картка завдання ===================== -->
+  <section class="slide" data-section="04 · Комунікації">
+    <div class="content">
+      <div data-speed="1" data-depth="0.12">
+        <div class="eyebrow">Картка завдання</div>
+        <h2 class="title">Завдання, яке можна <span class="grad">завершити й перевірити</span></h2>
+      </div>
+      <div class="split2" style="grid-template-columns:1fr 400px; margin-top:20px;">
+        <div class="card mint" data-speed="1.25" data-depth="0.4">
+          <span class="label" style="color:var(--accent-2)">✓ Конкретна дія</span>
+          <h3 style="margin-top:8px;">Уточнити дату доставки замовлення 310 і внести підтвердження до реєстру</h3>
+          <div class="tf"><span>Операція</span><span>№ 310</span></div>
+          <div class="tf"><span>Відповідальний</span><span>Диспетчер</span></div>
+          <div class="tf"><span>Строк</span><span>четвер, 12:00</span></div>
+          <div class="tf" style="border-bottom:none;"><span>Готово, коли</span><span>погоджена дата є в реєстрі</span></div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:14px;">
+          <div class="card danger" data-speed="1.4" data-depth="0.5">
+            <span class="label" style="color:var(--danger)">✗ Напрям, а не завдання</span>
+            <div class="eq" style="font-size:22px; margin-top:10px;">«Поліпшити логістику»</div>
+          </div>
+          <div class="card warm" data-speed="1.55" data-depth="0.55">
+            <span class="label" style="color:var(--warm)">Залежності</span>
+            <p style="margin-top:8px;">Комплектування — <b style="color:var(--text)">2 год</b>, виїзд о <b style="color:var(--text)">10:00</b>. Погодження о 9:30 — вже ризик для всього процесу.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== SLIDE 28: Резервний журнал ===================== -->
+  <section class="slide" data-section="04 · Комунікації">
+    <div class="content">
+      <div data-speed="1" data-depth="0.12">
+        <div class="eyebrow">Реєстр недоступний</div>
+        <h2 class="title">Резервний журнал — і назад <span class="grad">до одного реєстру</span></h2>
+      </div>
+      <div class="timeline">
+        <div class="tl-item" data-speed="1.15" data-depth="0.3"><div class="tl-dot">1</div><h3>Журнал</h3><p>Тимчасовий унікальний №, час, автор, позначка режиму.</p></div>
+        <div class="tl-item" data-speed="1.3" data-depth="0.4"><div class="tl-dot">2</div><h3>Перенесення</h3><p>Після відновлення — за визначеним порядком, одним відповідальним.</p></div>
+        <div class="tl-item" data-speed="1.45" data-depth="0.5"><div class="tl-dot">3</div><h3>Звіряння</h3><p>Чи не внесено операцію іншим каналом — без дублікатів.</p></div>
+        <div class="tl-item" data-speed="1.6" data-depth="0.6"><div class="tl-dot">4</div><h3>Один реєстр</h3><p>Підтвердити перенесення; журнал зберегти до закриття періоду.</p></div>
+      </div>
+      <div class="note danger" data-speed="1.75" data-depth="0.2" style="margin-top:34px;">
+        <svg class="icon" style="color:var(--danger);flex:none"><use href="#i-alert"/></svg>
+        <span>Якщо кожен вставить <b>власний список</b>, з'являться дублікати й суперечливі оновлення.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== SLIDE 29: Показники ===================== -->
+  <section class="slide" data-section="04 · Комунікації">
+    <div class="content">
+      <div data-speed="1" data-depth="0.12">
+        <div class="eyebrow">Оцінювання координації</div>
+        <h2 class="title">Числа — доказ лише <span class="grad">разом із контекстом</span></h2>
+      </div>
+      <div class="stats3">
+        <div class="card stat" data-speed="1.25" data-depth="0.4"><span class="label">Тиждень 1</span><div class="v warm-t"><span class="count" data-to="20">20</span> <small>%</small></div><p>8 повернень із 40 заявок</p></div>
+        <div class="card stat mint" data-speed="1.4" data-depth="0.5"><span class="label">Тиждень 2 · нові довідники</span><div class="v mint-t"><span class="count" data-to="10">10</span> <small>%</small></div><p>5 повернень із 50 заявок</p></div>
+        <div class="card stat blue" data-speed="1.55" data-depth="0.6"><span class="label">Зміна</span><div class="v grad">−<span class="count" data-to="10">10</span> <small>п.п.</small></div><p>Абсолютно — на 3 повернення менше</p></div>
+      </div>
+      <div class="note" data-speed="1.7" data-depth="0.2" style="margin-top:20px;">
+        <svg class="icon" style="color:var(--warm);flex:none"><use href="#i-alert"/></svg>
+        <span>Чи <b>однаково складними</b> були заявки й чи збереглися правила обліку? Кількість повідомлень чи відкриттів файла сама по собі користі не доводить.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== SLIDE 30: Підсумок ===================== -->
+  <section class="slide" data-section="Підсумок">
+    <div class="ghost-num" data-speed="0.2" data-depth="0.3" style="left:780px; top:170px; font-size:440px;">✓</div>
+    <div class="ring" data-speed="0.35" data-depth="0.5" style="left:820px; top:-120px; width:600px; height:600px;"></div>
+    <div class="content" style="display:flex; flex-direction:column; justify-content:center;">
+      <div class="eyebrow" data-speed="1" data-depth="0.1">Підсумок</div>
+      <h2 class="display" data-speed="1.15" data-depth="0.15" style="font-size:42px; max-width:960px;">Спільна робота завершена, коли всі <span class="grad">однаково бачать стан</span></h2>
+      <div class="final3" style="grid-template-columns:repeat(4,1fr); gap:16px;">
+        <div class="card" data-speed="1.3" data-depth="0.35"><div class="fn">01</div><p>Структура даних зберігає потребу, погодження й результат</p></div>
+        <div class="card" data-speed="1.4" data-depth="0.42"><div class="fn">02</div><p>Права доступу відповідають ролям і завданням</p></div>
+        <div class="card" data-speed="1.5" data-depth="0.5"><div class="fn">03</div><p>Зміни простежуються й погоджуються</p></div>
+        <div class="card" data-speed="1.6" data-depth="0.58"><div class="fn">04</div><p>Повідомлення конкретні й пов'язані з операцією</p></div>
+      </div>
+      <p class="lead" data-speed="1.75" data-depth="0.2" style="margin-top:34px; font-size:17px;">Тоді роботу можна передати іншому працівникові без повторного збирання відомостей.</p>
+    </div>
+  </section>
+
+  <!-- ========== НАВІГАЦІЯ ========== -->
+  <nav class="slide-dots" aria-label="Навігація слайдами"></nav>
+  <div class="progress"><div id="progressFill"></div></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script>
+// === МАСШТАБУВАННЯ ПОЛОТНА ===
+// Усі слайди зверстані на 1280×720 і масштабуються як одне ціле.
+const SLIDE_W = 1280, SLIDE_H = 720;
+const stage = document.querySelector('.stage');
+function scaleToViewport() {
+  const scale = Math.min(innerWidth / SLIDE_W, innerHeight / SLIDE_H);
+  stage.style.transform = `scale(${scale})`;
+  stage.style.transformOrigin = '0 0';
+  stage.style.left = (innerWidth - SLIDE_W * scale) / 2 + 'px';
+  stage.style.top = (innerHeight - SLIDE_H * scale) / 2 + 'px';
+}
+addEventListener('resize', scaleToViewport);
+document.addEventListener('fullscreenchange', scaleToViewport);
+scaleToViewport();
+
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// === ЗОРЯНІ ШАРИ (генеруються випадково) ===
+function makeStars(el, count, colors) {
+  const shadows = [];
+  for (let i = 0; i < count; i++) {
+    const x = Math.round(Math.random() * 1440), y = Math.round(Math.random() * 2800);
+    shadows.push(`${x}px ${y}px ${colors[i % colors.length]}`);
+  }
+  const s = document.createElement('i');
+  s.style.boxShadow = shadows.join(',');
+  el.appendChild(s);
+}
+const starsFar = document.getElementById('starsFar');
+const starsMid = document.getElementById('starsMid');
+makeStars(starsFar, 420, ['rgba(255,255,255,.45)', 'rgba(160,185,255,.35)', 'rgba(255,255,255,.2)']);
+makeStars(starsMid, 140, ['rgba(91,140,255,.8)', 'rgba(47,224,192,.6)', 'rgba(255,255,255,.6)']);
+const orbs = [...document.querySelectorAll('.orb')];
+const floor = document.getElementById('floor');
+
+// === СЛАЙДИ ===
+const slides = [...document.querySelectorAll('.slide')];
+const total = slides.length;
+const speedEls = slides.map(s => [...s.querySelectorAll('[data-speed]')]);
+const depthEls = slides.map(s => [...s.querySelectorAll('[data-depth]')]);
+let current = 0;
+let activeTl = null;
+
+document.getElementById('hudTotal').textContent = String(total).padStart(2, '0');
+
+// Точки навігації (розділові слайди — довші риски)
+const dotsNav = document.querySelector('.slide-dots');
+slides.forEach((s, i) => {
+  const d = document.createElement('button');
+  d.className = 'dot' + (s.dataset.sec ? ' sec' : '');
+  d.setAttribute('aria-label', `Слайд ${i + 1}`);
+  d.addEventListener('click', e => { e.stopPropagation(); goTo(i); });
+  dotsNav.appendChild(d);
+});
+
+function updateHud(i) {
+  document.getElementById('hudNum').textContent = String(i + 1).padStart(2, '0');
+  document.getElementById('hudSection').textContent = slides[i].dataset.section || '';
+  document.getElementById('progressFill').style.width = ((i + 1) / total * 100) + '%';
+  dotsNav.querySelectorAll('.dot').forEach((d, j) => d.classList.toggle('active', j === i));
+}
+
+// Фон зсувається з різною швидкістю — класичний глибинний паралакс
+function moveBackground(i, instant) {
+  const dur = instant ? 0 : 1.8, ease = 'power3.inOut';
+  gsap.to(starsFar, { y: -i * 24, duration: dur, ease });
+  gsap.to(starsMid, { y: -i * 62, duration: dur, ease });
+  gsap.to(floor, { backgroundPosition: `0px ${i * 140}px`, duration: dur, ease });
+  orbs.forEach((o, k) => gsap.to(o, {
+    x: Math.sin(i * 1.3 + k * 2.1) * 260,
+    y: Math.cos(i * 0.9 + k * 1.7) * 140,
+    duration: instant ? 0 : 2.4, ease: 'sine.inOut'
+  }));
+}
+
+// Перехід: кожен шар «їде» зі своєю швидкістю (data-speed)
+function goTo(next) {
+  next = Math.max(0, Math.min(total - 1, next));
+  if (next === current) return;
+  if (activeTl) activeTl.progress(1);   // миттєво завершуємо попередній перехід
+
+  const dir = next > current ? 1 : -1;
+  const out = slides[current], inc = slides[next];
+  const outEls = speedEls[current], incEls = speedEls[next];
+  const prev = current;
+  current = next;
+
+  inc.classList.add('active');
+  // static parts of the incoming slide (e.g. timeline line) wait until the outgoing slide is gone
+  gsap.set(inc, { opacity: 0 });
+  inc.querySelectorAll('.timeline').forEach(t => t.style.setProperty('--draw', reduceMotion ? 1 : 0));
+
+  const tl = gsap.timeline({
+    onComplete() { out.classList.remove('active'); activeTl = null; }
+  });
+  outEls.forEach(el => {
+    const s = +el.dataset.speed;
+    tl.to(el, { y: -dir * 260 * s, opacity: 0, duration: reduceMotion ? 0.01 : 0.7, ease: 'power2.in' }, 0);
+  });
+  tl.to(out, { opacity: 0, duration: 0.5 }, 0.3);
+  tl.to(inc, { opacity: 1, duration: reduceMotion ? 0.01 : 0.45, ease: 'power1.out' }, 0.55);
+  inc.querySelectorAll('.timeline').forEach(t => tl.to(t, { '--draw': 1, duration: reduceMotion ? 0.01 : 1.1, ease: 'power2.inOut' }, 0.75));
+  incEls.forEach((el, k) => {
+    const s = +el.dataset.speed;
+    tl.fromTo(el, { y: reduceMotion ? 0 : dir * 320 * s, opacity: 0 },
+      { y: 0, opacity: 1, duration: reduceMotion ? 0.01 : 1.15, ease: 'expo.out' }, 0.42 + k * 0.035);
+  });
+  tl.call(() => onEnter(next), null, 0.6);
+
+  moveBackground(next);
+  updateHud(next);
+  history.replaceState(null, '', '#' + (next + 1));
+}
+const nextSlide = () => goTo(current + 1);
+const prevSlide = () => goTo(current - 1);
+
+// === ДІЇ ПРИ ВХОДІ НА СЛАЙД ===
+const fmt = (v, dec) => v.toLocaleString('uk-UA', { minimumFractionDigits: dec, maximumFractionDigits: dec });
+function onEnter(i) {
+  const s = slides[i];
+  // Лічильники
+  s.querySelectorAll('.count').forEach(el => {
+    const to = +el.dataset.to, dec = +(el.dataset.dec || 0), o = { v: 0 };
+    gsap.to(o, { v: to, duration: 1.6, ease: 'power2.out', onUpdate: () => el.textContent = fmt(o.v, dec) });
+  });
+  // Стовпчики, що ростуть
+  s.querySelectorAll('.grow').forEach((el, k) => gsap.fromTo(el, { height: 0 }, { height: el.dataset.h, duration: 1.2, delay: k * 0.12, ease: 'power3.out' }));
+  // Лінія статусів замовлення
+  const pl = s.querySelector('#plFill');
+  if (pl) gsap.fromTo(pl, { width: '0%' }, { width: '100%', duration: 2.4, ease: 'power1.inOut' });
+  if (s.dataset.enter === 'stock') setStock(0);
+}
+
+// === ІНТЕРАКТИВ: ТРИ РІВНІ КІЛЬКОСТІ В ЗАЯВЦІ № 204 ===
+const STOCK_MAX = 30;
+const BAR_BG = [
+  'linear-gradient(to top, rgba(91,140,255,.35), var(--accent))',
+  'linear-gradient(to top, rgba(255,184,77,.3), var(--warm))',
+  'linear-gradient(to top, rgba(47,224,192,.3), var(--accent-2))'
+];
+const stockStates = [
+  { p: 24, r: 18, a: 16, d: ['', '', ''],
+    t: 'Заявка № 204 · три значення поруч',
+    c: 'Магазин запросив 24, склад погодив 18, за фактом прийнято 16. Кожне значення — в окремому полі й відповідає на своє питання.' },
+  { p: 24, r: 18, a: 16, d: ['', 'знаменник', '88,89 %'],
+    t: 'Виконання погодженого зобов\u2019язання',
+    c: '16 ÷ 18 × 100 ≈ 88,89 %. Бракує 2 одиниць погодженого обсягу — потрібне рішення: довезти, замінити чи скасувати.' },
+  { p: 24, r: 18, a: 16, d: ['знаменник', '', '66,67 %'],
+    t: 'Забезпеченість заявленої потреби',
+    c: '16 ÷ 24 × 100 ≈ 66,67 %. Цей показник про задоволення початкової потреби магазину: 8 одиниць залишаються незабезпеченими.' },
+  { p: 24, r: 16, a: 16, d: ['', '18 → 16', '100 %?'], err: 1,
+    t: 'Помилка: погоджену кількість замінили фактичною',
+    c: 'Виконання стає штучно стовідсотковим, а 2 недопоставлені одиниці зникають з обліку. Значення не перезаписують — їх зберігають окремо.' }
+];
+const stockVals = { p: 24, r: 18, a: 16 };
+function setStock(k) {
+  const st = stockStates[k];
+  document.querySelectorAll('.ev-btn').forEach(b => b.classList.toggle('active', +b.dataset.state === k));
+  [['p', 'P'], ['r', 'R'], ['a', 'A']].forEach(([key, id], j) => {
+    const bad = st.err === j, dv = st.d[j], dEl = document.getElementById('d' + id);
+    gsap.to(`#f${id}`, { height: (st[key] / STOCK_MAX * 100) + '%', duration: 0.9, ease: 'power3.out' });
+    gsap.to(stockVals, { [key]: st[key], duration: 0.9, ease: 'power2.out',
+      onUpdate: () => document.getElementById('v' + id).textContent = Math.round(stockVals[key]) });
+    document.getElementById('f' + id).style.background = bad ? 'linear-gradient(to top, rgba(255,107,129,.35), var(--danger))' : BAR_BG[j];
+    document.getElementById('v' + id).style.color = bad ? 'var(--danger)' : '';
+    dEl.textContent = dv;
+    dEl.style.color = !dv ? 'var(--dim)' : bad || (st.err != null && dv.includes('%')) ? 'var(--danger)' : dv.includes('%') ? 'var(--accent-2)' : 'var(--accent)';
+  });
+  const cap = document.querySelector('.stock-cap');
+  gsap.fromTo(cap, { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.5 });
+  document.getElementById('capT').textContent = st.t;
+  document.getElementById('capT').style.color = st.err != null ? 'var(--danger)' : '';
+  document.getElementById('capP').textContent = st.c;
+}
+document.querySelectorAll('.ev-btn').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); setStock(+b.dataset.state); }));
+
+// === ПАРАЛАКС ВІД МИШІ ===
+// Використовує CSS-властивість translate, тому не конфліктує з анімаціями GSAP (transform)
+let mx = 0, my = 0, tx = 0, ty = 0;
+addEventListener('mousemove', e => { tx = (e.clientX / innerWidth - 0.5) * 2; ty = (e.clientY / innerHeight - 0.5) * 2; });
+const bgDepth = [[starsFar, 0.4], [starsMid, 1.1], [document.getElementById('floorWrap'), 0.6]];
+function loop() {
+  mx += (tx - mx) * 0.06; my += (ty - my) * 0.06;
+  depthEls[current].forEach(el => {
+    const d = +el.dataset.depth;
+    el.style.translate = `${(-mx * d * 22).toFixed(2)}px ${(-my * d * 14).toFixed(2)}px`;
+  });
+  bgDepth.forEach(([el, d]) => el.style.translate = `${(-mx * d * 22).toFixed(2)}px ${(-my * d * 12).toFixed(2)}px`);
+  requestAnimationFrame(loop);
+}
+if (!reduceMotion) loop();
+
+// === НАВІГАЦІЯ: клавіатура, клік, свайп, колесо ===
+document.addEventListener('keydown', e => {
+  if (['ArrowRight', 'ArrowDown', 'PageDown', ' ', 'Enter'].includes(e.key)) { e.preventDefault(); nextSlide(); }
+  if (['ArrowLeft', 'ArrowUp', 'PageUp', 'Backspace'].includes(e.key)) { e.preventDefault(); prevSlide(); }
+  if (e.key === 'Home') goTo(0);
+  if (e.key === 'End') goTo(total - 1);
+  if (e.key === 'f' || e.key === 'а') {
+    document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
+  }
+});
+document.addEventListener('click', e => {
+  if (e.target.closest('button, a, input, [data-no-nav]')) return;
+  e.clientX > innerWidth / 2 ? nextSlide() : prevSlide();
+});
+let touchX = 0, touchY = 0;
+document.addEventListener('touchstart', e => { touchX = e.touches[0].clientX; touchY = e.touches[0].clientY; }, { passive: true });
+document.addEventListener('touchend', e => {
+  const dx = touchX - e.changedTouches[0].clientX, dy = touchY - e.changedTouches[0].clientY;
+  const d = Math.abs(dx) > Math.abs(dy) ? dx : dy;
+  if (Math.abs(d) > 50) d > 0 ? nextSlide() : prevSlide();
+}, { passive: true });
+let wheelLock = false;
+document.addEventListener('wheel', e => {
+  if (wheelLock || Math.abs(e.deltaY) < 8) return;
+  wheelLock = true;
+  setTimeout(() => wheelLock = false, 950);
+  e.deltaY > 0 ? nextSlide() : prevSlide();
+}, { passive: true });
+
+// === СТАРТ: відкриваємо слайд з адреси (#5) або перший ===
+(function init() {
+  const fromHash = parseInt(location.hash.slice(1), 10);
+  current = (fromHash >= 1 && fromHash <= total) ? fromHash - 1 : 0;
+  slides[current].classList.add('active');
+  updateHud(current);
+  moveBackground(current, true);
+  // ?static — без вступної анімації (зручно для друку/скриншотів)
+  if (location.search.includes('static')) { onEnter(current); gsap.globalTimeline.progress(1); return; }
+  speedEls[current].forEach((el, k) => {
+    const s = +el.dataset.speed;
+    gsap.fromTo(el, { y: reduceMotion ? 0 : 140 * s, opacity: 0 },
+      { y: 0, opacity: 1, duration: 1.4, ease: 'expo.out', delay: 0.15 + k * 0.06 });
+  });
+  setTimeout(() => onEnter(current), 500);
+})();
+</script>
+</body>
+</html>
