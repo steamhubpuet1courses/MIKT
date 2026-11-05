@@ -508,6 +508,56 @@ svg .wf-dot{stroke:var(--bg-panel); stroke-width:2;}
 .legend i{display:inline-block; width:12px; height:12px; border-radius:3px; margin-right:6px; vertical-align:-1px;}
 .split2{display:grid; grid-template-columns:minmax(0,1.05fr) minmax(0,1fr); gap:16px; align-items:start;}
 @media (max-width:820px){ .split2{grid-template-columns:1fr;} }
+
+
+/* CG:START — граф понять */
+.cg{margin-top:4px;}
+.cg-bar{display:flex; flex-wrap:wrap; gap:8px 10px; align-items:center; margin-bottom:12px;}
+.cg-search{flex:1 1 200px; min-width:0; max-width:300px; font-family:var(--f-body); font-size:14px; padding:8px 12px; border:1px solid var(--line-strong); border-radius:10px; background:var(--bg-panel); color:var(--ink);}
+.cg-search:focus{outline:none; border-color:var(--blue); box-shadow:0 0 0 3px var(--tint-blue);}
+.cg-chips{display:flex; flex-wrap:wrap; gap:6px;}
+.cg-chip{font-family:var(--f-body); font-size:12.5px; font-weight:700; cursor:pointer; padding:6px 11px; border-radius:999px; border:1px solid var(--line-strong); background:var(--bg-panel); color:var(--ink-soft); display:inline-flex; align-items:center; gap:7px; transition:border-color .2s, background .2s, color .2s;}
+.cg-chip i{width:10px; height:10px; border-radius:50%; background:var(--c, var(--ink-soft)); display:inline-block;}
+.cg-chip:hover{border-color:var(--c, var(--blue)); color:var(--ink);}
+.cg-chip.on{border-color:var(--c, var(--blue)); background:color-mix(in srgb, var(--c, var(--blue)) 14%, var(--bg-panel)); color:var(--ink);}
+.cg-body{display:grid; grid-template-columns:minmax(0,1fr) 300px; gap:14px; align-items:stretch;}
+.cg-stage{background:var(--bg-soft); border:1px solid var(--line); border-radius:16px; overflow-x:auto; overflow-y:hidden;}
+.cg-stage svg{display:block; width:100%; min-width:720px; height:auto; user-select:none; -webkit-user-select:none;}
+.cg .s1{--c:var(--blue);} .cg .s2{--c:var(--red);} .cg .s3{--c:var(--olive);} .cg .s4{--c:var(--ok);}
+.cg-zone{fill:none; stroke:var(--c); stroke-opacity:.18; stroke-width:1.5; stroke-dasharray:5 7;}
+.cg-zt{fill:var(--c); opacity:.75; font-family:var(--f-mono); font-size:12px; font-weight:700; letter-spacing:.12em;}
+.cg-e{stroke:var(--line-strong); stroke-width:1.4; opacity:.75; transition:opacity .25s, stroke .25s, stroke-width .25s;}
+.cg-e.on{stroke:var(--ink-soft); stroke-width:2.6; opacity:1;}
+.cg-e.dim{opacity:.1;}
+.cg-n{cursor:pointer; outline:none; transition:opacity .25s;}
+.cg-n circle{fill:color-mix(in srgb, var(--c) 24%, var(--bg-panel)); stroke:var(--c); stroke-width:2; transition:stroke-width .2s, fill .2s;}
+.cg-n text{fill:var(--ink); font-family:var(--f-body); font-size:13px; font-weight:700; paint-order:stroke; stroke:var(--bg-soft); stroke-width:4px; stroke-linejoin:round;}
+.cg-n:hover circle, .cg-n:focus-visible circle, .cg-n.focus circle{stroke-width:3.5; fill:color-mix(in srgb, var(--c) 45%, var(--bg-panel));}
+.cg-n.sel circle{fill:var(--c); stroke:var(--ink); stroke-width:3;}
+.cg-n.dim{opacity:.16;}
+.cg-panel{background:var(--bg-panel); border:1px solid var(--line); border-radius:16px; padding:16px 18px; min-width:0; max-height:560px; overflow:auto;}
+.cg-tag{display:inline-flex; align-items:center; gap:7px; font-family:var(--f-mono); font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--c);}
+.cg-tag i{width:9px; height:9px; border-radius:50%; background:var(--c);}
+.cg-title{font-family:var(--f-display); font-size:19px; font-weight:700; line-height:1.25; margin:8px 0 6px; color:var(--ink);}
+.cg-def{margin:0 0 12px; font-size:15px; line-height:1.6; color:var(--ink);}
+.cg-sub{font-family:var(--f-mono); font-size:10.5px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-soft); margin:12px 0 8px;}
+.cg-links{list-style:none; padding:0; margin:0; display:grid; gap:6px;}
+.cg-links button{width:100%; text-align:left; cursor:pointer; display:grid; grid-template-columns:auto minmax(0,1fr); gap:2px 9px; align-items:center; padding:8px 10px; border-radius:10px; border:1px solid var(--line); background:var(--bg-soft); color:var(--ink); font-family:var(--f-body); transition:border-color .2s, background .2s;}
+.cg-links button:hover, .cg-links button:focus-visible{border-color:var(--c); background:color-mix(in srgb, var(--c) 10%, var(--bg-soft)); outline:none;}
+.cg-links i{grid-row:span 2; width:10px; height:10px; border-radius:50%; background:var(--c);}
+.cg-links b{font-size:14px;} .cg-links small{font-size:12px; color:var(--ink-soft);}
+.cg-go{margin-top:14px; width:100%;}
+.cg-hint{font-size:14px; color:var(--ink-soft); line-height:1.55; margin:0 0 10px;}
+.cg-stat{display:flex; gap:8px; flex-wrap:wrap; margin:6px 0 4px;}
+.cg-stat span{font-family:var(--f-mono); font-size:12px; padding:4px 9px; border-radius:8px; background:var(--bg-soft); border:1px solid var(--line); color:var(--ink-soft);}
+.cg-stat b{color:var(--ink);}
+.cg-flash{animation:cgFlash 1.8s ease;}
+@keyframes cgFlash{0%,100%{box-shadow:var(--shadow);} 25%,60%{box-shadow:0 0 0 3px var(--blue), var(--shadow-lg);}}
+@media (max-width:860px){ .cg-body{grid-template-columns:minmax(0,1fr);} .cg-panel{max-height:none;} }
+.cg-swipe{display:none; font-family:var(--f-mono); font-size:11px; color:var(--ink-soft); text-align:center; margin:6px 0 0;}
+@media (max-width:760px){ .cg-swipe{display:block;} }
+@media (prefers-reduced-motion: reduce){ .cg-e, .cg-n, .cg-n circle{transition:none;} .cg-flash{animation:none;} }
+/* CG:END */
 </style>
 
 </head><body>
@@ -557,6 +607,24 @@ svg .wf-dot{stroke:var(--bg-panel); stroke-width:2;}
         <header class="block-head"><span class="block-no">◎</span><div><span class="kind"></span><h3>Ментальна карта лекції</h3></div></header>
         <div class="mindmap-wrap" style="margin-bottom:0"><svg class="mm" viewBox="0 0 1100 300" role="img" aria-label="Ментальна карта лекції"><defs><marker id="arM" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" class="sv-arrow"/></marker></defs><g class="sv-line" marker-end="url(#arM)"><path class="mm-link" data-a="core" data-b="n0" data-p="450 130 330 70"/><path class="mm-link" data-a="core" data-b="n1" data-p="450 170 330 230"/><path class="mm-link" data-a="core" data-b="n2" data-p="650 130 770 70"/><path class="mm-link" data-a="core" data-b="n3" data-p="650 170 770 230"/></g><g class="mm-node" data-id="core"><g class="mm-in"><rect x="430" y="108" width="240" height="84" rx="16" class="sv-core"/><text x="550" y="144" text-anchor="middle" class="sv-core-t" style="font-family:var(--f-display);font-size:15px;font-weight:700">ЛЕКЦІЯ 03</text><text x="550" y="168" text-anchor="middle" class="sv-core-t2" style="font-family:var(--f-mono);font-size:12px">ШТУЧНИЙ ІНТЕЛЕКТ</text></g></g><g class="mm-node" data-id="n0"><g class="mm-in"><rect x="40" y="20" width="290" height="100" rx="14" class="sv-node st-blue"/><text x="185.0" y="58" text-anchor="middle" class="sv-t" style="font-weight:700">01 · Підходи ШІ</text><text x="185.0" y="80" text-anchor="middle" class="sv-ts">правила · навчання · генерація</text><text x="185.0" y="99" text-anchor="middle" class="sv-ts">ознаки, перевірка, витік</text></g></g><g class="mm-node" data-id="n1"><g class="mm-in"><rect x="40" y="180" width="290" height="100" rx="14" class="sv-node st-red"/><text x="185.0" y="218" text-anchor="middle" class="sv-t" style="font-weight:700">02 · ШІ в торгівлі</text><text x="185.0" y="240" text-anchor="middle" class="sv-ts">прогноз, класифікація, документи</text><text x="185.0" y="259" text-anchor="middle" class="sv-ts">MAE · повнота · точність</text></g></g><g class="mm-node" data-id="n2"><g class="mm-in"><rect x="770" y="20" width="290" height="100" rx="14" class="sv-node st-olive"/><text x="915.0" y="58" text-anchor="middle" class="sv-t" style="font-weight:700">03 · Генеративний ШІ</text><text x="915.0" y="80" text-anchor="middle" class="sv-ts">промпт = технічне завдання</text><text x="915.0" y="99" text-anchor="middle" class="sv-ts">галюцинації, ін’єкції</text></g></g><g class="mm-node" data-id="n3"><g class="mm-in"><rect x="770" y="180" width="290" height="100" rx="14" class="sv-node st-ok"/><text x="915.0" y="218" text-anchor="middle" class="sv-t" style="font-weight:700">04 · Перевірка</text><text x="915.0" y="240" text-anchor="middle" class="sv-ts">факти, знеособлення</text><text x="915.0" y="259" text-anchor="middle" class="sv-ts">межі автоматизації</text></g></g></svg></div>
       </article>
+
+      <!-- CG:START -->
+      <article class="block" data-kind="data" id="map-3">
+        <header class="block-head"><span class="block-no">⌘</span><div><span class="kind"></span><h3>Граф понять лекції</h3></div></header>
+        <p class="lede">Карта зв’язків між поняттями, як у Connected Papers, тільки для однієї лекції: <b>колір</b> — розділ, <b>розмір вузла</b> — кількість зв’язків. Наведіть курсор на поняття, щоб побачити його сусідів; натисніть — у панелі поруч (на телефоні — під графом) з’явиться пояснення, список зв’язків і перехід до потрібного блоку лекції. Вузли можна перетягувати.</p>
+        <div class="cg" id="cgWrap">
+          <div class="cg-bar">
+            <input class="cg-search" id="cgSearch" type="search" placeholder="Пошук поняття…" aria-label="Пошук поняття">
+            <div class="cg-chips" id="cgChips"><button class="cg-chip on" type="button" data-s="0">Усі розділи</button><button class="cg-chip s1" type="button" data-s="1"><i></i>01 · Підходи ШІ</button><button class="cg-chip s2" type="button" data-s="2"><i></i>02 · ШІ в торгівлі</button><button class="cg-chip s3" type="button" data-s="3"><i></i>03 · Генеративний ШІ</button><button class="cg-chip s4" type="button" data-s="4"><i></i>04 · Перевірка</button></div>
+            <button class="btn ghost small" type="button" id="cgReset">⟲ Скинути</button>
+          </div>
+          <div class="cg-body">
+            <div><div class="cg-stage"><svg id="cgSvg" viewBox="0 0 1000 700" role="group" aria-label="Граф понять лекції"></svg></div><p class="cg-swipe">← гортайте граф убік →</p></div>
+            <aside class="cg-panel" id="cgPanel" aria-live="polite"></aside>
+          </div>
+        </div>
+      </article>
+      <!-- CG:END -->
 
       <article class="block" data-kind="theory" id="map-2">
         <header class="block-head"><span class="block-no">≡</span><div><span class="kind"></span><h3>План лекції</h3></div></header>
@@ -812,7 +880,7 @@ svg .wf-dot{stroke:var(--bg-panel); stroke-width:2;}
 
       <article class="block" data-kind="data" id="s4-2">
         <header class="block-head"><span class="block-no">4.2</span><div><span class="kind"></span><h3>Рисунок 3.2 · Перевірка результату використання генеративного штучного інтелекту</h3></div></header>
-        <div class="mindmap-wrap"><svg class="mm" viewBox="0 0 1014 188" role="img" aria-label="Рисунок 3.2"><defs><marker id="arV" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" class="sv-arrow"/></marker></defs><g class="sv-line" marker-end="url(#arV)"><path class="mm-link" data-a="n0" data-b="n1" data-p="180 59 212 59"/><path class="mm-link" data-a="n1" data-b="n2" data-p="386 59 418 59"/><path class="mm-link" data-a="n2" data-b="n3" data-p="592 59 624 59"/><path class="mm-link" data-a="n3" data-b="n4" data-p="798 59 830 59"/><path class="mm-link" data-a="n3" data-b="n1" data-p="713 102 301 106" style="stroke:var(--red);stroke-dasharray:6 5"/><text x="507" y="160" text-anchor="middle" class="sv-ts" style="fill:var(--red)">помилка → уточнити дані або запит</text></g><g class="mm-node" data-id="n0"><g class="mm-in"><rect x="10" y="20" width="170" height="78" rx="12" class="sv-core"/><text x="95.0" y="55" text-anchor="middle" class="sv-core-t" style="font-size:13.5px;font-family:var(--f-display)">Задача і дані</text><text x="95.0" y="75" text-anchor="middle" class="sv-core-t2" style="font-family:var(--f-mono);font-size:10.5px">дозволений контекст</text></g></g><g class="mm-node" data-id="n1"><g class="mm-in"><rect x="216" y="20" width="170" height="78" rx="12" class="sv-node st-blue"/><text x="301.0" y="55" text-anchor="middle" class="sv-t" style="font-weight:700">Запит</text><text x="301.0" y="77" text-anchor="middle" class="sv-ts">обмеження, формат</text></g></g><g class="mm-node" data-id="n2"><g class="mm-in"><rect x="422" y="20" width="170" height="78" rx="12" class="sv-node st-red"/><text x="507.0" y="55" text-anchor="middle" class="sv-t" style="font-weight:700">Відповідь</text><text x="507.0" y="77" text-anchor="middle" class="sv-ts">чернетка</text></g></g><g class="mm-node" data-id="n3"><g class="mm-in"><rect x="628" y="20" width="170" height="78" rx="12" class="sv-node st-olive"/><text x="713.0" y="55" text-anchor="middle" class="sv-t" style="font-weight:700">Перевірка</text><text x="713.0" y="77" text-anchor="middle" class="sv-ts">факти, числа</text></g></g><g class="mm-node" data-id="n4"><g class="mm-in"><rect x="834" y="20" width="170" height="78" rx="12" class="sv-node st-ok"/><text x="919.0" y="55" text-anchor="middle" class="sv-t" style="font-weight:700">Застосування</text><text x="919.0" y="77" text-anchor="middle" class="sv-ts">погоджений текст</text></g></g></svg></div><p>Рисунок 3.2 показує робочий цикл, у якому відповідь проходить перевірку, а виявлена помилка повертає задачу до уточнення даних або запиту; до застосування допускається перевірений результат. Для замовлення № 204 цей цикл завершується повідомленням про підтверджену затримку без вигаданої дати, після чого менеджер може використати погоджений текст у спілкуванні з покупцем. Конфіденційність потребує перевірки того, які дані дозволено передавати конкретному сервісу.</p><p>Публічний чат не слід автоматично вважати погодженим каналом для клієнтської бази, внутрішніх цін або маршрутів реального підприємства. До зовнішнього сервісу передають лише ті дані, використання яких дозволене правилами підприємства; за відсутності такого дозволу контекст знеособлюють або замінюють описом ситуації без відомостей про конкретних клієнтів. Просте вилучення прізвища може бути недостатнім: людину іноді можна впізнати за номером замовлення, адресою чи поєднанням інших ознак. Правила використання даних визначаються умовами сервісу та вимогами організації.</p>
+        <div class="mindmap-wrap"><svg class="mm" viewBox="0 0 1014 198" role="img" aria-label="Рисунок 3.2"><defs><marker id="arV" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" class="sv-arrow"/></marker></defs><g class="sv-line" marker-end="url(#arV)"><path class="mm-link" data-a="n0" data-b="n1" data-p="180 59 212 59"/><path class="mm-link" data-a="n1" data-b="n2" data-p="386 59 418 59"/><path class="mm-link" data-a="n2" data-b="n3" data-p="592 59 624 59"/><path class="mm-link" data-a="n3" data-b="n4" data-p="798 59 830 59"/><path class="mm-link" data-a="n3" data-b="n1" data-p="713 102 301 106" data-bend="100" style="stroke:var(--red);stroke-dasharray:6 5"/><text x="507" y="178" text-anchor="middle" class="sv-ts" style="fill:var(--red);stroke:none;font-weight:700">помилка → уточнити дані або запит</text></g><g class="mm-node" data-id="n0"><g class="mm-in"><rect x="10" y="20" width="170" height="78" rx="12" class="sv-core"/><text x="95.0" y="55" text-anchor="middle" class="sv-core-t" style="font-size:13.5px;font-family:var(--f-display)">Задача і дані</text><text x="95.0" y="75" text-anchor="middle" class="sv-core-t2" style="font-family:var(--f-mono);font-size:10.5px">дозволений контекст</text></g></g><g class="mm-node" data-id="n1"><g class="mm-in"><rect x="216" y="20" width="170" height="78" rx="12" class="sv-node st-blue"/><text x="301.0" y="55" text-anchor="middle" class="sv-t" style="font-weight:700">Запит</text><text x="301.0" y="77" text-anchor="middle" class="sv-ts">обмеження, формат</text></g></g><g class="mm-node" data-id="n2"><g class="mm-in"><rect x="422" y="20" width="170" height="78" rx="12" class="sv-node st-red"/><text x="507.0" y="55" text-anchor="middle" class="sv-t" style="font-weight:700">Відповідь</text><text x="507.0" y="77" text-anchor="middle" class="sv-ts">чернетка</text></g></g><g class="mm-node" data-id="n3"><g class="mm-in"><rect x="628" y="20" width="170" height="78" rx="12" class="sv-node st-olive"/><text x="713.0" y="55" text-anchor="middle" class="sv-t" style="font-weight:700">Перевірка</text><text x="713.0" y="77" text-anchor="middle" class="sv-ts">факти, числа</text></g></g><g class="mm-node" data-id="n4"><g class="mm-in"><rect x="834" y="20" width="170" height="78" rx="12" class="sv-node st-ok"/><text x="919.0" y="55" text-anchor="middle" class="sv-t" style="font-weight:700">Застосування</text><text x="919.0" y="77" text-anchor="middle" class="sv-ts">погоджений текст</text></g></g></svg></div><p>Рисунок 3.2 показує робочий цикл, у якому відповідь проходить перевірку, а виявлена помилка повертає задачу до уточнення даних або запиту; до застосування допускається перевірений результат. Для замовлення № 204 цей цикл завершується повідомленням про підтверджену затримку без вигаданої дати, після чого менеджер може використати погоджений текст у спілкуванні з покупцем. Конфіденційність потребує перевірки того, які дані дозволено передавати конкретному сервісу.</p><p>Публічний чат не слід автоматично вважати погодженим каналом для клієнтської бази, внутрішніх цін або маршрутів реального підприємства. До зовнішнього сервісу передають лише ті дані, використання яких дозволене правилами підприємства; за відсутності такого дозволу контекст знеособлюють або замінюють описом ситуації без відомостей про конкретних клієнтів. Просте вилучення прізвища може бути недостатнім: людину іноді можна впізнати за номером замовлення, адресою чи поєднанням інших ознак. Правила використання даних визначаються умовами сервісу та вимогами організації.</p>
       </article>
 
       <article class="block" data-kind="sim" id="s4-3">
@@ -962,7 +1030,7 @@ const MM = (()=>{
       return {g, b, cx:b.x+b.w/2, cy:b.y+b.h/2, x:0, y:0, vx:0, vy:0, tx:0, ty:0};
     });
     const byId = {}; nodes.forEach(n=>byId[n.g.dataset.id] = n);
-    const links = [...svg.querySelectorAll('.mm-link')].map(p=>({p, a:byId[p.dataset.a], b:byId[p.dataset.b], c:p.dataset.p.trim().split(/[\s,]+/).map(Number)}));
+    const links = [...svg.querySelectorAll('.mm-link')].map(p=>({p, a:byId[p.dataset.a], b:byId[p.dataset.b], c:p.dataset.p.trim().split(/[\s,]+/).map(Number), bend:+(p.dataset.bend||0)}));
     svg._mm = {nodes, links};
     render(svg);
   }
@@ -972,7 +1040,7 @@ const MM = (()=>{
     links.forEach(l=>{
       const ax = l.a ? l.a.x : 0, ay = l.a ? l.a.y : 0, bx = l.b ? l.b.x : 0, by = l.b ? l.b.y : 0, [x1,y1,x2,y2] = l.c;
       // control point lags behind the ends, so the thread bends like a string
-      const qx = (x1+x2)/2 + (ax+bx)*0.15, qy = (y1+y2)/2 + (ay+by)*0.15;
+      const qx = (x1+x2)/2 + (ax+bx)*0.15, qy = (y1+y2)/2 + (ay+by)*0.15 + l.bend;
       l.p.setAttribute('d', `M${(x1+ax).toFixed(2)},${(y1+ay).toFixed(2)} Q${qx.toFixed(2)},${qy.toFixed(2)} ${(x2+bx).toFixed(2)},${(y2+by).toFixed(2)}`);
     });
   }
@@ -1353,5 +1421,147 @@ if(!matchMedia('(prefers-reduced-motion: reduce)').matches && 'IntersectionObser
   }), {threshold:0});
   [...maps, ...charts].forEach(x=>{ svgIn.observe(x); svgOut.observe(x); });
 }
+
+
+/* CG:START ---------- граф понять (у стилі Connected Papers, спрощено) ---------- */
+(()=>{
+  const wrap = document.getElementById('cgWrap'); if(!wrap) return;
+  const CG = {"secs": [[1, "01", "Підходи ШІ"], [2, "02", "ШІ в торгівлі"], [3, "03", "Генеративний ШІ"], [4, "04", "Перевірка"]], "nodes": [["ai", "Штучний інтелект", 1, "s1-1", "Методи й системи для розпізнавання, прогнозування, планування, опрацювання мови та створення матеріалів."], ["rules", "Система правил", 1, "s1-2", "Задані умови і висновки; база знань із механізмом застосування правил."], ["ml", "Машинне навчання", 1, "s1-2", "Підхід, за якого модель виявляє закономірності на прикладах даних."], ["sup", "Навчання з учителем", 1, "s1-2", "Модель навчається на прикладах із відомими результатами: продажі й фактичний попит, звернення й установлені категорії."], ["unsup", "Навчання без учителя", 1, "s1-8", "Пошук структури без заданих класів; знайдені групи потребують тлумачення фахівцем."], ["nn", "Нейронні мережі", 1, "s1-2", "Методи машинного навчання; не точна копія людського мозку."], ["feat", "Ознака", 1, "s1-5", "Характеристика прикладу, яку модель використовує для встановлення закономірностей."], ["target", "Цільова змінна", 1, "s1-5", "Результат, який потрібно передбачити."], ["overfit", "Перенавчання", 1, "s1-6", "Пристосування моделі до випадкових особливостей минулого, що не повторюються."], ["leak", "Витік даних", 1, "s1-7", "Потрапляння до моделі відомостей, недоступних у момент реального рішення."], ["base", "Базова альтернатива", 1, "s1-9", "Простий метод для порівняння: попередній період, правила, ручне опрацювання."], ["expl", "Пояснюваність", 1, "s1-9", "Можливість зрозуміти, як результат пов’язаний із задачею та даними."], ["forecast", "Прогноз попиту", 2, "s2-3", "Оцінка майбутнього обсягу з урахуванням цін, акцій і доступності товару; низький продаж у дні відсутності товару — не низький попит."], ["mae", "Середня абсолютна помилка", 2, "s2-4", "Середнє модулів різниць між прогнозом і фактом."], ["me", "Знакова помилка", 2, "s2-4", "Середнє різниць зі знаком; показує напрям систематичного відхилення."], ["classif", "Класифікація звернень", 2, "s2-6", "Віднесення повідомлень до категорій для направлення потрібним працівникам; оцінюють пропущені й хибні сигнали."], ["recall", "Повнота виявлення", 2, "s2-6", "Частка знайдених системою серед усіх справді важливих випадків."], ["prec", "Точність сигналів", 2, "s2-6", "Частка справді важливих серед позначених системою."], ["thr", "Поріг сигналу", 2, "s2-9", "Межа, від якої система формує сигнал; змінює баланс пропусків і хибних тривог."], ["timec", "Повний цикл часу", 2, "s2-10", "Час роботи з ШІ включає перевірку кожного результату й виправлення помилок; вивільнений час — це потужність, а не автоматична економія."], ["docs", "Розпізнавання документів", 2, "s2-12", "Символи → поля → операція: правильно прочитане число ще не гарантує, що воно в потрібній колонці."], ["pilot", "Пілотне застосування", 2, "s2-12", "Обмежений процес і період з фіксацією часу, частки виправлень і характеру помилок."], ["gen", "Генеративний ШІ", 3, "s3-1", "Створює матеріали на основі засвоєних закономірностей і наданого контексту."], ["token", "Токен", 3, "s3-1", "Фрагмент тексту, з яким працює мовна модель."], ["hall", "Галюцинація", 3, "s3-1", "Зв’язне, але не підтверджене твердження моделі."], ["context", "Контекст", 3, "s3-1", "Надані користувачем факти: мають бути достатніми, але не надмірними, без суперечливих редакцій."], ["prompt", "Промпт", 3, "s3-2", "Робочий запит: задача, вихідні дані, обмеження, формат результату."], ["stages", "Етапи генерації", 3, "s3-4", "Виділити факти → перевірити повноту → чернетка → звірити з фактами; помилку легше локалізувати."], ["inject", "Ін’єкція інструкцій", 3, "s3-5", "Сторонні команди в тексті, який передають моделі для аналізу."], ["promise", "Додана обіцянка", 3, "s3-6", "Непідтверджений строк, гарантія чи компенсація, які модель додала «для ввічливості», змінюють зобов’язання підприємства."], ["repro", "Відтворюваність", 3, "s3-8", "Збереження версії даних, запиту, відповіді й суттєвих правок, щоб повторити перевірку."], ["verify", "Перевірка тверджень", 4, "s4-1", "Числа — у таблиці, характеристики — в описі, строки — в погодженні, тлумачення — позначити як гіпотезу."], ["pseudo", "Псевдонімізація", 4, "s4-4", "Заміна ідентифікаторів зі збереженням зв’язку / усунення можливості ідентифікації."], ["synth", "Синтетичні записи", 4, "s4-4", "Навчальні записи, що зберігають зв’язки між полями, не копіюючи відомостей реальних покупців."], ["minim", "Мінімізація контексту", 4, "s4-4", "До зовнішнього сервісу передають лише дані, дозволені для визначеної задачі."], ["bias", "Упередженість", 4, "s4-6", "Систематичне спотворення оцінки певних випадків через дані або спосіб застосування."], ["drift", "Зміна умов", 4, "s4-6", "Асортимент, поведінка покупців і строки постачання змінюються — модель потребує спостереження і повторного оцінювання."], ["passport", "Паспорт процесу", 4, "s4-7", "Задача, дозволені дані, тип результату, відповідальний за перевірку, умови зупинення."], ["human", "Людина в контурі", 4, "s4-8", "Змістовна участь: доступ до вихідних даних, критерії, час на перевірку і право відхилити результат."], ["abias", "Автоматизаційне упередження", 4, "s4-8", "Надмірна довіра до результату системи через його машинне походження."]], "edges": [["ai", "rules", "підхід"], ["ai", "ml", "підхід"], ["ai", "gen", "напрям"], ["ml", "sup", "вид"], ["ml", "unsup", "вид"], ["ml", "nn", "метод"], ["rules", "ml", "поєднуються в системі"], ["sup", "feat", "навчається на"], ["sup", "target", "передбачає"], ["leak", "feat", "недоступна ознака"], ["ml", "overfit", "ризик"], ["ml", "base", "порівнюється з"], ["base", "mae", "порівняння помилки"], ["expl", "ml", "пояснює результат"], ["unsup", "expl", "групи потребують тлумачення"], ["forecast", "sup", "задача"], ["forecast", "mae", "оцінюється"], ["forecast", "me", "напрям помилки"], ["mae", "me", "доповнюють одна одну"], ["classif", "sup", "задача"], ["classif", "recall", "оцінюється"], ["classif", "prec", "оцінюється"], ["thr", "recall", "змінює"], ["thr", "prec", "змінює"], ["classif", "base", "«усе звичайне» — 80 %"], ["timec", "classif", "повний цикл роботи"], ["docs", "ml", "застосування"], ["pilot", "timec", "вимірює"], ["pilot", "passport", "межі в паспорті"], ["gen", "token", "працює з"], ["gen", "hall", "ризик"], ["gen", "context", "спирається на"], ["prompt", "context", "передає"], ["prompt", "hall", "обмеження зменшують"], ["prompt", "stages", "розбиває на"], ["stages", "verify", "звірення з фактами"], ["inject", "context", "приходить через"], ["inject", "passport", "межі повноважень"], ["promise", "hall", "різновид"], ["verify", "promise", "вилучає"], ["repro", "prompt", "зберігає запит"], ["repro", "verify", "дає змогу повторити"], ["verify", "hall", "виявляє"], ["pseudo", "minim", "разом із"], ["synth", "pseudo", "альтернатива"], ["minim", "context", "обмежує"], ["bias", "feat", "через дані"], ["drift", "ml", "погіршує модель"], ["drift", "passport", "умова перегляду"], ["passport", "human", "визначає відповідального"], ["human", "abias", "протидіє"], ["abias", "verify", "потребує незалежних критеріїв"], ["overfit", "verify", "виявляється перевіркою"]]};
+  const svg = document.getElementById('cgSvg'), panel = document.getElementById('cgPanel'), NS = 'http://www.w3.org/2000/svg';
+  const W = 1000, H = 700, A = {1:[250,190], 2:[750,190], 3:[250,520], 4:[750,520]};
+  const Q = {1:[18,40,490,350], 2:[510,40,982,350], 3:[18,384,490,686], 4:[510,384,982,686]};   // «острів» кожного розділу
+  const SEC = {}; CG.secs.forEach(s=>SEC[s[0]] = s);
+  const N = CG.nodes.map(n=>({id:n[0], l:n[1], s:n[2], b:n[3], d:n[4], deg:0, nb:[]})), by = {};
+  N.forEach(n=>by[n.id] = n);
+  const E = CG.edges.map(e=>({a:by[e[0]], b:by[e[1]], l:e[2]}));
+  E.forEach(e=>{ e.a.deg++; e.b.deg++; e.a.nb.push(e); e.b.nb.push(e); });
+  const R = n => 9 + Math.min(15, n.deg*1.5);
+  const other = (e, n) => e.a===n ? e.b : e.a;
+  const wrapL = l => { if(l.length <= 14 || l.indexOf(' ') < 0) return [l]; const sp = [...l.matchAll(/ /g)].map(m=>m.index); const c = sp.reduce((a,b)=>Math.abs(b-l.length/2) < Math.abs(a-l.length/2) ? b : a); return [l.slice(0,c), l.slice(c+1)]; };
+  N.forEach(n=>{ n.lines = wrapL(n.l); n.hw = Math.max(R(n), Math.max(...n.lines.map(x=>x.length))*3.8 + 6); n.lh = 6 + n.lines.length*15; });   // габарит вузла разом із підписом
+  const clampQ = n => { const q = Q[n.s], r = R(n); n.x = Math.max(q[0]+n.hw, Math.min(q[2]-n.hw, n.x)); n.y = Math.max(q[1]+r+16, Math.min(q[3]-r-n.lh, n.y)); };
+
+  /* детермінований розклад: відштовхування, пружини зв’язків і тяжіння до «острова» розділу */
+  let seed = 20251; const rnd = ()=>{ seed = (seed*1664525 + 1013904223) % 4294967296; return seed/4294967296; };
+  N.forEach(n=>{ const a = A[n.s]; n.x = a[0] + (rnd()-.5)*260; n.y = a[1] + (rnd()-.5)*160; n.vx = 0; n.vy = 0; clampQ(n); });
+  const T = 500;
+  for(let t=0; t<T; t++){
+    const cool = 1 - t/T;
+    for(let i=0;i<N.length;i++) for(let j=i+1;j<N.length;j++){
+      const p = N[i], q = N[j]; let dx = q.x-p.x, dy = q.y-p.y;
+      const ex = dx*0.55, d2 = Math.max(ex*ex+dy*dy, 1), d = Math.sqrt(d2);            // підписи широкі — горизонталь «коротша»
+      const f = Math.min((p.s===q.s ? 4200 : 1800)/d2, 7); const ux = ex/d, uy = dy/d;
+      p.vx -= ux*f; p.vy -= uy*f; q.vx += ux*f; q.vy += uy*f;
+    }
+    E.forEach(e=>{ if(e.a.s!==e.b.s) return; let dx = e.b.x-e.a.x, dy = e.b.y-e.a.y; const d = Math.max(Math.hypot(dx,dy), .01), k = (d-105)*0.03; dx /= d; dy /= d; e.a.vx += dx*k; e.a.vy += dy*k; e.b.vx -= dx*k; e.b.vy -= dy*k; });
+    E.forEach(e=>{ if(e.a.s===e.b.s) return; let dx = e.b.x-e.a.x, dy = e.b.y-e.a.y; const d = Math.max(Math.hypot(dx,dy), .01), k = d*0.0025; dx /= d; dy /= d; e.a.vx += dx*k; e.a.vy += dy*k; e.b.vx -= dx*k; e.b.vy -= dy*k; });
+    N.forEach(n=>{ const a = A[n.s]; n.vx += (a[0]-n.x)*0.008; n.vy += (a[1]-n.y)*0.008; n.x += n.vx*(.25+.75*cool); n.y += n.vy*(.25+.75*cool); n.vx *= .55; n.vy *= .55; clampQ(n); });
+  }
+  /* розведення підписів: прямокутники «вузол + підпис» не мають перекриватися */
+  for(let it=0; it<900; it++){
+    let moved = false;
+    for(let i=0;i<N.length;i++) for(let j=i+1;j<N.length;j++){
+      const p = N[i], q = N[j]; if(p.s!==q.s) continue;
+      const ox = (p.hw + q.hw + 6) - Math.abs(q.x-p.x), pTop = p.y-R(p), pBot = p.y+R(p)+p.lh, qTop = q.y-R(q), qBot = q.y+R(q)+q.lh;
+      const oy = Math.min(pBot, qBot) - Math.max(pTop, qTop) + 4;
+      if(ox <= 0 || oy <= 0) continue; moved = true;
+      if(oy < ox){ const s = (q.y >= p.y ? 1 : -1)*oy/2; p.y -= s; q.y += s; } else { const s = (q.x >= p.x ? 1 : -1)*ox/2; p.x -= s; q.x += s; }
+      clampQ(p); clampQ(q);
+    }
+    if(!moved) break;
+  }
+
+  /* малювання */
+  const el = (tag, attrs, parent) => { const x = document.createElementNS(NS, tag); Object.entries(attrs||{}).forEach(([k,v])=>x.setAttribute(k, v)); if(parent) parent.appendChild(x); return x; };
+  const gZ = el('g', {}, svg), gE = el('g', {}, svg), gN = el('g', {}, svg);
+  CG.secs.forEach(s=>{ const ns = N.filter(n=>n.s===s[0]); const q = Q[s[0]], x0 = Math.max(q[0]-8, Math.min(...ns.map(n=>n.x-n.hw)) - 14), x1 = Math.min(q[2]+8, Math.max(...ns.map(n=>n.x+n.hw)) + 14), y0 = Math.max(q[1]-28, Math.min(...ns.map(n=>n.y-R(n))) - 30), y1 = Math.min(q[3]+10, Math.max(...ns.map(n=>n.y+R(n)+n.lh)) + 12);
+    el('rect', {x:x0, y:y0, width:x1-x0, height:y1-y0, rx:26, class:'cg-zone s'+s[0]}, gZ);
+    const t = el('text', {x:x0+14, y:y0+18, class:'cg-zt s'+s[0]}, gZ); t.textContent = s[1]+' · '+s[2].toUpperCase(); });
+  E.forEach(e=>{ e.el = el('line', {class:'cg-e'}, gE); });
+  N.forEach(n=>{
+    n.el = el('g', {class:'cg-n s'+n.s, tabindex:0, role:'button', 'aria-label':n.l+' — '+SEC[n.s][1]+' · '+SEC[n.s][2]}, gN);
+    el('circle', {r:R(n)}, n.el);
+    const t = el('text', {y:R(n)+15, 'text-anchor':'middle'}, n.el); n.lines.forEach((x, i)=>{ const ts = el('tspan', {x:0, dy:i ? 14.5 : 0}, t); ts.textContent = x; });
+  });
+  function place(n){ n.el.setAttribute('transform', `translate(${n.x.toFixed(1)} ${n.y.toFixed(1)})`); }
+  function placeEdge(e){ e.el.setAttribute('x1', e.a.x.toFixed(1)); e.el.setAttribute('y1', e.a.y.toFixed(1)); e.el.setAttribute('x2', e.b.x.toFixed(1)); e.el.setAttribute('y2', e.b.y.toFixed(1)); }
+  N.forEach(place); E.forEach(placeEdge);
+
+  /* стан: вибране, наведене, фільтр розділу, пошук */
+  let sel = null, hov = null, sec = 0, q = '';
+  const match = n => !q || n.l.toLowerCase().includes(q) || n.d.toLowerCase().includes(q);
+  function paint(){
+    const f = hov || sel, near = f ? new Set([f, ...f.nb.map(e=>other(e, f))]) : null;
+    N.forEach(n=>{
+      const off = (sec && n.s!==sec) || !match(n);
+      n.el.classList.toggle('dim', near ? !near.has(n) : off);
+      n.el.classList.toggle('sel', n===sel); n.el.classList.toggle('focus', n===f);
+    });
+    E.forEach(e=>{
+      const on = !!f && (e.a===f || e.b===f);
+      e.el.classList.toggle('on', on);
+      e.el.classList.toggle('dim', f ? !on : (!!q || (sec && e.a.s!==sec && e.b.s!==sec)));
+    });
+  }
+  const esc = s => String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const blockNo = b => b.slice(1).replace('-', '.');
+  function idle(){
+    const top = [...N].sort((a,b)=>b.deg-a.deg).slice(0, 5);
+    panel.innerHTML = `<p class="cg-hint">Натисніть на будь-яке поняття в графі або оберіть одне з ключових нижче.</p>
+      <div class="cg-stat"><span><b>${N.length}</b> понять</span><span><b>${E.length}</b> зв’язків</span><span><b>4</b> розділи</span></div>
+      <div class="cg-sub">Найбільше зв’язків</div><ul class="cg-links">${top.map(n=>`<li><button type="button" class="s${n.s}" data-id="${n.id}"><i></i><b>${esc(n.l)}</b><small>${n.deg} зв’язків · розділ ${SEC[n.s][1]}</small></button></li>`).join('')}</ul>`;
+  }
+  function show(n){
+    const links = n.nb.map(e=>({o:other(e, n), out:e.a===n, l:e.l})).sort((x,y)=>x.o.s-y.o.s || x.o.l.localeCompare(y.o.l, 'uk'));
+    panel.innerHTML = `<span class="cg-tag s${n.s}"><i></i>${SEC[n.s][1]} · ${esc(SEC[n.s][2])}</span>
+      <div class="cg-title">${esc(n.l)}</div><p class="cg-def">${esc(n.d)}</p>
+      <div class="cg-sub">Зв’язки · ${links.length}</div>
+      <ul class="cg-links">${links.map(k=>`<li><button type="button" class="s${k.o.s}" data-id="${k.o.id}"><i></i><b>${esc(k.o.l)}</b><small>${k.out ? '→ '+esc(k.l) : '← '+esc(k.l)}</small></button></li>`).join('')}</ul>
+      <button class="btn small cg-go" type="button" data-go-block="${n.b}">Відкрити в лекції · блок ${blockNo(n.b)} →</button>`;
+  }
+  function select(n, fromGraph){ sel = n; hov = null; n ? show(n) : idle(); paint();
+    if(n && fromGraph && matchMedia('(max-width:860px)').matches) panel.scrollIntoView({behavior:'smooth', block:'nearest'}); }
+  panel.addEventListener('click', e=>{
+    const b = e.target.closest('[data-id]'); if(b){ select(by[b.dataset.id]); by[b.dataset.id].el.focus({preventScroll:true}); return; }
+    const g = e.target.closest('[data-go-block]'); if(!g) return;
+    const id = g.dataset.goBlock, target = document.getElementById(id);
+    openTab(id.split('-')[0]);
+    setTimeout(()=>{ if(!target) return; target.scrollIntoView({behavior:'smooth', block:'start'}); target.classList.remove('cg-flash'); void target.offsetWidth; target.classList.add('cg-flash'); setTimeout(()=>target.classList.remove('cg-flash'), 1900); }, 80);
+  });
+
+  /* наведення, натискання, перетягування */
+  const pt = ev => { const m = svg.getScreenCTM(); return m ? new DOMPoint(ev.clientX, ev.clientY).matrixTransform(m.inverse()) : {x:0, y:0}; };
+  let drag = null;
+  N.forEach(n=>{
+    n.el.addEventListener('pointerenter', ()=>{ if(!drag){ hov = n; paint(); } });
+    n.el.addEventListener('pointerleave', ()=>{ if(!drag){ hov = null; paint(); } });
+    n.el.addEventListener('pointerdown', ev=>{ const p = pt(ev); drag = {n, dx:n.x-p.x, dy:n.y-p.y, x0:ev.clientX, y0:ev.clientY, moved:false}; n.el.setPointerCapture(ev.pointerId); });
+    n.el.addEventListener('pointermove', ev=>{
+      if(!drag || drag.n!==n) return;
+      if(Math.hypot(ev.clientX-drag.x0, ev.clientY-drag.y0) > 4) drag.moved = true;
+      if(!drag.moved) return;
+      ev.preventDefault(); const p = pt(ev), r = R(n)+6;
+      n.x = Math.max(r, Math.min(W-r, p.x+drag.dx)); n.y = Math.max(r, Math.min(H-r-16, p.y+drag.dy)); place(n); n.nb.forEach(placeEdge);
+    });
+    n.el.addEventListener('pointerup', ev=>{ const d = drag; drag = null; try{ n.el.releasePointerCapture(ev.pointerId); }catch(_){} if(d && !d.moved) select(sel===n ? null : n, true); });
+    n.el.addEventListener('pointercancel', ()=>{ drag = null; hov = null; paint(); });
+    n.el.addEventListener('keydown', ev=>{ if(ev.key==='Enter' || ev.key===' '){ ev.preventDefault(); select(sel===n ? null : n, true); } });
+  });
+  svg.addEventListener('click', ev=>{ if(ev.target===svg) select(null); });
+
+  /* фільтри */
+  const chips = [...document.querySelectorAll('#cgChips .cg-chip')];
+  chips.forEach(c=>c.addEventListener('click', ()=>{ sec = +c.dataset.s; chips.forEach(x=>x.classList.toggle('on', x===c)); if(sel && sec && sel.s!==sec) select(null); else paint(); }));
+  const search = document.getElementById('cgSearch');
+  search.addEventListener('input', ()=>{ q = search.value.trim().toLowerCase(); if(sel && !match(sel)) sel = null; if(!sel) idle(); paint(); });
+  search.addEventListener('keydown', ev=>{ if(ev.key==='Enter'){ const m = N.filter(n=>match(n) && (!sec || n.s===sec)); if(m.length){ const lab = m.filter(n=>n.l.toLowerCase().includes(q)); select((lab.length ? lab : m).sort((a,b)=>b.deg-a.deg)[0], true); } } });
+  document.getElementById('cgReset').addEventListener('click', ()=>{
+    q = ''; search.value = ''; sec = 0; chips.forEach(x=>x.classList.toggle('on', x.dataset.s==='0'));
+    seedLayout.forEach(([n,x,y])=>{ n.x = x; n.y = y; place(n); }); E.forEach(placeEdge); select(null);
+  });
+  const seedLayout = N.map(n=>[n, n.x, n.y]);
+  idle(); paint();
+})();
+/* CG:END */
 </script>
 </body></html>
